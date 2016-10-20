@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.codahale.metrics:metrics-ganglia:3.0.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.codahale.metrics/metrics-ganglia/3.0.1/1c574e1b154dab30302668f4a474bd8ecf89e5b5/metrics-ganglia-3.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.codahale.metrics/metrics-ganglia/3.0.1/a7fa3dc03a282cf073944e9038d30a9bb3dd24d7/metrics-ganglia-3.0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.thinkaurelius.titan:titan-core:1.0.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.thinkaurelius.titan/titan-core/1.0.0/2e135f8669e79b8074bb73655725269b41e9fa76/titan-core-1.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.thinkaurelius.titan/titan-core/1.0.0/4c4fc0cc1fc8117ada1ec7cff37c811f441b50c8/titan-core-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
