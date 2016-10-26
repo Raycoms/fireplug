@@ -2,50 +2,172 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b25c77af-4557-4786-a808-ade860b1172d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient$1.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess$OrientDBDatabaseAccess.class" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.nodestore.db" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.nodestore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.nodestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.arrays" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.arrays" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.keys" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.keys" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.keys.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.strings" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.strings" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.strings.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.strings.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshipstore.db" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.relationshipstore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.relationshipstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.names" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.names" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.names.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer$1.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer$1.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/ArangoDBDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/ArangoDBDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Interfaces/IDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Interfaces/IDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess$1.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess$1.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/OrientDBDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/OrientDBDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/JsonGenerator.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/JsonGenerator.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/NodeStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/NodeStorage.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/ReadStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/ReadStorage.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/RelationshipStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/RelationshipStorage.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/1.0_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/1.0_test.iml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/.shell_history" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene-store.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_0.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_0.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_0.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_0.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_0.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_0.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_0.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_0.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_1.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_1.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_1.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_1.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_1.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_1.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_1.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_1.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/_2.cfs" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/segments.gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/actors/segments_1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_0.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_0.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_0.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_0.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_0.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_0.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_0.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_0.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_1.cfs" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_2.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_2.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_2.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_2.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_2.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_2.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_2.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/_2.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/segments.gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/characters/segments_1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/_0.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/_0.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/_0.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/_0.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/_0.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/_0.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/_0.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/_0.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/segments.gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/episodes/segments_1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_0.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_0.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_0.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_0.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_0.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_0.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_0.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_0.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_1.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_1.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_1.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_1.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_1.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_1.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_1.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_1.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_2.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_2.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_2.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_2.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_2.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_2.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_2.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/_2.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/segments.gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/planets/segments_1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/_0.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/_0.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/_0.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/_0.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/_0.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/_0.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/_0.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/_0.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/segments.gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/props/segments_1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_0.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_0.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_0.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_0.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_0.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_0.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_0.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_0.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_1.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_1.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_1.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_1.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_1.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_1.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_1.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_1.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_2.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_2.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_2.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_2.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_2.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_2.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_2.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/_2.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/segments.gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/species/segments_1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/_0.fdt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/_0.fdx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/_0.fnm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/_0.frq" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/_0.nrm" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/_0.prx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/_0.tii" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/_0.tis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/segments.gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/index/lucene/node/things/segments_1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/logs/debug.log" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.counts.db.a" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.labeltokenstore.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.labeltokenstore.db.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.labeltokenstore.db.names" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.labeltokenstore.db.names.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.nodestore.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.nodestore.db.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.nodestore.db.labels" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.nodestore.db.labels.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.arrays" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.arrays.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.keys" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.index.keys.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.strings" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.propertystore.db.strings.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshipgroupstore.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshipgroupstore.db.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshipstore.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshipstore.db.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.names" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.relationshiptypestore.db.names.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.schemastore.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.schemastore.db.id" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/neostore.transaction.db.0" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/schema/label/lucene/labelStore/1/segments_1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/schema/label/lucene/labelStore/1/write.lock" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/schema/label/lucene/labelStore/failure-message" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB/store_lock" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess.class" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB/logs/debug.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" />
     </list>
     <ignored path="BAG - Byzantine fault-tolerant Architecture for Graph database.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -145,18 +267,18 @@
       <file leaf-file-name="TestClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
+            <state relative-caret-position="169">
               <caret line="212" column="0" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
                 <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
-                <element signature="e#10151#10152#0" expanded="true" />
-                <element signature="e#10220#10221#0" expanded="true" />
-                <element signature="e#10362#10363#0" expanded="true" />
-                <element signature="e#10462#10463#0" expanded="true" />
-                <element signature="e#10620#10621#0" expanded="true" />
-                <element signature="e#10744#10745#0" expanded="true" />
+                <element signature="e#10201#10202#0" expanded="true" />
+                <element signature="e#10270#10271#0" expanded="true" />
+                <element signature="e#10412#10413#0" expanded="true" />
+                <element signature="e#10512#10513#0" expanded="true" />
+                <element signature="e#10670#10671#0" expanded="true" />
+                <element signature="e#10794#10795#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -175,7 +297,7 @@
       <file leaf-file-name="TestServer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="69">
+            <state relative-caret-position="474">
               <caret line="131" column="13" selection-start-line="131" selection-start-column="13" selection-end-line="131" selection-end-column="13" />
               <folding />
             </state>
@@ -195,12 +317,12 @@
       <file leaf-file-name="Neo4jDatabaseAccess.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="371">
-              <caret line="48" column="31" selection-start-line="48" selection-start-column="31" selection-end-line="48" selection-end-column="31" />
+            <state relative-caret-position="55">
+              <caret line="31" column="5" selection-start-line="31" selection-start-column="5" selection-end-line="31" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#2989#3137#0" expanded="true" />
-                <element signature="e#3136#3137#0" expanded="true" />
+                <element signature="e#5367#5515#0" expanded="true" />
+                <element signature="e#5514#5515#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -588,8 +710,8 @@
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" />
       </list>
     </option>
@@ -637,10 +759,6 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="1.0" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -720,104 +838,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="bag" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="1.0" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="bag" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="database" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="1.0" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="bag" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="1.0" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="bag" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="client" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1242,7 +1262,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39914164" sideWeight="0.29957357" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32725322" sideWeight="0.47654584" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32725322" sideWeight="0.47654584" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1253,7 +1273,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39914164" sideWeight="0.70042646" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39914164" sideWeight="0.70042646" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1279,42 +1299,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
-          <line>193</line>
+          <line>215</line>
           <properties />
-          <option name="timeStamp" value="37" />
+          <option name="timeStamp" value="44" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
-          <line>214</line>
+          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java</url>
+          <line>108</line>
           <properties />
-          <option name="timeStamp" value="38" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
-          <line>209</line>
-          <properties />
-          <option name="timeStamp" value="39" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
-          <line>210</line>
-          <properties />
-          <option name="timeStamp" value="40" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
-          <line>212</line>
-          <properties />
-          <option name="timeStamp" value="41" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
-          <line>218</line>
-          <properties />
-          <option name="timeStamp" value="42" />
+          <option name="timeStamp" value="45" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="43" />
+      <option name="time" value="46" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -1335,12 +1331,12 @@
             <element signature="imports" expanded="true" />
             <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
             <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
-            <element signature="e#10151#10152#0" expanded="true" />
-            <element signature="e#10220#10221#0" expanded="true" />
-            <element signature="e#10362#10363#0" expanded="true" />
-            <element signature="e#10462#10463#0" expanded="true" />
-            <element signature="e#10620#10621#0" expanded="true" />
-            <element signature="e#10744#10745#0" expanded="true" />
+            <element signature="e#10201#10202#0" expanded="true" />
+            <element signature="e#10270#10271#0" expanded="true" />
+            <element signature="e#10412#10413#0" expanded="true" />
+            <element signature="e#10512#10513#0" expanded="true" />
+            <element signature="e#10670#10671#0" expanded="true" />
+            <element signature="e#10794#10795#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1383,12 +1379,12 @@
             <element signature="imports" expanded="true" />
             <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
             <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
-            <element signature="e#10151#10152#0" expanded="true" />
-            <element signature="e#10220#10221#0" expanded="true" />
-            <element signature="e#10362#10363#0" expanded="true" />
-            <element signature="e#10462#10463#0" expanded="true" />
-            <element signature="e#10620#10621#0" expanded="true" />
-            <element signature="e#10744#10745#0" expanded="true" />
+            <element signature="e#10201#10202#0" expanded="true" />
+            <element signature="e#10270#10271#0" expanded="true" />
+            <element signature="e#10412#10413#0" expanded="true" />
+            <element signature="e#10512#10513#0" expanded="true" />
+            <element signature="e#10670#10671#0" expanded="true" />
+            <element signature="e#10794#10795#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1452,12 +1448,12 @@
             <element signature="imports" expanded="true" />
             <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
             <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
-            <element signature="e#10151#10152#0" expanded="true" />
-            <element signature="e#10220#10221#0" expanded="true" />
-            <element signature="e#10362#10363#0" expanded="true" />
-            <element signature="e#10462#10463#0" expanded="true" />
-            <element signature="e#10620#10621#0" expanded="true" />
-            <element signature="e#10744#10745#0" expanded="true" />
+            <element signature="e#10201#10202#0" expanded="true" />
+            <element signature="e#10270#10271#0" expanded="true" />
+            <element signature="e#10412#10413#0" expanded="true" />
+            <element signature="e#10512#10513#0" expanded="true" />
+            <element signature="e#10670#10671#0" expanded="true" />
+            <element signature="e#10794#10795#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1478,12 +1474,12 @@
             <element signature="imports" expanded="true" />
             <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
             <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
-            <element signature="e#10151#10152#0" expanded="true" />
-            <element signature="e#10220#10221#0" expanded="true" />
-            <element signature="e#10362#10363#0" expanded="true" />
-            <element signature="e#10462#10463#0" expanded="true" />
-            <element signature="e#10620#10621#0" expanded="true" />
-            <element signature="e#10744#10745#0" expanded="true" />
+            <element signature="e#10201#10202#0" expanded="true" />
+            <element signature="e#10270#10271#0" expanded="true" />
+            <element signature="e#10412#10413#0" expanded="true" />
+            <element signature="e#10512#10513#0" expanded="true" />
+            <element signature="e#10670#10671#0" expanded="true" />
+            <element signature="e#10794#10795#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1600,16 +1596,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Log.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="30" column="54" selection-start-line="30" selection-start-column="54" selection-end-line="30" selection-end-column="54" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.esotericsoftware/kryo/4.0.0/8a2ebf62fff29eb72426887b977f07b39d719ca1/kryo-4.0.0-sources.jar!/com/esotericsoftware/kryo/pool/KryoFactory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -1686,6 +1672,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="474">
+          <caret line="131" column="13" selection-start-line="131" selection-start-column="13" selection-end-line="131" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="169">
+          <caret line="212" column="0" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
+            <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
+            <element signature="e#10201#10202#0" expanded="true" />
+            <element signature="e#10270#10271#0" expanded="true" />
+            <element signature="e#10412#10413#0" expanded="true" />
+            <element signature="e#10512#10513#0" expanded="true" />
+            <element signature="e#10670#10671#0" expanded="true" />
+            <element signature="e#10794#10795#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Log.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="30" column="54" selection-start-line="30" selection-start-column="54" selection-end-line="30" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
@@ -1694,40 +1714,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="69">
-          <caret line="131" column="13" selection-start-line="131" selection-start-column="13" selection-end-line="131" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="212" column="0" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
-            <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
-            <element signature="e#10151#10152#0" expanded="true" />
-            <element signature="e#10220#10221#0" expanded="true" />
-            <element signature="e#10362#10363#0" expanded="true" />
-            <element signature="e#10462#10463#0" expanded="true" />
-            <element signature="e#10620#10621#0" expanded="true" />
-            <element signature="e#10744#10745#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="371">
-          <caret line="48" column="31" selection-start-line="48" selection-start-column="31" selection-end-line="48" selection-end-column="31" />
+        <state relative-caret-position="55">
+          <caret line="31" column="5" selection-start-line="31" selection-start-column="5" selection-end-line="31" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#2989#3137#0" expanded="true" />
-            <element signature="e#3136#3137#0" expanded="true" />
+            <element signature="e#5367#5515#0" expanded="true" />
+            <element signature="e#5514#5515#0" expanded="true" />
           </folding>
         </state>
       </provider>

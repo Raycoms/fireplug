@@ -35,6 +35,40 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 .newGraphDatabase();
 
         registerShutdownHook( graphDb );
+
+        /*try(Transaction tx = graphDb.beginTx())
+        {
+            graphDb.execute("CREATE\n"
+                    + "(leyla: Officer {name:\"Leyla Aliyeva\"})-[:IOO_BSD]->(ufu:Company {name:\"UF Universe Foundation\"}),\n"
+                    + "(mehriban: Officer {name:\"Mehriban Aliyeva\"})-[:IOO_PROTECTOR]->(ufu),\n"
+                    + "(arzu: Officer {name:\"Arzu Aliyeva\"})-[:IOO_BSD]->(ufu),\n"
+                    + "(mossack_uk: Client {name:\"Mossack Fonseca & Co (UK)\"})-[:REGISTERED]->(ufu),\n"
+                    + "(mossack_uk)-[:REGISTERED]->(fm_mgmt: Company {name:\"FM Management Holding Group S.A.\"}),\n"
+                    + "\n"
+                    + "(leyla)-[:IOO_BSD]->(kingsview:Company {name:\"Kingsview Developents Limited\"}),\n"
+                    + "(leyla2: Officer {name:\"Leyla Ilham Qizi Aliyeva\"}),\n"
+                    + "(leyla3: Officer {name:\"LEYLA ILHAM QIZI ALIYEVA\"})-[:HAS_SIMILIAR_NAME]->(leyla),\n"
+                    + "(leyla2)-[:HAS_SIMILIAR_NAME]->(leyla3),\n"
+                    + "(leyla2)-[:IOO_BENEFICIARY]->(exaltation:Company {name:\"Exaltation Limited\"}),\n"
+                    + "(leyla3)-[:IOO_SHAREHOLDER]->(exaltation),\n"
+                    + "(arzu2:Officer {name:\"Arzu Ilham Qizi Aliyeva\"})-[:IOO_BENEFICIARY]->(exaltation),\n"
+                    + "(arzu2)-[:HAS_SIMILIAR_NAME]->(arzu),\n"
+                    + "(arzu2)-[:HAS_SIMILIAR_NAME]->(arzu3:Officer {name:\"ARZU ILHAM QIZI ALIYEVA\"}),\n"
+                    + "(arzu3)-[:IOO_SHAREHOLDER]->(exaltation),\n"
+                    + "(arzu)-[:IOO_BSD]->(exaltation),\n"
+                    + "(leyla)-[:IOO_BSD]->(exaltation),\n"
+                    + "(arzu)-[:IOO_BSD]->(kingsview),\n"
+                    + "\n"
+                    + "(redgold:Company {name:\"Redgold Estates Ltd\"}),\n"
+                    + "(:Officer {name:\"WILLY & MEYRS S.A.\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
+                    + "(:Officer {name:\"LONDEX RESOURCES S.A.\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
+                    + "(:Officer {name:\"FAGATE MINING CORPORATION\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
+                    + "(:Officer {name:\"GLOBEX INTERNATIONAL LLP\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
+                    + "(:Client {name:\"Associated Trustees\"})-[:REGISTERED]->(redgold)");
+
+            tx.success();
+        }*/
+
     }
 
     @Override
