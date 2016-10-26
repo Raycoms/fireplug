@@ -1,14 +1,16 @@
 package main.java.com.bag.server.database;
 
 import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
+import main.java.com.bag.util.NodeStorage;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-
-
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class created to handle access to the neo4j database.
@@ -25,12 +27,17 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      */
     private static final File DB_PATH = new File("/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB");
 
+    @Override
     public void start()
     {
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
+        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( DB_PATH )
+                .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
+                .newGraphDatabase();
+
         registerShutdownHook( graphDb );
     }
 
+    @Override
     public void terminate()
     {
         graphDb.shutdown();
@@ -61,7 +68,24 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             tx.success();
         }
+    }
 
+    public List<NodeStorage> randomRead()
+    {
+        ArrayList<NodeStorage> storage =  new ArrayList<>();
+        try(Transaction tx = graphDb.beginTx())
+        {
+            ResourceIterable<Node> list = graphDb.getAllNodes();
+
+            for(Node n: list)
+            {
+                NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                storage.add(temp);
+            }
+
+            tx.success();
+        }
+        return storage;
     }
 
     /**
@@ -80,12 +104,5 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 graphDb.shutdown();
             }
         } );
-    }
-
-    /**
-     * Created by ray on 10/12/16.
-     */
-    public static class OrientDBDatabaseAccess
-    {
     }
 }

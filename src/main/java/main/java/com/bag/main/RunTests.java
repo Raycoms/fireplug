@@ -2,6 +2,7 @@ package main.java.com.bag.main;
 
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
+import main.java.com.bag.util.NodeStorage;
 
 /**
  * Main class which runs the tests
@@ -13,12 +14,11 @@ public class RunTests
     {
         byte[] b = {10,100,01,1};
 
-        Neo4jDatabaseAccess neo4j = new Neo4jDatabaseAccess();
-        neo4j.start();
+
 
         TestClient client1 = new TestClient(1);
 
-        client1.commit();
+        client1.read(new NodeStorage("Anything"));
         //client1.invokeUnordered(b);
 
 
@@ -27,7 +27,6 @@ public class RunTests
 
         }
 
-        neo4j.terminate();
         client1.close();
 
 

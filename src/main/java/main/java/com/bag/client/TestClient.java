@@ -211,9 +211,10 @@ public class TestClient extends ServiceProxy
         Kryo kryo = pool.borrow();
 
         Input input = new Input(value);
-        
-        //todo use return from read request. Add returnValue to readSet.
 
+        ArrayList<NodeStorage> answer = (ArrayList<NodeStorage>) kryo.readClassAndObject(input);
+
+        //todo use return from read request. Add returnValue to readSet.
 
         input.close();
         pool.release(kryo);

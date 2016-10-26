@@ -29,7 +29,7 @@ public class NodeStorage implements Serializable
      * The properties of the node, may be empty as well.
      */
     @Nullable
-    private HashMap<String, String> properties;
+    private Map<String, Object> properties;
 
     public NodeStorage()
     {
@@ -61,7 +61,7 @@ public class NodeStorage implements Serializable
      * @param id string identifier of the node.
      * @param properties properties of the node.
      */
-    public NodeStorage(@NotNull String id, @Nullable HashMap properties)
+    public NodeStorage(@NotNull String id, @Nullable Map properties)
     {
         this.id = id;
         this.properties = properties;
@@ -109,7 +109,7 @@ public class NodeStorage implements Serializable
      * @return unmodifiable map of the properties.
      */
     @Nullable
-    public Map<String, String> getProperties()
+    public Map<String, Object> getProperties()
     {
         return properties == null ? null : Collections.unmodifiableMap(properties);
     }
@@ -118,7 +118,7 @@ public class NodeStorage implements Serializable
      * Sets or adds new properties.
      * @param properties a property map.
      */
-    public void setProperties(@NotNull final HashMap<String, String> properties)
+    public void setProperties(@NotNull final HashMap<String, Object> properties)
     {
         if(this.properties == null)
         {
@@ -139,7 +139,7 @@ public class NodeStorage implements Serializable
     {
         if(this.properties == null)
         {
-            this.properties = new HashMap<String, String>();
+            this.properties = new HashMap<String, Object>();
         }
         this.properties.put(description, value);
     }
@@ -191,7 +191,7 @@ public class NodeStorage implements Serializable
         }
         if (properties != null)
         {
-            for(Map.Entry<String, String> entry: properties.entrySet())
+            for(Map.Entry<String, Object> entry: properties.entrySet())
             {
                 sb.append(entry.getKey()).append(entry.getValue());
             }

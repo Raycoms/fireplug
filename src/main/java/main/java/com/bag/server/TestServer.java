@@ -5,13 +5,16 @@ import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -23,6 +26,17 @@ public class TestServer extends DefaultRecoverable
      * Contains the local server replica.
      */
     private ServiceReplica replica = null;
+
+    /**
+     * A String describing the database instance.
+     */
+    private final String instance;
+
+    /**
+     * The database instance. todo generify.
+     */
+    private Neo4jDatabaseAccess neo4j;
+
 
     KryoFactory factory = new KryoFactory() {
         public Kryo create () {
@@ -45,6 +59,15 @@ public class TestServer extends DefaultRecoverable
         kryo.register(RelationshipStorage.class, 200);
 
         pool.release(kryo);
+
+        instance = Constants.NEO4J;
+
+        neo4j = new Neo4jDatabaseAccess();
+        neo4j.start();
+
+        //todo create terminate command.
+        //neo4j.terminate();
+
     }
 
     @Override
@@ -62,35 +85,57 @@ public class TestServer extends DefaultRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
+        //todo when we execute the sets on commit, we have to be careful.
+        //todo Follow the following order: First createSet then writeSet and then deleteSet.
+        //todo deserialze the hashmaps
+        // HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
         return new byte[0][];
     }
 
     @Override
     public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
     {
+        Log.getLogger().info("Received unordered message");
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
         Input input = new Input(bytes);
         String reason = (String) kryo.readClassAndObject(input);
+        Output output = new Output(0, 1024);
 
         if(reason.equals(Constants.NODE_READ_MESSAGE))
         {
             long localSnapshotId = (long) kryo.readClassAndObject(input);
-            HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
+            //todo deserialize nodeStorage object.
+            input.close();
 
+            Log.getLogger().info("With snapShot id: " + localSnapshotId);
             if(localSnapshotId == -1)
             {
                 //todo add transaction to localTransactionList
                 localSnapshotId = globalSnapshotId;
             }
 
-            //todo return result from neo4j + serialize.
+            if(instance.equals(Constants.NEO4J))
+            {
+                Log.getLogger().info("Get info from neo4j");
+
+                //todo add some real Nodes from deserialized map.
+                ArrayList<NodeStorage> tempList = new ArrayList<>(neo4j.randomRead());
+
+                Log.getLogger().info("Got info from neo4j: " + tempList.size());
+
+                kryo.writeClassAndObject(output, localSnapshotId);
+                kryo.writeClassAndObject(output, tempList);
+
+                neo4j.terminate();
+            }
         }
         else if(reason.equals(Constants.RELATIONSHIP_READ_MESSAGE))
         {
             long localSnapshotId = (long) kryo.readClassAndObject(input);
-            HashMap<RelationshipStorage, RelationshipStorage> deserialized = (HashMap<RelationshipStorage, RelationshipStorage>) kryo.readClassAndObject(input);
+            //todo derialize the relationShipStorage object.
+            input.close();
 
             if(localSnapshotId == -1)
             {
@@ -98,29 +143,33 @@ public class TestServer extends DefaultRecoverable
                 localSnapshotId = globalSnapshotId;
             }
 
-            //todo return result from neo4j + serialize.
-        }
-        else if(reason.equals(Constants.COMMIT_MESSAGE))
-        {
-            //commit probably, shouldn't happen, commit only ordered.
+            if(instance.equals(Constants.NEO4J))
+            {
+                //todo return result from neo4j + serialize.
+            }
         }
         else
         {
             Log.getLogger().warn("Incorrect operation sent unordered to the server");
+            output.close();
             return new byte[0];
         }
 
-        input.close();
+        byte[] returnValue = output.toBytes();
 
+        Log.getLogger().info("Return it to client");
+
+        output.close();
         pool.release(kryo);
-
-        return new byte[0];
+        return returnValue;
     }
 
-    //todo when we execute the sets on commit, we have to be careful.
-    //First createSet then writeSet and then deleteSet.
 
 
+    /**
+     * Main method used to start each TestServer.
+     * @param args the id for each testServer, set it in the program arguments.
+     */
     public static void main(String [] args)
     {
         int serverId = 0;
