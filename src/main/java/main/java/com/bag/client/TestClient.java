@@ -208,6 +208,11 @@ public class TestClient extends ServiceProxy
 
     private void processReadReturn(byte[] value)
     {
+        if(value == null)
+        {
+            Log.getLogger().warn("TimeOut, Didn't receive an answer from the server!");
+            return;
+        }
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 

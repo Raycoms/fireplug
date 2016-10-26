@@ -1,7 +1,10 @@
 package main.java.com.bag.server;
 
 import bftsmart.tom.MessageContext;
+import bftsmart.tom.ReplicaContext;
 import bftsmart.tom.ServiceReplica;
+import bftsmart.tom.core.messages.TOMMessage;
+import bftsmart.tom.server.Replier;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -101,7 +104,7 @@ public class TestServer extends DefaultRecoverable
 
         Input input = new Input(bytes);
         String reason = (String) kryo.readClassAndObject(input);
-        Output output = new Output(0, 1024);
+        Output output = new Output(0, 10240);
 
         if(reason.equals(Constants.NODE_READ_MESSAGE))
         {
@@ -157,14 +160,13 @@ public class TestServer extends DefaultRecoverable
 
         byte[] returnValue = output.toBytes();
 
-        Log.getLogger().info("Return it to client");
+        Log.getLogger().info("Return it to client" + returnValue.length);
 
         output.close();
         pool.release(kryo);
+        
         return returnValue;
     }
-
-
 
     /**
      * Main method used to start each TestServer.

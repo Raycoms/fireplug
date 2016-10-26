@@ -106,6 +106,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
     public List<NodeStorage> randomRead()
     {
+        if(graphDb == null)
+        {
+            start();
+        }
         ArrayList<NodeStorage> storage =  new ArrayList<>();
         try(Transaction tx = graphDb.beginTx())
         {
