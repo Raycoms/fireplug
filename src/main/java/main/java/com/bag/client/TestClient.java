@@ -3,6 +3,7 @@ package main.java.com.bag.client;
 import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.util.Extractor;
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
@@ -190,11 +191,11 @@ public class TestClient extends ServiceProxy
         //todo use the return from invoke unordered and work with that.
         if(identifier instanceof NodeStorage)
         {
-            readReturn = invokeUnordered(serialize(Constants.NODE_READ_MESSAGE, localTimestamp, identifier));
+            readReturn = invokeUnordered(this.serialize(Constants.NODE_READ_MESSAGE, localTimestamp, identifier));
         }
         else if(identifier instanceof RelationshipStorage)
         {
-            readReturn = invokeUnordered(serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier));
+            readReturn = invokeUnordered(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier));
         }
         else
         {
@@ -206,7 +207,16 @@ public class TestClient extends ServiceProxy
 
     private void processReadReturn(byte[] value)
     {
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+
+        Input input = new Input(value);
+        
         //todo use return from read request. Add returnValue to readSet.
+
+
+        input.close();
+        pool.release(kryo);
     }
 
     /**
@@ -239,7 +249,6 @@ public class TestClient extends ServiceProxy
      */
     private byte[] serialize(String reason, Object...args)
     {
-
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
@@ -301,11 +310,25 @@ public class TestClient extends ServiceProxy
      */
     private boolean isReadOnly()
     {
-        return updateSetNode.isEmpty()
-                && updateSetRelationship.isEmpty()
-                && deleteSetRelationship.isEmpty()
-                && deleteSetNode.isEmpty()
-                && createSetRelationship.isEmpty()
-                && createSetNode.isEmpty();
+        return hadNoNodeWrites() && hadNoRelationshipWrites();
     }
+
+    /**
+     * Checks if there were writes in the node-sets.
+     * @return true if not.
+     */
+    private boolean hadNoNodeWrites()
+    {
+        return updateSetNode.isEmpty() && deleteSetNode.isEmpty() && createSetNode.isEmpty();
+    }
+
+    /**
+     * Checks if there were writes in the relationship-sets.
+     * @return true if not.
+     */
+    private boolean hadNoRelationshipWrites()
+    {
+        return updateSetRelationship.isEmpty() && deleteSetRelationship.isEmpty() && createSetRelationship.isEmpty();
+    }
+
 }

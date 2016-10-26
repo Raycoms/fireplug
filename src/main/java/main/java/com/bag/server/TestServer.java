@@ -110,9 +110,6 @@ public class TestServer extends DefaultRecoverable
             return new byte[0];
         }
 
-
-
-
         input.close();
 
         pool.release(kryo);
