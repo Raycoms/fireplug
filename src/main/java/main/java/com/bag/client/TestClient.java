@@ -6,12 +6,10 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import com.esotericsoftware.kryo.serializers.CollectionSerializer;
-import com.esotericsoftware.kryo.serializers.MapSerializer;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -44,7 +42,7 @@ public class TestClient extends ServiceProxy
     /**
      * Local timestamp of the current transaction.
      */
-    private int localTimeStamp = 0;
+    private long localTimeStamp = 0;
 
     /**
      * Create a threadsafe version of kryo.
@@ -104,12 +102,24 @@ public class TestClient extends ServiceProxy
 
     }
 
+    //todo may add a list of identifier here.
     /**
      * ReadRequests.(Directly read database)
+     * @param identifier, object which should be read, may be NodeStorage or RelationshipStorage
      */
-    public void read()
+    public void read(Object identifier)
     {
-        //localTimeStamp = invokeUnordered();
+        if(identifier instanceof NodeStorage)
+        {
+            invokeUnordered(serialize("node/read", localTimeStamp, identifier));
+            return;
+        }
+        else if(identifier instanceof RelationshipStorage)
+        {
+            invokeUnordered(serialize("relationShip/read", localTimeStamp, identifier));
+            return;
+        }
+        Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
     }
 
     /**
@@ -126,7 +136,7 @@ public class TestClient extends ServiceProxy
         readsSetNode.put(new NodeStorage("d"), new NodeStorage("h"));
 
 
-        byte[] bytes = serialize();
+        byte[] bytes = serializeAll();
         if(readOnly && !secureMode)
         {
             invokeUnordered(bytes);
@@ -141,7 +151,35 @@ public class TestClient extends ServiceProxy
      * Serializes the data and returns it in byte format.
      * @return the data in byte format.
      */
-    private byte[] serialize()
+    private byte[] serialize(String reason, Object...args)
+    {
+
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+
+        //Todo probably will need a bigger buffer in the future.
+        Output output = new Output(0, 1024);
+
+        kryo.writeClassAndObject(output, reason);
+        for(Object identifier: args)
+        {
+            if(identifier instanceof NodeStorage || identifier instanceof RelationshipStorage || identifier instanceof Long)
+            {
+                kryo.writeClassAndObject(output, identifier);
+            }
+        }
+
+        byte[] bytes = output.toBytes();
+        output.close();
+        pool.release(kryo);
+        return bytes;
+    }
+
+    /**
+     * Serializes all sets and returns it in byte format.
+     * @return the data in byte format.
+     */
+    private byte[] serializeAll()
     {
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
