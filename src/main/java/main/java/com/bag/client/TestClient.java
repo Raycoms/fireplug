@@ -4,6 +4,8 @@ import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.util.Extractor;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import com.esotericsoftware.kryo.pool.KryoPool;
 import com.esotericsoftware.kryo.serializers.CollectionSerializer;
 import com.esotericsoftware.kryo.serializers.MapSerializer;
 import main.java.com.bag.util.NodeStorage;
@@ -19,6 +21,10 @@ import java.util.HashMap;
  */
 public class TestClient extends ServiceProxy
 {
+    /**
+     * Should the transaction run in secure mode?
+     */
+    private boolean secureMode = false;
     /**
      * Sets to log reads, updates, deletes and node creations.
      */
@@ -41,16 +47,24 @@ public class TestClient extends ServiceProxy
     private int localTimeStamp = 0;
 
     /**
-     * Kyro object.
+     * Create a threadsafe version of kryo.
      */
-    private Kryo kryo = new Kryo();
-    MapSerializer        mapSerializer  = new MapSerializer();
-    CollectionSerializer listSerializer = new CollectionSerializer();
-
+    private KryoFactory factory = new KryoFactory()
+    {
+        public Kryo create ()
+        {
+            Kryo kryo = new Kryo();
+            kryo.register(NodeStorage.class, 100);
+            kryo.register(RelationshipStorage.class, 200);
+            // configure kryo instance, customize settings
+            return kryo;
+        }
+    };
 
     public TestClient(final int processId)
     {
         super(processId);
+        secureMode = false;
         initClient();
     }
 
@@ -71,18 +85,6 @@ public class TestClient extends ServiceProxy
      */
     private void initClient()
     {
-        kryo.register(NodeStorage.class, 1);
-        kryo.register(RelationshipStorage.class, 2);
-        kryo.register(HashMap.class, mapSerializer);
-
-        mapSerializer.setKeyClass(NodeStorage.class, kryo.getSerializer(NodeStorage.class));
-        mapSerializer.setKeyClass(RelationshipStorage.class, kryo.getSerializer(RelationshipStorage.class));
-        mapSerializer.setValuesCanBeNull(false);
-        mapSerializer.setKeysCanBeNull(false);
-        listSerializer.setElementClass(NodeStorage.class, kryo.getSerializer(NodeStorage.class));
-        listSerializer.setElementClass(RelationshipStorage.class, kryo.getSerializer(RelationshipStorage.class));
-        listSerializer.setElementsCanBeNull(false);
-
         readsSetNode = new HashMap<NodeStorage, NodeStorage>();
         updateSetNode = new HashMap<NodeStorage, NodeStorage>();
         deleteSetNode = new ArrayList<NodeStorage>();
@@ -92,8 +94,6 @@ public class TestClient extends ServiceProxy
         updateSetRelationship = new HashMap<RelationshipStorage, RelationshipStorage>();
         deleteSetRelationship = new ArrayList<RelationshipStorage>();
         createSetRelationship = new ArrayList<RelationshipStorage>();
-
-        commit();
     }
 
     /**
@@ -109,7 +109,7 @@ public class TestClient extends ServiceProxy
      */
     public void read()
     {
-        //invokeUnordered();
+        //localTimeStamp = invokeUnordered();
     }
 
     /**
@@ -118,6 +118,7 @@ public class TestClient extends ServiceProxy
     public void commit()
     {
         //todo also send local timestamp.
+        boolean readOnly = isReadOnly();
 
         readsSetNode.put(new NodeStorage("a"), new NodeStorage("e"));
         readsSetNode.put(new NodeStorage("b"), new NodeStorage("f"));
@@ -125,12 +126,7 @@ public class TestClient extends ServiceProxy
         readsSetNode.put(new NodeStorage("d"), new NodeStorage("h"));
 
 
-        boolean readOnly = true;
-        boolean secureMode = false;
-
         byte[] bytes = serialize();
-
-
         if(readOnly && !secureMode)
         {
             invokeUnordered(bytes);
@@ -139,28 +135,35 @@ public class TestClient extends ServiceProxy
         {
             invokeOrdered(bytes);
         }
-
-
     }
 
-
-    public void write(final Kryo kryo, final com.esotericsoftware.kryo.io.Output output)
+    /**
+     * Serializes the data and returns it in byte format.
+     * @return the data in byte format.
+     */
+    private byte[] serialize()
     {
-
-    }
-
-    public byte[] serialize()
-    {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Output output = new Output(stream);
-        mapSerializer.write(kryo, output, readsSetNode);
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+        Output output = new Output(0, 1024);
+        kryo.writeClassAndObject(output, readsSetNode);
         byte[] bytes = output.toBytes();
         output.close();
+        pool.release(kryo);
         return bytes;
-
     }
 
-
-
-
+    /**
+     * Checks if the transaction has made any changes to the update sets.
+     * @return true if not.
+     */
+    private boolean isReadOnly()
+    {
+        return updateSetNode.isEmpty()
+                && updateSetRelationship.isEmpty()
+                && deleteSetRelationship.isEmpty()
+                && deleteSetNode.isEmpty()
+                && createSetRelationship.isEmpty()
+                && createSetNode.isEmpty();
+    }
 }

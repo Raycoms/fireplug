@@ -5,11 +5,14 @@ import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import com.esotericsoftware.kryo.pool.KryoPool;
 import com.esotericsoftware.kryo.serializers.MapSerializer;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class handling the server.
@@ -20,23 +23,28 @@ public class TestServer extends DefaultRecoverable
      * Contains the local server replica.
      */
     private ServiceReplica replica = null;
-    private Kryo kryo = new Kryo();
-    MapSerializer serializer = new MapSerializer();
 
+    KryoFactory factory = new KryoFactory() {
+        public Kryo create () {
+            Kryo kryo = new Kryo();
+            kryo.register(NodeStorage.class, 100);
+            kryo.register(RelationshipStorage.class, 200);
+            // configure kryo instance, customize settings
+            return kryo;
+        }
+    };
 
     private TestServer(int id)
     {
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+
         this.replica = new ServiceReplica(id, this, this);
-        kryo.register(NodeStorage.class, 1);
-        kryo.register(RelationshipStorage.class, 2);
-        kryo.register(HashMap.class, serializer);
+        kryo.register(NodeStorage.class, 100);
+        kryo.register(RelationshipStorage.class, 200);
 
-        serializer.setKeyClass(NodeStorage.class, kryo.getSerializer(NodeStorage.class));
-        serializer.setKeyClass(RelationshipStorage.class, kryo.getSerializer(RelationshipStorage.class));
-        serializer.setValuesCanBeNull(false);
-        serializer.setKeysCanBeNull(false);
+        pool.release(kryo);
     }
-
 
     @Override
     public void installSnapshot(final byte[] bytes)
@@ -59,10 +67,14 @@ public class TestServer extends DefaultRecoverable
     @Override
     public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
     {
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+
         Input input = new Input(bytes);
         HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
         input.close();
 
+        pool.release(kryo);
 
         return new byte[0];
     }

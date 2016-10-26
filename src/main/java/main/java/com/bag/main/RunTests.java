@@ -18,7 +18,8 @@ public class RunTests
 
         TestClient client1 = new TestClient(1);
 
-        client1.invokeUnordered(b);
+        client1.commit();
+        //client1.invokeUnordered(b);
 
 
         for(int i = 0; i < 100000; i++)
