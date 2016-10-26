@@ -217,10 +217,12 @@ public class RelationshipStorage implements Serializable
         {
             return false;
         }
-        if (getType() != null ? !getType().equals(that.getType()) : that.getType() != null)
+        if (this.getType() != null && that.getType() != null && !this.getType().equals(that.getType()))
         {
             return false;
         }
+        
+        //todo check if one properties list is valid subset of the other
         if (getProperties() != null ? !getProperties().equals(that.getProperties()) : that.getProperties() != null)
         {
             return false;

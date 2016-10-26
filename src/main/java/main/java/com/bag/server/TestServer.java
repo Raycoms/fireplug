@@ -7,12 +7,12 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import com.esotericsoftware.kryo.serializers.MapSerializer;
+import main.java.com.bag.util.Constants;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Class handling the server.
@@ -33,6 +33,7 @@ public class TestServer extends DefaultRecoverable
             return kryo;
         }
     };
+    private long globalSnapshotId = 0;
 
     private TestServer(int id)
     {
@@ -71,13 +72,56 @@ public class TestServer extends DefaultRecoverable
         Kryo kryo = pool.borrow();
 
         Input input = new Input(bytes);
-        HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
+        String reason = (String) kryo.readClassAndObject(input);
+
+        if(reason.equals(Constants.NODE_READ_MESSAGE))
+        {
+            long localSnapshotId = (long) kryo.readClassAndObject(input);
+            HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
+
+            if(localSnapshotId == -1)
+            {
+                //todo add transaction to localTransactionList
+                localSnapshotId = globalSnapshotId;
+            }
+
+            //todo return result from neo4j + serialize.
+        }
+        else if(reason.equals(Constants.RELATIONSHIP_READ_MESSAGE))
+        {
+            long localSnapshotId = (long) kryo.readClassAndObject(input);
+            HashMap<RelationshipStorage, RelationshipStorage> deserialized = (HashMap<RelationshipStorage, RelationshipStorage>) kryo.readClassAndObject(input);
+
+            if(localSnapshotId == -1)
+            {
+                //todo add transaction to localTransactionList
+                localSnapshotId = globalSnapshotId;
+            }
+
+            //todo return result from neo4j + serialize.
+        }
+        else if(reason.equals(Constants.COMMIT_MESSAGE))
+        {
+            //commit probably, shouldn't happen, commit only ordered.
+        }
+        else
+        {
+            Log.getLogger().warn("Incorrect operation sent unordered to the server");
+            return new byte[0];
+        }
+
+
+
+
         input.close();
 
         pool.release(kryo);
 
         return new byte[0];
     }
+
+    //todo when we execute the sets on commit, we have to be careful.
+    //First createSet then writeSet and then deleteSet.
 
 
     public static void main(String [] args)

@@ -144,6 +144,7 @@ public class NodeStorage implements Serializable
         this.properties.put(description, value);
     }
 
+
     @Override
     public boolean equals(final Object o)
     {
@@ -158,14 +159,15 @@ public class NodeStorage implements Serializable
 
         final NodeStorage that = (NodeStorage) o;
 
-        if (!getId().equals(that.getId()))
+        if (!this.getId().equals(that.getId()))
         {
             return false;
         }
-        if (getType() != null ? !getType().equals(that.getType()) : that.getType() != null)
+        if (this.getType() != null && that.getType() != null && !this.getType().equals(that.getType()))
         {
             return false;
         }
+        //todo check if one properties list is valid subset of the other
         return getProperties() != null ? getProperties().equals(that.getProperties()) : that.getProperties() == null;
     }
 

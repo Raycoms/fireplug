@@ -6,6 +6,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
@@ -42,21 +43,17 @@ public class TestClient extends ServiceProxy
     /**
      * Local timestamp of the current transaction.
      */
-    private long localTimeStamp = 0;
+    private long localTimestamp = 0;
 
     /**
      * Create a threadsafe version of kryo.
      */
-    private KryoFactory factory = new KryoFactory()
+    private KryoFactory factory = () ->
     {
-        public Kryo create ()
-        {
-            Kryo kryo = new Kryo();
-            kryo.register(NodeStorage.class, 100);
-            kryo.register(RelationshipStorage.class, 200);
-            // configure kryo instance, customize settings
-            return kryo;
-        }
+        Kryo kryo = new Kryo();
+        kryo.register(NodeStorage.class, 100);
+        kryo.register(RelationshipStorage.class, 200);
+        return kryo;
     };
 
     public TestClient(final int processId)
@@ -83,43 +80,133 @@ public class TestClient extends ServiceProxy
      */
     private void initClient()
     {
-        readsSetNode = new HashMap<NodeStorage, NodeStorage>();
-        updateSetNode = new HashMap<NodeStorage, NodeStorage>();
-        deleteSetNode = new ArrayList<NodeStorage>();
-        createSetNode = new ArrayList<NodeStorage>();
+        readsSetNode = new HashMap<>();
+        updateSetNode = new HashMap<>();
+        deleteSetNode = new ArrayList<>();
+        createSetNode = new ArrayList<>();
 
-        readsSetRelationship = new HashMap<RelationshipStorage, RelationshipStorage>();
-        updateSetRelationship = new HashMap<RelationshipStorage, RelationshipStorage>();
-        deleteSetRelationship = new ArrayList<RelationshipStorage>();
-        createSetRelationship = new ArrayList<RelationshipStorage>();
+        readsSetRelationship = new HashMap<>();
+        updateSetRelationship = new HashMap<>();
+        deleteSetRelationship = new ArrayList<>();
+        createSetRelationship = new ArrayList<>();
     }
 
     /**
-     * Write requests. (Only reach database on commit)
+     * write requests. (Only reach database on commit)
      */
-    public void write()
+    public void write(Object identifier, Object value)
     {
+        if(identifier == null && value == null)
+        {
+            Log.getLogger().warn("Unsupported write operation");
+            return;
+        }
 
+        //Must be a create request.
+        if(identifier == null)
+        {
+            handleCreateRequest(value);
+            return;
+        }
+
+        //Must be a delete request.
+        if(value == null)
+        {
+            handleDeleteRequest(identifier);
+            return;
+        }
+
+        handleUpdateRequest(identifier, value);
     }
 
-    //todo may add a list of identifier here.
+    /**
+     * Fills the updateSet in the case of an update request.
+     * Since we will execute writes after creates and before deletes. We don't have to check the other sets.
+     * @param identifier the value to write to.
+     * @param value what should be written.
+     */
+    private void handleUpdateRequest(Object identifier, Object value)
+    {
+        if(identifier instanceof NodeStorage && value instanceof NodeStorage)
+        {
+            updateSetNode.put((NodeStorage) identifier, (NodeStorage) value);
+        }
+        else if(identifier instanceof RelationshipStorage && value instanceof RelationshipStorage)
+        {
+            updateSetRelationship.put((RelationshipStorage) identifier, (RelationshipStorage) value);
+        }
+        else
+        {
+            Log.getLogger().warn("Unsupported update operation can't update a node with a relationship or vice versa");
+        }
+    }
+
+    /**
+     * Fills the createSet in the case of a create request.
+     * @param value object to fill in the createSet.
+     */
+    private void handleCreateRequest(Object value)
+    {
+        if(value instanceof NodeStorage)
+        {
+            createSetNode.add((NodeStorage) value);
+        }
+        else if(value instanceof RelationshipStorage)
+        {
+            createSetRelationship.add((RelationshipStorage) value);
+        }
+    }
+
+    /**
+     * Fills the deleteSet in the case of a delete requests and deletes the node also from the create set and updateSet.
+     * @param identifier the object to delete.
+     */
+    private void handleDeleteRequest(Object identifier)
+    {
+        if(identifier instanceof NodeStorage)
+        {
+            updateSetNode.remove(identifier);
+            createSetNode.remove(identifier);
+
+            deleteSetNode.add((NodeStorage) identifier);
+        }
+        else if(identifier instanceof RelationshipStorage)
+        {
+            updateSetRelationship.remove(identifier);
+            createSetRelationship.remove(identifier);
+
+            deleteSetRelationship.add((RelationshipStorage) identifier);
+        }
+    }
+
+    //todo may add a list of identifier here. Could be a nested read request over various nodes and relationships (traversal)
     /**
      * ReadRequests.(Directly read database)
      * @param identifier, object which should be read, may be NodeStorage or RelationshipStorage
      */
     public void read(Object identifier)
     {
+        byte[] readReturn;
+        //todo use the return from invoke unordered and work with that.
         if(identifier instanceof NodeStorage)
         {
-            invokeUnordered(serialize("node/read", localTimeStamp, identifier));
-            return;
+            readReturn = invokeUnordered(serialize(Constants.NODE_READ_MESSAGE, localTimestamp, identifier));
         }
         else if(identifier instanceof RelationshipStorage)
         {
-            invokeUnordered(serialize("relationShip/read", localTimeStamp, identifier));
+            readReturn = invokeUnordered(serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier));
+        }
+        else
+        {
+            Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
             return;
         }
-        Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
+        processReadReturn(readReturn);
+    }
+
+    private void processReadReturn(byte[] value)
+    {
+        //todo use return from read request. Add returnValue to readSet.
     }
 
     /**
@@ -129,17 +216,16 @@ public class TestClient extends ServiceProxy
     {
         boolean readOnly = isReadOnly();
 
-        //Sample data
+        //Sample data just for testing purposes.
         readsSetNode.put(new NodeStorage("a"), new NodeStorage("e"));
         readsSetNode.put(new NodeStorage("b"), new NodeStorage("f"));
         readsSetNode.put(new NodeStorage("c"), new NodeStorage("g"));
         readsSetNode.put(new NodeStorage("d"), new NodeStorage("h"));
 
-
         byte[] bytes = serializeAll();
         if(readOnly && !secureMode)
         {
-            invokeUnordered(bytes);
+            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully commited", localTimestamp));
         }
         else
         {
@@ -187,8 +273,9 @@ public class TestClient extends ServiceProxy
         //Todo probably will need a bigger buffer in the future.
         Output output = new Output(0, 1024);
 
+        kryo.writeClassAndObject(output, Constants.COMMIT_MESSAGE);
         //Write the timeStamp to the server
-        kryo.writeClassAndObject(output, localTimeStamp);
+        kryo.writeClassAndObject(output, localTimestamp);
 
         //Write the node-sets to the server
         kryo.writeClassAndObject(output, readsSetNode);
