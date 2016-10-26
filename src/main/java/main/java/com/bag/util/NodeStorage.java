@@ -174,4 +174,26 @@ public class NodeStorage implements Serializable
     {
         return 31 * (31 * getId().hashCode() + (getType() != null ? getType().hashCode() : 0)) + (getProperties() != null ? getProperties().hashCode() : 0);
     }
+
+    /**
+     * Returns a byte representation of the nodeStorage.
+     * @return a byte array.
+     */
+    public byte[] getBytes()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(id);
+        if(type != null)
+        {
+            sb.append(type);
+        }
+        if (properties != null)
+        {
+            for(Map.Entry<String, String> entry: properties.entrySet())
+            {
+                sb.append(entry.getKey()).append(entry.getValue());
+            }
+        }
+        return sb.toString().getBytes();
+    }
 }

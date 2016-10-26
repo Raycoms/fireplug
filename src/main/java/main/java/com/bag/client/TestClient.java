@@ -117,9 +117,9 @@ public class TestClient extends ServiceProxy
      */
     public void commit()
     {
-        //todo also send local timestamp.
         boolean readOnly = isReadOnly();
 
+        //Sample data
         readsSetNode.put(new NodeStorage("a"), new NodeStorage("e"));
         readsSetNode.put(new NodeStorage("b"), new NodeStorage("f"));
         readsSetNode.put(new NodeStorage("c"), new NodeStorage("g"));
@@ -145,8 +145,25 @@ public class TestClient extends ServiceProxy
     {
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
+
+        //Todo probably will need a bigger buffer in the future.
         Output output = new Output(0, 1024);
+
+        //Write the timeStamp to the server
+        kryo.writeClassAndObject(output, localTimeStamp);
+
+        //Write the node-sets to the server
         kryo.writeClassAndObject(output, readsSetNode);
+        kryo.writeClassAndObject(output, updateSetNode);
+        kryo.writeClassAndObject(output, deleteSetNode);
+        kryo.writeClassAndObject(output, createSetNode);
+
+        //Write the relationship-sets to the server
+        kryo.writeClassAndObject(output, readsSetRelationship);
+        kryo.writeClassAndObject(output, updateSetRelationship);
+        kryo.writeClassAndObject(output, deleteSetRelationship);
+        kryo.writeClassAndObject(output, createSetRelationship);
+
         byte[] bytes = output.toBytes();
         output.close();
         pool.release(kryo);

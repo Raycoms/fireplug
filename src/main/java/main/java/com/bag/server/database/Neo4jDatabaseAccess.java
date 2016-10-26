@@ -2,8 +2,11 @@ package main.java.com.bag.server.database;
 
 import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+
 
 import java.io.File;
 
@@ -41,6 +44,24 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( DB_PATH )
                 .setConfig( GraphDatabaseSettings.read_only, "true" )
                 .newGraphDatabase();
+    }
+
+    //todo create, read, update, delete.
+    public void startTransaction(int snapshotId)
+    {
+        long calculateHash = 439508938;
+        //todo node needs hash and snapshotId
+        try(Transaction tx = graphDb.beginTx())
+        {
+            Node myNode = graphDb.createNode();
+            myNode.setProperty( "name", "my node" );
+
+            myNode.setProperty( "snapshot-id", snapshotId );
+            myNode.setProperty( "node-hash", calculateHash );
+
+            tx.success();
+        }
+
     }
 
     /**

@@ -3,6 +3,8 @@ package main.java.com.bag.util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -233,5 +235,41 @@ public class RelationshipStorage implements Serializable
                 + (getType() != null ? getType().hashCode() : 0))
                 + (getProperties() != null ? getProperties().hashCode() : 0))
                 + getStartNode().hashCode()) + getEndNode().hashCode();
+    }
+
+    /**
+     * Returns a byte representation of the nodeStorage.
+     * @return a byte array.
+     */
+    public byte[] getBytes()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(id);
+        if(type != null)
+        {
+            sb.append(type);
+        }
+        if (properties != null)
+        {
+            for(Map.Entry<String, String> entry: properties.entrySet())
+            {
+                sb.append(entry.getKey()).append(entry.getValue());
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        try
+        {
+            outputStream.write( sb.toString().getBytes() );
+            outputStream.write( startNode.getBytes() );
+            outputStream.write( endNode.getBytes() );
+
+        }
+        catch (IOException e)
+        {
+            Log.getLogger().info(e.getMessage());
+        }
+
+        return outputStream.toByteArray();
     }
 }
