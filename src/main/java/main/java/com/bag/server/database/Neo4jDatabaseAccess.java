@@ -17,20 +17,23 @@ import java.util.List;
  */
 public class Neo4jDatabaseAccess implements IDatabaseAccess
 {
+    private static final String BASE_PATH = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB";
     /**
      * The graphDB object.
      */
     private GraphDatabaseService graphDb;
-
+    private int id;
     /**
      * The path to the neo4j graphDB
      */
-    private static final File DB_PATH = new File("/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB");
 
     @Override
-    public void start()
+    public void start(int id)
     {
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( DB_PATH )
+        File DB_PATH = new File(BASE_PATH + id);
+
+        this.id = id;
+        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( DB_PATH)
                 .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
                 .newGraphDatabase();
 
@@ -80,8 +83,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     /**
      * Starts the graph database in readOnly mode.
      */
-    public void startReadOnly()
+    public void startReadOnly(int id)
     {
+        File DB_PATH = new File(BASE_PATH + id);
+
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( DB_PATH )
                 .setConfig( GraphDatabaseSettings.read_only, "true" )
                 .newGraphDatabase();
@@ -108,7 +113,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         if(graphDb == null)
         {
-            start();
+            start(id);
         }
         ArrayList<NodeStorage> storage =  new ArrayList<>();
         try(Transaction tx = graphDb.beginTx())

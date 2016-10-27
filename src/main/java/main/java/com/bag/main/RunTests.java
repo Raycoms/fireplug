@@ -22,9 +22,16 @@ public class RunTests
         //client1.invokeUnordered(b);
 
 
-        for(int i = 0; i < 100000; i++)
+        for(int i = 0; i < 10000000; i++)
         {
-
+            try
+            {
+                Thread.sleep(10);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         client1.close();

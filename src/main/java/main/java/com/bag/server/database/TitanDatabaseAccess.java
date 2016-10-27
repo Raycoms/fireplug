@@ -31,7 +31,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     private TitanGraph g;
 
-    public void start()
+    public void start(int id)
     {
         TitanFactory.Builder config = TitanFactory.build();
         config.set("storage.backend", "berkeleyje");

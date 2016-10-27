@@ -6,6 +6,7 @@ import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.server.Replier;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
+import bftsmart.tom.server.defaultservices.DefaultReplier;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -40,37 +41,40 @@ public class TestServer extends DefaultRecoverable
      */
     private Neo4jDatabaseAccess neo4j;
 
-
-    KryoFactory factory = new KryoFactory() {
-        public Kryo create () {
-            Kryo kryo = new Kryo();
-            kryo.register(NodeStorage.class, 100);
-            kryo.register(RelationshipStorage.class, 200);
-            // configure kryo instance, customize settings
-            return kryo;
-        }
-    };
+    /**
+     * Global snapshot id, increases with every committed transaction.
+     */
     private long globalSnapshotId = 0;
+
+    private KryoFactory factory = () ->
+    {
+        Kryo kryo = new Kryo();
+        kryo.register(NodeStorage.class, 100);
+        kryo.register(RelationshipStorage.class, 200);
+        // configure kryo instance, customize settings
+        return kryo;
+    };
 
     private TestServer(int id)
     {
+        globalSnapshotId = 1;
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
         this.replica = new ServiceReplica(id, this, this);
+        this.replica.setReplyController(new DefaultReplier());
+
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
-
         pool.release(kryo);
 
         instance = Constants.NEO4J;
 
         neo4j = new Neo4jDatabaseAccess();
-        neo4j.start();
+        neo4j.start(id);
 
         //todo create terminate command.
         //neo4j.terminate();
-
     }
 
     @Override
@@ -85,6 +89,7 @@ public class TestServer extends DefaultRecoverable
         return new byte[0];
     }
 
+    //Every byte array is one request.
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
@@ -101,7 +106,6 @@ public class TestServer extends DefaultRecoverable
         Log.getLogger().info("Received unordered message");
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
-
         Input input = new Input(bytes);
         String reason = (String) kryo.readClassAndObject(input);
         Output output = new Output(0, 10240);
@@ -130,8 +134,6 @@ public class TestServer extends DefaultRecoverable
 
                 kryo.writeClassAndObject(output, localSnapshotId);
                 kryo.writeClassAndObject(output, tempList);
-
-                neo4j.terminate();
             }
         }
         else if(reason.equals(Constants.RELATIONSHIP_READ_MESSAGE))
@@ -160,7 +162,7 @@ public class TestServer extends DefaultRecoverable
 
         byte[] returnValue = output.toBytes();
 
-        Log.getLogger().info("Return it to client" + returnValue.length);
+        Log.getLogger().info("Return it to client, size: " + returnValue.length);
 
         output.close();
         pool.release(kryo);

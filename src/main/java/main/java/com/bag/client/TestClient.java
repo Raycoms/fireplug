@@ -1,6 +1,8 @@
 package main.java.com.bag.client;
 
+import bftsmart.communication.client.ReplyReceiver;
 import bftsmart.tom.ServiceProxy;
+import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
 import bftsmart.tom.util.Extractor;
 import com.esotericsoftware.kryo.Kryo;
@@ -13,6 +15,7 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,7 +23,7 @@ import java.util.HashMap;
 /**
  * Class handling the client.
  */
-public class TestClient extends ServiceProxy
+public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable, AutoCloseable
 {
     /**
      * Should the transaction run in secure mode?
@@ -183,27 +186,39 @@ public class TestClient extends ServiceProxy
 
     //todo may add a list of identifier here. Could be a nested read request over various nodes and relationships (traversal)
     /**
-     * ReadRequests.(Directly read database)
+     * ReadRequests.(Directly read database) send the request to the db.
      * @param identifier, object which should be read, may be NodeStorage or RelationshipStorage
      */
     public void read(Object identifier)
     {
-        byte[] readReturn;
-        //todo use the return from invoke unordered and work with that.
         if(identifier instanceof NodeStorage)
         {
-            readReturn = invokeUnordered(this.serialize(Constants.NODE_READ_MESSAGE, localTimestamp, identifier));
+            //this sends the message straight to server 0 not to the others.
+            sendMessageToTargets(this.serialize(Constants.NODE_READ_MESSAGE, localTimestamp, identifier), 0, new int[]{0}, TOMMessageType.UNORDERED_REQUEST);
         }
         else if(identifier instanceof RelationshipStorage)
         {
-            readReturn = invokeUnordered(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier));
+            sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier), 0, new int[]{0}, TOMMessageType.UNORDERED_REQUEST);
         }
         else
         {
             Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
-            return;
         }
-        processReadReturn(readReturn);
+    }
+
+    /**
+     * Receiving read requests replies here
+     * @param reply
+     */
+    @Override
+    public void replyReceived(final TOMMessage reply)
+    {
+        Log.getLogger().info("reply");
+        if(reply.getReqType() == TOMMessageType.UNORDERED_REQUEST)
+        {
+            processReadReturn(reply.getContent());
+        }
+        super.replyReceived(reply);
     }
 
     private void processReadReturn(byte[] value)
@@ -213,18 +228,20 @@ public class TestClient extends ServiceProxy
             Log.getLogger().warn("TimeOut, Didn't receive an answer from the server!");
             return;
         }
+
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
         Input input = new Input(value);
+        localTimestamp = (long) kryo.readClassAndObject(input);
 
+        //todo get nodes and relationships from the stream and add them to the readSet
         ArrayList<NodeStorage> answer = (ArrayList<NodeStorage>) kryo.readClassAndObject(input);
-
-        //todo use return from read request. Add returnValue to readSet.
 
         input.close();
         pool.release(kryo);
     }
+
 
     /**
      * Commit reaches the server, if secure commit send to all, else only send to one
@@ -259,8 +276,8 @@ public class TestClient extends ServiceProxy
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
-        //Todo probably will need a bigger buffer in the future.
-        Output output = new Output(0, 1024);
+        //Todo probably will need a bigger buffer in the future. size depending on the set size?
+        Output output = new Output(0, 10024);
 
         kryo.writeClassAndObject(output, reason);
         for(Object identifier: args)
@@ -286,8 +303,8 @@ public class TestClient extends ServiceProxy
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
-        //Todo probably will need a bigger buffer in the future.
-        Output output = new Output(0, 1024);
+        //Todo probably will need a bigger buffer in the future. size depending on the set size?
+        Output output = new Output(0, 10024);
 
         kryo.writeClassAndObject(output, Constants.COMMIT_MESSAGE);
         //Write the timeStamp to the server

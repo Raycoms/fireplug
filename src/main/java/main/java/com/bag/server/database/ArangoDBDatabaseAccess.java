@@ -7,7 +7,7 @@ import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
  */
 public class ArangoDBDatabaseAccess implements IDatabaseAccess
 {
-    public void start()
+    public void start(int id)
     {
 
     }
