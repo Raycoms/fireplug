@@ -32,7 +32,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     /**
      * Sets to log reads, updates, deletes and node creations.
      */
-    private HashMap<NodeStorage, NodeStorage> readsSetNode;
+    private ArrayList<NodeStorage> readsSetNode;
     private HashMap<NodeStorage, NodeStorage> updateSetNode;
     private ArrayList<NodeStorage>            deleteSetNode;
     private ArrayList<NodeStorage>            createSetNode;
@@ -40,7 +40,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     /**
      * Sets to log reads, updates, deletes and relationship creations.
      */
-    private HashMap<RelationshipStorage, RelationshipStorage> readsSetRelationship;
+    private ArrayList<RelationshipStorage> readsSetRelationship;
     private HashMap<RelationshipStorage, RelationshipStorage> updateSetRelationship;
     private ArrayList<RelationshipStorage>                    deleteSetRelationship;
     private ArrayList<RelationshipStorage>                    createSetRelationship;
@@ -85,12 +85,12 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     private void initClient()
     {
-        readsSetNode = new HashMap<>();
+        readsSetNode = new ArrayList<>();
         updateSetNode = new HashMap<>();
         deleteSetNode = new ArrayList<>();
         createSetNode = new ArrayList<>();
 
-        readsSetRelationship = new HashMap<>();
+        readsSetRelationship = new ArrayList<>();
         updateSetRelationship = new HashMap<>();
         deleteSetRelationship = new ArrayList<>();
         createSetRelationship = new ArrayList<>();
@@ -191,10 +191,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     public void read(Object identifier)
     {
+        //todo put those two identii
         if(identifier instanceof NodeStorage)
         {
             //this sends the message straight to server 0 not to the others.
-            sendMessageToTargets(this.serialize(Constants.NODE_READ_MESSAGE, localTimestamp, identifier), 0, new int[]{0}, TOMMessageType.UNORDERED_REQUEST);
+            sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, localTimestamp, identifier), 0, new int[]{0}, TOMMessageType.UNORDERED_REQUEST);
         }
         else if(identifier instanceof RelationshipStorage)
         {
@@ -221,6 +222,10 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         super.replyReceived(reply);
     }
 
+    /**
+     * Processes the return of a read request. Filling the readsets.
+     * @param value
+     */
     private void processReadReturn(byte[] value)
     {
         if(value == null)
@@ -236,7 +241,18 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         localTimestamp = (long) kryo.readClassAndObject(input);
 
         //todo get nodes and relationships from the stream and add them to the readSet
-        ArrayList<NodeStorage> answer = (ArrayList<NodeStorage>) kryo.readClassAndObject(input);
+        ArrayList<NodeStorage>         nodeResult         = (ArrayList<NodeStorage>) kryo.readClassAndObject(input);
+        ArrayList<RelationshipStorage> relationshipResult = (ArrayList<RelationshipStorage>) kryo.readClassAndObject(input);
+
+        if(nodeResult != null && !nodeResult.isEmpty())
+        {
+            readsSetNode.addAll(nodeResult);
+        }
+
+        if(relationshipResult != null && !relationshipResult.isEmpty())
+        {
+            readsSetRelationship.addAll(relationshipResult);
+        }
 
         input.close();
         pool.release(kryo);
@@ -248,23 +264,46 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     public void commit()
     {
+        byte[] result;
         boolean readOnly = isReadOnly();
 
         //Sample data just for testing purposes.
-        readsSetNode.put(new NodeStorage("a"), new NodeStorage("e"));
-        readsSetNode.put(new NodeStorage("b"), new NodeStorage("f"));
-        readsSetNode.put(new NodeStorage("c"), new NodeStorage("g"));
-        readsSetNode.put(new NodeStorage("d"), new NodeStorage("h"));
+        readsSetNode.add(new NodeStorage("a"));
+        readsSetNode.add(new NodeStorage("b"));
+        readsSetNode.add(new NodeStorage("c"));
+        readsSetNode.add(new NodeStorage("d"));
 
         byte[] bytes = serializeAll();
         if(readOnly && !secureMode)
         {
             Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully commited", localTimestamp));
+            return;
         }
         else
         {
-            invokeOrdered(bytes);
+           result = invokeOrdered(bytes);
         }
+
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+        Input input = new Input(result);
+
+        boolean decision = input.readBoolean();
+
+
+        if(decision)
+        {
+            Log.getLogger().info("Transaction succesfully committed");
+        }
+        else
+        {
+            Log.getLogger().info("Transaction commit denied - transaction being aborted");
+        }
+
+        resetSets();
+
+        input.close();
+        pool.release(kryo);
     }
 
     /**
@@ -326,6 +365,22 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         output.close();
         pool.release(kryo);
         return bytes;
+    }
+
+    /**
+     * Resets all the read and write sets.
+     */
+    private void resetSets()
+    {
+        readsSetNode = new ArrayList<>();
+        updateSetNode = new HashMap<>();
+        deleteSetNode = new ArrayList<>();
+        createSetNode = new ArrayList<>();
+
+        readsSetRelationship = new ArrayList<>();
+        updateSetRelationship = new HashMap<>();
+        deleteSetRelationship = new ArrayList<>();
+        createSetRelationship = new ArrayList<>();
     }
 
     /**

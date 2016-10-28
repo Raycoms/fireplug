@@ -1,10 +1,7 @@
 package main.java.com.bag.server;
 
 import bftsmart.tom.MessageContext;
-import bftsmart.tom.ReplicaContext;
 import bftsmart.tom.ServiceReplica;
-import bftsmart.tom.core.messages.TOMMessage;
-import bftsmart.tom.server.Replier;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.server.defaultservices.DefaultReplier;
 import com.esotericsoftware.kryo.Kryo;
@@ -13,12 +10,10 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
-import main.java.com.bag.util.Constants;
-import main.java.com.bag.util.Log;
-import main.java.com.bag.util.NodeStorage;
-import main.java.com.bag.util.RelationshipStorage;
+import main.java.com.bag.util.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -40,6 +35,11 @@ public class TestServer extends DefaultRecoverable
      * The database instance. todo generify.
      */
     private Neo4jDatabaseAccess neo4j;
+
+    /**
+     * Contains all local transactions being executed on the server at the very moment.
+     */
+    private HashMap<Integer, TransactionStorage> localTransactionList;
 
     /**
      * Global snapshot id, increases with every committed transaction.
@@ -110,45 +110,24 @@ public class TestServer extends DefaultRecoverable
         String reason = (String) kryo.readClassAndObject(input);
         Output output = new Output(0, 10240);
 
-        if(reason.equals(Constants.NODE_READ_MESSAGE))
+        if(reason.equals(Constants.READ_MESSAGE))
         {
-            long localSnapshotId = (long) kryo.readClassAndObject(input);
-            //todo deserialize nodeStorage object.
-            input.close();
-
-            Log.getLogger().info("With snapShot id: " + localSnapshotId);
-            if(localSnapshotId == -1)
-            {
-                //todo add transaction to localTransactionList
-                localSnapshotId = globalSnapshotId;
-            }
-
-            if(instance.equals(Constants.NEO4J))
-            {
-                Log.getLogger().info("Get info from neo4j");
-
-                //todo add some real Nodes from deserialized map.
-                ArrayList<NodeStorage> tempList = new ArrayList<>(neo4j.randomRead());
-
-                Log.getLogger().info("Got info from neo4j: " + tempList.size());
-
-                kryo.writeClassAndObject(output, localSnapshotId);
-                kryo.writeClassAndObject(output, tempList);
-            }
+            handleNodeRead(input, messageContext, kryo, output);
         }
         else if(reason.equals(Constants.RELATIONSHIP_READ_MESSAGE))
         {
-            long localSnapshotId = (long) kryo.readClassAndObject(input);
+            long localSnapshotId = input.readLong();
+            
             //todo derialize the relationShipStorage object.
             input.close();
 
-            if(localSnapshotId == -1)
+            if (localSnapshotId == -1)
             {
                 //todo add transaction to localTransactionList
                 localSnapshotId = globalSnapshotId;
             }
 
-            if(instance.equals(Constants.NEO4J))
+            if (instance.equals(Constants.NEO4J))
             {
                 //todo return result from neo4j + serialize.
             }
@@ -168,6 +147,65 @@ public class TestServer extends DefaultRecoverable
         pool.release(kryo);
         
         return returnValue;
+    }
+
+    /**
+     * Handles the node read message and requests it to the database.
+     * @param input get info from.
+     * @param messageContext additional context.
+     * @param kryo kryo object.
+     * @param output write info to.
+     * @return output object to return to client.
+     */
+    private Output handleNodeRead(Input input, MessageContext messageContext, Kryo kryo, Output output)
+    {
+        Output localOutput = output;
+        long localSnapshotId = input.readLong();
+        NodeStorage identifier = (NodeStorage) kryo.readClassAndObject(input);
+        input.close();
+
+        Log.getLogger().info("With snapShot id: " + localSnapshotId);
+        if(localSnapshotId == -1)
+        {
+            localTransactionList.put(messageContext.getSender(), new TransactionStorage());
+            localSnapshotId = globalSnapshotId;
+        }
+
+        if(instance.equals(Constants.NEO4J))
+        {
+            Log.getLogger().info("Get info from neo4j");
+            ArrayList<Object> returnList = new ArrayList<>(neo4j.readObject(identifier));
+
+
+            Log.getLogger().info("Got info from neo4j: " + returnList.size());
+
+            if(returnList.isEmpty())
+            {
+                kryo.writeClassAndObject(localOutput, localSnapshotId);
+                kryo.writeClassAndObject(localOutput, Collections.emptyList());
+                kryo.writeClassAndObject(localOutput, Collections.emptyList());
+                return output;
+            }
+
+            ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
+            ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
+            for(Object obj: returnList)
+            {
+                if(obj instanceof NodeStorage)
+                {
+                    nodeStorage.add((NodeStorage) obj);
+                }
+                else if(obj instanceof RelationshipStorage)
+                {
+                    relationshipStorage.add((RelationshipStorage) obj);
+                }
+            }
+
+            kryo.writeClassAndObject(localOutput, localSnapshotId);
+            kryo.writeClassAndObject(localOutput, nodeStorage);
+            kryo.writeClassAndObject(localOutput, relationshipStorage);
+        }
+        return output;
     }
 
     /**

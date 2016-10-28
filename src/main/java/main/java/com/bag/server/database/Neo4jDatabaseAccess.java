@@ -1,7 +1,11 @@
 package main.java.com.bag.server.database;
 
 import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
+import main.java.com.bag.util.RelationshipStorage;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterable;
@@ -10,6 +14,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -109,6 +114,59 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
     }
 
+    /**
+     * Creates a transaction which will get a list of nodes.
+     * @param identifier the nodes which should be retrieved.
+     * @return the result nodes as a List of NodeStorages..
+     */
+    @NotNull
+    public List<Object> readObject(@NotNull Object identifier)
+    {
+        NodeStorage nodeStorage;
+        RelationshipStorage relationshipStorage;
+
+        if(identifier instanceof NodeStorage)
+        {
+            nodeStorage = (NodeStorage) identifier;
+        }
+        else if(identifier instanceof RelationshipStorage)
+        {
+            relationshipStorage = (RelationshipStorage) identifier;
+        }
+        else
+        {
+            Log.getLogger().warn("Can't read data on object: " + identifier.getClass().toString());
+            return Collections.emptyList();
+        }
+
+        if(graphDb == null)
+        {
+            start(id);
+        }
+
+        //todo get info from the list and parse all nodes which match this.
+        ArrayList<Object> returnStorage =  new ArrayList<>();
+        try(Transaction tx = graphDb.beginTx())
+        {
+            ResourceIterable<Node> tempList = graphDb.getAllNodes();
+
+            for(Node n: tempList)
+            {
+                NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                returnStorage.add(temp);
+            }
+
+            tx.success();
+        }
+        return returnStorage;
+    }
+
+
+    /**
+     * Creates a transaction which will get all nodes.
+     * @return all nodes as a List of NodeStorages.
+     */
+    @NotNull
     public List<NodeStorage> randomRead()
     {
         if(graphDb == null)
