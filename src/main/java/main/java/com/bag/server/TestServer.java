@@ -117,7 +117,7 @@ public class TestServer extends DefaultRecoverable
         else if(reason.equals(Constants.RELATIONSHIP_READ_MESSAGE))
         {
             long localSnapshotId = input.readLong();
-            
+
             //todo derialize the relationShipStorage object.
             input.close();
 

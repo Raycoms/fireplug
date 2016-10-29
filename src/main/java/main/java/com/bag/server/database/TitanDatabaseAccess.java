@@ -1,24 +1,19 @@
 package main.java.com.bag.server.database;
 
-import com.thinkaurelius.titan.core.EdgeLabel;
-import com.thinkaurelius.titan.core.Multiplicity;
-import com.thinkaurelius.titan.core.PropertyKey;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanTransaction;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
-import com.thinkaurelius.titan.core.schema.ConsistencyModifier;
-import com.thinkaurelius.titan.core.schema.TitanGraphIndex;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
-import com.thinkaurelius.titan.example.GraphOfTheGodsFactory;
 import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
-import org.apache.tinkerpop.gremlin.process.traversal.Order;
-import org.apache.tinkerpop.gremlin.structure.Direction;
-import org.apache.tinkerpop.gremlin.structure.Edge;
-import org.apache.tinkerpop.gremlin.structure.T;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
+import main.java.com.bag.util.Log;
+import main.java.com.bag.util.NodeStorage;
+import main.java.com.bag.util.RelationshipStorage;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Class created to handle access to the titan database.
@@ -29,10 +24,13 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     public static final String directory ="";
 
-    private TitanGraph g;
+    private TitanGraph graph;
+
+    private int id;
 
     public void start(int id)
     {
+        this.id = id;
         TitanFactory.Builder config = TitanFactory.build();
         config.set("storage.backend", "berkeleyje");
         config.set("storage.directory", directory);
@@ -41,12 +39,72 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         config.set("index." + INDEX_NAME + ".elasticsearch.local-mode", true);
         config.set("index." + INDEX_NAME + ".elasticsearch.client-only", false);
 
-        TitanGraph graph = config.open();
-        GraphOfTheGodsFactory.load(graph);
+        graph = config.open();
+    }
+
+    /**
+     * Creates a transaction which will get a list of nodes.
+     * @param identifier the nodes which should be retrieved.
+     * @return the result nodes as a List of NodeStorages..
+     */
+    @NotNull
+    public List<Object> readObject(@NotNull Object identifier)
+    {
+        NodeStorage nodeStorage = null;
+        RelationshipStorage relationshipStorage =  null;
+
+        if(identifier instanceof NodeStorage)
+        {
+            nodeStorage = (NodeStorage) identifier;
+        }
+        else if(identifier instanceof RelationshipStorage)
+        {
+            relationshipStorage = (RelationshipStorage) identifier;
+        }
+        else
+        {
+            Log.getLogger().warn("Can't read data on object: " + identifier.getClass().toString());
+            return Collections.emptyList();
+        }
+
+        if(graph == null)
+        {
+            start(id);
+        }
+
+         //graph = TinkerGraph.open();
+        //todo get info from the list and parse all nodes which match this.
+        ArrayList<Object> returnStorage =  new ArrayList<>();
+
+        //todo add gremlin access to get it through gremlin, probably need a similar approach in orientDB and neo4j as well.
+        try
+        {
+            graph.newTransaction();
+
+            //If nodeStorage is null, we're obviously trying to read relationships.
+            if(nodeStorage == null)
+            {
+                relationshipStorage.getId();
+            }
+            else
+            {
+                nodeStorage.getId();
+            }
+
+            //graph.V().has('name', 'hercules')
+            //odb.createVertexType("Person"); this is our class (neo4j label)
+
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+
+        return returnStorage;
     }
 
     public void terminate()
     {
-        g.close();
+        graph.close();
     }
 }

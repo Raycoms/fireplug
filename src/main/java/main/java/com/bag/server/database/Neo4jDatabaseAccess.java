@@ -5,7 +5,6 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterable;
@@ -122,8 +121,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @NotNull
     public List<Object> readObject(@NotNull Object identifier)
     {
-        NodeStorage nodeStorage;
-        RelationshipStorage relationshipStorage;
+        NodeStorage nodeStorage = null;
+        RelationshipStorage relationshipStorage =  null;
 
         if(identifier instanceof NodeStorage)
         {
@@ -144,10 +143,21 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             start(id);
         }
 
+        //We only support 1 label each node/vertex because of compatibility with our graph dbs.
         //todo get info from the list and parse all nodes which match this.
         ArrayList<Object> returnStorage =  new ArrayList<>();
         try(Transaction tx = graphDb.beginTx())
         {
+            if(nodeStorage == null)
+            {
+                relationshipStorage.getId();
+            }
+            else
+            {
+                nodeStorage.getId();
+            }
+
+
             ResourceIterable<Node> tempList = graphDb.getAllNodes();
 
             for(Node n: tempList)

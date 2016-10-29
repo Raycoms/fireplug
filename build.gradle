@@ -25,6 +25,7 @@ dependencies {
     compile group: 'org.jboss.spec.javax.ws.rs', name: 'jboss-jaxrs-api_2.0_spec', version: '1.0.0.Final'
     compile group: 'com.esotericsoftware', name: 'kryo', version: '4.0.0'
     compile 'com.intellij:annotations:+@jar'
+    compile group: 'org.apache.tinkerpop', name: 'gremlin-core', version: '3.0.1-incubating'
 }
 
 
