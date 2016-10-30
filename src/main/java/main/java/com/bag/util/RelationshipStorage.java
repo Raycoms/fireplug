@@ -184,7 +184,7 @@ public class RelationshipStorage implements Serializable
      * @return NodeStorage of start node.
      */
     @NotNull
-    private NodeStorage getStartNode()
+    public NodeStorage getStartNode()
     {
         return startNode;
     }
@@ -194,7 +194,7 @@ public class RelationshipStorage implements Serializable
      * @return NodeStorage of end node.
      */
     @NotNull
-    private NodeStorage getEndNode()
+    public NodeStorage getEndNode()
     {
         return endNode;
     }

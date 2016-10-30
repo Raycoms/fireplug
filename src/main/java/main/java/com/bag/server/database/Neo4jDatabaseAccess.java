@@ -9,10 +9,7 @@ import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class created to handle access to the neo4j database.
@@ -142,46 +139,29 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
 
         //We only support 1 label each node/vertex because of compatibility with our graph dbs.
-        //todo get info from the list and parse all nodes which match this.
         ArrayList<Object> returnStorage =  new ArrayList<>();
         try(Transaction tx = graphDb.beginTx())
         {
-            StringBuilder builder = new StringBuilder("MATCH (n:");
+            StringBuilder builder = new StringBuilder("MATCH ");
 
             if(nodeStorage == null)
             {
-                relationshipStorage.getId();
+                builder.append(buildRelationshipString(relationshipStorage));
             }
             else
             {
-                builder.append(nodeStorage.getId());
-                builder.append("{");
-
-                if(nodeStorage.getProperties() != null)
-                {
-                    String n = "MATCH (user:User { name: 'Adam' })";
-
-                    //todo use iteratior and if !iteratorHasNext in loop, don't append ","
-                    nodeStorage.getProperties().entrySet().iterator();
-
-                    for(Map.Entry<String, Object> entry: nodeStorage.getProperties().entrySet())
-                    {
-                        builder.append(String.format("%s: '%s'",entry.getKey(), entry.getValue().toString()));
-
-                    }
-                }
-
-                builder.append("}) return n");
-
+                builder.append(buildNodeString(nodeStorage));
             }
 
-
+            builder.append(" RETURN r");
             //todo validate result.
-            Result tempList = graphDb.execute(builder.toString());
+            Result result = graphDb.execute(builder.toString());
 
             //todo transfer result to NodeStorage or relationship storage or both.
-            while (tempList.hasNext())
+            while (result.hasNext())
             {
+                Object value = result.next();
+                
                 //todo check if result is of type relationship or node.
                 NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
                 returnStorage.add(temp);
@@ -190,6 +170,81 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             tx.success();
         }
         return returnStorage;
+    }
+
+    /**
+     * Creates a Neo4j cypher String for a certain relationshipStorage
+     * @param relationshipStorage the relationshipStorage to transform.
+     * @return a string which may be sent with cypher to neo4j.
+     */
+    private String buildRelationshipString(final RelationshipStorage relationshipStorage)
+    {
+        StringBuilder builder = new StringBuilder(buildNodeString(relationshipStorage.getStartNode()));
+
+        builder.append("-[r");
+
+        if(!relationshipStorage.getId().isEmpty())
+        {
+            builder.append(String.format(":%s {", relationshipStorage.getId()));
+        }
+
+        if(relationshipStorage.getProperties() != null && !relationshipStorage.getProperties().isEmpty())
+        {
+            relationshipStorage.getProperties().entrySet().iterator();
+            Iterator<Map.Entry<String, Object>> propertyIterator = relationshipStorage.getProperties().entrySet().iterator();
+
+            while (propertyIterator.hasNext())
+            {
+                Map.Entry<String, Object> currentProperty = propertyIterator.next();
+                builder.append(String.format("%s: '%s'",currentProperty.getKey(), currentProperty.getValue().toString()));
+
+                if(propertyIterator.hasNext())
+                {
+                    builder.append(" , ");
+                }
+            }
+            builder.append("}");
+        }
+        builder.append("]-");
+
+        builder.append(buildNodeString(relationshipStorage.getEndNode()));
+
+        return builder.toString();
+    }
+
+    /**
+     * Creates a Neo4j cypher String for a certain nodeStorage.
+     * @param nodeStorage the nodeStorage to transform.
+     * @return a string which may be sent with cypher to neo4j.
+     */
+    private String buildNodeString(NodeStorage nodeStorage)
+    {
+        StringBuilder builder = new StringBuilder("(n");
+
+        if(!nodeStorage.getId().isEmpty())
+        {
+            builder.append(String.format(":%s {", nodeStorage.getId()));
+        }
+
+        if(nodeStorage.getProperties() != null)
+        {
+            nodeStorage.getProperties().entrySet().iterator();
+            Iterator<Map.Entry<String, Object>> propertyIterator = nodeStorage.getProperties().entrySet().iterator();
+
+            while (propertyIterator.hasNext())
+            {
+                Map.Entry<String, Object> currentProperty = propertyIterator.next();
+                builder.append(String.format("%s: '%s'",currentProperty.getKey(), currentProperty.getValue().toString()));
+
+                if(propertyIterator.hasNext())
+                {
+                    builder.append(" , ");
+                }
+            }
+        }
+        builder.append("})");
+
+        return builder.toString();
     }
 
     /**
