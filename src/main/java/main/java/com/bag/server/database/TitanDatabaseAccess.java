@@ -3,10 +3,13 @@ package main.java.com.bag.server.database;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
 import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.jetbrains.annotations.NotNull;
 
@@ -75,10 +78,18 @@ public class TitanDatabaseAccess implements IDatabaseAccess
          //graph = TinkerGraph.open();
         //todo get info from the list and parse all nodes which match this.
         ArrayList<Object> returnStorage =  new ArrayList<>();
+        GremlinPipeline pipe = new GremlinPipeline();
 
+        //todo stack .has().has().has() to get various properties.
         //todo add gremlin access to get it through gremlin, probably need a similar approach in orientDB and neo4j as well.
         try
         {
+            GraphTraversalSource g = graph.traversal();
+            Vertex fromNode = g.V().has("name", "marko").next();
+            Vertex toNode = g.V().has("name", "peter").next();
+            ArrayList list = new ArrayList();
+
+
             graph.newTransaction();
 
             //If nodeStorage is null, we're obviously trying to read relationships.
