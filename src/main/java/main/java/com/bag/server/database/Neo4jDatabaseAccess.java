@@ -5,16 +5,14 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterable;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class created to handle access to the neo4j database.
@@ -89,9 +87,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      */
     public void startReadOnly(int id)
     {
-        File DB_PATH = new File(BASE_PATH + id);
+        File dbPath = new File(BASE_PATH + id);
 
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( DB_PATH )
+        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( dbPath )
                 .setConfig( GraphDatabaseSettings.read_only, "true" )
                 .newGraphDatabase();
     }
@@ -148,20 +146,43 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         ArrayList<Object> returnStorage =  new ArrayList<>();
         try(Transaction tx = graphDb.beginTx())
         {
+            StringBuilder builder = new StringBuilder("MATCH (n:");
+
             if(nodeStorage == null)
             {
                 relationshipStorage.getId();
             }
             else
             {
-                nodeStorage.getId();
+                builder.append(nodeStorage.getId());
+                builder.append("{");
+
+                if(nodeStorage.getProperties() != null)
+                {
+                    String n = "MATCH (user:User { name: 'Adam' })";
+
+                    //todo use iteratior and if !iteratorHasNext in loop, don't append ","
+                    nodeStorage.getProperties().entrySet().iterator();
+
+                    for(Map.Entry<String, Object> entry: nodeStorage.getProperties().entrySet())
+                    {
+                        builder.append(String.format("%s: '%s'",entry.getKey(), entry.getValue().toString()));
+
+                    }
+                }
+
+                builder.append("}) return n");
+
             }
 
 
-            ResourceIterable<Node> tempList = graphDb.getAllNodes();
+            //todo validate result.
+            Result tempList = graphDb.execute(builder.toString());
 
-            for(Node n: tempList)
+            //todo transfer result to NodeStorage or relationship storage or both.
+            while (tempList.hasNext())
             {
+                //todo check if result is of type relationship or node.
                 NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
                 returnStorage.add(temp);
             }
@@ -170,7 +191,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         return returnStorage;
     }
-
 
     /**
      * Creates a transaction which will get all nodes.

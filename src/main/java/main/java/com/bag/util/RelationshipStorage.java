@@ -31,7 +31,7 @@ public class RelationshipStorage implements Serializable
      * The properties of the relationship, may be empty as well.
      */
     @Nullable
-    private HashMap<String, String> properties;
+    private HashMap<String, Object> properties;
 
     /**
      * The node the relationship starts.
@@ -142,7 +142,7 @@ public class RelationshipStorage implements Serializable
      * @return unmodifiable map of the properties.
      */
     @Nullable
-    public Map<String, String> getProperties()
+    public Map<String, Object> getProperties()
     {
         return properties == null ? null : Collections.unmodifiableMap(properties);
     }
@@ -152,7 +152,7 @@ public class RelationshipStorage implements Serializable
      *
      * @param properties a property map.
      */
-    public void setProperties(@NotNull final HashMap<String, String> properties)
+    public void setProperties(@NotNull final HashMap<String, Object> properties)
     {
         if (this.properties == null)
         {
@@ -170,11 +170,11 @@ public class RelationshipStorage implements Serializable
      * @param description description of the property.
      * @param value       value of the property.
      */
-    public void addProperty(String description, String value)
+    public void addProperty(String description, Object value)
     {
         if (this.properties == null)
         {
-            this.properties = new HashMap<String, String>();
+            this.properties = new HashMap<>();
         }
         this.properties.put(description, value);
     }
@@ -253,7 +253,7 @@ public class RelationshipStorage implements Serializable
         }
         if (properties != null)
         {
-            for(Map.Entry<String, String> entry: properties.entrySet())
+            for(Map.Entry<String, Object> entry: properties.entrySet())
             {
                 sb.append(entry.getKey()).append(entry.getValue());
             }

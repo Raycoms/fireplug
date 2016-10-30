@@ -135,11 +135,11 @@ public class NodeStorage implements Serializable
      * @param description description of the property.
      * @param value value of the property.
      */
-    public void addProperty(String description, String value)
+    public void addProperty(String description, Object value)
     {
         if(this.properties == null)
         {
-            this.properties = new HashMap<String, Object>();
+            this.properties = new HashMap<>();
         }
         this.properties.put(description, value);
     }
