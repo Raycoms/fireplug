@@ -71,7 +71,6 @@ public class TestServer extends DefaultRecoverable
         instance = Constants.NEO4J;
 
         neo4j = new Neo4jDatabaseAccess();
-        neo4j.start(id);
 
         //todo create terminate command.
         //neo4j.terminate();
@@ -107,7 +106,8 @@ public class TestServer extends DefaultRecoverable
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
         Input input = new Input(bytes);
-        String reason = (String) kryo.readClassAndObject(input);
+        String reason = kryo.readObject(input, String.class);
+
         Output output = new Output(0, 10240);
 
         if(reason.equals(Constants.READ_MESSAGE))
@@ -116,8 +116,7 @@ public class TestServer extends DefaultRecoverable
         }
         else if(reason.equals(Constants.RELATIONSHIP_READ_MESSAGE))
         {
-            long localSnapshotId = input.readLong();
-
+            long localSnapshotId = kryo.readObject(input, Long.class);
             //todo derialize the relationShipStorage object.
             input.close();
 
@@ -136,6 +135,7 @@ public class TestServer extends DefaultRecoverable
         {
             Log.getLogger().warn("Incorrect operation sent unordered to the server");
             output.close();
+            input.close();
             return new byte[0];
         }
 
@@ -160,51 +160,51 @@ public class TestServer extends DefaultRecoverable
     private Output handleNodeRead(Input input, MessageContext messageContext, Kryo kryo, Output output)
     {
         Output localOutput = output;
-        long localSnapshotId = input.readLong();
+        long localSnapshotId = kryo.readObject(input, Long.class);
         NodeStorage identifier = (NodeStorage) kryo.readClassAndObject(input);
         input.close();
 
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
-        if(localSnapshotId == -1)
+        if (localSnapshotId == -1)
         {
             localTransactionList.put(messageContext.getSender(), new TransactionStorage());
             localSnapshotId = globalSnapshotId;
         }
+        ArrayList<Object> returnList = null;
 
-        if(instance.equals(Constants.NEO4J))
+        if (instance.equals(Constants.NEO4J))
         {
             Log.getLogger().info("Get info from neo4j");
-            ArrayList<Object> returnList = new ArrayList<>(neo4j.readObject(identifier));
-
-
+            returnList = new ArrayList<>(neo4j.readObject(identifier, localSnapshotId));
             Log.getLogger().info("Got info from neo4j: " + returnList.size());
-
-            if(returnList.isEmpty())
-            {
-                kryo.writeClassAndObject(localOutput, localSnapshotId);
-                kryo.writeClassAndObject(localOutput, Collections.emptyList());
-                kryo.writeClassAndObject(localOutput, Collections.emptyList());
-                return output;
-            }
-
-            ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
-            ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
-            for(Object obj: returnList)
-            {
-                if(obj instanceof NodeStorage)
-                {
-                    nodeStorage.add((NodeStorage) obj);
-                }
-                else if(obj instanceof RelationshipStorage)
-                {
-                    relationshipStorage.add((RelationshipStorage) obj);
-                }
-            }
-
-            kryo.writeClassAndObject(localOutput, localSnapshotId);
-            kryo.writeClassAndObject(localOutput, nodeStorage);
-            kryo.writeClassAndObject(localOutput, relationshipStorage);
         }
+
+        kryo.writeObject(output, localSnapshotId);
+
+        if (returnList == null || returnList.isEmpty())
+        {
+            kryo.writeClassAndObject(localOutput, Collections.emptyList());
+            kryo.writeClassAndObject(localOutput, Collections.emptyList());
+            return output;
+        }
+
+        ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
+        ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
+        for (Object obj : returnList)
+        {
+            if (obj instanceof NodeStorage)
+            {
+                nodeStorage.add((NodeStorage) obj);
+            }
+            else if (obj instanceof RelationshipStorage)
+            {
+                relationshipStorage.add((RelationshipStorage) obj);
+            }
+        }
+
+        kryo.writeClassAndObject(localOutput, nodeStorage);
+        kryo.writeClassAndObject(localOutput, relationshipStorage);
+
         return output;
     }
 

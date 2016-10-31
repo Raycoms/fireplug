@@ -31,7 +31,7 @@ public class RelationshipStorage implements Serializable
      * The properties of the relationship, may be empty as well.
      */
     @Nullable
-    private HashMap<String, Object> properties;
+    private Map<String, Object> properties;
 
     /**
      * The node the relationship starts.
@@ -88,7 +88,7 @@ public class RelationshipStorage implements Serializable
      * @param startNode  node the relationship starts.
      * @param endNode    node the relationship ends.
      */
-    public RelationshipStorage(@NotNull String id, @Nullable HashMap properties, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
+    public RelationshipStorage(@NotNull String id, @Nullable Map<String, Object> properties, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
     {
         this(id, startNode, endNode);
         this.properties = properties;
@@ -141,10 +141,10 @@ public class RelationshipStorage implements Serializable
      *
      * @return unmodifiable map of the properties.
      */
-    @Nullable
+    @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? null : Collections.unmodifiableMap(properties);
+        return properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(properties);
     }
 
     /**

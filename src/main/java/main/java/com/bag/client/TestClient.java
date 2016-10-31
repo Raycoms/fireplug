@@ -14,6 +14,7 @@ import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -240,6 +241,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Input input = new Input(value);
         localTimestamp = (long) kryo.readClassAndObject(input);
 
+        //todo check if empty list?
         //todo get nodes and relationships from the stream and add them to the readSet
         ArrayList<NodeStorage>         nodeResult         = (ArrayList<NodeStorage>) kryo.readClassAndObject(input);
         ArrayList<RelationshipStorage> relationshipResult = (ArrayList<RelationshipStorage>) kryo.readClassAndObject(input);
@@ -310,7 +312,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      * Serializes the data and returns it in byte format.
      * @return the data in byte format.
      */
-    private byte[] serialize(String reason, Object...args)
+    private byte[] serialize(@NotNull String reason, long localTimestamp, Object...args)
     {
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
@@ -318,7 +320,8 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
         Output output = new Output(0, 10024);
 
-        kryo.writeClassAndObject(output, reason);
+        kryo.writeObject(output, reason);
+        kryo.writeObject(output, localTimestamp);
         for(Object identifier: args)
         {
             if(identifier instanceof NodeStorage || identifier instanceof RelationshipStorage || identifier instanceof Long)

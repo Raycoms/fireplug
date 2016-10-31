@@ -108,10 +108,10 @@ public class NodeStorage implements Serializable
      * Getter of the properties.
      * @return unmodifiable map of the properties.
      */
-    @Nullable
+    @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? null : Collections.unmodifiableMap(properties);
+        return properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(properties);
     }
 
     /**

@@ -9,36 +9,35 @@ import main.java.com.bag.util.NodeStorage;
  */
 public class RunTests
 {
+    /**
+     * Hide the implicit constructor to evit instantiation of this class.
+     */
+    private RunTests()
+    {
+        /*
+         * Intentionally left empty.
+         */
+    }
 
     public static void main(String [] args)
     {
-        byte[] b = {10,100,01,1};
-
-
-
-        TestClient client1 = new TestClient(1);
-
-        client1.read(new NodeStorage("Anything"));
-        //client1.invokeUnordered(b);
-
-
-        for(int i = 0; i < 10000000; i++)
+        try (TestClient client1 = new TestClient(1))
         {
-            try
+            client1.read(new NodeStorage(""));
+
+            for (int i = 0; i < 10000000; i++)
             {
-                Thread.sleep(10);
+                try
+                {
+                    Thread.sleep(10);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
             }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
+
+            client1.close();
         }
-
-        client1.close();
-
-
-
-
-
     }
 }

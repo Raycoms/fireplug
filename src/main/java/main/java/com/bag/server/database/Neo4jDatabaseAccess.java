@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.kernel.impl.core.NodeProxy;
+import org.neo4j.kernel.impl.core.RelationshipProxy;
+
 import java.io.File;
 import java.util.*;
 
@@ -16,15 +19,27 @@ import java.util.*;
  */
 public class Neo4jDatabaseAccess implements IDatabaseAccess
 {
-    private static final String BASE_PATH = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB";
+    private static final String BASE_PATH    = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB";
+    private static final String TAG_SNAPSHOT_ID = "snapShotId";
     /**
      * The graphDB object.
      */
     private GraphDatabaseService graphDb;
-    private int id;
+
     /**
-     * The path to the neo4j graphDB
+     * Id of the database. (If multiple running on the same machine.
      */
+    private int id;
+
+    /**
+     * String used to match key value pairs.
+     */
+    private static final String KEY_VALUE_PAIR = "%s: '%s'";
+
+    /**
+     * Match string for cypher queries.
+     */
+    private static final String MATCH = "MATCH ";
 
     @Override
     public void start(int id)
@@ -32,30 +47,27 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         File DB_PATH = new File(BASE_PATH + id);
 
         this.id = id;
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( DB_PATH)
-                .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
-                .newGraphDatabase();
-
+        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(DB_PATH).newGraphDatabase();
         registerShutdownHook( graphDb );
 
-        /*try(Transaction tx = graphDb.beginTx())
+        try(Transaction tx = graphDb.beginTx())
         {
-            graphDb.execute("CREATE\n"
-                    + "(leyla: Officer {name:\"Leyla Aliyeva\"})-[:IOO_BSD]->(ufu:Company {name:\"UF Universe Foundation\"}),\n"
+            /*graphDb.execute("CREATE\n"
+                    + "(leyla: Officer {name:\"Leyla Aliyeva\"})-[:IOO_BSD]->(ufu:Company {name:\"UF Universe Foundation\", snapShotId: '0'}),\n"
                     + "(mehriban: Officer {name:\"Mehriban Aliyeva\"})-[:IOO_PROTECTOR]->(ufu),\n"
                     + "(arzu: Officer {name:\"Arzu Aliyeva\"})-[:IOO_BSD]->(ufu),\n"
                     + "(mossack_uk: Client {name:\"Mossack Fonseca & Co (UK)\"})-[:REGISTERED]->(ufu),\n"
-                    + "(mossack_uk)-[:REGISTERED]->(fm_mgmt: Company {name:\"FM Management Holding Group S.A.\"}),\n"
+                    + "(mossack_uk)-[:REGISTERED]->(fm_mgmt: Company {name:\"FM Management Holding Group S.A.\", snapShotId: '0'}),\n"
                     + "\n"
                     + "(leyla)-[:IOO_BSD]->(kingsview:Company {name:\"Kingsview Developents Limited\"}),\n"
                     + "(leyla2: Officer {name:\"Leyla Ilham Qizi Aliyeva\"}),\n"
                     + "(leyla3: Officer {name:\"LEYLA ILHAM QIZI ALIYEVA\"})-[:HAS_SIMILIAR_NAME]->(leyla),\n"
                     + "(leyla2)-[:HAS_SIMILIAR_NAME]->(leyla3),\n"
-                    + "(leyla2)-[:IOO_BENEFICIARY]->(exaltation:Company {name:\"Exaltation Limited\"}),\n"
+                    + "(leyla2)-[:IOO_BENEFICIARY]->(exaltation:Company {name:\"Exaltation Limited\", snapShotId: '0'}),\n"
                     + "(leyla3)-[:IOO_SHAREHOLDER]->(exaltation),\n"
                     + "(arzu2:Officer {name:\"Arzu Ilham Qizi Aliyeva\"})-[:IOO_BENEFICIARY]->(exaltation),\n"
                     + "(arzu2)-[:HAS_SIMILIAR_NAME]->(arzu),\n"
-                    + "(arzu2)-[:HAS_SIMILIAR_NAME]->(arzu3:Officer {name:\"ARZU ILHAM QIZI ALIYEVA\"}),\n"
+                    + "(arzu2)-[:HAS_SIMILIAR_NAME]->(arzu3:Officer {name:\"ARZU ILHAM QIZI ALIYEVA\", snapShotId: '0'}),\n"
                     + "(arzu3)-[:IOO_SHAREHOLDER]->(exaltation),\n"
                     + "(arzu)-[:IOO_BSD]->(exaltation),\n"
                     + "(leyla)-[:IOO_BSD]->(exaltation),\n"
@@ -66,10 +78,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     + "(:Officer {name:\"LONDEX RESOURCES S.A.\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
                     + "(:Officer {name:\"FAGATE MINING CORPORATION\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
                     + "(:Officer {name:\"GLOBEX INTERNATIONAL LLP\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
-                    + "(:Client {name:\"Associated Trustees\"})-[:REGISTERED]->(redgold)");
+                    + "(:Client {name:\"Associated Trustees\"})-[:REGISTERED]->(redgold)");*/
 
             tx.success();
-        }*/
+        }
 
     }
 
@@ -114,7 +126,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
-    public List<Object> readObject(@NotNull Object identifier)
+    public List<Object> readObject(@NotNull Object identifier, long snapShotId)
     {
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage =  null;
@@ -146,25 +158,39 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             if(nodeStorage == null)
             {
-                builder.append(buildRelationshipString(relationshipStorage));
+                builder.append(buildRelationshipString(relationshipStorage, snapShotId));
+                builder.append(" RETURN r");
             }
             else
             {
-                builder.append(buildNodeString(nodeStorage));
+                builder.append(buildNodeString(nodeStorage, snapShotId));
+                builder.append(" RETURN n");
             }
 
-            builder.append(" RETURN r");
-            //todo validate result.
             Result result = graphDb.execute(builder.toString());
-
-            //todo transfer result to NodeStorage or relationship storage or both.
             while (result.hasNext())
             {
-                Object value = result.next();
-                
-                //todo check if result is of type relationship or node.
-                NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-                returnStorage.add(temp);
+                Map<String, Object> value = result.next();
+
+                for(Map.Entry<String, Object> entry: value.entrySet())
+                {
+                    if(entry.getValue() instanceof NodeProxy)
+                    {
+                        NodeProxy n = (NodeProxy) entry.getValue();
+                        NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                        returnStorage.add(temp);
+                    }
+                    else if(entry.getValue() instanceof RelationshipProxy)
+                    {
+                        RelationshipProxy r = (RelationshipProxy) entry.getValue();
+                        NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
+                        NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
+
+
+                        RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
+                        returnStorage.add(temp);
+                    }
+                }
             }
 
             tx.success();
@@ -177,37 +203,32 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * @param relationshipStorage the relationshipStorage to transform.
      * @return a string which may be sent with cypher to neo4j.
      */
-    private String buildRelationshipString(final RelationshipStorage relationshipStorage)
+    private String buildRelationshipString(final RelationshipStorage relationshipStorage, long snapShotId)
     {
-        StringBuilder builder = new StringBuilder(buildNodeString(relationshipStorage.getStartNode()));
+        StringBuilder builder = new StringBuilder(buildNodeString(relationshipStorage.getStartNode(), snapShotId));
 
         builder.append("-[r");
 
-        if(!relationshipStorage.getId().isEmpty())
+        if (!relationshipStorage.getId().isEmpty())
         {
-            builder.append(String.format(":%s {", relationshipStorage.getId()));
+            builder.append(String.format(":%s", relationshipStorage.getId()));
         }
 
-        if(relationshipStorage.getProperties() != null && !relationshipStorage.getProperties().isEmpty())
+        builder.append(" {");
+        relationshipStorage.getProperties().entrySet().iterator();
+
+        for (final Map.Entry<String, Object> currentProperty : relationshipStorage.getProperties().entrySet())
         {
-            relationshipStorage.getProperties().entrySet().iterator();
-            Iterator<Map.Entry<String, Object>> propertyIterator = relationshipStorage.getProperties().entrySet().iterator();
-
-            while (propertyIterator.hasNext())
-            {
-                Map.Entry<String, Object> currentProperty = propertyIterator.next();
-                builder.append(String.format("%s: '%s'",currentProperty.getKey(), currentProperty.getValue().toString()));
-
-                if(propertyIterator.hasNext())
-                {
-                    builder.append(" , ");
-                }
-            }
-            builder.append("}");
+            builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
+            builder.append(" , ");
         }
+
+        builder.append(String.format(KEY_VALUE_PAIR, TAG_SNAPSHOT_ID, snapShotId));
+        builder.append("}");
+
         builder.append("]-");
 
-        builder.append(buildNodeString(relationshipStorage.getEndNode()));
+        builder.append(buildNodeString(relationshipStorage.getEndNode(), snapShotId));
 
         return builder.toString();
     }
@@ -217,32 +238,24 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * @param nodeStorage the nodeStorage to transform.
      * @return a string which may be sent with cypher to neo4j.
      */
-    private String buildNodeString(NodeStorage nodeStorage)
+    private String buildNodeString(NodeStorage nodeStorage, long snapShotId)
     {
         StringBuilder builder = new StringBuilder("(n");
 
-        if(!nodeStorage.getId().isEmpty())
+        if (!nodeStorage.getId().isEmpty())
         {
-            builder.append(String.format(":%s {", nodeStorage.getId()));
+            builder.append(String.format(":%s", nodeStorage.getId()));
         }
+        nodeStorage.getProperties().entrySet().iterator();
 
-        if(nodeStorage.getProperties() != null)
+        builder.append(" {");
+
+        for (final Map.Entry<String, Object> currentProperty : nodeStorage.getProperties().entrySet())
         {
-            nodeStorage.getProperties().entrySet().iterator();
-            Iterator<Map.Entry<String, Object>> propertyIterator = nodeStorage.getProperties().entrySet().iterator();
-
-            while (propertyIterator.hasNext())
-            {
-                Map.Entry<String, Object> currentProperty = propertyIterator.next();
-                builder.append(String.format("%s: '%s'",currentProperty.getKey(), currentProperty.getValue().toString()));
-
-                if(propertyIterator.hasNext())
-                {
-                    builder.append(" , ");
-                }
-            }
+            builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
+            builder.append(" , ");
         }
-        builder.append("})");
+        builder.append(String.format(KEY_VALUE_PAIR, TAG_SNAPSHOT_ID, snapShotId)).append("})");
 
         return builder.toString();
     }
