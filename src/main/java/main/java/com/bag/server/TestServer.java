@@ -112,7 +112,7 @@ public class TestServer extends DefaultRecoverable
 
         if(reason.equals(Constants.READ_MESSAGE))
         {
-            handleNodeRead(input, messageContext, kryo, output);
+            output = handleNodeRead(input, messageContext, kryo, output);
         }
         else if(reason.equals(Constants.RELATIONSHIP_READ_MESSAGE))
         {
@@ -159,7 +159,6 @@ public class TestServer extends DefaultRecoverable
      */
     private Output handleNodeRead(Input input, MessageContext messageContext, Kryo kryo, Output output)
     {
-        Output localOutput = output;
         long localSnapshotId = kryo.readObject(input, Long.class);
         NodeStorage identifier = (NodeStorage) kryo.readClassAndObject(input);
         input.close();
@@ -183,8 +182,8 @@ public class TestServer extends DefaultRecoverable
 
         if (returnList == null || returnList.isEmpty())
         {
-            kryo.writeClassAndObject(localOutput, Collections.emptyList());
-            kryo.writeClassAndObject(localOutput, Collections.emptyList());
+            kryo.writeClassAndObject(output, Collections.emptyList());
+            kryo.writeClassAndObject(output, Collections.emptyList());
             return output;
         }
 
@@ -202,8 +201,8 @@ public class TestServer extends DefaultRecoverable
             }
         }
 
-        kryo.writeClassAndObject(localOutput, nodeStorage);
-        kryo.writeClassAndObject(localOutput, relationshipStorage);
+        kryo.writeClassAndObject(output, nodeStorage);
+        kryo.writeClassAndObject(output, relationshipStorage);
 
         return output;
     }

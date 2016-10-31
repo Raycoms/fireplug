@@ -2,62 +2,28 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b25c77af-4557-4786-a808-ade860b1172d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB0/schema/label/lucene/labelStore/1/_0.cfe" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB0/schema/label/lucene/labelStore/1/_0.cfs" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB0/schema/label/lucene/labelStore/1/_0.si" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB0/schema/label/lucene/labelStore/1/segments_2" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB0/store_lock" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.counts.db.a" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.counts.db.b" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.counts.db.b" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.nodestore.db" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.nodestore.db" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.labeltokenstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.labeltokenstore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.labeltokenstore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.labeltokenstore.db.names.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.nodestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.nodestore.db.labels.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.nodestore.db.labels.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.arrays.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.arrays.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.keys" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.keys" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.keys.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshipstore.db" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshipstore.db" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.strings.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.strings.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshipgroupstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshipgroupstore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshipstore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshiptypestore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.relationshiptypestore.db.names.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.schemastore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.schemastore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.transaction.db.0" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.names.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.labels.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.labels.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.arrays.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.arrays.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.keys.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.strings.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.strings.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipgroupstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipgroupstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.names.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.schemastore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.schemastore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.transaction.db.0" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess$1.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess$1.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/NodeStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/NodeStorage.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/RelationshipStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/RelationshipStorage.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB0/logs/debug.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB2/logs/debug.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/RelationshipStorage.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/RelationshipStorage.java" />
     </list>
     <ignored path="BAG - Byzantine fault-tolerant Architecture for Graph database.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -97,11 +63,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="TestClient.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="TestClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="246" column="116" selection-start-line="246" selection-start-column="98" selection-end-line="246" selection-end-column="116" />
+            <state relative-caret-position="167">
+              <caret line="246" column="124" selection-start-line="245" selection-start-column="8" selection-end-line="246" selection-end-column="124" />
               <folding>
                 <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
                 <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
@@ -120,11 +86,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TestServer.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="TestServer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="174">
-              <caret line="185" column="0" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
+            <state relative-caret-position="334">
+              <caret line="55" column="6" selection-start-line="48" selection-start-column="3" selection-end-line="55" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -143,8 +109,8 @@
       <file leaf-file-name="Neo4jDatabaseAccess.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-90">
-              <caret line="168" column="0" selection-start-line="168" selection-start-column="0" selection-end-line="168" selection-end-column="0" />
+            <state relative-caret-position="525">
+              <caret line="197" column="0" selection-start-line="197" selection-start-column="0" selection-end-line="197" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -168,7 +134,7 @@
       <file leaf-file-name="OrientDBDatabaseAccess.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="750">
+            <state relative-caret-position="456">
               <caret line="64" column="62" selection-start-line="64" selection-start-column="62" selection-end-line="64" selection-end-column="62" />
               <folding />
             </state>
@@ -181,7 +147,8 @@
             <state relative-caret-position="1305">
               <caret line="106" column="16" selection-start-line="106" selection-start-column="16" selection-end-line="106" selection-end-column="16" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="e#5395#5396#0" expanded="false" />
+                <element signature="e#5424#5425#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -582,9 +549,9 @@
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/RelationshipStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
       </list>
     </option>
@@ -1085,8 +1052,8 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-2" y="0" width="1924" height="1055" extended-state="0" />
-    <editor active="false" />
+    <frame x="-2" y="0" width="1924" height="1055" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="6" side_tool="false" content_ui="tabs" />
@@ -1095,7 +1062,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.638412" sideWeight="0.40618336" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.31866953" sideWeight="0.5181237" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31866953" sideWeight="0.5181237" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1106,7 +1073,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.55472106" sideWeight="0.59381664" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.42167383" sideWeight="0.59381664" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1131,12 +1098,6 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java</url>
-          <line>148</line>
-          <properties />
-          <option name="timeStamp" value="58" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
           <line>241</line>
           <properties />
@@ -1160,8 +1121,14 @@
           <properties />
           <option name="timeStamp" value="80" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
+          <line>258</line>
+          <properties />
+          <option name="timeStamp" value="81" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="81" />
+      <option name="time" value="82" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -1173,6 +1140,8 @@
         <watch expression="result.columns()" language="JAVA" />
         <watch expression="((ExecutionResult) result).dumpToString()" language="JAVA" custom="org.neo4j.cypher.internal.javacompat.ExecutionResult" />
         <watch expression="((NodeProxy) ((Wrappers.MapWrapper) value).values().iterator().next()).getAllProperties()" language="JAVA" custom="scala.collection.convert.Wrappers,org.neo4j.kernel.impl.core.NodeProxy" />
+        <watch expression="kryo.readClassAndObject(input)" language="JAVA" />
+        <watch expression="kryo.readObject(input, ArrayList&lt;NodeStorage&gt;.class)" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>
@@ -1443,14 +1412,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="750">
-          <caret line="64" column="62" selection-start-line="64" selection-start-column="62" selection-end-line="64" selection-end-column="62" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
@@ -1464,7 +1425,8 @@
         <state relative-caret-position="1305">
           <caret line="106" column="16" selection-start-line="106" selection-start-column="16" selection-end-line="106" selection-end-column="16" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#5395#5396#0" expanded="false" />
+            <element signature="e#5424#5425#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1499,32 +1461,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="64" column="62" selection-start-line="64" selection-start-column="62" selection-end-line="64" selection-end-column="62" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-90">
-          <caret line="168" column="0" selection-start-line="168" selection-start-column="0" selection-end-line="168" selection-end-column="0" />
+        <state relative-caret-position="525">
+          <caret line="197" column="0" selection-start-line="197" selection-start-column="0" selection-end-line="197" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="334">
+          <caret line="55" column="6" selection-start-line="48" selection-start-column="3" selection-end-line="55" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="246" column="116" selection-start-line="246" selection-start-column="98" selection-end-line="246" selection-end-column="116" />
+        <state relative-caret-position="167">
+          <caret line="246" column="124" selection-start-line="245" selection-start-column="8" selection-end-line="246" selection-end-column="124" />
           <folding>
             <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
             <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="185" column="0" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>

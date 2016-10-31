@@ -239,7 +239,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Kryo kryo = pool.borrow();
 
         Input input = new Input(value);
-        localTimestamp = (long) kryo.readClassAndObject(input);
+        localTimestamp = kryo.readObject(input, Long.class);
 
         //todo check if empty list?
         //todo get nodes and relationships from the stream and add them to the readSet
@@ -324,7 +324,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         kryo.writeObject(output, localTimestamp);
         for(Object identifier: args)
         {
-            if(identifier instanceof NodeStorage || identifier instanceof RelationshipStorage || identifier instanceof Long)
+            if(identifier instanceof NodeStorage || identifier instanceof RelationshipStorage)
             {
                 kryo.writeClassAndObject(output, identifier);
             }
