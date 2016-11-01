@@ -1,6 +1,6 @@
 package main.java.com.bag.server.database;
 
-import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
+import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 
 /**
  * Created by ray on 10/12/16.

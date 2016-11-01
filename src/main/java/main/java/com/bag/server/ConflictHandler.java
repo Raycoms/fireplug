@@ -1,43 +1,48 @@
 package main.java.com.bag.server;
 
+import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Receives read and write sets and checks them for conflicts
  */
 public class ConflictHandler
 {
-    //todo check hash (in database) , check timestamp, check past read and writeSets.
+    /**
+     * Private standard constructor to hide the implicit one.
+     */
+    private ConflictHandler()
+    {
+        /*
+         * Intentionally left empty.
+         */
+    }
 
-    private boolean checkForConflict(HashMap<Long, ArrayList<NodeStorage>> writeSetNode,
-            HashMap<Long, ArrayList<NodeStorage>> writeSetRelationship,
-            ArrayList<NodeStorage> readSetNode,
-            ArrayList<RelationshipStorage> readSetRelationship,
+    protected static boolean checkForConflict(Map<Long, List<NodeStorage>> writeSetNode,
+            Map<Long, List<RelationshipStorage>> writeSetRelationship,
+            List<NodeStorage> readSetNode,
+            List<RelationshipStorage> readSetRelationship,
             long snapshotId)
     {
         return isUpToDate(writeSetNode, writeSetRelationship, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship);
     }
 
-    private boolean isUpToDate(HashMap<Long, ArrayList<NodeStorage>> writeSetNode,
-            HashMap<Long, ArrayList<NodeStorage>> writeSetRelationship,
-            ArrayList<NodeStorage> readSetNode,
-            ArrayList<RelationshipStorage> readSetRelationship, long snapshotId)
+    private static boolean isUpToDate(Map<Long, List<NodeStorage>> writeSetNode,
+            Map<Long, List<RelationshipStorage>> writeSetRelationship,
+            List<NodeStorage> readSetNode,
+            List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
 
         return !writeSetNode.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> Collections.unmodifiableList(writeSetNode.get(id)).retainAll(readSetNode))
                 && !writeSetRelationship.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> Collections.unmodifiableList(writeSetRelationship.get(id)).retainAll(readSetRelationship));
     }
 
-    private boolean isCorrect(ArrayList<NodeStorage> readSetNode, ArrayList<RelationshipStorage> readSetRelationship)
+    private static boolean isCorrect(List<NodeStorage> readSetNode, List<RelationshipStorage> readSetRelationship)
     {
-        //todo have to read from database and get hash
-        return true;
+        Neo4jDatabaseAccess neo4j = new Neo4jDatabaseAccess();
+        return neo4j.equalHash(readSetNode) && neo4j.equalHash(readSetRelationship);
     }
-
-
 }

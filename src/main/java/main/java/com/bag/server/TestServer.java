@@ -49,12 +49,12 @@ public class TestServer extends DefaultRecoverable
     /**
      * Write set of the nodes contains updates and deletes.
      */
-    private HashMap<Long, NodeStorage> writeSetNode;
+    private HashMap<Long, ArrayList<NodeStorage>> writeSetNode;
 
     /**
      * Write set of the relationships contains updates and deletes.
      */
-    private HashMap<Long, NodeStorage> writeSetRelationship;
+    private HashMap<Long, ArrayList<RelationshipStorage>> writeSetRelationship;
 
     private KryoFactory factory = () ->
     {
@@ -105,6 +105,15 @@ public class TestServer extends DefaultRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
+        //todo deserialize check if is commit message.
+        //todo should contain all read and writeSets.
+        ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, new ArrayList<NodeStorage>(), new ArrayList<RelationshipStorage>(), 5);
+        //todo if true then return commit to client else abort
+
+        //todo if commit execute transaction and add to executed transactions
+        //todo we may add later further additions.
+
+
         //todo when we execute the sets on commit, we have to be careful.
         //todo Follow the following order: First createSet then writeSetNode and then deleteSet.
         //todo deserialze the hashmaps

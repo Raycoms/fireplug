@@ -1,11 +1,12 @@
 package main.java.com.bag.server.database;
 
-import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
+import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.cypher.internal.compiler.v2_3.No;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
@@ -285,5 +286,25 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 graphDb.shutdown();
             }
         } );
+    }
+
+    @Override
+    public boolean equalHash(final List readSet)
+    {
+        if(readSet.isEmpty())
+        {
+            return true;
+        }
+
+        if(readSet.get(0) instanceof NodeStorage)
+        {
+
+        }
+        else if(readSet.get(0) instanceof RelationshipStorage)
+        {
+
+        }
+
+        return true;
     }
 }
