@@ -22,12 +22,6 @@ public class RelationshipStorage implements Serializable
     private final String id;
 
     /**
-     * The type of the relationship, optional may not be supported by various graph databases.
-     */
-    @Nullable
-    private String type;
-
-    /**
      * The properties of the relationship, may be empty as well.
      */
     @Nullable
@@ -77,7 +71,6 @@ public class RelationshipStorage implements Serializable
     public RelationshipStorage(@NotNull String id, @Nullable String type, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
     {
         this(id, startNode, endNode);
-        this.type = type;
     }
 
     /**
@@ -106,7 +99,6 @@ public class RelationshipStorage implements Serializable
     public RelationshipStorage(@NotNull String id, @Nullable String type, @Nullable HashMap properties, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
     {
         this(id, startNode, endNode);
-        this.type = type;
         this.properties = properties;
     }
 
@@ -118,22 +110,6 @@ public class RelationshipStorage implements Serializable
     public String getId()
     {
         return this.id;
-    }
-
-    @Nullable
-    public String getType()
-    {
-        return type;
-    }
-
-    /**
-     * Setter of the type.
-     *
-     * @param type new type.
-     */
-    public void setType(@Nullable final String type)
-    {
-        this.type = type;
     }
 
     /**
@@ -217,13 +193,8 @@ public class RelationshipStorage implements Serializable
         {
             return false;
         }
-        if (this.getType() != null && that.getType() != null && !this.getType().equals(that.getType()))
-        {
-            return false;
-        }
-        
-        //todo check if one properties list is valid subset of the other
-        if (getProperties() != null ? !getProperties().equals(that.getProperties()) : that.getProperties() != null)
+
+        if (!(this.getProperties().entrySet().containsAll(that.getProperties().entrySet())))
         {
             return false;
         }
@@ -234,9 +205,8 @@ public class RelationshipStorage implements Serializable
     public int hashCode()
     {
         return 31 * (31 * (31 * (31 * getId().hashCode()
-                + (getType() != null ? getType().hashCode() : 0))
-                + (getProperties() != null ? getProperties().hashCode() : 0))
-                + getStartNode().hashCode()) + getEndNode().hashCode();
+                + getProperties().hashCode())
+                + getStartNode().hashCode()) + getEndNode().hashCode());
     }
 
     /**
@@ -247,10 +217,7 @@ public class RelationshipStorage implements Serializable
     {
         StringBuilder sb = new StringBuilder();
         sb.append(id);
-        if(type != null)
-        {
-            sb.append(type);
-        }
+
         if (properties != null)
         {
             for(Map.Entry<String, Object> entry: properties.entrySet())

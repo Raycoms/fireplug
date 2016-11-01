@@ -20,12 +20,6 @@ public class NodeStorage implements Serializable
     private final String id;
 
     /**
-     * The type of the node, optional may not be supported by various graph databases.
-     */
-    @Nullable
-    private String type;
-
-    /**
      * The properties of the node, may be empty as well.
      */
     @Nullable
@@ -48,17 +42,6 @@ public class NodeStorage implements Serializable
     /**
      * Simple nodeStorage constructor.
      * @param id string identifier of the node.
-     * @param type type of the node.
-     */
-    public NodeStorage(@NotNull String id, @Nullable String type)
-    {
-        this.id = id;
-        this.type = type;
-    }
-
-    /**
-     * Simple nodeStorage constructor.
-     * @param id string identifier of the node.
      * @param properties properties of the node.
      */
     public NodeStorage(@NotNull String id, @Nullable Map properties)
@@ -70,13 +53,11 @@ public class NodeStorage implements Serializable
     /**
      * Simple nodeStorage constructor.
      * @param id string identifier of the node.
-     * @param type type of the node.
      * @param properties properties of the node.
      */
-    public NodeStorage(@NotNull String id, @Nullable String type, @Nullable HashMap properties)
+    public NodeStorage(@NotNull String id, @Nullable HashMap properties)
     {
         this.id = id;
-        this.type = type;
         this.properties = properties;
     }
 
@@ -87,21 +68,6 @@ public class NodeStorage implements Serializable
     public String getId()
     {
         return this.id;
-    }
-
-    @Nullable
-    public String getType()
-    {
-        return type;
-    }
-
-    /**
-     * Setter of the type.
-     * @param type new type.
-     */
-    public void setType(@Nullable final String type)
-    {
-        this.type = type;
     }
 
     /**
@@ -159,22 +125,18 @@ public class NodeStorage implements Serializable
 
         final NodeStorage that = (NodeStorage) o;
 
+        //We always have some type of type/class/name
         if (!this.getId().equals(that.getId()))
         {
             return false;
         }
-        if (this.getType() != null && that.getType() != null && !this.getType().equals(that.getType()))
-        {
-            return false;
-        }
-        //todo check if one properties list is valid subset of the other
-        return getProperties() != null ? getProperties().equals(that.getProperties()) : that.getProperties() == null;
+        return this.getProperties().entrySet().containsAll(that.getProperties().entrySet());
     }
 
     @Override
     public int hashCode()
     {
-        return 31 * (31 * getId().hashCode() + (getType() != null ? getType().hashCode() : 0)) + (getProperties() != null ? getProperties().hashCode() : 0);
+        return 31 * (31 * getId().hashCode() + getProperties().hashCode());
     }
 
     /**
@@ -185,10 +147,6 @@ public class NodeStorage implements Serializable
     {
         StringBuilder sb = new StringBuilder();
         sb.append(id);
-        if(type != null)
-        {
-            sb.append(type);
-        }
         if (properties != null)
         {
             for(Map.Entry<String, Object> entry: properties.entrySet())

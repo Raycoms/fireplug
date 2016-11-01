@@ -85,7 +85,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                 for(Edge edge: list)
                 {
                     Object sId = edge.getProperty(Constants.TAG_SNAPSHOT_ID);
-                    //todo relationship properties not yet supported.
+                    //todo relationship get by properties not yet supported.
                     if(sId == null || (sId instanceof Long && (long) sId <= snapshotId))
                     {
                         RelationshipStorage storage = new RelationshipStorage(edge.getClass().toString(), relationshipStorage.getStartNode(), relationshipStorage.getEndNode());

@@ -2,7 +2,9 @@ package main.java.com.bag.server.database;
 
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.tinkerpop.gremlin.Tokens;
 import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
+import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
@@ -11,6 +13,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +57,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
-    public List<Object> readObject(@NotNull Object identifier)
+    public List<Object> readObject(@NotNull Object identifier, long snapshotId)
     {
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage =  null;
@@ -89,11 +92,11 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             //If nodeStorage is null, we're obviously trying to read relationships.
             if(nodeStorage == null)
             {
-                returnStorage.add(getRelationshipStorages(relationshipStorage, g));
+                returnStorage.add(getRelationshipStorages(relationshipStorage, g, snapshotId));
             }
             else
             {
-                returnStorage.addAll(getNodeStorages(nodeStorage, g));
+                returnStorage.addAll(getNodeStorages(nodeStorage, g, snapshotId));
             }
         }
         finally
@@ -111,13 +114,13 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @param g the graph to retrieve them from.
      * @return a list matching the keys
      */
-    private List<RelationshipStorage> getRelationshipStorages(final RelationshipStorage relationshipStorage, final GraphTraversalSource g)
+    private List<RelationshipStorage> getRelationshipStorages(final RelationshipStorage relationshipStorage, final GraphTraversalSource g, long snapshotId)
     {
         ArrayList<Edge> relationshipList =  new ArrayList<>();
         //g.V(1).bothE().where(otherV().hasId(2)).hasLabel('knows').has('weight',gt(0.0))
 
-        ArrayList<Vertex> nodeStartList =  getVertexList(relationshipStorage.getStartNode(), g);
-        ArrayList<Vertex> nodeEndList =  getVertexList(relationshipStorage.getEndNode(), g);
+        ArrayList<Vertex> nodeStartList =  getVertexList(relationshipStorage.getStartNode(), g, snapshotId);
+        ArrayList<Vertex> nodeEndList =  getVertexList(relationshipStorage.getEndNode(), g, snapshotId);
 
         GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList.toArray()).bothE().where(__.is(P.within(nodeEndList.toArray()))).hasLabel(relationshipStorage.getId());
 
@@ -133,8 +136,10 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         if(tempOutput != null)
         {
-            //todo snapShotId
-            tempOutput.fill(relationshipList);
+            if(tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
+            {
+                tempOutput.fill(relationshipList);
+            }
         }
 
         ArrayList<RelationshipStorage> returnList = new ArrayList<>();
@@ -158,7 +163,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @param g the graph.
      * @return the list of vertices.
      */
-    private ArrayList<Vertex> getVertexList(final NodeStorage nodeStorage, final GraphTraversalSource g)
+    private ArrayList<Vertex> getVertexList(final NodeStorage nodeStorage, final GraphTraversalSource g, long snapshotId)
     {
         GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(nodeStorage.getId());
         ArrayList<Vertex> nodeList =  new ArrayList<>();
@@ -174,7 +179,10 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         if(tempOutput != null)
         {
-            tempOutput.fill(nodeList);
+            if(tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
+            {
+                tempOutput.fill(nodeList);
+            }
         }
 
         return nodeList;
@@ -186,9 +194,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @param g the graph.
      * @return the list of vertices.
      */
-    private List<NodeStorage> getNodeStorages(NodeStorage nodeStorage, GraphTraversalSource g)
+    private List<NodeStorage> getNodeStorages(NodeStorage nodeStorage, GraphTraversalSource g, long snapshotId)
     {
-        ArrayList<Vertex> nodeList =  getVertexList(nodeStorage, g);
+        ArrayList<Vertex> nodeList =  getVertexList(nodeStorage, g, snapshotId);
         ArrayList<NodeStorage> returnStorage =  new ArrayList<>();
 
         for(Vertex vertex: nodeList)
