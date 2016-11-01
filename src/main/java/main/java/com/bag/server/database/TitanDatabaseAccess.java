@@ -2,17 +2,16 @@ package main.java.com.bag.server.database;
 
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.schema.TitanManagement;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
 import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -26,9 +25,9 @@ import java.util.Map;
  */
 public class TitanDatabaseAccess implements IDatabaseAccess
 {
-    public static final String INDEX_NAME = "search";
+    private static final String INDEX_NAME = "search";
 
-    public static final String directory ="";
+    private static final String DIRECTORY ="";
 
     private TitanGraph graph;
 
@@ -38,10 +37,11 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     {
         this.id = id;
         TitanFactory.Builder config = TitanFactory.build();
+
         config.set("storage.backend", "berkeleyje");
-        config.set("storage.directory", directory);
+        config.set("storage.directory", DIRECTORY);
         config.set("index." + INDEX_NAME + ".backend", "elasticsearch");
-        config.set("index." + INDEX_NAME + ".directory", directory + File.separator + "es");
+        config.set("index." + INDEX_NAME + ".DIRECTORY", DIRECTORY + File.separator + "es");
         config.set("index." + INDEX_NAME + ".elasticsearch.local-mode", true);
         config.set("index." + INDEX_NAME + ".elasticsearch.client-only", false);
 
@@ -79,8 +79,6 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
 
         ArrayList<Object> returnStorage =  new ArrayList<>();
-        ArrayList<Vertex> nodeList =  new ArrayList<>();
-        ArrayList<Edge> relationshipList =  new ArrayList<>();
 
         try
         {
@@ -91,24 +89,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             //If nodeStorage is null, we're obviously trying to read relationships.
             if(nodeStorage == null)
             {
-                GraphTraversal<Edge, Edge> tempOutput = g.E().hasLabel(relationshipStorage.getId());
-
-                if(relationshipStorage.getProperties() != null)
-                {
-                    for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
-                    {
-                        if (tempOutput == null)
-                        {
-                            break;
-                        }
-                        tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
-                    }
-                }
-                
-                if(tempOutput != null)
-                {
-                    tempOutput.fill(relationshipList);
-                }
+                returnStorage.add(getRelationshipStorages(relationshipStorage, g));
             }
             else
             {
@@ -124,28 +105,91 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         return returnStorage;
     }
 
-    private List<NodeStorage> getNodeStorages(NodeStorage nodeStorage, GraphTraversalSource g)
+    /**
+     * Creates a relationShipStorage list by obtaining the info from the graph using.
+     * @param relationshipStorage the keys to retrieve from the graph.
+     * @param g the graph to retrieve them from.
+     * @return a list matching the keys
+     */
+    private List<RelationshipStorage> getRelationshipStorages(final RelationshipStorage relationshipStorage, final GraphTraversalSource g)
+    {
+        ArrayList<Edge> relationshipList =  new ArrayList<>();
+        //g.V(1).bothE().where(otherV().hasId(2)).hasLabel('knows').has('weight',gt(0.0))
+
+        ArrayList<Vertex> nodeStartList =  getVertexList(relationshipStorage.getStartNode(), g);
+        ArrayList<Vertex> nodeEndList =  getVertexList(relationshipStorage.getEndNode(), g);
+
+        GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList.toArray()).bothE().where(__.is(P.within(nodeEndList.toArray()))).hasLabel(relationshipStorage.getId());
+
+
+        for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
+        {
+            if (tempOutput == null)
+            {
+                break;
+            }
+            tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
+        }
+
+        if(tempOutput != null)
+        {
+            //todo snapShotId
+            tempOutput.fill(relationshipList);
+        }
+
+        ArrayList<RelationshipStorage> returnList = new ArrayList<>();
+
+        for(Edge edge: relationshipList)
+        {
+            RelationshipStorage tempStorage = new RelationshipStorage(edge.label(), relationshipStorage.getStartNode(), relationshipStorage.getEndNode());
+
+            for(String s: edge.keys())
+            {
+                tempStorage.addProperty(s, edge.property(s));
+            }
+            returnList.add(tempStorage);
+        }
+        return returnList;
+    }
+
+    /**
+     * Creates a list of vertices matching a certain nodeStorage.
+     * @param nodeStorage the key.
+     * @param g the graph.
+     * @return the list of vertices.
+     */
+    private ArrayList<Vertex> getVertexList(final NodeStorage nodeStorage, final GraphTraversalSource g)
     {
         GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(nodeStorage.getId());
         ArrayList<Vertex> nodeList =  new ArrayList<>();
-        ArrayList<NodeStorage> returnStorage =  new ArrayList<>();
 
-        if(nodeStorage.getProperties() != null)
+        for (Map.Entry<String, Object> entry : nodeStorage.getProperties().entrySet())
         {
-            for (Map.Entry<String, Object> entry : nodeStorage.getProperties().entrySet())
+            if (tempOutput == null)
             {
-                if (tempOutput == null)
-                {
-                    break;
-                }
-                tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
+                break;
             }
+            tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
         }
 
         if(tempOutput != null)
         {
             tempOutput.fill(nodeList);
         }
+
+        return nodeList;
+    }
+
+    /**
+     * Creates a list of vertices matching a certain nodeStorage.
+     * @param nodeStorage the key.
+     * @param g the graph.
+     * @return the list of vertices.
+     */
+    private List<NodeStorage> getNodeStorages(NodeStorage nodeStorage, GraphTraversalSource g)
+    {
+        ArrayList<Vertex> nodeList =  getVertexList(nodeStorage, g);
+        ArrayList<NodeStorage> returnStorage =  new ArrayList<>();
 
         for(Vertex vertex: nodeList)
         {
@@ -161,6 +205,10 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         return returnStorage;
     }
 
+    /**
+     * Terminates the graph database.
+     */
+    @Override
     public void terminate()
     {
         graph.close();

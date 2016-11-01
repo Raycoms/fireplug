@@ -46,6 +46,16 @@ public class TestServer extends DefaultRecoverable
      */
     private long globalSnapshotId = 0;
 
+    /**
+     * Write set of the nodes contains updates and deletes.
+     */
+    private HashMap<Long, NodeStorage> writeSetNode;
+
+    /**
+     * Write set of the relationships contains updates and deletes.
+     */
+    private HashMap<Long, NodeStorage> writeSetRelationship;
+
     private KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
@@ -70,6 +80,9 @@ public class TestServer extends DefaultRecoverable
 
         instance = Constants.NEO4J;
 
+        writeSetNode = new HashMap<>();
+        writeSetRelationship = new HashMap<>();
+
         neo4j = new Neo4jDatabaseAccess();
 
         //todo create terminate command.
@@ -93,7 +106,7 @@ public class TestServer extends DefaultRecoverable
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
         //todo when we execute the sets on commit, we have to be careful.
-        //todo Follow the following order: First createSet then writeSet and then deleteSet.
+        //todo Follow the following order: First createSet then writeSetNode and then deleteSet.
         //todo deserialze the hashmaps
         // HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
         return new byte[0][];

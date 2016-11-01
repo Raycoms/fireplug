@@ -1,6 +1,7 @@
 package main.java.com.bag.server.database;
 
 import main.java.com.bag.server.database.Interfaces.IDatabaseAccess;
+import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
@@ -20,7 +21,6 @@ import java.util.*;
 public class Neo4jDatabaseAccess implements IDatabaseAccess
 {
     private static final String BASE_PATH    = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB";
-    private static final String TAG_SNAPSHOT_ID = "snapShotId";
     /**
      * The graphDB object.
      */
@@ -158,12 +158,14 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             if(nodeStorage == null)
             {
-                builder.append(buildRelationshipString(relationshipStorage, snapShotId));
+                builder.append(buildRelationshipString(relationshipStorage));
+                builder.append(String.format(" WHERE r.%s <= %d OR n.%s IS NULL", Constants.TAG_SNAPSHOT_ID, snapShotId, Constants.TAG_SNAPSHOT_ID));
                 builder.append(" RETURN r");
             }
             else
             {
-                builder.append(buildNodeString(nodeStorage, snapShotId));
+                builder.append(buildNodeString(nodeStorage, ""));
+                builder.append(String.format(" WHERE n.%s <= %d OR n.%s IS NULL",Constants.TAG_SNAPSHOT_ID, snapShotId, Constants.TAG_SNAPSHOT_ID));
                 builder.append(" RETURN n");
             }
 
@@ -203,9 +205,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * @param relationshipStorage the relationshipStorage to transform.
      * @return a string which may be sent with cypher to neo4j.
      */
-    private String buildRelationshipString(final RelationshipStorage relationshipStorage, long snapShotId)
+    private String buildRelationshipString(final RelationshipStorage relationshipStorage)
     {
-        StringBuilder builder = new StringBuilder(buildNodeString(relationshipStorage.getStartNode(), snapShotId));
+        StringBuilder builder = new StringBuilder(buildNodeString(relationshipStorage.getStartNode(), "1"));
 
         builder.append("-[r");
 
@@ -215,20 +217,22 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
 
         builder.append(" {");
-        relationshipStorage.getProperties().entrySet().iterator();
+        Iterator<Map.Entry<String, Object>> iterator = relationshipStorage.getProperties().entrySet().iterator();
 
-        for (final Map.Entry<String, Object> currentProperty : relationshipStorage.getProperties().entrySet())
+        while (iterator.hasNext())
         {
+            Map.Entry<String, Object> currentProperty = iterator.next();
             builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
-            builder.append(" , ");
+
+            if(iterator.hasNext())
+            {
+                builder.append(" , ");
+            }
         }
 
-        builder.append(String.format(KEY_VALUE_PAIR, TAG_SNAPSHOT_ID, snapShotId));
-        builder.append("}");
+        builder.append("}]-");
 
-        builder.append("]-");
-
-        builder.append(buildNodeString(relationshipStorage.getEndNode(), snapShotId));
+        builder.append(buildNodeString(relationshipStorage.getEndNode(), "2"));
 
         return builder.toString();
     }
@@ -236,55 +240,33 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     /**
      * Creates a Neo4j cypher String for a certain nodeStorage.
      * @param nodeStorage the nodeStorage to transform.
+     * @param n optional identifier in the query.
      * @return a string which may be sent with cypher to neo4j.
      */
-    private String buildNodeString(NodeStorage nodeStorage, long snapShotId)
+    private String buildNodeString(NodeStorage nodeStorage, String n)
     {
-        StringBuilder builder = new StringBuilder("(n");
+        StringBuilder builder = new StringBuilder("(n").append(n);
 
         if (!nodeStorage.getId().isEmpty())
         {
             builder.append(String.format(":%s", nodeStorage.getId()));
         }
-        nodeStorage.getProperties().entrySet().iterator();
-
         builder.append(" {");
 
-        for (final Map.Entry<String, Object> currentProperty : nodeStorage.getProperties().entrySet())
+        Iterator<Map.Entry<String, Object>> iterator = nodeStorage.getProperties().entrySet().iterator();
+
+        while(iterator.hasNext())
         {
+            Map.Entry<String, Object> currentProperty = iterator.next();
             builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
-            builder.append(" , ");
-        }
-        builder.append(String.format(KEY_VALUE_PAIR, TAG_SNAPSHOT_ID, snapShotId)).append("})");
 
-        return builder.toString();
-    }
-
-    /**
-     * Creates a transaction which will get all nodes.
-     * @return all nodes as a List of NodeStorages.
-     */
-    @NotNull
-    public List<NodeStorage> randomRead()
-    {
-        if(graphDb == null)
-        {
-            start(id);
-        }
-        ArrayList<NodeStorage> storage =  new ArrayList<>();
-        try(Transaction tx = graphDb.beginTx())
-        {
-            ResourceIterable<Node> list = graphDb.getAllNodes();
-
-            for(Node n: list)
+            if(iterator.hasNext())
             {
-                NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-                storage.add(temp);
+                builder.append(" , ");
             }
-
-            tx.success();
         }
-        return storage;
+        builder.append("})");
+        return builder.toString();
     }
 
     /**
