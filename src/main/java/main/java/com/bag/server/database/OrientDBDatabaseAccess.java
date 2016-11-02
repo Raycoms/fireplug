@@ -32,7 +32,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     public void start(int id)
     {
         this.id = id;
-        factory = new OrientGraphFactory("BASE_PATH").setupPool(1,10);
+        factory = new OrientGraphFactory(BASE_PATH).setupPool(1,10);
     }
 
     /**
@@ -136,5 +136,11 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     public void terminate()
     {
 
+    }
+
+    @Override
+    public boolean equalHash(final List readSet)
+    {
+        return false;
     }
 }

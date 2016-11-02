@@ -192,7 +192,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     public void read(Object identifier)
     {
-        //todo put those two identii
         if(identifier instanceof NodeStorage)
         {
             //this sends the message straight to server 0 not to the others.
@@ -241,11 +240,10 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Input input = new Input(value);
         localTimestamp = kryo.readObject(input, Long.class);
 
-        //todo check if empty list?
-        //todo get nodes and relationships from the stream and add them to the readSet
         ArrayList<NodeStorage>         nodeResult         = (ArrayList<NodeStorage>) kryo.readClassAndObject(input);
         ArrayList<RelationshipStorage> relationshipResult = (ArrayList<RelationshipStorage>) kryo.readClassAndObject(input);
 
+        //todo calculate hash of readSet and add it as property
         if(nodeResult != null && !nodeResult.isEmpty())
         {
             readsSetNode.addAll(nodeResult);

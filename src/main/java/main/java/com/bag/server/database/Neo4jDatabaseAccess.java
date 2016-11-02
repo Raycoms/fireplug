@@ -1,12 +1,8 @@
 package main.java.com.bag.server.database;
 
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
-import main.java.com.bag.util.Constants;
-import main.java.com.bag.util.Log;
-import main.java.com.bag.util.NodeStorage;
-import main.java.com.bag.util.RelationshipStorage;
+import main.java.com.bag.util.*;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.cypher.internal.compiler.v2_3.No;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
@@ -298,12 +294,59 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
         if(readSet.get(0) instanceof NodeStorage)
         {
-
+            equalHashNode(readSet);
         }
         else if(readSet.get(0) instanceof RelationshipStorage)
         {
 
         }
+
+        return true;
+    }
+
+    private boolean equalHashNode(final List readSet)
+    {
+        for(Object storage: readSet)
+        {
+            if(storage instanceof NodeStorage)
+            {
+                NodeStorage nodeStorage = (NodeStorage) storage;
+
+                try (Transaction tx = graphDb.beginTx())
+                {
+                    StringBuilder builder = new StringBuilder("MATCH ");
+
+                    builder.append(buildNodeString(nodeStorage, ""));
+                    builder.append(" RETURN n");
+
+
+                    Result result = graphDb.execute(builder.toString());
+
+                    //todo can we assume we only get one node ? and this node has to fit?
+                    if(result.hasNext())
+                    {
+                        Map<String, Object> value = result.next();
+
+                        for (Map.Entry<String, Object> entry : value.entrySet())
+                        {
+                            if (entry.getValue() instanceof NodeProxy)
+                            {
+                                NodeProxy n = (NodeProxy) entry.getValue();
+                                //todo check if hash is the same as inside the nodeStorage.
+                                NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                            }
+                        }
+                    }
+
+                    tx.success();
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean equalHashRelationship(final List<NodeStorage> readSet)
+    {
 
         return true;
     }

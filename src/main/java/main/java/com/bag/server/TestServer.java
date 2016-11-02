@@ -15,6 +15,7 @@ import main.java.com.bag.util.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Class handling the server.
@@ -49,12 +50,12 @@ public class TestServer extends DefaultRecoverable
     /**
      * Write set of the nodes contains updates and deletes.
      */
-    private HashMap<Long, ArrayList<NodeStorage>> writeSetNode;
+    private HashMap<Long, List<NodeStorage>> writeSetNode;
 
     /**
      * Write set of the relationships contains updates and deletes.
      */
-    private HashMap<Long, ArrayList<RelationshipStorage>> writeSetRelationship;
+    private HashMap<Long, List<RelationshipStorage>> writeSetRelationship;
 
     private KryoFactory factory = () ->
     {
@@ -105,19 +106,25 @@ public class TestServer extends DefaultRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
-        //todo deserialize check if is commit message.
-        //todo should contain all read and writeSets.
-        ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, new ArrayList<NodeStorage>(), new ArrayList<RelationshipStorage>(), 5);
-        //todo if true then return commit to client else abort
+        for(int i = 0; i < bytes.length; ++i)
+        {
+            if(messageContexts != null && messageContexts[i] != null)
+            {
+                //todo deserialize check if is commit message.
+                //todo should contain all read and writeSets.
+                ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, new ArrayList<NodeStorage>(), new ArrayList<RelationshipStorage>(), 5);
+                //todo if true then return commit to client else abort
 
-        //todo if commit execute transaction and add to executed transactions
-        //todo we may add later further additions.
+                //todo if commit execute transaction and add to executed transactions
+                //todo we may add later further additions.
 
 
-        //todo when we execute the sets on commit, we have to be careful.
-        //todo Follow the following order: First createSet then writeSetNode and then deleteSet.
-        //todo deserialze the hashmaps
-        // HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
+                //todo when we execute the sets on commit, we have to be careful.
+                //todo Follow the following order: First createSet then writeSetNode and then deleteSet.
+                //todo deserialze the hashmaps
+                // HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
+            }
+        }
         return new byte[0][];
     }
 
@@ -132,33 +139,19 @@ public class TestServer extends DefaultRecoverable
 
         Output output = new Output(0, 10240);
 
-        if(reason.equals(Constants.READ_MESSAGE))
+        switch (reason)
         {
-            output = handleNodeRead(input, messageContext, kryo, output);
-        }
-        else if(reason.equals(Constants.RELATIONSHIP_READ_MESSAGE))
-        {
-            long localSnapshotId = kryo.readObject(input, Long.class);
-            //todo derialize the relationShipStorage object.
-            input.close();
-
-            if (localSnapshotId == -1)
-            {
-                //todo add transaction to localTransactionList
-                localSnapshotId = globalSnapshotId;
-            }
-
-            if (instance.equals(Constants.NEO4J))
-            {
-                //todo return result from neo4j + serialize.
-            }
-        }
-        else
-        {
-            Log.getLogger().warn("Incorrect operation sent unordered to the server");
-            output.close();
-            input.close();
-            return new byte[0];
+            case Constants.READ_MESSAGE:
+                output = handleNodeRead(input, messageContext, kryo, output);
+                break;
+            case Constants.RELATIONSHIP_READ_MESSAGE:
+                output = handleRelationshipRead(input, messageContext, kryo, output);
+                break;
+            default:
+                Log.getLogger().warn("Incorrect operation sent unordered to the server");
+                output.close();
+                input.close();
+                return new byte[0];
         }
 
         byte[] returnValue = output.toBytes();
@@ -169,6 +162,64 @@ public class TestServer extends DefaultRecoverable
         pool.release(kryo);
         
         return returnValue;
+    }
+
+    /**
+     * Handles the relationship read message and requests it to the database.
+     * @param input get info from.
+     * @param messageContext additional context.
+     * @param kryo kryo object.
+     * @param output write info to.
+     * @return output object to return to client.
+     */
+    private Output handleRelationshipRead(final Input input, final MessageContext messageContext, final Kryo kryo, final Output output)
+    {
+        long localSnapshotId = kryo.readObject(input, Long.class);
+        RelationshipStorage identifier = (RelationshipStorage) kryo.readClassAndObject(input);
+        input.close();
+
+        Log.getLogger().info("With snapShot id: " + localSnapshotId);
+        if (localSnapshotId == -1)
+        {
+            localTransactionList.put(messageContext.getSender(), new TransactionStorage());
+            localSnapshotId = globalSnapshotId;
+        }
+        ArrayList<Object> returnList = null;
+
+        if (instance.equals(Constants.NEO4J))
+        {
+            Log.getLogger().info("Get info from neo4j");
+            returnList = new ArrayList<>(neo4j.readObject(identifier, localSnapshotId));
+            Log.getLogger().info("Got info from neo4j: " + returnList.size());
+        }
+
+        kryo.writeObject(output, localSnapshotId);
+
+        if (returnList == null || returnList.isEmpty())
+        {
+            kryo.writeClassAndObject(output, Collections.emptyList());
+            kryo.writeClassAndObject(output, Collections.emptyList());
+            return output;
+        }
+
+        ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
+        ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
+        for (Object obj : returnList)
+        {
+            if (obj instanceof NodeStorage)
+            {
+                nodeStorage.add((NodeStorage) obj);
+            }
+            else if (obj instanceof RelationshipStorage)
+            {
+                relationshipStorage.add((RelationshipStorage) obj);
+            }
+        }
+
+        kryo.writeClassAndObject(output, nodeStorage);
+        kryo.writeClassAndObject(output, relationshipStorage);
+
+        return output;
     }
 
     /**

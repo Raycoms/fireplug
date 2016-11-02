@@ -85,7 +85,6 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
-            //todo also return hash and snapshot id property (later on when we added it, for node and relationship)
 
             //If nodeStorage is null, we're obviously trying to read relationships.
             if(nodeStorage == null)
@@ -218,5 +217,11 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     public void terminate()
     {
         graph.close();
+    }
+
+    @Override
+    public boolean equalHash(final List readSet)
+    {
+        return false;
     }
 }
