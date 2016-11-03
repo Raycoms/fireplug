@@ -9,13 +9,14 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import main.java.com.bag.server.database.ArangoDBDatabaseAccess;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
+import main.java.com.bag.server.database.OrientDBDatabaseAccess;
+import main.java.com.bag.server.database.TitanDatabaseAccess;
+import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class handling the server.
@@ -28,14 +29,9 @@ public class TestServer extends DefaultRecoverable
     private ServiceReplica replica = null;
 
     /**
-     * A String describing the database instance.
+     * The database instance.
      */
-    private final String instance;
-
-    /**
-     * The database instance. todo generify.
-     */
-    private Neo4jDatabaseAccess neo4j;
+    private IDatabaseAccess databaseAccess;
 
     /**
      * Contains all local transactions being executed on the server at the very moment.
@@ -66,7 +62,7 @@ public class TestServer extends DefaultRecoverable
         return kryo;
     };
 
-    private TestServer(int id)
+    private TestServer(int id, String instance)
     {
         globalSnapshotId = 1;
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
@@ -79,15 +75,26 @@ public class TestServer extends DefaultRecoverable
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
 
-        instance = Constants.NEO4J;
-
         writeSetNode = new HashMap<>();
         writeSetRelationship = new HashMap<>();
 
-        neo4j = new Neo4jDatabaseAccess();
-
-        //todo create terminate command.
-        //neo4j.terminate();
+        switch (instance)
+        {
+            case Constants.NEO4J:
+                databaseAccess = new Neo4jDatabaseAccess();
+                break;
+            case Constants.TITAN:
+                databaseAccess = new TitanDatabaseAccess();
+                break;
+            case Constants.ARANGODB:
+                databaseAccess = new ArangoDBDatabaseAccess();
+                break;
+            case Constants.ORIENTDB:
+                databaseAccess = new OrientDBDatabaseAccess();
+                break;
+            default:
+                Log.getLogger().warn("Invalid databaseAccess");
+        }
     }
 
     @Override
@@ -106,6 +113,7 @@ public class TestServer extends DefaultRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
+        this.replica.getId();
         for(int i = 0; i < bytes.length; ++i)
         {
             if(messageContexts != null && messageContexts[i] != null)
@@ -179,18 +187,17 @@ public class TestServer extends DefaultRecoverable
         input.close();
 
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
-        if (localSnapshotId == -1)
-        {
-            localTransactionList.put(messageContext.getSender(), new TransactionStorage());
-            localSnapshotId = globalSnapshotId;
-        }
+        TransactionStorage transaction = new TransactionStorage();
+        transaction.addReadSetRelationship(identifier);
+        localTransactionList.put(messageContext.getSender(), transaction);
+        localSnapshotId = globalSnapshotId;
         ArrayList<Object> returnList = null;
 
-        if (instance.equals(Constants.NEO4J))
+        if (databaseAccess instanceof Neo4jDatabaseAccess)
         {
-            Log.getLogger().info("Get info from neo4j");
-            returnList = new ArrayList<>(neo4j.readObject(identifier, localSnapshotId));
-            Log.getLogger().info("Got info from neo4j: " + returnList.size());
+            Log.getLogger().info("Get info from databaseAccess");
+            returnList = new ArrayList<>(((Neo4jDatabaseAccess) databaseAccess).readObject(identifier, localSnapshotId));
+            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
 
         kryo.writeObject(output, localSnapshotId);
@@ -239,16 +246,18 @@ public class TestServer extends DefaultRecoverable
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
         if (localSnapshotId == -1)
         {
-            localTransactionList.put(messageContext.getSender(), new TransactionStorage());
+            TransactionStorage transaction = new TransactionStorage();
+            transaction.addReadSetNodes(identifier);
+            localTransactionList.put(messageContext.getSender(), transaction);
             localSnapshotId = globalSnapshotId;
         }
         ArrayList<Object> returnList = null;
 
-        if (instance.equals(Constants.NEO4J))
+        if (databaseAccess instanceof Neo4jDatabaseAccess)
         {
-            Log.getLogger().info("Get info from neo4j");
-            returnList = new ArrayList<>(neo4j.readObject(identifier, localSnapshotId));
-            Log.getLogger().info("Got info from neo4j: " + returnList.size());
+            Log.getLogger().info("Get info from databaseAccess");
+            returnList = new ArrayList<>(((Neo4jDatabaseAccess )databaseAccess).readObject(identifier, localSnapshotId));
+            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
 
         kryo.writeObject(output, localSnapshotId);
@@ -281,16 +290,68 @@ public class TestServer extends DefaultRecoverable
     }
 
     /**
+     * Shuts down the Server.
+     */
+    public void terminate()
+    {
+        this.databaseAccess.terminate();
+        this.replica.kill();
+    }
+
+    /**
      * Main method used to start each TestServer.
      * @param args the id for each testServer, set it in the program arguments.
      */
     public static void main(String [] args)
     {
         int serverId = 0;
-        for(String arg: args)
+        String instance = Constants.NEO4J;
+
+        if(args.length == 1)
         {
-            serverId = Integer.parseInt(arg);
+            try
+            {
+                serverId = Integer.parseInt(args[0]);
+            }
+            catch (NumberFormatException ne)
+            {
+                Log.getLogger().warn("Invalid program arguments, terminating server");
+                return;
+            }
         }
-        new TestServer(serverId);
+        else if(args.length == 2)
+        {
+            String tempInstance = args[1];
+
+            if(tempInstance.toLowerCase().contains("titan"))
+            {
+                instance = Constants.TITAN;
+            }
+            else if(tempInstance.toLowerCase().contains("orientdb"))
+            {
+                instance = Constants.ORIENTDB;
+            }
+            else if(tempInstance.toLowerCase().contains("arangodb"))
+            {
+                instance = Constants.ARANGODB;
+            }
+            else
+            {
+                instance = Constants.NEO4J;
+            }
+        }
+
+
+        TestServer server = new TestServer(serverId, instance);
+        
+        Scanner reader = new Scanner(System.in);  // Reading from System.in
+        Log.getLogger().info("Write anything to the console to kill this process");
+        String command = reader.next();
+
+        if(command != null)
+        {
+            server.terminate();
+        }
+
     }
 }

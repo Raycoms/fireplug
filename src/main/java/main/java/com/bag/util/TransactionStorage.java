@@ -61,4 +61,22 @@ public class TransactionStorage
     {
         return Collections.unmodifiableList(readSetRelationships);
     }
+
+    /**
+     * Adds a node to the readSet.
+     * @param identifier the node to add
+     */
+    public void addReadSetNodes(final NodeStorage identifier)
+    {
+        readSetNodes.add(identifier);
+    }
+
+    /**
+     * Adds a relationship to the readSet.
+     * @param identifier the relationship to add
+     */
+    public void addReadSetRelationship(final RelationshipStorage identifier)
+    {
+        readSetRelationships.add(identifier);
+    }
 }

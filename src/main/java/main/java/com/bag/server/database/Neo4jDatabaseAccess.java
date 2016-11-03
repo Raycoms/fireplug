@@ -155,14 +155,16 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             if(nodeStorage == null)
             {
+                Log.getLogger().info(Long.toString(snapShotId));
                 builder.append(buildRelationshipString(relationshipStorage));
-                builder.append(String.format(" WHERE r.%s <= %d OR n.%s IS NULL", Constants.TAG_SNAPSHOT_ID, snapShotId, Constants.TAG_SNAPSHOT_ID));
+                builder.append(String.format(" WHERE r.%s <= %s OR n.%s IS NULL", Constants.TAG_SNAPSHOT_ID, Long.toString(snapShotId), Constants.TAG_SNAPSHOT_ID));
                 builder.append(" RETURN r");
             }
             else
             {
+                Log.getLogger().info(Long.toString(snapShotId));
                 builder.append(buildNodeString(nodeStorage, ""));
-                builder.append(String.format(" WHERE n.%s <= %d OR n.%s IS NULL",Constants.TAG_SNAPSHOT_ID, snapShotId, Constants.TAG_SNAPSHOT_ID));
+                builder.append(String.format(" WHERE n.%s <= %s OR n.%s IS NULL",Constants.TAG_SNAPSHOT_ID, Long.toString(snapShotId), Constants.TAG_SNAPSHOT_ID));
                 builder.append(" RETURN n");
             }
 

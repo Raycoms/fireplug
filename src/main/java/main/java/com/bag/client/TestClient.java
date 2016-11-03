@@ -17,9 +17,7 @@ import main.java.com.bag.util.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Class handling the client.
@@ -240,18 +238,26 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Input input = new Input(value);
         localTimestamp = kryo.readObject(input, Long.class);
 
-        ArrayList<NodeStorage>         nodeResult         = (ArrayList<NodeStorage>) kryo.readClassAndObject(input);
-        ArrayList<RelationshipStorage> relationshipResult = (ArrayList<RelationshipStorage>) kryo.readClassAndObject(input);
+        //todo check if empty arraylist.
+        Object y = kryo.readClassAndObject(input);
+        Object x = kryo.readClassAndObject(input);
 
-        //todo calculate hash of readSet and add it as property
-        if(nodeResult != null && !nodeResult.isEmpty())
+
+        if(y instanceof ArrayList && !((ArrayList) y).isEmpty())
         {
-            readsSetNode.addAll(nodeResult);
+            if(((ArrayList) y).get(0) instanceof NodeStorage)
+            {
+                //todo calculate hash of readSet and add it as property
+                readsSetNode.addAll((Collection<? extends NodeStorage>) y);
+            }
         }
 
-        if(relationshipResult != null && !relationshipResult.isEmpty())
+        if(x instanceof ArrayList && !((ArrayList) x).isEmpty())
         {
-            readsSetRelationship.addAll(relationshipResult);
+            if(((ArrayList) x).get(0) instanceof NodeStorage)
+            {
+                readsSetRelationship.addAll((Collection<? extends RelationshipStorage>) y);
+            }
         }
 
         input.close();
