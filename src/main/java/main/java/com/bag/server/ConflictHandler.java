@@ -21,6 +21,15 @@ public class ConflictHandler
          */
     }
 
+    /**
+     * Checks for conflicts between read and writeSets.
+     * @param writeSetNode the node writeSet.
+     * @param writeSetRelationship the relationship writeSet.
+     * @param readSetNode the node readSet.
+     * @param readSetRelationship the relationship readSet
+     * @param snapshotId the snapShotId of the transaction.
+     * @return true if no conflict has been found.
+     */
     protected static boolean checkForConflict(Map<Long, List<NodeStorage>> writeSetNode,
             Map<Long, List<RelationshipStorage>> writeSetRelationship,
             List<NodeStorage> readSetNode,
@@ -30,6 +39,15 @@ public class ConflictHandler
         return isUpToDate(writeSetNode, writeSetRelationship, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship);
     }
 
+    /**
+     * Checks if no changes have been made since the start of the transaction.
+     * @param writeSetNode the node writeSet.
+     * @param writeSetRelationship the relationship writeSet.
+     * @param readSetNode the node readSet.
+     * @param readSetRelationship the relationship readSet
+     * @param snapshotId the snapShotId of the transaction.
+     * @return true if data is up to date.
+     */
     private static boolean isUpToDate(Map<Long, List<NodeStorage>> writeSetNode,
             Map<Long, List<RelationshipStorage>> writeSetRelationship,
             List<NodeStorage> readSetNode,
@@ -40,6 +58,12 @@ public class ConflictHandler
                 && !writeSetRelationship.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> Collections.unmodifiableList(writeSetRelationship.get(id)).retainAll(readSetRelationship));
     }
 
+    /**
+     * Checks if readData matches with data in database.
+     * @param readSetNode the node readSet.
+     * @param readSetRelationship the relationship readSet
+     * @return true if correct.
+     */
     private static boolean isCorrect(List<NodeStorage> readSetNode, List<RelationshipStorage> readSetRelationship)
     {
         Neo4jDatabaseAccess neo4j = new Neo4jDatabaseAccess();

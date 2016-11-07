@@ -10,6 +10,7 @@ import org.neo4j.kernel.impl.core.NodeProxy;
 import org.neo4j.kernel.impl.core.RelationshipProxy;
 
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -33,53 +34,16 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      */
     private static final String KEY_VALUE_PAIR = "%s: '%s'";
 
-    /**
-     * Match string for cypher queries.
-     */
     private static final String MATCH = "MATCH ";
 
     @Override
     public void start(int id)
     {
-        File DB_PATH = new File(BASE_PATH + id);
+        File dbPath = new File(BASE_PATH + id);
 
         this.id = id;
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(DB_PATH).newGraphDatabase();
+        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath).newGraphDatabase();
         registerShutdownHook( graphDb );
-
-        try(Transaction tx = graphDb.beginTx())
-        {
-            /*graphDb.execute("CREATE\n"
-                    + "(leyla: Officer {name:\"Leyla Aliyeva\"})-[:IOO_BSD]->(ufu:Company {name:\"UF Universe Foundation\", snapShotId: '0'}),\n"
-                    + "(mehriban: Officer {name:\"Mehriban Aliyeva\"})-[:IOO_PROTECTOR]->(ufu),\n"
-                    + "(arzu: Officer {name:\"Arzu Aliyeva\"})-[:IOO_BSD]->(ufu),\n"
-                    + "(mossack_uk: Client {name:\"Mossack Fonseca & Co (UK)\"})-[:REGISTERED]->(ufu),\n"
-                    + "(mossack_uk)-[:REGISTERED]->(fm_mgmt: Company {name:\"FM Management Holding Group S.A.\", snapShotId: '0'}),\n"
-                    + "\n"
-                    + "(leyla)-[:IOO_BSD]->(kingsview:Company {name:\"Kingsview Developents Limited\"}),\n"
-                    + "(leyla2: Officer {name:\"Leyla Ilham Qizi Aliyeva\"}),\n"
-                    + "(leyla3: Officer {name:\"LEYLA ILHAM QIZI ALIYEVA\"})-[:HAS_SIMILIAR_NAME]->(leyla),\n"
-                    + "(leyla2)-[:HAS_SIMILIAR_NAME]->(leyla3),\n"
-                    + "(leyla2)-[:IOO_BENEFICIARY]->(exaltation:Company {name:\"Exaltation Limited\", snapShotId: '0'}),\n"
-                    + "(leyla3)-[:IOO_SHAREHOLDER]->(exaltation),\n"
-                    + "(arzu2:Officer {name:\"Arzu Ilham Qizi Aliyeva\"})-[:IOO_BENEFICIARY]->(exaltation),\n"
-                    + "(arzu2)-[:HAS_SIMILIAR_NAME]->(arzu),\n"
-                    + "(arzu2)-[:HAS_SIMILIAR_NAME]->(arzu3:Officer {name:\"ARZU ILHAM QIZI ALIYEVA\", snapShotId: '0'}),\n"
-                    + "(arzu3)-[:IOO_SHAREHOLDER]->(exaltation),\n"
-                    + "(arzu)-[:IOO_BSD]->(exaltation),\n"
-                    + "(leyla)-[:IOO_BSD]->(exaltation),\n"
-                    + "(arzu)-[:IOO_BSD]->(kingsview),\n"
-                    + "\n"
-                    + "(redgold:Company {name:\"Redgold Estates Ltd\"}),\n"
-                    + "(:Officer {name:\"WILLY & MEYRS S.A.\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
-                    + "(:Officer {name:\"LONDEX RESOURCES S.A.\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
-                    + "(:Officer {name:\"FAGATE MINING CORPORATION\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
-                    + "(:Officer {name:\"GLOBEX INTERNATIONAL LLP\"})-[:IOO_SHAREHOLDER]->(redgold),\n"
-                    + "(:Client {name:\"Associated Trustees\"})-[:REGISTERED]->(redgold)");*/
-
-            tx.success();
-        }
-
     }
 
     @Override
@@ -98,23 +62,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder( dbPath )
                 .setConfig( GraphDatabaseSettings.read_only, "true" )
                 .newGraphDatabase();
-    }
-
-    //todo create, read, update, delete.
-    public void startTransaction(int snapshotId)
-    {
-        long calculateHash = 439508938;
-        //todo node needs hash and snapshotId
-        try(Transaction tx = graphDb.beginTx())
-        {
-            Node myNode = graphDb.createNode();
-            myNode.setProperty( "name", "my node" );
-
-            myNode.setProperty( "snapshot-id", snapshotId );
-            myNode.setProperty( "node-hash", calculateHash );
-
-            tx.success();
-        }
     }
 
     /**
@@ -151,20 +98,20 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         ArrayList<Object> returnStorage =  new ArrayList<>();
         try(Transaction tx = graphDb.beginTx())
         {
-            StringBuilder builder = new StringBuilder("MATCH ");
+            StringBuilder builder = new StringBuilder(MATCH);
 
             if(nodeStorage == null)
             {
                 Log.getLogger().info(Long.toString(snapShotId));
                 builder.append(buildRelationshipString(relationshipStorage));
-                builder.append(String.format(" WHERE r.%s <= %s OR n.%s IS NULL", Constants.TAG_SNAPSHOT_ID, Long.toString(snapShotId), Constants.TAG_SNAPSHOT_ID));
+                builder.append(String.format(" WHERE TOFLOAT(r.%s) <= %s OR n.%s IS NULL", Constants.TAG_SNAPSHOT_ID, Long.toString(snapShotId), Constants.TAG_SNAPSHOT_ID));
                 builder.append(" RETURN r");
             }
             else
             {
                 Log.getLogger().info(Long.toString(snapShotId));
                 builder.append(buildNodeString(nodeStorage, ""));
-                builder.append(String.format(" WHERE n.%s <= %s OR n.%s IS NULL",Constants.TAG_SNAPSHOT_ID, Long.toString(snapShotId), Constants.TAG_SNAPSHOT_ID));
+                builder.append(String.format(" WHERE TOFLOAT(n.%s) <= %s OR n.%s IS NULL",Constants.TAG_SNAPSHOT_ID, snapShotId, Constants.TAG_SNAPSHOT_ID));
                 builder.append(" RETURN n");
             }
 
@@ -200,11 +147,22 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     /**
-     * Creates a Neo4j cypher String for a certain relationshipStorage
+     * Creates a complete Neo4j cypher String for a certain relationshipStorage
      * @param relationshipStorage the relationshipStorage to transform.
      * @return a string which may be sent with cypher to neo4j.
      */
     private String buildRelationshipString(final RelationshipStorage relationshipStorage)
+    {
+        return buildNodeString(relationshipStorage.getStartNode(), "1") + buildPureRelationshipString(relationshipStorage) +
+                buildNodeString(relationshipStorage.getEndNode(), "2");
+    }
+
+    /**
+     * Creates a Neo4j cypher String for a certain relationshipStorage
+     * @param relationshipStorage the relationshipStorage to transform.
+     * @return a string which may be sent with cypher to neo4j.
+     */
+    private String buildPureRelationshipString(final RelationshipStorage relationshipStorage)
     {
         StringBuilder builder = new StringBuilder(buildNodeString(relationshipStorage.getStartNode(), "1"));
 
@@ -229,9 +187,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             }
         }
 
-        builder.append("}]-");
-
-        builder.append(buildNodeString(relationshipStorage.getEndNode(), "2"));
+        builder.append("}]->");
 
         return builder.toString();
     }
@@ -268,22 +224,139 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         return builder.toString();
     }
 
-    /**
-     * Registers a shutdown hook for the Neo4j instance so that it
-     * shuts down nicely when the VM exits (even if you "Ctrl-C" the
-     * running application).
-     * @param graphDb the graphDB to register the shutDownHook to.
-     */
-    private static void registerShutdownHook( final GraphDatabaseService graphDb )
+    @Override
+    public void execute(
+            final List<NodeStorage> createSetNode,
+            final List<RelationshipStorage> createSetRelationship,
+            final Map<NodeStorage, NodeStorage> updateSetNode,
+            final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
+            final List<NodeStorage> deleteSetNode,
+            final List<RelationshipStorage> deleteSetRelationship)
     {
-        Runtime.getRuntime().addShutdownHook( new Thread()
+        try(Transaction tx = graphDb.beginTx())
         {
-            @Override
-            public void run()
+            //Create node
+            for(NodeStorage node: createSetNode)
             {
-                graphDb.shutdown();
+                final Label label = node::getId;
+                final Node myNode = graphDb.createNode(label);
+
+                for(Map.Entry<String, Object> entry : node.getProperties().entrySet())
+                {
+                    myNode.setProperty(entry.getKey(), entry.getValue());
+                }
             }
-        } );
+
+            //Create relationships
+            for(RelationshipStorage relationship: createSetRelationship)
+            {
+                final String builder = MATCH + buildNodeString(relationship.getStartNode(), "1") +
+                        ", " +
+                        buildNodeString(relationship.getEndNode(), "2") +
+                        " CREATE (n1)" +
+                        buildPureRelationshipString(relationship) +
+                        "(n2)";
+                graphDb.execute(builder);
+            }
+
+            //Update nodes
+            for(Map.Entry<NodeStorage, NodeStorage> node: updateSetNode.entrySet())
+            {
+                final StringBuilder builder = new StringBuilder(MATCH + buildNodeString(node.getKey(), ""));
+
+                if(!node.getKey().getId().equals(node.getValue().getId()))
+                {
+                    builder.append(String.format("REMOVE n:%s", node.getKey().getId()));
+                    builder.append(String.format("SET n:%s", node.getValue().getId()));
+                }
+
+                Set<String> keys = node.getKey().getProperties().keySet();
+                keys.addAll(node.getValue().getProperties().keySet());
+
+                for(String key : keys)
+                {
+                    Object value1 = node.getKey().getProperties().get(key);
+                    Object value2 = node.getValue().getProperties().get(key);
+
+                    if(value1 == null)
+                    {
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                    else if(value2 == null)
+                    {
+                        builder.append(String.format("REMOVE n.%s", key));
+                    }
+                    else
+                    {
+                        if(value1.equals(value2))
+                        {
+                            continue;
+                        }
+
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                }
+
+                graphDb.execute(builder.toString());
+            }
+
+            //Update relationships
+            for(Map.Entry<RelationshipStorage, RelationshipStorage> relationship: updateSetRelationship.entrySet())
+            {
+                final StringBuilder builder = new StringBuilder(MATCH + buildRelationshipString(relationship.getKey()));
+
+                if(!relationship.getKey().getId().equals(relationship.getValue().getId()))
+                {
+                    builder.append(String.format("REMOVE n:%s", relationship.getKey().getId()));
+                    builder.append(String.format("SET n:%s", relationship.getValue().getId()));
+                }
+
+                Set<String> keys = relationship.getKey().getProperties().keySet();
+                keys.addAll(relationship.getValue().getProperties().keySet());
+
+                for(String key : keys)
+                {
+                    Object value1 = relationship.getKey().getProperties().get(key);
+                    Object value2 = relationship.getValue().getProperties().get(key);
+
+                    if(value1 == null)
+                    {
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                    else if(value2 == null)
+                    {
+                        builder.append(String.format("REMOVE n.%s", key));
+                    }
+                    else
+                    {
+                        if(value1.equals(value2))
+                        {
+                            continue;
+                        }
+
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                }
+
+                graphDb.execute(builder.toString());
+            }
+
+            //Delete relationships
+            for(RelationshipStorage relationship: deleteSetRelationship)
+            {
+                final String cypher = MATCH + buildRelationshipString(relationship) + " DELETE r";
+
+                graphDb.execute(cypher);
+            }
+
+            for(NodeStorage node: deleteSetNode)
+            {
+                final String cypher = MATCH + buildNodeString(node, "") + " DETACH DELETE n";
+
+                graphDb.execute(cypher);
+            }
+            tx.success();
+        }
     }
 
     @Override
@@ -300,7 +373,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         else if(readSet.get(0) instanceof RelationshipStorage)
         {
-
+            equalHashRelationship(readSet);
         }
 
         return true;
@@ -314,42 +387,133 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             {
                 NodeStorage nodeStorage = (NodeStorage) storage;
 
-                try (Transaction tx = graphDb.beginTx())
+                if(!compareNode(nodeStorage))
                 {
-                    StringBuilder builder = new StringBuilder("MATCH ");
-
-                    builder.append(buildNodeString(nodeStorage, ""));
-                    builder.append(" RETURN n");
-
-
-                    Result result = graphDb.execute(builder.toString());
-
-                    //todo can we assume we only get one node ? and this node has to fit?
-                    if(result.hasNext())
-                    {
-                        Map<String, Object> value = result.next();
-
-                        for (Map.Entry<String, Object> entry : value.entrySet())
-                        {
-                            if (entry.getValue() instanceof NodeProxy)
-                            {
-                                NodeProxy n = (NodeProxy) entry.getValue();
-                                //todo check if hash is the same as inside the nodeStorage.
-                                NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-                            }
-                        }
-                    }
-
-                    tx.success();
+                    return false;
                 }
             }
         }
         return true;
     }
 
-    private boolean equalHashRelationship(final List<NodeStorage> readSet)
+    /**
+     * Compares a nodeStorage with the node inside the db to check if correct.
+     * @param nodeStorage the node to compare
+     * @return true if equal hash, else false.
+     */
+    private boolean compareNode(final NodeStorage nodeStorage)
     {
+        try (Transaction tx = graphDb.beginTx())
+        {
+            final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
+            Result result = graphDb.execute(builder);
 
+            //Assuming we only get one node in return.
+            if(result.hasNext())
+            {
+                Map<String, Object> value = result.next();
+                for (Map.Entry<String, Object> entry : value.entrySet())
+                {
+                    if (entry.getValue() instanceof NodeProxy)
+                    {
+                        NodeProxy n = (NodeProxy) entry.getValue();
+
+                        try
+                        {
+                            if(!HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty("hash")))
+                            {
+                                return false;
+                            }
+                        }
+                        catch (NoSuchAlgorithmException e)
+                        {
+                            Log.getLogger().warn("Couldn't execute SHA1 for node", e);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            tx.success();
+        }
         return true;
+    }
+
+    private boolean equalHashRelationship(final List<RelationshipStorage> readSet)
+    {
+        for(Object storage: readSet)
+        {
+            if(storage instanceof RelationshipStorage)
+            {
+                RelationshipStorage relationshipStorage = (RelationshipStorage) storage;
+
+                if(!compareRelationship(relationshipStorage))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Compares a nodeStorage with the node inside the db to check if correct.
+     * @param relationshipStorage the node to compare
+     * @return true if equal hash, else false.
+     */
+    private boolean compareRelationship(final RelationshipStorage relationshipStorage)
+    {
+        try (Transaction tx = graphDb.beginTx())
+        {
+            final String builder = MATCH + buildRelationshipString(relationshipStorage) + " RETURN r";
+            Result result = graphDb.execute(builder);
+
+            //Assuming we only get one node in return.
+            if(result.hasNext())
+            {
+                Map<String, Object> value = result.next();
+                for (Map.Entry<String, Object> entry : value.entrySet())
+                {
+                    if (entry.getValue() instanceof NodeProxy)
+                    {
+                        NodeProxy n = (NodeProxy) entry.getValue();
+
+                        try
+                        {
+                            if(!HashCreator.sha1FromRelationship(relationshipStorage).equals(n.getProperty("hash")))
+                            {
+                                return false;
+                            }
+                        }
+                        catch (NoSuchAlgorithmException e)
+                        {
+                            Log.getLogger().warn("Couldn't execute SHA1 for relationship", e);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            tx.success();
+        }
+        return true;
+    }
+
+    /**
+     * Registers a shutdown hook for the Neo4j instance so that it
+     * shuts down nicely when the VM exits (even if you "Ctrl-C" the
+     * running application).
+     * @param graphDb the graphDB to register the shutDownHook to.
+     */
+    private static void registerShutdownHook( final GraphDatabaseService graphDb )
+    {
+        Runtime.getRuntime().addShutdownHook( new Thread()
+        {
+            @Override
+            public void run()
+            {
+                graphDb.shutdown();
+            }
+        } );
     }
 }

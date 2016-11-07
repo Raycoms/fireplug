@@ -118,15 +118,48 @@ public class TestServer extends DefaultRecoverable
         {
             if(messageContexts != null && messageContexts[i] != null)
             {
-                //todo deserialize check if is commit message.
-                //todo should contain all read and writeSets.
-                ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, new ArrayList<NodeStorage>(), new ArrayList<RelationshipStorage>(), 5);
-                //todo if true then return commit to client else abort
+                KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+                Kryo kryo = pool.borrow();
+                Input input = new Input(bytes[i]);
+
+                String type = kryo.readObject(input, String.class);
+
+                if(Constants.COMMIT_MESSAGE.equals(type))
+                {
+                    Long timeStamp = kryo.readObject(input, Long.class);
+
+                    Object readsSetNode = kryo.readClassAndObject(input);
+                    Object updateSetNode = kryo.readClassAndObject(input);
+                    Object deleteSetNode = kryo.readClassAndObject(input);
+                    Object createSetNode = kryo.readClassAndObject(input);
+
+                    Object readsSetRelationship = kryo.readClassAndObject(input);
+                    Object updateSetRelationship = kryo.readClassAndObject(input);
+                    Object deleteSetRelationship = kryo.readClassAndObject(input);
+                    Object createSetRelationship = kryo.readClassAndObject(input);
+                    
+                    input.close();
+
+                    //todo deserialize check if is commit message.
+                    //todo should contain all read and writeSets.
+
+                    if (!ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, readsSetNode, readsSetRelationship, timeStamp)
+                    {
+                        //Send abort to client and abort
+                    }
+
+                    databaseAccess.execute(/**/);
+                    writeSetRelationship.put(globalSnapshotId++, );
+                    writeSetRelationship.put(globalSnapshotId++, );
+
+
+                }
+
+                //writesetNode.add snapshotId++ and it's writeSet.
 
                 //todo if commit execute transaction and add to executed transactions
-                //todo we may add later further additions.
 
-
+                //databaseAccess.execute()
                 //todo when we execute the sets on commit, we have to be careful.
                 //todo Follow the following order: First createSet then writeSetNode and then deleteSet.
                 //todo deserialze the hashmaps

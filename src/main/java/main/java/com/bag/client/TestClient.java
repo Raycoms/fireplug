@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Class handling the client.
@@ -134,6 +135,9 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         if(identifier instanceof NodeStorage && value instanceof NodeStorage)
         {
             updateSetNode.put((NodeStorage) identifier, (NodeStorage) value);
+
+            //todo if we change a node, we have to change the relationships with the same node as well.
+            //todo run through create , update, deleteSet of relationship and check the node.
         }
         else if(identifier instanceof RelationshipStorage && value instanceof RelationshipStorage)
         {
@@ -173,6 +177,10 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             createSetNode.remove(identifier);
 
             deleteSetNode.add((NodeStorage) identifier);
+
+            new ArrayList<>(createSetRelationship).stream().filter(storage -> storage.getStartNode().equals(identifier)).forEach(storage -> createSetRelationship.remove(storage));
+            new ArrayList<>(deleteSetRelationship).stream().filter(storage -> storage.getStartNode().equals(identifier)).forEach(storage -> deleteSetRelationship.remove(storage));
+            new ArrayList<>(updateSetRelationship.keySet()).stream().filter(storage -> storage.getStartNode().equals(identifier)).forEach(storage -> updateSetRelationship.keySet().remove(storage));
         }
         else if(identifier instanceof RelationshipStorage)
         {
@@ -183,31 +191,33 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         }
     }
 
-    //todo may add a list of identifier here. Could be a nested read request over various nodes and relationships (traversal)
     /**
      * ReadRequests.(Directly read database) send the request to the db.
-     * @param identifier, object which should be read, may be NodeStorage or RelationshipStorage
+     * @param identifiers list of objects which should be read, may be NodeStorage or RelationshipStorage
      */
-    public void read(Object identifier)
+    public void read(Object...identifiers)
     {
-        if(identifier instanceof NodeStorage)
+        for(Object identifier: identifiers)
         {
-            //this sends the message straight to server 0 not to the others.
-            sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, localTimestamp, identifier), 0, new int[]{0}, TOMMessageType.UNORDERED_REQUEST);
-        }
-        else if(identifier instanceof RelationshipStorage)
-        {
-            sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier), 0, new int[]{0}, TOMMessageType.UNORDERED_REQUEST);
-        }
-        else
-        {
-            Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
+            if (identifier instanceof NodeStorage)
+            {
+                //this sends the message straight to server 0 not to the others.
+                sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, localTimestamp, identifier), 0, new int[] {0}, TOMMessageType.UNORDERED_REQUEST);
+            }
+            else if (identifier instanceof RelationshipStorage)
+            {
+                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier), 0, new int[] {0}, TOMMessageType.UNORDERED_REQUEST);
+            }
+            else
+            {
+                Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
+            }
         }
     }
 
     /**
      * Receiving read requests replies here
-     * @param reply
+     * @param reply the received message.
      */
     @Override
     public void replyReceived(final TOMMessage reply)
@@ -222,7 +232,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
     /**
      * Processes the return of a read request. Filling the readsets.
-     * @param value
+     * @param value the received bytes.
      */
     private void processReadReturn(byte[] value)
     {
@@ -273,16 +283,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         byte[] result;
         boolean readOnly = isReadOnly();
 
-        //Sample data just for testing purposes.
-        readsSetNode.add(new NodeStorage("a"));
-        readsSetNode.add(new NodeStorage("b"));
-        readsSetNode.add(new NodeStorage("c"));
-        readsSetNode.add(new NodeStorage("d"));
-
         byte[] bytes = serializeAll();
         if(readOnly && !secureMode)
         {
             Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully commited", localTimestamp));
+            resetSets();
             return;
         }
         else
@@ -295,8 +300,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Input input = new Input(result);
 
         boolean decision = input.readBoolean();
-
-
         if(decision)
         {
             Log.getLogger().info("Transaction succesfully committed");
