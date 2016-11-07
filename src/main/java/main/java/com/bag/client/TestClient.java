@@ -10,13 +10,11 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import main.java.com.bag.util.Constants;
-import main.java.com.bag.util.Log;
-import main.java.com.bag.util.NodeStorage;
-import main.java.com.bag.util.RelationshipStorage;
+import main.java.com.bag.util.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -64,7 +62,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     public TestClient(final int processId)
     {
         super(processId);
-        secureMode = false;
+        secureMode = true;
         initClient();
     }
 
@@ -248,25 +246,40 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Input input = new Input(value);
         localTimestamp = kryo.readObject(input, Long.class);
 
-        //todo check if empty arraylist.
-        Object y = kryo.readClassAndObject(input);
-        Object x = kryo.readClassAndObject(input);
+        Object nodes = kryo.readClassAndObject(input);
+        Object relationships = kryo.readClassAndObject(input);
 
-
-        if(y instanceof ArrayList && !((ArrayList) y).isEmpty())
+        if(nodes instanceof ArrayList && !((ArrayList) nodes).isEmpty() && ((ArrayList) nodes).get(0) instanceof NodeStorage)
         {
-            if(((ArrayList) y).get(0) instanceof NodeStorage)
+            for (NodeStorage storage : (ArrayList<NodeStorage>) nodes)
             {
-                //todo calculate hash of readSet and add it as property
-                readsSetNode.addAll((Collection<? extends NodeStorage>) y);
+                NodeStorage tempStorage = new NodeStorage(storage.getId(), storage.getProperties());
+                try
+                {
+                    tempStorage.addProperty("hash", HashCreator.sha1FromNode(storage));
+                }
+                catch (NoSuchAlgorithmException e)
+                {
+                    Log.getLogger().warn("Couldn't add hash for node", e);
+                }
+                readsSetNode.add(tempStorage);
             }
         }
 
-        if(x instanceof ArrayList && !((ArrayList) x).isEmpty())
+        if(relationships instanceof ArrayList && !((ArrayList) relationships).isEmpty() && ((ArrayList) relationships).get(0) instanceof RelationshipStorage)
         {
-            if(((ArrayList) x).get(0) instanceof NodeStorage)
+            for (RelationshipStorage storage : (ArrayList<RelationshipStorage>)relationships)
             {
-                readsSetRelationship.addAll((Collection<? extends RelationshipStorage>) y);
+                RelationshipStorage tempStorage = new RelationshipStorage(storage.getId(), storage.getProperties(), storage.getStartNode(), storage.getEndNode());
+                try
+                {
+                    tempStorage.addProperty("hash", HashCreator.sha1FromRelationship(storage));
+                }
+                catch (NoSuchAlgorithmException e)
+                {
+                    Log.getLogger().warn("Couldn't add hash for relationship", e);
+                }
+                readsSetRelationship.add(tempStorage);
             }
         }
 
@@ -280,6 +293,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     public void commit()
     {
+        Log.getLogger().info("Starting commit");
         byte[] result;
         boolean readOnly = isReadOnly();
 
@@ -297,10 +311,25 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
+
+        if(result == null)
+        {
+            Log.getLogger().warn("Server returned null, something went incredibly wrong there");
+            return;
+        }
         Input input = new Input(result);
 
-        boolean decision = input.readBoolean();
-        if(decision)
+        String type = kryo.readObject(input, String.class);
+
+        if(!Constants.COMMIT_RESPONSE.equals(type))
+        {
+            Log.getLogger().warn("Incorrect response to commit message");
+            return;
+        }
+
+        String decision = kryo.readObject(input, String.class);
+
+        if(Constants.COMMIT.equals(decision))
         {
             Log.getLogger().info("Transaction succesfully committed");
         }
@@ -355,9 +384,9 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
         Output output = new Output(0, 10024);
 
-        kryo.writeClassAndObject(output, Constants.COMMIT_MESSAGE);
+        kryo.writeObject(output, Constants.COMMIT_MESSAGE);
         //Write the timeStamp to the server
-        kryo.writeClassAndObject(output, localTimestamp);
+        kryo.writeObject(output, localTimestamp);
 
         //Write the node-sets to the server
         kryo.writeClassAndObject(output, readsSetNode);

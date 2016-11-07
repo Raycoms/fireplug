@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -142,5 +143,17 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     public boolean equalHash(final List readSet)
     {
         return false;
+    }
+
+    @Override
+    public void execute(
+            final List<NodeStorage> createSetNode,
+            final List<RelationshipStorage> createSetRelationship,
+            final Map<NodeStorage, NodeStorage> updateSetNode,
+            final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
+            final List<NodeStorage> deleteSetNode,
+            final List<RelationshipStorage> deleteSetRelationship)
+    {
+
     }
 }

@@ -33,6 +33,7 @@ public class TestServer extends DefaultRecoverable
      */
     private IDatabaseAccess databaseAccess;
 
+    //todo maybe detect local transaction problems in the future.
     /**
      * Contains all local transactions being executed on the server at the very moment.
      */
@@ -100,12 +101,13 @@ public class TestServer extends DefaultRecoverable
     @Override
     public void installSnapshot(final byte[] bytes)
     {
-
+        //todo synch all data of the server here from the byte.
     }
 
     @Override
     public byte[] getSnapshot()
     {
+        //todo get all data from the server here
         return new byte[0];
     }
 
@@ -128,42 +130,76 @@ public class TestServer extends DefaultRecoverable
                 {
                     Long timeStamp = kryo.readObject(input, Long.class);
 
-                    Object readsSetNode = kryo.readClassAndObject(input);
-                    Object updateSetNode = kryo.readClassAndObject(input);
-                    Object deleteSetNode = kryo.readClassAndObject(input);
-                    Object createSetNode = kryo.readClassAndObject(input);
+                    Object readsSetNodeX = kryo.readClassAndObject(input);
+                    Object updateSetNodeX = kryo.readClassAndObject(input);
+                    Object deleteSetNodeX = kryo.readClassAndObject(input);
+                    Object createSetNodeX = kryo.readClassAndObject(input);
 
-                    Object readsSetRelationship = kryo.readClassAndObject(input);
-                    Object updateSetRelationship = kryo.readClassAndObject(input);
-                    Object deleteSetRelationship = kryo.readClassAndObject(input);
-                    Object createSetRelationship = kryo.readClassAndObject(input);
-                    
-                    input.close();
+                    Object readsSetRelationshipX = kryo.readClassAndObject(input);
+                    Object updateSetRelationshipX = kryo.readClassAndObject(input);
+                    Object deleteSetRelationshipX = kryo.readClassAndObject(input);
+                    Object createSetRelationshipX = kryo.readClassAndObject(input);
 
-                    //todo deserialize check if is commit message.
-                    //todo should contain all read and writeSets.
+                    ArrayList<NodeStorage> readSetNode;
+                    HashMap<NodeStorage, NodeStorage> updateSetNode;
+                    ArrayList<NodeStorage> deleteSetNode;
+                    ArrayList<NodeStorage> createSetNode;
 
-                    if (!ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, readsSetNode, readsSetRelationship, timeStamp)
+                    ArrayList<RelationshipStorage> readsSetRelationship;
+                    HashMap<RelationshipStorage, RelationshipStorage> updateSetRelationship;
+                    ArrayList<RelationshipStorage> deleteSetRelationship;
+                    ArrayList<RelationshipStorage> createSetRelationship;
+
+                    try
                     {
-                        //Send abort to client and abort
+                        readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+                        updateSetNode = (HashMap<NodeStorage, NodeStorage>) updateSetNodeX;
+                        deleteSetNode = (ArrayList<NodeStorage>) deleteSetNodeX;
+                        createSetNode = (ArrayList<NodeStorage>) createSetNodeX;
+
+                        readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+                        updateSetRelationship = (HashMap<RelationshipStorage, RelationshipStorage>) updateSetRelationshipX;
+                        deleteSetRelationship = (ArrayList<RelationshipStorage>) deleteSetRelationshipX;
+                        createSetRelationship = (ArrayList<RelationshipStorage>) createSetRelationshipX;
+                    }
+                    catch (Exception e)
+                    {
+                        Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
+                        return new byte[0][];
                     }
 
-                    databaseAccess.execute(/**/);
-                    writeSetRelationship.put(globalSnapshotId++, );
-                    writeSetRelationship.put(globalSnapshotId++, );
+                    input.close();
+                    Output output = new Output(1024);
+                    output.writeString(Constants.COMMIT_RESPONSE);
 
+                    if (!ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, readSetNode, readsSetRelationship, timeStamp))
+                    {
+                        output.writeString(Constants.ABORT);
+                        //Send abort to client and abort
+                        byte[][] returnBytes = {output.toBytes()};
+                        output.close();
+                        return returnBytes;
+                    }
 
+                    //Execute the transaction.
+                    databaseAccess.execute(createSetNode, createSetRelationship, updateSetNode, updateSetRelationship, deleteSetNode, deleteSetRelationship);
+
+                    //Store the write set.
+                    ArrayList<NodeStorage> tempWriteSetNode = new ArrayList<>(updateSetNode.keySet());
+                    ArrayList<RelationshipStorage> tempWriteSetRelationship = new ArrayList<>(updateSetRelationship.keySet());
+
+                    tempWriteSetNode.addAll(deleteSetNode);
+                    tempWriteSetRelationship.addAll(deleteSetRelationship);
+
+                    writeSetNode.put(globalSnapshotId++, tempWriteSetNode);
+                    writeSetRelationship.put(globalSnapshotId++, tempWriteSetRelationship);
+
+                    output.writeString(Constants.COMMIT);
+                    byte[][] returnBytes = {output.toBytes()};
+                    output.close();
+
+                    return returnBytes;
                 }
-
-                //writesetNode.add snapshotId++ and it's writeSet.
-
-                //todo if commit execute transaction and add to executed transactions
-
-                //databaseAccess.execute()
-                //todo when we execute the sets on commit, we have to be careful.
-                //todo Follow the following order: First createSet then writeSetNode and then deleteSet.
-                //todo deserialze the hashmaps
-                // HashMap<NodeStorage, NodeStorage> deserialized = (HashMap<NodeStorage, NodeStorage>) kryo.readClassAndObject(input);
             }
         }
         return new byte[0][];
@@ -237,8 +273,8 @@ public class TestServer extends DefaultRecoverable
 
         if (returnList == null || returnList.isEmpty())
         {
-            kryo.writeClassAndObject(output, Collections.emptyList());
-            kryo.writeClassAndObject(output, Collections.emptyList());
+            kryo.writeClassAndObject(output, new ArrayList<NodeStorage>());
+            kryo.writeClassAndObject(output, new ArrayList<RelationshipStorage>());
             return output;
         }
 
@@ -297,8 +333,8 @@ public class TestServer extends DefaultRecoverable
 
         if (returnList == null || returnList.isEmpty())
         {
-            kryo.writeClassAndObject(output, Collections.emptyList());
-            kryo.writeClassAndObject(output, Collections.emptyList());
+            kryo.writeClassAndObject(output, new ArrayList<NodeStorage>());
+            kryo.writeClassAndObject(output, new ArrayList<RelationshipStorage>());
             return output;
         }
 
@@ -325,7 +361,7 @@ public class TestServer extends DefaultRecoverable
     /**
      * Shuts down the Server.
      */
-    public void terminate()
+    private void terminate()
     {
         this.databaseAccess.terminate();
         this.replica.kill();

@@ -1,5 +1,6 @@
 package main.java.com.bag.util;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,7 +78,7 @@ public class NodeStorage implements Serializable
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(properties);
+        return properties == null ? Collections.emptyMap() : new HashMap<>(properties);
     }
 
     /**

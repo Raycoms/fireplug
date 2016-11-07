@@ -403,6 +403,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      */
     private boolean compareNode(final NodeStorage nodeStorage)
     {
+        if(graphDb == null)
+        {
+            start(id);
+        }
+
         try (Transaction tx = graphDb.beginTx())
         {
             final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";

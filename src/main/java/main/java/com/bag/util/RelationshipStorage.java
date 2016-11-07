@@ -120,7 +120,7 @@ public class RelationshipStorage implements Serializable
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(properties);
+        return properties == null ? Collections.emptyMap() : new HashMap<>(properties);
     }
 
     /**

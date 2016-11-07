@@ -16,7 +16,8 @@ public class Constants
     public static final String TITAN                      = "titan";
     public static final String ARANGODB                   = "arangoDB";
     public static final String TAG_SNAPSHOT_ID            = "snapShotId";
-
+    public static final String COMMIT                     = "commit";
+    public static final String ABORT                      = "abort";
 
     /**
      * Used to hide the implicit default constructor.

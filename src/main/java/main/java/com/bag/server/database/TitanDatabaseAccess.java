@@ -224,4 +224,16 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     {
         return false;
     }
+
+    @Override
+    public void execute(
+            final List<NodeStorage> createSetNode,
+            final List<RelationshipStorage> createSetRelationship,
+            final Map<NodeStorage, NodeStorage> updateSetNode,
+            final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
+            final List<NodeStorage> deleteSetNode,
+            final List<RelationshipStorage> deleteSetRelationship)
+    {
+
+    }
 }
