@@ -19,6 +19,7 @@ import java.util.*;
 public class Neo4jDatabaseAccess implements IDatabaseAccess
 {
     private static final String BASE_PATH    = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB";
+
     /**
      * The graphDB object.
      */
@@ -27,7 +28,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     /**
      * Id of the database. (If multiple running on the same machine.
      */
-    private int id;
+    private final int id;
 
     /**
      * String used to match key value pairs.
@@ -36,12 +37,21 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
     private static final String MATCH = "MATCH ";
 
+    /**
+     * Public constructor.
+     * @param id, id of the server.
+     */
+    public Neo4jDatabaseAccess(int id)
+    {
+        this.id = id;
+    }
+
     @Override
-    public void start(int id)
+    public void start()
     {
         File dbPath = new File(BASE_PATH + id);
+        Log.getLogger().info("Starting neo4j database service on " + id);
 
-        this.id = id;
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath).newGraphDatabase();
         registerShutdownHook( graphDb );
     }
@@ -49,6 +59,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public void terminate()
     {
+        Log.getLogger().info("Shutting down Neo4j manually");
         graphDb.shutdown();
     }
 
@@ -91,7 +102,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
         if(graphDb == null)
         {
-            start(id);
+            start();
         }
 
         //We only support 1 label each node/vertex because of compatibility with our graph dbs.
@@ -405,7 +416,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         if(graphDb == null)
         {
-            start(id);
+            start();
         }
 
         try (Transaction tx = graphDb.beginTx())
@@ -517,6 +528,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             @Override
             public void run()
             {
+                Log.getLogger().info("Shutting down Neo4j.");
                 graphDb.shutdown();
             }
         } );

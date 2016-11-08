@@ -12,7 +12,13 @@ import java.util.Map;
  */
 public class ArangoDBDatabaseAccess implements IDatabaseAccess
 {
-    public void start(int id)
+    private final int id;
+    public ArangoDBDatabaseAccess(int id)
+    {
+        this.id = id;
+    }
+
+    public void start()
     {
 
     }

@@ -1,6 +1,6 @@
 package main.java.com.bag.server;
 
-import main.java.com.bag.server.database.Neo4jDatabaseAccess;
+import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 
@@ -34,9 +34,9 @@ public class ConflictHandler
             Map<Long, List<RelationshipStorage>> writeSetRelationship,
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship,
-            long snapshotId)
+            long snapshotId, IDatabaseAccess access)
     {
-        return isUpToDate(writeSetNode, writeSetRelationship, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship);
+        return isUpToDate(writeSetNode, writeSetRelationship, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
     /**
@@ -55,7 +55,7 @@ public class ConflictHandler
     {
 
         return !writeSetNode.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> Collections.unmodifiableList(writeSetNode.get(id)).retainAll(readSetNode))
-                && !writeSetRelationship.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> Collections.unmodifiableList(writeSetRelationship.get(id)).retainAll(readSetRelationship));
+                && !writeSetRelationship.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSetRelationship.get(id)).retainAll(readSetRelationship));
     }
 
     /**
@@ -64,9 +64,8 @@ public class ConflictHandler
      * @param readSetRelationship the relationship readSet
      * @return true if correct.
      */
-    private static boolean isCorrect(List<NodeStorage> readSetNode, List<RelationshipStorage> readSetRelationship)
+    private static boolean isCorrect(List<NodeStorage> readSetNode, List<RelationshipStorage> readSetRelationship, IDatabaseAccess access)
     {
-        Neo4jDatabaseAccess neo4j = new Neo4jDatabaseAccess();
-        return neo4j.equalHash(readSetNode) && neo4j.equalHash(readSetRelationship);
+        return access.equalHash(readSetNode) && access.equalHash(readSetRelationship);
     }
 }

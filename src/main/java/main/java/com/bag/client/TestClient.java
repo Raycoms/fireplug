@@ -319,7 +319,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         }
         Input input = new Input(result);
 
-        String type = kryo.readObject(input, String.class);
+        String type = input.readString();
 
         if(!Constants.COMMIT_RESPONSE.equals(type))
         {
@@ -327,7 +327,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             return;
         }
 
-        String decision = kryo.readObject(input, String.class);
+        String decision = input.readString();
 
         if(Constants.COMMIT.equals(decision))
         {

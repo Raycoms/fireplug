@@ -82,16 +82,16 @@ public class TestServer extends DefaultRecoverable
         switch (instance)
         {
             case Constants.NEO4J:
-                databaseAccess = new Neo4jDatabaseAccess();
+                databaseAccess = new Neo4jDatabaseAccess(id);
                 break;
             case Constants.TITAN:
-                databaseAccess = new TitanDatabaseAccess();
+                databaseAccess = new TitanDatabaseAccess(id);
                 break;
             case Constants.ARANGODB:
-                databaseAccess = new ArangoDBDatabaseAccess();
+                databaseAccess = new ArangoDBDatabaseAccess(id);
                 break;
             case Constants.ORIENTDB:
-                databaseAccess = new OrientDBDatabaseAccess();
+                databaseAccess = new OrientDBDatabaseAccess(id);
                 break;
             default:
                 Log.getLogger().warn("Invalid databaseAccess");
@@ -172,8 +172,9 @@ public class TestServer extends DefaultRecoverable
                     Output output = new Output(1024);
                     output.writeString(Constants.COMMIT_RESPONSE);
 
-                    if (!ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, readSetNode, readsSetRelationship, timeStamp))
+                    if (!ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, readSetNode, readsSetRelationship, timeStamp, databaseAccess))
                     {
+                        Log.getLogger().info("Found conflict, returning abort");
                         output.writeString(Constants.ABORT);
                         //Send abort to client and abort
                         byte[][] returnBytes = {output.toBytes()};
@@ -197,7 +198,7 @@ public class TestServer extends DefaultRecoverable
                     output.writeString(Constants.COMMIT);
                     byte[][] returnBytes = {output.toBytes()};
                     output.close();
-
+                    Log.getLogger().info("No conflict found, returning commit");
                     return returnBytes;
                 }
             }

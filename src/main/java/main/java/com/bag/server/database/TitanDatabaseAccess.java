@@ -32,11 +32,15 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     private TitanGraph graph;
 
-    private int id;
+    private final int id;
 
-    public void start(int id)
+    public TitanDatabaseAccess(int id)
     {
         this.id = id;
+    }
+
+    public void start()
+    {
         TitanFactory.Builder config = TitanFactory.build();
 
         config.set("storage.backend", "berkeleyje");
@@ -76,7 +80,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         if(graph == null)
         {
-            start(id);
+            start();
         }
 
         ArrayList<Object> returnStorage =  new ArrayList<>();

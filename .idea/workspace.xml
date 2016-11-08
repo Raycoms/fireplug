@@ -2,9 +2,48 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b25c77af-4557-4786-a808-ade860b1172d" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.counts.db.a" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.keys" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.keys" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.propertystore.db.index.keys.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB0/neostore.transaction.db.0" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.a" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.keys" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.keys" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.keys.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.counts.db.a" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.index" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.index" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.index.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.index.keys" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.index.keys" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.index.keys.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.transaction.db.0" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.counts.db.a" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.names.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.labels.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.labels.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.arrays.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.arrays.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.keys" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.keys" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.keys.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.strings.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.strings.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipgroupstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipgroupstore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipstore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.names.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.schemastore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.schemastore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/ConflictHandler.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/ConflictHandler.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/ArangoDBDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/ArangoDBDatabaseAccess.class" />
@@ -13,21 +52,19 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/OrientDBDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/OrientDBDatabaseAccess.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/interfaces/IDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/interfaces/IDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Constants.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Constants.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/NodeStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/NodeStorage.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/RelationshipStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/RelationshipStorage.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB0/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB0/logs/debug.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB2/logs/debug.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/RelationshipStorage.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/RelationshipStorage.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java" />
     </list>
     <ignored path="BAG - Byzantine fault-tolerant Architecture for Graph database.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -67,37 +104,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="TestClient.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="TestClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="186">
-              <caret line="317" column="19" selection-start-line="317" selection-start-column="19" selection-end-line="317" selection-end-column="19" />
+            <state relative-caret-position="75">
+              <caret line="319" column="0" selection-start-line="319" selection-start-column="0" selection-end-line="319" selection-end-column="0" />
               <folding>
                 <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
                 <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RunTests.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="27" column="36" selection-start-line="27" selection-start-column="36" selection-end-line="27" selection-end-column="36" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="NodeStorage.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="132">
-              <caret line="110" column="0" selection-start-line="110" selection-start-column="0" selection-end-line="110" selection-end-column="0" />
-              <folding>
-                <element signature="e#1782#1783#0" expanded="true" />
-                <element signature="e#1876#1877#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -116,8 +130,8 @@
       <file leaf-file-name="TestServer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="489">
-              <caret line="408" column="42" selection-start-line="408" selection-start-column="37" selection-end-line="408" selection-end-column="42" />
+            <state relative-caret-position="148">
+              <caret line="197" column="47" selection-start-line="197" selection-start-column="47" selection-end-line="197" selection-end-column="47" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -125,13 +139,17 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Neo4jDatabaseAccess.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Neo4jDatabaseAccess.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="409" column="0" selection-start-line="409" selection-start-column="0" selection-end-line="409" selection-end-column="0" />
+            <state relative-caret-position="563">
+              <caret line="418" column="18" selection-start-line="418" selection-start-column="18" selection-end-line="418" selection-end-column="18" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#1281#1282#0" expanded="true" />
+                <element signature="e#1309#1310#0" expanded="true" />
+                <element signature="e#18432#18642#0" expanded="true" />
+                <element signature="e#18641#18642#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -140,11 +158,11 @@
       <file leaf-file-name="ArangoDBDatabaseAccess.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
+            <state relative-caret-position="135">
+              <caret line="14" column="25" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
               <folding>
-                <element signature="e#511#512#0" expanded="true" />
-                <element signature="e#539#540#0" expanded="true" />
+                <element signature="e#430#431#0" expanded="true" />
+                <element signature="e#458#459#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -153,9 +171,14 @@
       <file leaf-file-name="OrientDBDatabaseAccess.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="849">
-              <caret line="156" column="0" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="597">
+              <caret line="68" column="20" selection-start-line="68" selection-start-column="20" selection-end-line="68" selection-end-column="20" />
+              <folding>
+                <element signature="e#1144#1145#0" expanded="true" />
+                <element signature="e#1172#1173#0" expanded="true" />
+                <element signature="e#1203#1204#0" expanded="true" />
+                <element signature="e#1278#1279#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -163,19 +186,46 @@
       <file leaf-file-name="TitanDatabaseAccess.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="744">
-              <caret line="236" column="0" selection-start-line="236" selection-start-column="0" selection-end-line="236" selection-end-column="0" />
+            <state relative-caret-position="268">
+              <caret line="82" column="20" selection-start-line="82" selection-start-column="20" selection-end-line="82" selection-end-column="20" />
+              <folding>
+                <element signature="e#1278#1279#0" expanded="true" />
+                <element signature="e#1306#1307#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IDatabaseAccess.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="240">
+              <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RunTests.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="375">
+              <caret line="27" column="36" selection-start-line="27" selection-start-column="36" selection-end-line="27" selection-end-column="36" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Constants.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java">
+      <file leaf-file-name="ConflictHandler.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="19" column="66" selection-start-line="19" selection-start-column="66" selection-end-line="19" selection-end-column="66" />
-              <folding />
+            <state relative-caret-position="594">
+              <caret line="58" column="5" selection-start-line="58" selection-start-column="5" selection-end-line="58" selection-end-column="5" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -545,18 +595,18 @@
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Interfaces/IDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/TransactionStorage.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/RelationshipStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java" />
       </list>
     </option>
   </component>
@@ -597,6 +647,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -652,10 +705,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="bag" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="util" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -749,45 +798,20 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="1.0" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemId" value="server" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
+              <option name="myItemId" value="database" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="bag" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="client" />
+              <option name="myItemId" value="interfaces" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1190,15 +1214,15 @@
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32725322" sideWeight="0.42135417" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.638412" sideWeight="0.40618336" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.638412" sideWeight="0.40618336" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.34227467" sideWeight="0.5181237" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.46244636" sideWeight="0.5181237" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25479743" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="SonarLint" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25426438" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="SonarLint" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.234375" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1233,14 +1257,8 @@
           <properties />
           <option name="timeStamp" value="95" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
-          <line>319</line>
-          <properties />
-          <option name="timeStamp" value="96" />
-        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="97" />
+      <option name="time" value="98" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -1481,24 +1499,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="900">
-          <caret line="64" column="31" selection-start-line="64" selection-start-column="31" selection-end-line="64" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/TransactionStorage.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="849">
@@ -1518,48 +1518,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="849">
-          <caret line="156" column="0" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="744">
-          <caret line="236" column="0" selection-start-line="236" selection-start-column="0" selection-end-line="236" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="27" column="36" selection-start-line="27" selection-start-column="36" selection-end-line="27" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="317" column="19" selection-start-line="317" selection-start-column="19" selection-end-line="317" selection-end-column="19" />
+        <state relative-caret-position="1365">
+          <caret line="110" column="0" selection-start-line="110" selection-start-column="0" selection-end-line="110" selection-end-column="0" />
           <folding>
-            <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
-            <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-          <folding>
-            <element signature="e#511#512#0" expanded="true" />
-            <element signature="e#539#540#0" expanded="true" />
+            <element signature="e#1782#1783#0" expanded="true" />
+            <element signature="e#1876#1877#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1572,33 +1537,100 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/NodeStorage.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="110" column="0" selection-start-line="110" selection-start-column="0" selection-end-line="110" selection-end-column="0" />
+        <state relative-caret-position="375">
+          <caret line="27" column="36" selection-start-line="27" selection-start-column="36" selection-end-line="27" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding>
-            <element signature="e#1782#1783#0" expanded="true" />
-            <element signature="e#1876#1877#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="489">
-          <caret line="408" column="42" selection-start-line="408" selection-start-column="37" selection-end-line="408" selection-end-column="42" />
+        <state relative-caret-position="268">
+          <caret line="82" column="20" selection-start-line="82" selection-start-column="20" selection-end-line="82" selection-end-column="20" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#1278#1279#0" expanded="true" />
+            <element signature="e#1306#1307#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="597">
+          <caret line="68" column="20" selection-start-line="68" selection-start-column="20" selection-end-line="68" selection-end-column="20" />
+          <folding>
+            <element signature="e#1144#1145#0" expanded="true" />
+            <element signature="e#1172#1173#0" expanded="true" />
+            <element signature="e#1203#1204#0" expanded="true" />
+            <element signature="e#1278#1279#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="409" column="0" selection-start-line="409" selection-start-column="0" selection-end-line="409" selection-end-column="0" />
+        <state relative-caret-position="563">
+          <caret line="418" column="18" selection-start-line="418" selection-start-column="18" selection-end-line="418" selection-end-column="18" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1281#1282#0" expanded="true" />
+            <element signature="e#1309#1310#0" expanded="true" />
+            <element signature="e#18432#18642#0" expanded="true" />
+            <element signature="e#18641#18642#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="14" column="25" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
+          <folding>
+            <element signature="e#430#431#0" expanded="true" />
+            <element signature="e#458#459#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="148">
+          <caret line="197" column="47" selection-start-line="197" selection-start-column="47" selection-end-line="197" selection-end-column="47" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="594">
+          <caret line="58" column="5" selection-start-line="58" selection-start-column="5" selection-end-line="58" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="319" column="0" selection-start-line="319" selection-start-column="0" selection-end-line="319" selection-end-column="0" />
+          <folding>
+            <element signature="method#TestClient#1;class#TestClient#0" expanded="false" />
+            <element signature="method#TestClient#2;class#TestClient#0" expanded="false" />
           </folding>
         </state>
       </provider>

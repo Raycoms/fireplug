@@ -26,13 +26,16 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
 {
     private static final String BASE_PATH = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/OrientDB";
 
-
-    private int id;
+    private final int id;
     private OrientGraphFactory factory;
 
-    public void start(int id)
+    public OrientDBDatabaseAccess(final int id)
     {
         this.id = id;
+    }
+
+    public void start()
+    {
         factory = new OrientGraphFactory(BASE_PATH).setupPool(1,10);
     }
 
@@ -63,7 +66,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
 
         if(factory == null)
         {
-            start(id);
+            start();
         }
 
         ArrayList<Object> returnStorage =  new ArrayList<>();
