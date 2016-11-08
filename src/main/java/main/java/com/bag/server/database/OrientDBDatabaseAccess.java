@@ -6,16 +6,11 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
-import main.java.com.bag.util.Constants;
-import main.java.com.bag.util.Log;
-import main.java.com.bag.util.NodeStorage;
-import main.java.com.bag.util.RelationshipStorage;
+import main.java.com.bag.util.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -24,16 +19,31 @@ import java.util.stream.StreamSupport;
  */
 public class OrientDBDatabaseAccess implements IDatabaseAccess
 {
+    /**
+     * The base path of the database.
+     */
     private static final String BASE_PATH = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/OrientDB";
 
+    /**
+     * The id of the server.
+     */
     private final int id;
+
+    /**
+     * The orientDb factory object.
+     */
     private OrientGraphFactory factory;
 
+    /**
+     * Constructor which sets the id of the server already.
+     * @param id sets the id.
+     */
     public OrientDBDatabaseAccess(final int id)
     {
         this.id = id;
     }
 
+    @Override
     public void start()
     {
         factory = new OrientGraphFactory(BASE_PATH).setupPool(1,10);
@@ -130,6 +140,12 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         return returnStorage;
     }
 
+    /**
+     * Returns a list of vertices from the database matching the nodeStorage.
+     * @param nodeStorage the nodeStorage.
+     * @param graph the graph database.
+     * @return a list of vertices.
+     */
     private Iterable<Vertex> getVertexList(final NodeStorage nodeStorage, final OrientGraph graph)
     {
         String[] propertyKeys   = nodeStorage.getProperties().keySet().toArray(new String[0]);
@@ -137,17 +153,161 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         return graph.getVertices(nodeStorage.getId(), propertyKeys , propertyValues);
     }
 
+    /**
+     * Kills the graph database.
+     */
+    @Override
     public void terminate()
     {
-
+        factory.close();;
     }
+
 
     @Override
     public boolean equalHash(final List readSet)
     {
-        return false;
+        if(readSet.isEmpty())
+        {
+            return true;
+        }
+
+        if(readSet.get(0) instanceof NodeStorage)
+        {
+            equalHashNode(readSet);
+        }
+        else if(readSet.get(0) instanceof RelationshipStorage)
+        {
+            equalHashRelationship(readSet);
+        }
+
+        return true;
     }
 
+    /**
+     * Checks if the hash of a node is equal to the hash in the database.
+     * @param readSet the readSet of nodes which should be compared.
+     * @return true if all nodes are equal.
+     */
+    private boolean equalHashNode(final List readSet)
+    {
+        for(Object storage: readSet)
+        {
+            if(storage instanceof NodeStorage)
+            {
+                NodeStorage nodeStorage = (NodeStorage) storage;
+
+                if(!compareNode(nodeStorage))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the hash of a list of relationships matches the relationship in the database.
+     * @param readSet the set of relationships
+     * @return true if all are correct.
+     */
+    private boolean equalHashRelationship(final List<RelationshipStorage> readSet)
+    {
+        for(Object storage: readSet)
+        {
+            if(storage instanceof RelationshipStorage)
+            {
+                RelationshipStorage relationshipStorage = (RelationshipStorage) storage;
+
+                if(!compareRelationship(relationshipStorage))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Compares a nodeStorage with the node inside the db to check if correct.
+     * @param nodeStorage the node to compare
+     * @return true if equal hash, else false.
+     */
+    private boolean compareNode(final NodeStorage nodeStorage)
+    {
+        if(factory == null)
+        {
+            start();
+        }
+
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            //Assuming we only get one node in return.
+            for (final Vertex tempVertex : getVertexList(nodeStorage, graph))
+            {
+                if(!HashCreator.sha1FromNode(nodeStorage).equals(tempVertex.getProperty("hash")))
+                {
+                    return false;
+                }
+            }
+        }
+        catch(NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Failed at generating hash in server " + id, e);
+        }
+        finally
+        {
+            graph.shutdown();
+        }
+
+        return true;
+    }
+
+    /**
+     * Compares a nodeStorage with the node inside the db to check if correct.
+     * @param relationshipStorage the node to compare
+     * @return true if equal hash, else false.
+     */
+    private boolean compareRelationship(final RelationshipStorage relationshipStorage)
+    {
+        if (factory == null)
+        {
+            start();
+        }
+
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            final String relationshipId = relationshipStorage.getId();
+
+            Iterable<Vertex> startNodes = getVertexList(relationshipStorage.getStartNode(), graph);
+            Iterable<Vertex> endNodes = getVertexList(relationshipStorage.getEndNode(), graph);
+
+            List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
+                    .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
+                    .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
+                    .collect(Collectors.toList());
+            for (Edge edge : list)
+            {
+                if(!HashCreator.sha1FromRelationship(relationshipStorage).equals(edge.getProperty("hash")))
+                {
+                    return false;
+                }
+            }
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Failed at generating hash in server " + id, e);
+        }
+        finally
+        {
+            graph.shutdown();
+        }
+
+        return true;
+    }
+
+    //todo add hash on creation and update
     @Override
     public void execute(
             final List<NodeStorage> createSetNode,
@@ -157,6 +317,142 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             final List<NodeStorage> deleteSetNode,
             final List<RelationshipStorage> deleteSetRelationship)
     {
+        if (factory == null)
+        {
+            start();
+        }
 
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            //Create node
+            for (NodeStorage node : createSetNode)
+            {
+                Vertex vertex = graph.addVertex(node.getId());
+                for (Map.Entry<String, Object> entry : node.getProperties().entrySet())
+                {
+                    vertex.setProperty(entry.getKey(), entry.getValue());
+                }
+
+                graph.commit();
+            }
+
+            //Create relationships
+            for (RelationshipStorage relationship : createSetRelationship)
+            {
+                Edge edge = graph.addEdge()
+                /*
+                final String builder = MATCH + buildNodeString(relationship.getStartNode(), "1") +
+                        ", " +
+                        buildNodeString(relationship.getEndNode(), "2") +
+                        " CREATE (n1)" +
+                        buildPureRelationshipString(relationship) +
+                        "(n2)";
+                graphDb.execute(builder);*/
+
+                graph.commit();
+            }
+
+            //Update nodes
+            for (Map.Entry<NodeStorage, NodeStorage> node : updateSetNode.entrySet())
+            {
+                final StringBuilder builder = new StringBuilder(MATCH + buildNodeString(node.getKey(), ""));
+
+                if (!node.getKey().getId().equals(node.getValue().getId()))
+                {
+                    builder.append(String.format("REMOVE n:%s", node.getKey().getId()));
+                    builder.append(String.format("SET n:%s", node.getValue().getId()));
+                }
+
+                Set<String> keys = node.getKey().getProperties().keySet();
+                keys.addAll(node.getValue().getProperties().keySet());
+
+                for (String key : keys)
+                {
+                    Object value1 = node.getKey().getProperties().get(key);
+                    Object value2 = node.getValue().getProperties().get(key);
+
+                    if (value1 == null)
+                    {
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                    else if (value2 == null)
+                    {
+                        builder.append(String.format("REMOVE n.%s", key));
+                    }
+                    else
+                    {
+                        if (value1.equals(value2))
+                        {
+                            continue;
+                        }
+
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                }
+
+                graphDb.execute(builder.toString());
+            }
+
+            //Update relationships
+            for (Map.Entry<RelationshipStorage, RelationshipStorage> relationship : updateSetRelationship.entrySet())
+            {
+                final StringBuilder builder = new StringBuilder(MATCH + buildRelationshipString(relationship.getKey()));
+
+                if (!relationship.getKey().getId().equals(relationship.getValue().getId()))
+                {
+                    builder.append(String.format("REMOVE n:%s", relationship.getKey().getId()));
+                    builder.append(String.format("SET n:%s", relationship.getValue().getId()));
+                }
+
+                Set<String> keys = relationship.getKey().getProperties().keySet();
+                keys.addAll(relationship.getValue().getProperties().keySet());
+
+                for (String key : keys)
+                {
+                    Object value1 = relationship.getKey().getProperties().get(key);
+                    Object value2 = relationship.getValue().getProperties().get(key);
+
+                    if (value1 == null)
+                    {
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                    else if (value2 == null)
+                    {
+                        builder.append(String.format("REMOVE n.%s", key));
+                    }
+                    else
+                    {
+                        if (value1.equals(value2))
+                        {
+                            continue;
+                        }
+
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                }
+
+                graphDb.execute(builder.toString());
+            }
+
+            //Delete relationships
+            for (RelationshipStorage relationship : deleteSetRelationship)
+            {
+                final String cypher = MATCH + buildRelationshipString(relationship) + " DELETE r";
+
+                graphDb.execute(cypher);
+            }
+
+            for (NodeStorage node : deleteSetNode)
+            {
+                final String cypher = MATCH + buildNodeString(node, "") + " DETACH DELETE n";
+
+                graphDb.execute(cypher);
+            }
+        }
+        finally
+        {
+            graph.shutdown();
+        }
     }
 }

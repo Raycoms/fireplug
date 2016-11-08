@@ -2,24 +2,23 @@ package main.java.com.bag.server.database;
 
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.TitanVertex;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
-import main.java.com.bag.util.Constants;
-import main.java.com.bag.util.Log;
-import main.java.com.bag.util.NodeStorage;
-import main.java.com.bag.util.RelationshipStorage;
+import main.java.com.bag.util.*;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Class created to handle access to the titan database.
@@ -166,24 +165,11 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      */
     private ArrayList<Vertex> getVertexList(final NodeStorage nodeStorage, final GraphTraversalSource g, long snapshotId)
     {
-        GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(nodeStorage.getId());
-        ArrayList<Vertex> nodeList =  new ArrayList<>();
-
-        for (Map.Entry<String, Object> entry : nodeStorage.getProperties().entrySet())
+        GraphTraversal<Vertex, Vertex> tempOutput = getVertexList(nodeStorage, g);
+        ArrayList<Vertex> nodeList = new ArrayList<>();
+        if (tempOutput != null && tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
         {
-            if (tempOutput == null)
-            {
-                break;
-            }
-            tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
-        }
-
-        if(tempOutput != null)
-        {
-            if(tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
-            {
-                tempOutput.fill(nodeList);
-            }
+            tempOutput.fill(nodeList);
         }
 
         return nodeList;
@@ -214,21 +200,171 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         return returnStorage;
     }
 
+
     /**
-     * Terminates the graph database.
+     * Kills the graph database.
      */
     @Override
     public void terminate()
     {
-        graph.close();
+        graph.close();;
     }
 
     @Override
     public boolean equalHash(final List readSet)
     {
-        return false;
+        if(readSet.isEmpty())
+        {
+            return true;
+        }
+
+        if(readSet.get(0) instanceof NodeStorage)
+        {
+            equalHashNode(readSet);
+        }
+        else if(readSet.get(0) instanceof RelationshipStorage)
+        {
+            equalHashRelationship(readSet);
+        }
+
+        return true;
     }
 
+    /**
+     * Checks if the hash of a node is equal to the hash in the database.
+     * @param readSet the readSet of nodes which should be compared.
+     * @return true if all nodes are equal.
+     */
+    private boolean equalHashNode(final List readSet)
+    {
+        for(Object storage: readSet)
+        {
+            if(storage instanceof NodeStorage)
+            {
+                NodeStorage nodeStorage = (NodeStorage) storage;
+
+                if(!compareNode(nodeStorage))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the hash of a list of relationships matches the relationship in the database.
+     * @param readSet the set of relationships
+     * @return true if all are correct.
+     */
+    private boolean equalHashRelationship(final List<RelationshipStorage> readSet)
+    {
+        for(Object storage: readSet)
+        {
+            if(storage instanceof RelationshipStorage)
+            {
+                RelationshipStorage relationshipStorage = (RelationshipStorage) storage;
+
+                if(!compareRelationship(relationshipStorage))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Compares a nodeStorage with the node inside the db to check if correct.
+     * @param nodeStorage the node to compare
+     * @return true if equal hash, else false.
+     */
+    private boolean compareNode(final NodeStorage nodeStorage)
+    {
+        if(graph == null)
+        {
+            start();
+        }
+
+        try
+        {
+            graph.newTransaction();
+            GraphTraversalSource g = graph.traversal();
+            GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(nodeStorage.getId());
+
+            for (Map.Entry<String, Object> entry : nodeStorage.getProperties().entrySet())
+            {
+                if (tempOutput == null)
+                {
+                    break;
+                }
+                tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
+            }
+
+            if(tempOutput != null && !HashCreator.sha1FromNode(nodeStorage).equals(tempOutput.values("hash").toString()))
+            {
+                return false;
+            }
+        }
+        catch(NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Failed at generating hash in server " + id, e);
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+
+        return true;
+    }
+
+    /**
+     * Compares a nodeStorage with the node inside the db to check if correct.
+     * @param relationshipStorage the node to compare
+     * @return true if equal hash, else false.
+     */
+    private boolean compareRelationship(final RelationshipStorage relationshipStorage)
+    {
+        if(graph == null)
+        {
+            start();
+        }
+
+        try
+        {
+            graph.newTransaction();
+            GraphTraversalSource g = graph.traversal();
+
+
+            GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(relationshipStorage.getId());
+
+            for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
+            {
+                if (tempOutput == null)
+                {
+                    break;
+                }
+                tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
+            }
+
+            if(tempOutput != null && !HashCreator.sha1FromRelationship(relationshipStorage).equals(tempOutput.values("hash").toString()))
+            {
+                return false;
+            }
+        }
+        catch(NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Failed at generating hash in server " + id, e);
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+
+        return true;
+    }
+
+    //todo add hash on creation and update
     @Override
     public void execute(
             final List<NodeStorage> createSetNode,
@@ -238,6 +374,169 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             final List<NodeStorage> deleteSetNode,
             final List<RelationshipStorage> deleteSetRelationship)
     {
+        if(graph == null)
+        {
+            start();
+        }
 
+        try
+        {
+            graph.newTransaction();
+            GraphTraversalSource g = graph.traversal();
+
+            //Create node
+            for (NodeStorage node : createSetNode)
+            {
+                TitanVertex vertex = graph.addVertex(node.getId());
+                for (Map.Entry<String, Object> entry : node.getProperties().entrySet())
+                {
+                    vertex.property(entry.getKey(), entry.getValue());
+                }
+                vertex.property("hash", HashCreator.sha1FromNode(node));
+            }
+
+            //Create relationships
+            for (RelationshipStorage relationship : createSetRelationship)
+            {
+                GraphTraversal<Vertex,Vertex> startNode =  getVertexList(relationship.getStartNode(), g);
+                GraphTraversal<Vertex,Vertex> endNode =  getVertexList(relationship.getEndNode(), g);
+
+                final int length = relationship.getProperties().size() * 2 + 2;
+                Object[] keyValue = new Object[length];
+
+                int i = 0;
+                for(Map.Entry<String, Object> entry: relationship.getProperties().entrySet())
+                {
+                    keyValue[i] = entry.getKey();
+                    keyValue[i+1] = entry.getValue();
+                    i += 2;
+                }
+
+                keyValue[i] = "hash";
+                keyValue[i+1] = HashCreator.sha1FromRelationship(relationship);
+
+                if(startNode.hasNext() && endNode.hasNext())
+                {
+                    startNode.next().addEdge(relationship.getId(), endNode.next(), keyValue);
+                }
+            }
+
+            //todo can't change type
+            //Update nodes
+            for (Map.Entry<NodeStorage, NodeStorage> node : updateSetNode.entrySet())
+            {
+                GraphTraversal<Vertex,Vertex> tempNode =  getVertexList(node.getKey(), g);
+                if(tempNode.hasNext())
+                {
+                    Vertex vertex = tempNode.next();
+
+                    final int length = node.getKey().getProperties().size() * 2 + 2;
+                    Object[] keyValue = new Object[length];
+
+                    int i = 0;
+                    for(Map.Entry<String, Object> entry: node.getKey().getProperties().entrySet())
+                    {
+                        keyValue[i] = entry.getKey();
+                        keyValue[i+1] = entry.getValue();
+                        i += 2;
+                    }
+
+                    NodeStorage tempStorage = new NodeStorage(node.getValue().getId(), node.getKey().getProperties());
+                    for(Map.Entry<String, Object> entry: node.getValue().getProperties().entrySet())
+                    {
+                        tempStorage.addProperty(entry.getKey(), entry.getValue());
+                    }
+
+                    vertex.property("hash", HashCreator.sha1FromNode(tempStorage), keyValue);
+                }
+            }
+
+            //Update relationships
+            for (Map.Entry<RelationshipStorage, RelationshipStorage> relationship : updateSetRelationship.entrySet())
+            {
+                final StringBuilder builder = new StringBuilder(MATCH + buildRelationshipString(relationship.getKey()));
+
+                if (!relationship.getKey().getId().equals(relationship.getValue().getId()))
+                {
+                    builder.append(String.format("REMOVE n:%s", relationship.getKey().getId()));
+                    builder.append(String.format("SET n:%s", relationship.getValue().getId()));
+                }
+
+                Set<String> keys = relationship.getKey().getProperties().keySet();
+                keys.addAll(relationship.getValue().getProperties().keySet());
+
+                for (String key : keys)
+                {
+                    Object value1 = relationship.getKey().getProperties().get(key);
+                    Object value2 = relationship.getValue().getProperties().get(key);
+
+                    if (value1 == null)
+                    {
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                    else if (value2 == null)
+                    {
+                        builder.append(String.format("REMOVE n.%s", key));
+                    }
+                    else
+                    {
+                        if (value1.equals(value2))
+                        {
+                            continue;
+                        }
+
+                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                    }
+                }
+
+                graphDb.execute(builder.toString());
+            }
+
+            //Delete relationships
+            for (RelationshipStorage relationship : deleteSetRelationship)
+            {
+                final String cypher = MATCH + buildRelationshipString(relationship) + " DELETE r";
+
+                graphDb.execute(cypher);
+            }
+
+            for (NodeStorage node : deleteSetNode)
+            {
+                final String cypher = MATCH + buildNodeString(node, "") + " DETACH DELETE n";
+
+                graphDb.execute(cypher);
+            }
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+
+    }
+
+    /**
+     * Gets the graph traversal object for a nodeStorage.
+     * @param nodeStorage the storage.
+     * @param g the graph.
+     * @return the traversal object.
+     */
+    private GraphTraversal<Vertex, Vertex> getVertexList(final NodeStorage nodeStorage, final GraphTraversalSource g)
+    {
+        GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(nodeStorage.getId());
+
+        for (Map.Entry<String, Object> entry : nodeStorage.getProperties().entrySet())
+        {
+            if (tempOutput == null)
+            {
+                break;
+            }
+            tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
+        }
+
+        return tempOutput;
     }
 }

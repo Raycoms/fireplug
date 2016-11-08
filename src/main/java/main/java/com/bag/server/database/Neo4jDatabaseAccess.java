@@ -256,11 +256,14 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 {
                     myNode.setProperty(entry.getKey(), entry.getValue());
                 }
+                myNode.setProperty("hash", HashCreator.sha1FromNode(node));
+
             }
 
             //Create relationships
             for(RelationshipStorage relationship: createSetRelationship)
             {
+                relationship.addProperty("hash", HashCreator.sha1FromRelationship(relationship));
                 final String builder = MATCH + buildNodeString(relationship.getStartNode(), "1") +
                         ", " +
                         buildNodeString(relationship.getEndNode(), "2") +
@@ -277,8 +280,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
                 if(!node.getKey().getId().equals(node.getValue().getId()))
                 {
-                    builder.append(String.format("REMOVE n:%s", node.getKey().getId()));
-                    builder.append(String.format("SET n:%s", node.getValue().getId()));
+                    builder.append(String.format(" REMOVE n:%s", node.getKey().getId()));
+                    builder.append(String.format(" SET n:%s", node.getValue().getId()));
                 }
 
                 Set<String> keys = node.getKey().getProperties().keySet();
@@ -291,11 +294,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
                     if(value1 == null)
                     {
-                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                        builder.append(String.format(" SET n.%s = '%s'", key, value2));
                     }
                     else if(value2 == null)
                     {
-                        builder.append(String.format("REMOVE n.%s", key));
+                        builder.append(String.format(" REMOVE n.%s", key));
                     }
                     else
                     {
@@ -304,9 +307,17 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             continue;
                         }
 
-                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                        builder.append(String.format(" SET n.%s = '%s'", key, value2));
                     }
                 }
+
+                NodeStorage tempStorage = new NodeStorage(node.getValue().getId(), node.getKey().getProperties());
+                for(Map.Entry<String, Object> entry: node.getValue().getProperties().entrySet())
+                {
+                    tempStorage.addProperty(entry.getKey(), entry.getValue());
+                }
+
+                builder.append(" REMOVE n.hash").append(String.format(" SET n.hash = '%s'", HashCreator.sha1FromNode(tempStorage)));
 
                 graphDb.execute(builder.toString());
             }
@@ -344,10 +355,17 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             continue;
                         }
-
                         builder.append(String.format("SET n.%s = '%s'", key, value2));
                     }
                 }
+
+                RelationshipStorage tempStorage = new RelationshipStorage(relationship.getValue().getId(), relationship.getKey().getProperties(), relationship.getKey().getStartNode(), relationship.getKey().getEndNode());
+                for(Map.Entry<String, Object> entry: relationship.getValue().getProperties().entrySet())
+                {
+                    tempStorage.addProperty(entry.getKey(), entry.getValue());
+                }
+
+                builder.append(" REMOVE n.hash").append(String.format(" SET n.hash = '%s'", HashCreator.sha1FromRelationship(tempStorage)));
 
                 graphDb.execute(builder.toString());
             }
@@ -367,6 +385,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 graphDb.execute(cypher);
             }
             tx.success();
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Couldn't create hash in server " + id, e);
         }
     }
 
@@ -390,6 +412,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         return true;
     }
 
+    /**
+     * Checks if the hash of a node is equal to the hash in the database.
+     * @param readSet the readSet of nodes which should be compared.
+     * @return true if all nodes are equal.
+     */
     private boolean equalHashNode(final List readSet)
     {
         for(Object storage: readSet)
@@ -455,6 +482,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         return true;
     }
 
+    /**
+     * Checks if the hash of a list of relationships matches the relationship in the database.
+     * @param readSet the set of relationships
+     * @return true if all are correct.
+     */
     private boolean equalHashRelationship(final List<RelationshipStorage> readSet)
     {
         for(Object storage: readSet)

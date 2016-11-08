@@ -324,6 +324,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         if(!Constants.COMMIT_RESPONSE.equals(type))
         {
             Log.getLogger().warn("Incorrect response to commit message");
+            input.close();
             return;
         }
 
