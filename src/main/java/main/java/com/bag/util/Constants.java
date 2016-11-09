@@ -18,7 +18,7 @@ public class Constants
     public static final String TAG_SNAPSHOT_ID            = "snapShotId";
     public static final String COMMIT                     = "commit";
     public static final String ABORT                      = "abort";
-
+    public static final String TAG_HASH                   = "hash";
     /**
      * Used to hide the implicit default constructor.
      */
@@ -28,4 +28,6 @@ public class Constants
          * Intentionally left empty.
          */
     }
+
+    public class TAG_HASH {}
 }

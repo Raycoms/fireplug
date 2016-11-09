@@ -8,6 +8,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
 import org.jetbrains.annotations.NotNull;
+import scala.collection.immutable.Stream;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -307,7 +308,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         return true;
     }
 
-    //todo add hash on creation and update
+    //todo create hash over incoming storage or do I have to retrieve the whole node data first?
     @Override
     public void execute(
             final List<NodeStorage> createSetNode,
@@ -315,7 +316,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             final Map<NodeStorage, NodeStorage> updateSetNode,
             final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
             final List<NodeStorage> deleteSetNode,
-            final List<RelationshipStorage> deleteSetRelationship)
+            final List<RelationshipStorage> deleteSetRelationship, long snapshotId)
     {
         if (factory == null)
         {
@@ -333,6 +334,9 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                 {
                     vertex.setProperty(entry.getKey(), entry.getValue());
                 }
+                vertex.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(node));
+                vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+
 
                 graph.commit();
             }
@@ -340,15 +344,23 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             //Create relationships
             for (RelationshipStorage relationship : createSetRelationship)
             {
-                Edge edge = graph.addEdge()
-                /*
-                final String builder = MATCH + buildNodeString(relationship.getStartNode(), "1") +
-                        ", " +
-                        buildNodeString(relationship.getEndNode(), "2") +
-                        " CREATE (n1)" +
-                        buildPureRelationshipString(relationship) +
-                        "(n2)";
-                graphDb.execute(builder);*/
+                Iterable<Vertex> startNodes = this.getVertexList(relationship.getStartNode(), graph);
+                Iterable<Vertex> endNodes = this.getVertexList(relationship.getEndNode(), graph);
+
+                for(Vertex startNode: startNodes)
+                {
+                    for(Vertex endNode: endNodes)
+                    {
+                        Edge edge = startNode.addEdge(relationship.getId(), endNode);
+
+                        for(Map.Entry<String, Object> entry: relationship.getProperties().entrySet())
+                        {
+                            edge.setProperty(entry.getKey(), entry.getValue());
+                        }
+                        edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(relationship));
+                        edge.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+                    }
+                }
 
                 graph.commit();
             }
@@ -356,99 +368,125 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             //Update nodes
             for (Map.Entry<NodeStorage, NodeStorage> node : updateSetNode.entrySet())
             {
-                final StringBuilder builder = new StringBuilder(MATCH + buildNodeString(node.getKey(), ""));
-
-                if (!node.getKey().getId().equals(node.getValue().getId()))
-                {
-                    builder.append(String.format("REMOVE n:%s", node.getKey().getId()));
-                    builder.append(String.format("SET n:%s", node.getValue().getId()));
-                }
+                Iterable<Vertex> result = getVertexList(node.getKey(), graph);
 
                 Set<String> keys = node.getKey().getProperties().keySet();
                 keys.addAll(node.getValue().getProperties().keySet());
 
-                for (String key : keys)
+                NodeStorage tempStorage = new NodeStorage(node.getValue().getId(), node.getKey().getProperties());
+                for(Map.Entry<String, Object> entry: node.getValue().getProperties().entrySet())
                 {
-                    Object value1 = node.getKey().getProperties().get(key);
-                    Object value2 = node.getValue().getProperties().get(key);
-
-                    if (value1 == null)
-                    {
-                        builder.append(String.format("SET n.%s = '%s'", key, value2));
-                    }
-                    else if (value2 == null)
-                    {
-                        builder.append(String.format("REMOVE n.%s", key));
-                    }
-                    else
-                    {
-                        if (value1.equals(value2))
-                        {
-                            continue;
-                        }
-
-                        builder.append(String.format("SET n.%s = '%s'", key, value2));
-                    }
+                    tempStorage.addProperty(entry.getKey(), entry.getValue());
                 }
 
-                graphDb.execute(builder.toString());
+                for(Vertex vertex: result)
+                {
+                    for (String key : keys)
+                    {
+                        Object value1 = node.getKey().getProperties().get(key);
+                        Object value2 = node.getValue().getProperties().get(key);
+
+                        if (value1 == null)
+                        {
+                            vertex.setProperty(key, value2);
+                        }
+                        else if (value2 == null)
+                        {
+                            vertex.removeProperty(key);
+                        }
+                        else
+                        {
+                            if (value1.equals(value2))
+                            {
+                                continue;
+                            }
+                            vertex.setProperty(key, value2);
+                        }
+                    }
+                    vertex.setProperty(Constants.TAG_HASH, tempStorage);
+                    vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+                }
+
+                graph.commit();
             }
 
             //Update relationships
             for (Map.Entry<RelationshipStorage, RelationshipStorage> relationship : updateSetRelationship.entrySet())
             {
-                final StringBuilder builder = new StringBuilder(MATCH + buildRelationshipString(relationship.getKey()));
+                final String relationshipId = relationship.getKey().getId();
 
-                if (!relationship.getKey().getId().equals(relationship.getValue().getId()))
+                Iterable<Vertex> startNodes = getVertexList(relationship.getKey().getStartNode(), graph);
+                Iterable<Vertex> endNodes = getVertexList(relationship.getKey().getEndNode(), graph);
+
+                NodeStorage tempStorage = new NodeStorage(relationship.getValue().getId(), relationship.getKey().getProperties());
+                for(Map.Entry<String, Object> entry: relationship.getValue().getProperties().entrySet())
                 {
-                    builder.append(String.format("REMOVE n:%s", relationship.getKey().getId()));
-                    builder.append(String.format("SET n:%s", relationship.getValue().getId()));
+                    tempStorage.addProperty(entry.getKey(), entry.getValue());
                 }
 
                 Set<String> keys = relationship.getKey().getProperties().keySet();
                 keys.addAll(relationship.getValue().getProperties().keySet());
 
-                for (String key : keys)
+                List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
+                        .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
+                        .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
+                        .collect(Collectors.toList());
+                for(Edge edge: list)
                 {
-                    Object value1 = relationship.getKey().getProperties().get(key);
-                    Object value2 = relationship.getValue().getProperties().get(key);
+                    for(String key : keys)
+                    {
+                        Object value1 = relationship.getKey().getProperties().get(key);
+                        Object value2 = relationship.getValue().getProperties().get(key);
 
-                    if (value1 == null)
-                    {
-                        builder.append(String.format("SET n.%s = '%s'", key, value2));
-                    }
-                    else if (value2 == null)
-                    {
-                        builder.append(String.format("REMOVE n.%s", key));
-                    }
-                    else
-                    {
-                        if (value1.equals(value2))
+                        if(value1 == null)
                         {
-                            continue;
+                            edge.setProperty(key, value2);
                         }
-
-                        builder.append(String.format("SET n.%s = '%s'", key, value2));
+                        else if(value2 == null)
+                        {
+                            edge.removeProperty(key);
+                        }
+                        else
+                        {
+                            if(value1.equals(value2))
+                            {
+                                continue;
+                            }
+                            edge.setProperty(key, value2);
+                        }
                     }
+                    edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage));
+                    edge.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
                 }
 
-                graphDb.execute(builder.toString());
             }
 
             //Delete relationships
             for (RelationshipStorage relationship : deleteSetRelationship)
             {
-                final String cypher = MATCH + buildRelationshipString(relationship) + " DELETE r";
+                final String relationshipId = relationship.getId();
 
-                graphDb.execute(cypher);
+                Iterable<Vertex> startNodes = getVertexList(relationship.getStartNode(), graph);
+                Iterable<Vertex> endNodes = getVertexList(relationship.getEndNode(), graph);
+
+                StreamSupport.stream(startNodes.spliterator(), false)
+                        .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
+                        .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
+                        .forEach(Edge::remove);
             }
 
             for (NodeStorage node : deleteSetNode)
             {
-                final String cypher = MATCH + buildNodeString(node, "") + " DETACH DELETE n";
 
-                graphDb.execute(cypher);
+                for (final Vertex vertex : getVertexList(node, graph))
+                {
+                    vertex.remove();
+                }
             }
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Couldn't create hash in server " + id, e);
         }
         finally
         {

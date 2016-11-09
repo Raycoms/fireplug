@@ -38,6 +38,6 @@ public abstract interface IDatabaseAccess
      */
     public void execute(List<NodeStorage> createSetNode, List<RelationshipStorage> createSetRelationship,
             Map<NodeStorage, NodeStorage> updateSetNode, Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
-            List<NodeStorage> deleteSetNode, List<RelationshipStorage> deleteSetRelationship);
+            List<NodeStorage> deleteSetNode, List<RelationshipStorage> deleteSetRelationship, long snapshotId);
 
 }

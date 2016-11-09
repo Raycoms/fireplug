@@ -183,7 +183,7 @@ public class TestServer extends DefaultRecoverable
                     }
 
                     //Execute the transaction.
-                    databaseAccess.execute(createSetNode, createSetRelationship, updateSetNode, updateSetRelationship, deleteSetNode, deleteSetRelationship);
+                    databaseAccess.execute(createSetNode, createSetRelationship, updateSetNode, updateSetRelationship, deleteSetNode, deleteSetRelationship, ++globalSnapshotId);
 
                     //Store the write set.
                     ArrayList<NodeStorage> tempWriteSetNode = new ArrayList<>(updateSetNode.keySet());
@@ -192,8 +192,8 @@ public class TestServer extends DefaultRecoverable
                     tempWriteSetNode.addAll(deleteSetNode);
                     tempWriteSetRelationship.addAll(deleteSetRelationship);
 
-                    writeSetNode.put(globalSnapshotId++, tempWriteSetNode);
-                    writeSetRelationship.put(globalSnapshotId++, tempWriteSetRelationship);
+                    writeSetNode.put(globalSnapshotId, tempWriteSetNode);
+                    writeSetRelationship.put(globalSnapshotId, tempWriteSetRelationship);
 
                     output.writeString(Constants.COMMIT);
                     byte[][] returnBytes = {output.toBytes()};

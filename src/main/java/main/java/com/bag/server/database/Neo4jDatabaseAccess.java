@@ -242,7 +242,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final Map<NodeStorage, NodeStorage> updateSetNode,
             final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
             final List<NodeStorage> deleteSetNode,
-            final List<RelationshipStorage> deleteSetRelationship)
+            final List<RelationshipStorage> deleteSetRelationship, long snapshotId)
     {
         try(Transaction tx = graphDb.beginTx())
         {
@@ -256,14 +256,17 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 {
                     myNode.setProperty(entry.getKey(), entry.getValue());
                 }
-                myNode.setProperty("hash", HashCreator.sha1FromNode(node));
+                myNode.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(node));
+                myNode.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
 
             }
 
             //Create relationships
             for(RelationshipStorage relationship: createSetRelationship)
             {
-                relationship.addProperty("hash", HashCreator.sha1FromRelationship(relationship));
+                relationship.addProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(relationship));
+                relationship.addProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+
                 final String builder = MATCH + buildNodeString(relationship.getStartNode(), "1") +
                         ", " +
                         buildNodeString(relationship.getEndNode(), "2") +
@@ -278,11 +281,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             {
                 final StringBuilder builder = new StringBuilder(MATCH + buildNodeString(node.getKey(), ""));
 
-                if(!node.getKey().getId().equals(node.getValue().getId()))
+                //Can't change label in titan.
+                /*if(!node.getKey().getId().equals(node.getValue().getId()))
                 {
                     builder.append(String.format(" REMOVE n:%s", node.getKey().getId()));
                     builder.append(String.format(" SET n:%s", node.getValue().getId()));
-                }
+                }*/
 
                 Set<String> keys = node.getKey().getProperties().keySet();
                 keys.addAll(node.getValue().getProperties().keySet());
@@ -317,7 +321,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     tempStorage.addProperty(entry.getKey(), entry.getValue());
                 }
 
-                builder.append(" REMOVE n.hash").append(String.format(" SET n.hash = '%s'", HashCreator.sha1FromNode(tempStorage)));
+                builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage)));
+                builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_SNAPSHOT_ID, snapshotId));
 
                 graphDb.execute(builder.toString());
             }
@@ -365,8 +370,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     tempStorage.addProperty(entry.getKey(), entry.getValue());
                 }
 
-                builder.append(" REMOVE n.hash").append(String.format(" SET n.hash = '%s'", HashCreator.sha1FromRelationship(tempStorage)));
-
+                builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromRelationship(tempStorage)));
+                builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_SNAPSHOT_ID, snapshotId));
                 graphDb.execute(builder.toString());
             }
 
@@ -463,7 +468,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
                         try
                         {
-                            if(!HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty("hash")))
+                            if(!HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH)))
                             {
                                 return false;
                             }
@@ -528,7 +533,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
                         try
                         {
-                            if(!HashCreator.sha1FromRelationship(relationshipStorage).equals(n.getProperty("hash")))
+                            if(!HashCreator.sha1FromRelationship(relationshipStorage).equals(n.getProperty(Constants.TAG_HASH)))
                             {
                                 return false;
                             }
