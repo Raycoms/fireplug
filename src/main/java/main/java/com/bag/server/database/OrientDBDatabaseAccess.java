@@ -5,10 +5,10 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
+import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
 import org.jetbrains.annotations.NotNull;
-import scala.collection.immutable.Stream;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -56,7 +56,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
-    public List<Object> readObject(@NotNull Object identifier, long snapshotId)
+    public List<Object> readObject(@NotNull Object identifier, long snapshotId) throws OutDatedDataException
     {
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage =  null;
@@ -108,6 +108,11 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         {
                             storage.addProperty(key, edge.getProperty(key));
                         }
+                        if(storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        {
+                            Object localSId =  storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            OutDatedDataException.checkSnapshotId(localSId, snapshotId);
+                        }
                         returnStorage.add(storage);
                     }
                 }
@@ -124,6 +129,11 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         for (String key : tempVertex.getPropertyKeys())
                         {
                             temp.addProperty(key, tempVertex.getProperty(key));
+                        }
+                        if(temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        {
+                            Object localSId =  temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            OutDatedDataException.checkSnapshotId(localSId, snapshotId);
                         }
                         returnStorage.add(temp);
                     }
@@ -160,7 +170,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     @Override
     public void terminate()
     {
-        factory.close();;
+        factory.close();
     }
 
 
@@ -182,6 +192,12 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
 
         return true;
+    }
+
+    @Override
+    public String getType()
+    {
+        return Constants.ORIENTDB;
     }
 
     /**

@@ -85,7 +85,7 @@
             </socket>
         </sockets>
         <protocols>
-            <!-- Default registered protocol. It reads commands using the HTTP protocol
+            <!-- Default registered protocol. It reads operations using the HTTP protocol
                 and write data locally -->
             <protocol name="binary"
                       implementation="com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary"/>

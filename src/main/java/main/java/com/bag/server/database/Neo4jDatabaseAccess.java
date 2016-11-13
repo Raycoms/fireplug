@@ -1,5 +1,6 @@
 package main.java.com.bag.server.database;
 
+import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 {
     private static final String BASE_PATH    = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB";
 
+    //todo apply vars as basic type and not as strings.
     /**
      * The graphDB object.
      */
@@ -81,7 +83,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
-    public List<Object> readObject(@NotNull Object identifier, long snapShotId)
+    public List<Object> readObject(@NotNull Object identifier, long snapshotId) throws OutDatedDataException
     {
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage =  null;
@@ -113,16 +115,14 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             if(nodeStorage == null)
             {
-                Log.getLogger().info(Long.toString(snapShotId));
+                Log.getLogger().info(Long.toString(snapshotId));
                 builder.append(buildRelationshipString(relationshipStorage));
-                builder.append(String.format(" WHERE TOFLOAT(r.%s) <= %s OR n.%s IS NULL", Constants.TAG_SNAPSHOT_ID, Long.toString(snapShotId), Constants.TAG_SNAPSHOT_ID));
                 builder.append(" RETURN r");
             }
             else
             {
-                Log.getLogger().info(Long.toString(snapShotId));
+                Log.getLogger().info(Long.toString(snapshotId));
                 builder.append(buildNodeString(nodeStorage, ""));
-                builder.append(String.format(" WHERE TOFLOAT(n.%s) <= %s OR n.%s IS NULL",Constants.TAG_SNAPSHOT_ID, snapShotId, Constants.TAG_SNAPSHOT_ID));
                 builder.append(" RETURN n");
             }
 
@@ -137,6 +137,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     {
                         NodeProxy n = (NodeProxy) entry.getValue();
                         NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                        if(temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        {
+                            Object sId =  temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                        }
                         returnStorage.add(temp);
                     }
                     else if(entry.getValue() instanceof RelationshipProxy)
@@ -145,9 +150,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
                         NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
 
-
                         RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
                         returnStorage.add(temp);
+                        if(temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        {
+                            Object sId =  temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                        }
                     }
                 }
             }
@@ -236,215 +245,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public void execute(
-            final List<NodeStorage> createSetNode,
-            final List<RelationshipStorage> createSetRelationship,
-            final Map<NodeStorage, NodeStorage> updateSetNode,
-            final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
-            final List<NodeStorage> deleteSetNode,
-            final List<RelationshipStorage> deleteSetRelationship, long snapshotId)
-    {
-        try(Transaction tx = graphDb.beginTx())
-        {
-            //Create node
-            for(NodeStorage node: createSetNode)
-            {
-                final Label label = node::getId;
-                final Node myNode = graphDb.createNode(label);
-
-                for(Map.Entry<String, Object> entry : node.getProperties().entrySet())
-                {
-                    myNode.setProperty(entry.getKey(), entry.getValue());
-                }
-                myNode.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(node));
-                myNode.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
-
-            }
-
-            //Create relationships
-            for(RelationshipStorage relationship: createSetRelationship)
-            {
-                relationship.addProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(relationship));
-                relationship.addProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
-
-                final String builder = MATCH + buildNodeString(relationship.getStartNode(), "1") +
-                        ", " +
-                        buildNodeString(relationship.getEndNode(), "2") +
-                        " CREATE (n1)" +
-                        buildPureRelationshipString(relationship) +
-                        "(n2)";
-                graphDb.execute(builder);
-            }
-
-            //Update nodes
-            for(Map.Entry<NodeStorage, NodeStorage> node: updateSetNode.entrySet())
-            {
-                final StringBuilder builder = new StringBuilder(MATCH + buildNodeString(node.getKey(), ""));
-
-                //Can't change label in titan.
-                /*if(!node.getKey().getId().equals(node.getValue().getId()))
-                {
-                    builder.append(String.format(" REMOVE n:%s", node.getKey().getId()));
-                    builder.append(String.format(" SET n:%s", node.getValue().getId()));
-                }*/
-
-                Set<String> keys = node.getKey().getProperties().keySet();
-                keys.addAll(node.getValue().getProperties().keySet());
-
-                for(String key : keys)
-                {
-                    Object value1 = node.getKey().getProperties().get(key);
-                    Object value2 = node.getValue().getProperties().get(key);
-
-                    if(value1 == null)
-                    {
-                        builder.append(String.format(" SET n.%s = '%s'", key, value2));
-                    }
-                    else if(value2 == null)
-                    {
-                        builder.append(String.format(" REMOVE n.%s", key));
-                    }
-                    else
-                    {
-                        if(value1.equals(value2))
-                        {
-                            continue;
-                        }
-
-                        builder.append(String.format(" SET n.%s = '%s'", key, value2));
-                    }
-                }
-
-                NodeStorage tempStorage = new NodeStorage(node.getValue().getId(), node.getKey().getProperties());
-                for(Map.Entry<String, Object> entry: node.getValue().getProperties().entrySet())
-                {
-                    tempStorage.addProperty(entry.getKey(), entry.getValue());
-                }
-
-                builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage)));
-                builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_SNAPSHOT_ID, snapshotId));
-
-                graphDb.execute(builder.toString());
-            }
-
-            //Update relationships
-            for(Map.Entry<RelationshipStorage, RelationshipStorage> relationship: updateSetRelationship.entrySet())
-            {
-                final StringBuilder builder = new StringBuilder(MATCH + buildRelationshipString(relationship.getKey()));
-
-                if(!relationship.getKey().getId().equals(relationship.getValue().getId()))
-                {
-                    builder.append(String.format("REMOVE n:%s", relationship.getKey().getId()));
-                    builder.append(String.format("SET n:%s", relationship.getValue().getId()));
-                }
-
-                Set<String> keys = relationship.getKey().getProperties().keySet();
-                keys.addAll(relationship.getValue().getProperties().keySet());
-
-                for(String key : keys)
-                {
-                    Object value1 = relationship.getKey().getProperties().get(key);
-                    Object value2 = relationship.getValue().getProperties().get(key);
-
-                    if(value1 == null)
-                    {
-                        builder.append(String.format("SET n.%s = '%s'", key, value2));
-                    }
-                    else if(value2 == null)
-                    {
-                        builder.append(String.format("REMOVE n.%s", key));
-                    }
-                    else
-                    {
-                        if(value1.equals(value2))
-                        {
-                            continue;
-                        }
-                        builder.append(String.format("SET n.%s = '%s'", key, value2));
-                    }
-                }
-
-                RelationshipStorage tempStorage = new RelationshipStorage(relationship.getValue().getId(), relationship.getKey().getProperties(), relationship.getKey().getStartNode(), relationship.getKey().getEndNode());
-                for(Map.Entry<String, Object> entry: relationship.getValue().getProperties().entrySet())
-                {
-                    tempStorage.addProperty(entry.getKey(), entry.getValue());
-                }
-
-                builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromRelationship(tempStorage)));
-                builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_SNAPSHOT_ID, snapshotId));
-                graphDb.execute(builder.toString());
-            }
-
-            //Delete relationships
-            for(RelationshipStorage relationship: deleteSetRelationship)
-            {
-                final String cypher = MATCH + buildRelationshipString(relationship) + " DELETE r";
-
-                graphDb.execute(cypher);
-            }
-
-            for(NodeStorage node: deleteSetNode)
-            {
-                final String cypher = MATCH + buildNodeString(node, "") + " DETACH DELETE n";
-
-                graphDb.execute(cypher);
-            }
-            tx.success();
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            Log.getLogger().warn("Couldn't create hash in server " + id, e);
-        }
-    }
-
-    @Override
-    public boolean equalHash(final List readSet)
-    {
-        if(readSet.isEmpty())
-        {
-            return true;
-        }
-
-        if(readSet.get(0) instanceof NodeStorage)
-        {
-            equalHashNode(readSet);
-        }
-        else if(readSet.get(0) instanceof RelationshipStorage)
-        {
-            equalHashRelationship(readSet);
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks if the hash of a node is equal to the hash in the database.
-     * @param readSet the readSet of nodes which should be compared.
-     * @return true if all nodes are equal.
-     */
-    private boolean equalHashNode(final List readSet)
-    {
-        for(Object storage: readSet)
-        {
-            if(storage instanceof NodeStorage)
-            {
-                NodeStorage nodeStorage = (NodeStorage) storage;
-
-                if(!compareNode(nodeStorage))
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Compares a nodeStorage with the node inside the db to check if correct.
-     * @param nodeStorage the node to compare
-     * @return true if equal hash, else false.
-     */
-    private boolean compareNode(final NodeStorage nodeStorage)
+    public boolean compareNode(final NodeStorage nodeStorage)
     {
         if(graphDb == null)
         {
@@ -487,34 +288,201 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         return true;
     }
 
-    /**
-     * Checks if the hash of a list of relationships matches the relationship in the database.
-     * @param readSet the set of relationships
-     * @return true if all are correct.
-     */
-    private boolean equalHashRelationship(final List<RelationshipStorage> readSet)
+    @Override
+    public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
     {
-        for(Object storage: readSet)
+        try
         {
-            if(storage instanceof RelationshipStorage)
-            {
-                RelationshipStorage relationshipStorage = (RelationshipStorage) storage;
+            final StringBuilder builder = new StringBuilder(MATCH + buildNodeString(key, ""));
 
-                if(!compareRelationship(relationshipStorage))
+            Set<String> keys = key.getProperties().keySet();
+            keys.addAll(value.getProperties().keySet());
+
+            for (String tempKey : keys)
+            {
+                Object value1 = key.getProperties().get(tempKey);
+                Object value2 = value.getProperties().get(tempKey);
+
+                if (value1 == null)
                 {
-                    return false;
+                    builder.append(String.format(" SET n.%s = '%s'", tempKey, value2));
+                }
+                else if (value2 == null)
+                {
+                    builder.append(String.format(" REMOVE n.%s", tempKey));
+                }
+                else
+                {
+                    if (value1.equals(value2))
+                    {
+                        continue;
+                    }
+
+                    builder.append(String.format(" SET n.%s = '%s'", tempKey, value2));
                 }
             }
+
+            NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
+            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
+            {
+                tempStorage.addProperty(entry.getKey(), entry.getValue());
+            }
+
+            builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage)));
+            builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_SNAPSHOT_ID, snapshotId));
+
+            graphDb.execute(builder.toString());
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+            return false;
         }
         return true;
     }
 
-    /**
-     * Compares a nodeStorage with the node inside the db to check if correct.
-     * @param relationshipStorage the node to compare
-     * @return true if equal hash, else false.
-     */
-    private boolean compareRelationship(final RelationshipStorage relationshipStorage)
+    @Override
+    public boolean applyCreate(final NodeStorage storage, final long snapshotId)
+    {
+        try
+        {
+            final Label label = storage::getId;
+            final Node myNode = graphDb.createNode(label);
+
+            for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+            {
+                myNode.setProperty(entry.getKey(), entry.getValue());
+            }
+            myNode.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(storage));
+            myNode.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyDelete(final NodeStorage storage, final long snapshotId)
+    {
+        try
+        {
+            final String cypher = MATCH + buildNodeString(storage, "") + " DETACH DELETE n";
+            graphDb.execute(cypher);
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
+    {
+        try
+        {
+            final StringBuilder builder = new StringBuilder(MATCH + buildRelationshipString(key));
+
+            if (!key.getId().equals(value.getId()))
+            {
+                builder.append(String.format("REMOVE n:%s", key.getId()));
+                builder.append(String.format("SET n:%s", value.getId()));
+            }
+
+            Set<String> keys = key.getProperties().keySet();
+            keys.addAll(value.getProperties().keySet());
+
+            for (String Tempkey : keys)
+            {
+                Object value1 = key.getProperties().get(Tempkey);
+                Object value2 = value.getProperties().get(Tempkey);
+
+                if (value1 == null)
+                {
+                    builder.append(String.format("SET n.%s = '%s'", Tempkey, value2));
+                }
+                else if (value2 == null)
+                {
+                    builder.append(String.format("REMOVE n.%s", Tempkey));
+                }
+                else
+                {
+                    if (value1.equals(value2))
+                    {
+                        continue;
+                    }
+                    builder.append(String.format("SET n.%s = '%s'", Tempkey, value2));
+                }
+            }
+
+            RelationshipStorage tempStorage = new RelationshipStorage(value.getId(),
+                    key.getProperties(),
+                    key.getStartNode(),
+                    key.getEndNode());
+            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
+            {
+                tempStorage.addProperty(entry.getKey(), entry.getValue());
+            }
+
+            builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromRelationship(tempStorage)));
+            builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_SNAPSHOT_ID, snapshotId));
+            graphDb.execute(builder.toString());
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
+    {
+        try
+        {
+            storage.addProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(storage));
+            storage.addProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+
+            final String builder = MATCH + buildNodeString(storage.getStartNode(), "1") +
+                    ", " +
+                    buildNodeString(storage.getEndNode(), "2") +
+                    " CREATE (n1)" +
+                    buildPureRelationshipString(storage) +
+                    "(n2)";
+            graphDb.execute(builder);
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyDelete(final RelationshipStorage storage, final long snapshotId)
+    {
+        try
+        {
+            //Delete relationship
+            final String cypher = MATCH + buildRelationshipString(storage) + " DELETE r";
+            graphDb.execute(cypher);
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean compareRelationship(final RelationshipStorage relationshipStorage)
     {
         try (Transaction tx = graphDb.beginTx())
         {

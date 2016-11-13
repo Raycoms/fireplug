@@ -1,6 +1,7 @@
 package main.java.com.bag.server.database;
 
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
 
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by ray on 10/12/16.
+ * Database access for the arangoDB database.
  */
 public class ArangoDBDatabaseAccess implements IDatabaseAccess
 {
@@ -35,13 +36,20 @@ public class ArangoDBDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
+    public String getType()
+    {
+        return Constants.ARANGODB;
+    }
+
+    @Override
     public void execute(
             final List<NodeStorage> createSetNode,
             final List<RelationshipStorage> createSetRelationship,
             final Map<NodeStorage, NodeStorage> updateSetNode,
             final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
             final List<NodeStorage> deleteSetNode,
-            final List<RelationshipStorage> deleteSetRelationship)
+            final List<RelationshipStorage> deleteSetRelationship,
+            final long snapshotId)
     {
 
     }

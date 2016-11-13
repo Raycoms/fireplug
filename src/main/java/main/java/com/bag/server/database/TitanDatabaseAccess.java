@@ -3,6 +3,7 @@ package main.java.com.bag.server.database;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanVertex;
+import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
@@ -57,7 +58,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
-    public List<Object> readObject(@NotNull Object identifier, long snapshotId)
+    public List<Object> readObject(@NotNull Object identifier, long snapshotId) throws OutDatedDataException
     {
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage =  null;
@@ -114,6 +115,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @return a list matching the keys
      */
     private List<RelationshipStorage> getRelationshipStorages(final RelationshipStorage relationshipStorage, final GraphTraversalSource g, long snapshotId)
+            throws OutDatedDataException
     {
         ArrayList<Edge> relationshipList =  new ArrayList<>();
         //g.V(1).bothE().where(otherV().hasId(2)).hasLabel('knows').has('weight',gt(0.0))
@@ -151,6 +153,12 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             {
                 tempStorage.addProperty(s, edge.property(s));
             }
+            if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+            {
+                Object sId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                OutDatedDataException.checkSnapshotId(sId, snapshotId);
+            }
+
             returnList.add(tempStorage);
         }
         return returnList;
@@ -180,7 +188,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @param g the graph.
      * @return the list of vertices.
      */
-    private List<NodeStorage> getNodeStorages(NodeStorage nodeStorage, GraphTraversalSource g, long snapshotId)
+    private List<NodeStorage> getNodeStorages(NodeStorage nodeStorage, GraphTraversalSource g, long snapshotId) throws OutDatedDataException
     {
         ArrayList<Vertex> nodeList =  getVertexList(nodeStorage, g, snapshotId);
         ArrayList<NodeStorage> returnStorage =  new ArrayList<>();
@@ -193,6 +201,13 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             {
                 storage.addProperty(key, vertex.property(key).value());
             }
+
+            if(storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+            {
+                Object sId =  storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                OutDatedDataException.checkSnapshotId(sId, snapshotId);
+            }
+
             returnStorage.add(storage);
         }
 
@@ -227,6 +242,12 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
 
         return true;
+    }
+
+    @Override
+    public String getType()
+    {
+        return Constants.TITAN;
     }
 
     /**

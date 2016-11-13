@@ -1,5 +1,6 @@
 package main.java.com.bag.server;
 
+import main.java.com.bag.operations.Operation;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.NodeStorage;
 import main.java.com.bag.util.RelationshipStorage;
@@ -23,39 +24,35 @@ public class ConflictHandler
 
     /**
      * Checks for conflicts between read and writeSets.
-     * @param writeSetNode the node writeSet.
-     * @param writeSetRelationship the relationship writeSet.
+     * @param writeSet the node and relationship writeSet.
      * @param readSetNode the node readSet.
      * @param readSetRelationship the relationship readSet
      * @param snapshotId the snapShotId of the transaction.
      * @return true if no conflict has been found.
      */
-    protected static boolean checkForConflict(Map<Long, List<NodeStorage>> writeSetNode,
-            Map<Long, List<RelationshipStorage>> writeSetRelationship,
+    protected static boolean checkForConflict(Map<Long, List<Operation>> writeSet,
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship,
             long snapshotId, IDatabaseAccess access)
     {
-        return isUpToDate(writeSetNode, writeSetRelationship, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
+        return isUpToDate(writeSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
     /**
      * Checks if no changes have been made since the start of the transaction.
-     * @param writeSetNode the node writeSet.
-     * @param writeSetRelationship the relationship writeSet.
+     * @param writeSet the node and relationship writeSet.
      * @param readSetNode the node readSet.
      * @param readSetRelationship the relationship readSet
      * @param snapshotId the snapShotId of the transaction.
      * @return true if data is up to date.
      */
-    private static boolean isUpToDate(Map<Long, List<NodeStorage>> writeSetNode,
-            Map<Long, List<RelationshipStorage>> writeSetRelationship,
+    private static boolean isUpToDate(Map<Long, List<Operation>> writeSet,
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
 
-        return !writeSetNode.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> Collections.unmodifiableList(writeSetNode.get(id)).retainAll(readSetNode))
-                && !writeSetRelationship.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSetRelationship.get(id)).retainAll(readSetRelationship));
+        return !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> Collections.unmodifiableList(writeSet.get(id)).retainAll(readSetNode))
+                && !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetRelationship));
     }
 
     /**

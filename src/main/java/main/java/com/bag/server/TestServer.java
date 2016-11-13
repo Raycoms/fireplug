@@ -9,6 +9,11 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import main.java.com.bag.exceptions.OutDatedDataException;
+import main.java.com.bag.operations.CreateOperation;
+import main.java.com.bag.operations.DeleteOperation;
+import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.database.ArangoDBDatabaseAccess;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.server.database.OrientDBDatabaseAccess;
@@ -37,7 +42,7 @@ public class TestServer extends DefaultRecoverable
     /**
      * Contains all local transactions being executed on the server at the very moment.
      */
-    private HashMap<Integer, TransactionStorage> localTransactionList;
+    private HashMap<Integer, ArrayList<Operation>> localTransactionList;
 
     /**
      * Global snapshot id, increases with every committed transaction.
@@ -47,18 +52,16 @@ public class TestServer extends DefaultRecoverable
     /**
      * Write set of the nodes contains updates and deletes.
      */
-    private HashMap<Long, List<NodeStorage>> writeSetNode;
-
-    /**
-     * Write set of the relationships contains updates and deletes.
-     */
-    private HashMap<Long, List<RelationshipStorage>> writeSetRelationship;
+    private HashMap<Long, List<Operation>> globalWriteSet;
 
     private KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
+        kryo.register(CreateOperation.class, 250);
+        kryo.register(DeleteOperation.class, 300);
+        kryo.register(UpdateOperation.class, 350);
         // configure kryo instance, customize settings
         return kryo;
     };
@@ -76,8 +79,7 @@ public class TestServer extends DefaultRecoverable
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
 
-        writeSetNode = new HashMap<>();
-        writeSetRelationship = new HashMap<>();
+        globalWriteSet = new HashMap<>();
 
         switch (instance)
         {
@@ -128,82 +130,69 @@ public class TestServer extends DefaultRecoverable
 
                 if(Constants.COMMIT_MESSAGE.equals(type))
                 {
-                    Long timeStamp = kryo.readObject(input, Long.class);
-
-                    Object readsSetNodeX = kryo.readClassAndObject(input);
-                    Object updateSetNodeX = kryo.readClassAndObject(input);
-                    Object deleteSetNodeX = kryo.readClassAndObject(input);
-                    Object createSetNodeX = kryo.readClassAndObject(input);
-
-                    Object readsSetRelationshipX = kryo.readClassAndObject(input);
-                    Object updateSetRelationshipX = kryo.readClassAndObject(input);
-                    Object deleteSetRelationshipX = kryo.readClassAndObject(input);
-                    Object createSetRelationshipX = kryo.readClassAndObject(input);
-
-                    ArrayList<NodeStorage> readSetNode;
-                    HashMap<NodeStorage, NodeStorage> updateSetNode;
-                    ArrayList<NodeStorage> deleteSetNode;
-                    ArrayList<NodeStorage> createSetNode;
-
-                    ArrayList<RelationshipStorage> readsSetRelationship;
-                    HashMap<RelationshipStorage, RelationshipStorage> updateSetRelationship;
-                    ArrayList<RelationshipStorage> deleteSetRelationship;
-                    ArrayList<RelationshipStorage> createSetRelationship;
-
-                    try
-                    {
-                        readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
-                        updateSetNode = (HashMap<NodeStorage, NodeStorage>) updateSetNodeX;
-                        deleteSetNode = (ArrayList<NodeStorage>) deleteSetNodeX;
-                        createSetNode = (ArrayList<NodeStorage>) createSetNodeX;
-
-                        readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
-                        updateSetRelationship = (HashMap<RelationshipStorage, RelationshipStorage>) updateSetRelationshipX;
-                        deleteSetRelationship = (ArrayList<RelationshipStorage>) deleteSetRelationshipX;
-                        createSetRelationship = (ArrayList<RelationshipStorage>) createSetRelationshipX;
-                    }
-                    catch (Exception e)
-                    {
-                        Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
-                        return new byte[0][];
-                    }
-
-                    input.close();
-                    Output output = new Output(1024);
-                    output.writeString(Constants.COMMIT_RESPONSE);
-
-                    if (!ConflictHandler.checkForConflict(writeSetNode, writeSetRelationship, readSetNode, readsSetRelationship, timeStamp, databaseAccess))
-                    {
-                        Log.getLogger().info("Found conflict, returning abort");
-                        output.writeString(Constants.ABORT);
-                        //Send abort to client and abort
-                        byte[][] returnBytes = {output.toBytes()};
-                        output.close();
-                        return returnBytes;
-                    }
-
-                    //Execute the transaction.
-                    databaseAccess.execute(createSetNode, createSetRelationship, updateSetNode, updateSetRelationship, deleteSetNode, deleteSetRelationship, ++globalSnapshotId);
-
-                    //Store the write set.
-                    ArrayList<NodeStorage> tempWriteSetNode = new ArrayList<>(updateSetNode.keySet());
-                    ArrayList<RelationshipStorage> tempWriteSetRelationship = new ArrayList<>(updateSetRelationship.keySet());
-
-                    tempWriteSetNode.addAll(deleteSetNode);
-                    tempWriteSetRelationship.addAll(deleteSetRelationship);
-
-                    writeSetNode.put(globalSnapshotId, tempWriteSetNode);
-                    writeSetRelationship.put(globalSnapshotId, tempWriteSetRelationship);
-
-                    output.writeString(Constants.COMMIT);
-                    byte[][] returnBytes = {output.toBytes()};
-                    output.close();
-                    Log.getLogger().info("No conflict found, returning commit");
-                    return returnBytes;
+                    return executeCommit(kryo, input);
                 }
             }
         }
         return new byte[0][];
+    }
+
+
+    public byte[][] executeCommit(Kryo kryo, Input input)
+    {
+        Long timeStamp = kryo.readObject(input, Long.class);
+
+        //Read the inputStream.
+        Object readsSetNodeX = kryo.readClassAndObject(input);
+        Object readsSetRelationshipX = kryo.readClassAndObject(input);
+        Object writeSetX = kryo.readClassAndObject(input);
+
+        //Create placeHolders.
+        ArrayList<NodeStorage> readSetNode;
+        ArrayList<RelationshipStorage> readsSetRelationship;
+        ArrayList<Operation> localWriteSet;
+
+        try
+        {
+            readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+            readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+
+            localWriteSet = (ArrayList<Operation>) writeSetX;
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
+            return new byte[0][];
+        }
+
+        input.close();
+        Output output = new Output(1024);
+        output.writeString(Constants.COMMIT_RESPONSE);
+
+        if (!ConflictHandler.checkForConflict(this.globalWriteSet, readSetNode, readsSetRelationship, timeStamp, databaseAccess))
+        {
+            Log.getLogger().info("Found conflict, returning abort");
+            output.writeString(Constants.ABORT);
+            //Send abort to client and abort
+            byte[][] returnBytes = {output.toBytes()};
+            output.close();
+            return returnBytes;
+        }
+
+        //Execute the transaction.
+        for(Operation op: localWriteSet)
+        {
+            op.apply(databaseAccess, globalSnapshotId);
+        }
+
+        //Store the write set.
+        this.globalWriteSet.put(globalSnapshotId, localWriteSet);
+
+        output.writeString(Constants.COMMIT);
+        byte[][] returnBytes = {output.toBytes()};
+        output.close();
+        Log.getLogger().info("No conflict found, returning commit");
+        return returnBytes;
     }
 
     @Override
@@ -257,16 +246,24 @@ public class TestServer extends DefaultRecoverable
         input.close();
 
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
-        TransactionStorage transaction = new TransactionStorage();
-        transaction.addReadSetRelationship(identifier);
-        localTransactionList.put(messageContext.getSender(), transaction);
+        //todo TransactionStorage transaction = new TransactionStorage();
+        //todo transaction.addReadSetRelationship(identifier);
+        //todo localTransactionList.put(messageContext.getSender(), transaction);
         localSnapshotId = globalSnapshotId;
         ArrayList<Object> returnList = null;
 
         if (databaseAccess instanceof Neo4jDatabaseAccess)
         {
             Log.getLogger().info("Get info from databaseAccess");
-            returnList = new ArrayList<>(((Neo4jDatabaseAccess) databaseAccess).readObject(identifier, localSnapshotId));
+            try
+            {
+                returnList = new ArrayList<>(((Neo4jDatabaseAccess) databaseAccess).readObject(identifier, localSnapshotId));
+            }
+            catch (OutDatedDataException e)
+            {
+                Log.getLogger().info("Transaction found conflict - terminating", e);
+                terminate();
+            }
             Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
 
@@ -318,7 +315,7 @@ public class TestServer extends DefaultRecoverable
         {
             TransactionStorage transaction = new TransactionStorage();
             transaction.addReadSetNodes(identifier);
-            localTransactionList.put(messageContext.getSender(), transaction);
+            //todo localTransactionList.put(messageContext.getSender(), transaction);
             localSnapshotId = globalSnapshotId;
         }
         ArrayList<Object> returnList = null;
@@ -326,7 +323,15 @@ public class TestServer extends DefaultRecoverable
         if (databaseAccess instanceof Neo4jDatabaseAccess)
         {
             Log.getLogger().info("Get info from databaseAccess");
-            returnList = new ArrayList<>(((Neo4jDatabaseAccess )databaseAccess).readObject(identifier, localSnapshotId));
+            try
+            {
+                returnList = new ArrayList<>(((Neo4jDatabaseAccess) databaseAccess).readObject(identifier, localSnapshotId));
+            }
+            catch (OutDatedDataException e)
+            {
+                Log.getLogger().info("Transaction found conflict - terminating", e);
+                terminate();
+            }
             Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
 

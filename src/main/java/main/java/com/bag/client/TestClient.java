@@ -10,13 +10,16 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import main.java.com.bag.operations.CreateOperation;
+import main.java.com.bag.operations.DeleteOperation;
+import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.util.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * Class handling the client.
@@ -31,17 +34,9 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      * Sets to log reads, updates, deletes and node creations.
      */
     private ArrayList<NodeStorage> readsSetNode;
-    private HashMap<NodeStorage, NodeStorage> updateSetNode;
-    private ArrayList<NodeStorage>            deleteSetNode;
-    private ArrayList<NodeStorage>            createSetNode;
-
-    /**
-     * Sets to log reads, updates, deletes and relationship creations.
-     */
     private ArrayList<RelationshipStorage> readsSetRelationship;
-    private HashMap<RelationshipStorage, RelationshipStorage> updateSetRelationship;
-    private ArrayList<RelationshipStorage>                    deleteSetRelationship;
-    private ArrayList<RelationshipStorage>                    createSetRelationship;
+
+    private ArrayList<Operation> writeSet;
 
     /**
      * Local timestamp of the current transaction.
@@ -56,6 +51,9 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Kryo kryo = new Kryo();
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
+        kryo.register(CreateOperation.class, 250);
+        kryo.register(DeleteOperation.class, 300);
+        kryo.register(UpdateOperation.class, 350);
         return kryo;
     };
 
@@ -84,14 +82,8 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     private void initClient()
     {
         readsSetNode = new ArrayList<>();
-        updateSetNode = new HashMap<>();
-        deleteSetNode = new ArrayList<>();
-        createSetNode = new ArrayList<>();
-
         readsSetRelationship = new ArrayList<>();
-        updateSetRelationship = new HashMap<>();
-        deleteSetRelationship = new ArrayList<>();
-        createSetRelationship = new ArrayList<>();
+        writeSet = new ArrayList<>();
     }
 
     /**
@@ -124,7 +116,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
     /**
      * Fills the updateSet in the case of an update request.
-     * Since we will execute writes after creates and before deletes. We don't have to check the other sets.
      * @param identifier the value to write to.
      * @param value what should be written.
      */
@@ -132,14 +123,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     {
         if(identifier instanceof NodeStorage && value instanceof NodeStorage)
         {
-            updateSetNode.put((NodeStorage) identifier, (NodeStorage) value);
-
-            //todo if we change a node, we have to change the relationships with the same node as well.
-            //todo run through create , update, deleteSet of relationship and check the node.
+            writeSet.add(new UpdateOperation<>((NodeStorage) identifier,(NodeStorage) value));
         }
         else if(identifier instanceof RelationshipStorage && value instanceof RelationshipStorage)
         {
-            updateSetRelationship.put((RelationshipStorage) identifier, (RelationshipStorage) value);
+            writeSet.add(new UpdateOperation<>((RelationshipStorage) identifier,(RelationshipStorage) value));
         }
         else
         {
@@ -155,11 +143,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     {
         if(value instanceof NodeStorage)
         {
-            createSetNode.add((NodeStorage) value);
+            writeSet.add(new CreateOperation<>((NodeStorage) value));
         }
         else if(value instanceof RelationshipStorage)
         {
-            createSetRelationship.add((RelationshipStorage) value);
+            writeSet.add(new CreateOperation<>((RelationshipStorage) value));
         }
     }
 
@@ -171,21 +159,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     {
         if(identifier instanceof NodeStorage)
         {
-            updateSetNode.remove(identifier);
-            createSetNode.remove(identifier);
-
-            deleteSetNode.add((NodeStorage) identifier);
-
-            new ArrayList<>(createSetRelationship).stream().filter(storage -> storage.getStartNode().equals(identifier)).forEach(storage -> createSetRelationship.remove(storage));
-            new ArrayList<>(deleteSetRelationship).stream().filter(storage -> storage.getStartNode().equals(identifier)).forEach(storage -> deleteSetRelationship.remove(storage));
-            new ArrayList<>(updateSetRelationship.keySet()).stream().filter(storage -> storage.getStartNode().equals(identifier)).forEach(storage -> updateSetRelationship.keySet().remove(storage));
+            writeSet.add(new CreateOperation<>((NodeStorage) identifier));
         }
         else if(identifier instanceof RelationshipStorage)
         {
-            updateSetRelationship.remove(identifier);
-            createSetRelationship.remove(identifier);
-
-            deleteSetRelationship.add((RelationshipStorage) identifier);
+            writeSet.add(new CreateOperation<>((RelationshipStorage) identifier));
         }
     }
 
@@ -389,17 +367,12 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         //Write the timeStamp to the server
         kryo.writeObject(output, localTimestamp);
 
-        //Write the node-sets to the server
+        //Write the readSet.
         kryo.writeClassAndObject(output, readsSetNode);
-        kryo.writeClassAndObject(output, updateSetNode);
-        kryo.writeClassAndObject(output, deleteSetNode);
-        kryo.writeClassAndObject(output, createSetNode);
-
-        //Write the relationship-sets to the server
         kryo.writeClassAndObject(output, readsSetRelationship);
-        kryo.writeClassAndObject(output, updateSetRelationship);
-        kryo.writeClassAndObject(output, deleteSetRelationship);
-        kryo.writeClassAndObject(output, createSetRelationship);
+
+        //Write the writeSet.
+        kryo.writeClassAndObject(output, writeSet);
 
         byte[] bytes = output.toBytes();
         output.close();
@@ -413,14 +386,8 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     private void resetSets()
     {
         readsSetNode = new ArrayList<>();
-        updateSetNode = new HashMap<>();
-        deleteSetNode = new ArrayList<>();
-        createSetNode = new ArrayList<>();
-
         readsSetRelationship = new ArrayList<>();
-        updateSetRelationship = new HashMap<>();
-        deleteSetRelationship = new ArrayList<>();
-        createSetRelationship = new ArrayList<>();
+        writeSet = new ArrayList<>();
     }
 
     /**
@@ -429,25 +396,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     private boolean isReadOnly()
     {
-        return hadNoNodeWrites() && hadNoRelationshipWrites();
-    }
-
-    /**
-     * Checks if there were writes in the node-sets.
-     * @return true if not.
-     */
-    private boolean hadNoNodeWrites()
-    {
-        return updateSetNode.isEmpty() && deleteSetNode.isEmpty() && createSetNode.isEmpty();
-    }
-
-    /**
-     * Checks if there were writes in the relationship-sets.
-     * @return true if not.
-     */
-    private boolean hadNoRelationshipWrites()
-    {
-        return updateSetRelationship.isEmpty() && deleteSetRelationship.isEmpty() && createSetRelationship.isEmpty();
+        return writeSet.isEmpty();
     }
 
 }

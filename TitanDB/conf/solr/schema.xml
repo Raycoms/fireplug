@@ -160,7 +160,7 @@
    -->
  <uniqueKey>id</uniqueKey>
 
-  <!-- copyField commands copy one field to another at the time a document
+  <!-- copyField operations copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
