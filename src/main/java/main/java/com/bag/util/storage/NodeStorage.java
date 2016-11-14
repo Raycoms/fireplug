@@ -1,6 +1,5 @@
-package main.java.com.bag.util;
+package main.java.com.bag.util.storage;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,18 +49,6 @@ public class NodeStorage implements Serializable
         this.id = id;
         this.properties = properties;
     }
-
-    /**
-     * Simple nodeStorage constructor.
-     * @param id string identifier of the node.
-     * @param properties properties of the node.
-     */
-    public NodeStorage(@NotNull String id, @Nullable HashMap properties)
-    {
-        this.id = id;
-        this.properties = properties;
-    }
-
     /**
      * Getter of the id.
      * @return string description of the node.

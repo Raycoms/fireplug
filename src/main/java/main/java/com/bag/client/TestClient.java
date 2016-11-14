@@ -15,6 +15,8 @@ import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.util.*;
+import main.java.com.bag.util.storage.NodeStorage;
+import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
@@ -33,7 +35,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     /**
      * Sets to log reads, updates, deletes and node creations.
      */
-    private ArrayList<NodeStorage> readsSetNode;
+    private ArrayList<NodeStorage>         readsSetNode;
     private ArrayList<RelationshipStorage> readsSetRelationship;
 
     private ArrayList<Operation> writeSet;
@@ -264,8 +266,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         input.close();
         pool.release(kryo);
     }
-
-
+    
     /**
      * Commit reaches the server, if secure commit send to all, else only send to one
      */

@@ -1,12 +1,10 @@
 package main.java.com.bag.server.database;
 
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
-import main.java.com.bag.util.Constants;
-import main.java.com.bag.util.NodeStorage;
-import main.java.com.bag.util.RelationshipStorage;
+import main.java.com.bag.util.storage.NodeStorage;
+import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Database access for the arangoDB database.

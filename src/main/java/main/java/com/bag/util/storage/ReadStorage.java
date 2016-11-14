@@ -1,4 +1,4 @@
-package main.java.com.bag.util;
+package main.java.com.bag.util.storage;
 
 /**
  * Object used for read messages to the server, and back to the client.

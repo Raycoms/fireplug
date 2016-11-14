@@ -3,6 +3,8 @@ package main.java.com.bag.server.database;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
+import main.java.com.bag.util.storage.NodeStorage;
+import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -125,6 +127,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 builder.append(" RETURN n");
             }
 
+            Log.getLogger().info("To database: " + builder.toString());
+
             Result result = graphDb.execute(builder.toString());
             while (result.hasNext())
             {
@@ -183,7 +187,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      */
     private String buildPureRelationshipString(final RelationshipStorage relationshipStorage)
     {
-        StringBuilder builder = new StringBuilder(buildNodeString(relationshipStorage.getStartNode(), "1"));
+        StringBuilder builder = new StringBuilder();
 
         builder.append("-[r");
 
@@ -192,21 +196,25 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             builder.append(String.format(":%s", relationshipStorage.getId()));
         }
 
-        builder.append(" {");
-        Iterator<Map.Entry<String, Object>> iterator = relationshipStorage.getProperties().entrySet().iterator();
 
-        while (iterator.hasNext())
+        if(!relationshipStorage.getProperties().isEmpty())
         {
-            Map.Entry<String, Object> currentProperty = iterator.next();
-            builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
+            builder.append(" {");
+            Iterator<Map.Entry<String, Object>> iterator = relationshipStorage.getProperties().entrySet().iterator();
 
-            if(iterator.hasNext())
+            while (iterator.hasNext())
             {
-                builder.append(" , ");
-            }
-        }
+                Map.Entry<String, Object> currentProperty = iterator.next();
+                builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
 
-        builder.append("}]->");
+                if (iterator.hasNext())
+                {
+                    builder.append(" , ");
+                }
+            }
+            builder.append("}");
+        }
+        builder.append("]->");
 
         return builder.toString();
     }
@@ -225,21 +233,26 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         {
             builder.append(String.format(":%s", nodeStorage.getId()));
         }
-        builder.append(" {");
 
-        Iterator<Map.Entry<String, Object>> iterator = nodeStorage.getProperties().entrySet().iterator();
-
-        while(iterator.hasNext())
+        if(!nodeStorage.getProperties().isEmpty())
         {
-            Map.Entry<String, Object> currentProperty = iterator.next();
-            builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
+            builder.append(" {");
 
-            if(iterator.hasNext())
+            Iterator<Map.Entry<String, Object>> iterator = nodeStorage.getProperties().entrySet().iterator();
+
+            while (iterator.hasNext())
             {
-                builder.append(" , ");
+                Map.Entry<String, Object> currentProperty = iterator.next();
+                builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
+
+                if (iterator.hasNext())
+                {
+                    builder.append(" , ");
+                }
             }
+            builder.append("}");
         }
-        builder.append("})");
+        builder.append(")");
         return builder.toString();
     }
 
@@ -337,13 +350,14 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
             return false;
         }
+        Log.getLogger().warn("Executed update node transaction in server:  " + id);
         return true;
     }
 
     @Override
     public boolean applyCreate(final NodeStorage storage, final long snapshotId)
     {
-        try
+        try(Transaction tx = graphDb.beginTx())
         {
             final Label label = storage::getId;
             final Node myNode = graphDb.createNode(label);
@@ -360,6 +374,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
             return false;
         }
+        Log.getLogger().warn("Executed create node transaction in server:  " + id);
         return true;
     }
 
@@ -376,6 +391,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
             return false;
         }
+        Log.getLogger().warn("Executed delete node transaction in server:  " + id);
         return true;
     }
 
@@ -436,6 +452,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
         }
+        Log.getLogger().warn("Executed update relationship transaction in server:  " + id);
         return true;
     }
 
@@ -460,6 +477,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
             return false;
         }
+        Log.getLogger().warn("Executed create relationship transaction in server:  " + id);
+
         return true;
     }
 
@@ -477,6 +496,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
             return false;
         }
+        Log.getLogger().warn("Executed delete relationship transaction in server:  " + id);
         return true;
     }
 

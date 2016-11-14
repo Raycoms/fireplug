@@ -20,6 +20,9 @@ import main.java.com.bag.server.database.OrientDBDatabaseAccess;
 import main.java.com.bag.server.database.TitanDatabaseAccess;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
+import main.java.com.bag.util.storage.NodeStorage;
+import main.java.com.bag.util.storage.RelationshipStorage;
+import main.java.com.bag.util.storage.TransactionStorage;
 
 import java.util.*;
 
@@ -42,7 +45,7 @@ public class TestServer extends DefaultRecoverable
     /**
      * Contains all local transactions being executed on the server at the very moment.
      */
-    private HashMap<Integer, ArrayList<Operation>> localTransactionList;
+    private HashMap<Integer, TransactionStorage> localTransactionList = new HashMap<>();
 
     /**
      * Global snapshot id, increases with every committed transaction.
@@ -246,9 +249,9 @@ public class TestServer extends DefaultRecoverable
         input.close();
 
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
-        //todo TransactionStorage transaction = new TransactionStorage();
-        //todo transaction.addReadSetRelationship(identifier);
-        //todo localTransactionList.put(messageContext.getSender(), transaction);
+        TransactionStorage transaction = new TransactionStorage();
+        transaction.addReadSetRelationship(identifier);
+        localTransactionList.put(messageContext.getSender(), transaction);
         localSnapshotId = globalSnapshotId;
         ArrayList<Object> returnList = null;
 
@@ -315,7 +318,7 @@ public class TestServer extends DefaultRecoverable
         {
             TransactionStorage transaction = new TransactionStorage();
             transaction.addReadSetNodes(identifier);
-            //todo localTransactionList.put(messageContext.getSender(), transaction);
+            localTransactionList.put(messageContext.getSender(), transaction);
             localSnapshotId = globalSnapshotId;
         }
         ArrayList<Object> returnList = null;

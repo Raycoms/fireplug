@@ -1,7 +1,9 @@
-package main.java.com.bag.util;
+package main.java.com.bag.util.storage;
+
+import main.java.com.bag.util.storage.NodeStorage;
+import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 

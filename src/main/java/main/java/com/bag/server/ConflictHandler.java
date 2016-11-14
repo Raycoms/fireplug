@@ -2,8 +2,8 @@ package main.java.com.bag.server;
 
 import main.java.com.bag.operations.Operation;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
-import main.java.com.bag.util.NodeStorage;
-import main.java.com.bag.util.RelationshipStorage;
+import main.java.com.bag.util.storage.NodeStorage;
+import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.util.*;
 

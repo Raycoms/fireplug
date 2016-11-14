@@ -1,5 +1,6 @@
-package main.java.com.bag.util;
+package main.java.com.bag.util.storage;
 
+import main.java.com.bag.util.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

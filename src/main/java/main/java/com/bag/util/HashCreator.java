@@ -1,5 +1,8 @@
 package main.java.com.bag.util;
 
+import main.java.com.bag.util.storage.NodeStorage;
+import main.java.com.bag.util.storage.RelationshipStorage;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
