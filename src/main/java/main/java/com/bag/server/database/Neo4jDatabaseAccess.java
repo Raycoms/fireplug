@@ -21,7 +21,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 {
     private static final String BASE_PATH    = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB";
 
-    //todo apply vars as basic type and not as strings.
     /**
      * The graphDB object.
      */
@@ -305,7 +304,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
                 if (value1 == null)
                 {
-                    builder.append(String.format(" SET n.%s = '%s'", tempKey, value2));
+                    builder.append(" SET n.").append(tempKey).append(" = ").append(value2);
                 }
                 else if (value2 == null)
                 {
@@ -318,7 +317,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         continue;
                     }
 
-                    builder.append(String.format(" SET n.%s = '%s'", tempKey, value2));
+                    builder.append(" SET n.").append(tempKey).append(" = ").append(value2);
                 }
             }
 
@@ -329,7 +328,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             }
 
             builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage)));
-            builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_SNAPSHOT_ID, snapshotId));
+            builder.append(String.format(" SET n.%s = ", Constants.TAG_SNAPSHOT_ID)).append(snapshotId);
 
             graphDb.execute(builder.toString());
         }
@@ -396,18 +395,18 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Set<String> keys = key.getProperties().keySet();
             keys.addAll(value.getProperties().keySet());
 
-            for (String Tempkey : keys)
+            for (String tempKey : keys)
             {
-                Object value1 = key.getProperties().get(Tempkey);
-                Object value2 = value.getProperties().get(Tempkey);
+                Object value1 = key.getProperties().get(tempKey);
+                Object value2 = value.getProperties().get(tempKey);
 
                 if (value1 == null)
                 {
-                    builder.append(String.format("SET n.%s = '%s'", Tempkey, value2));
+                    builder.append(" SET n.").append(tempKey).append(" = ").append(value2);
                 }
                 else if (value2 == null)
                 {
-                    builder.append(String.format("REMOVE n.%s", Tempkey));
+                    builder.append(String.format("REMOVE n.%s", tempKey));
                 }
                 else
                 {
@@ -415,7 +414,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     {
                         continue;
                     }
-                    builder.append(String.format("SET n.%s = '%s'", Tempkey, value2));
+                    builder.append(" SET n.").append(tempKey).append(" = ").append(value2);
                 }
             }
 

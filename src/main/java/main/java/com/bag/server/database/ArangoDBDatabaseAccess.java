@@ -36,21 +36,50 @@ public class ArangoDBDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public String getType()
+    public boolean compareRelationship(final RelationshipStorage storage)
     {
-        return Constants.ARANGODB;
+        return false;
     }
 
     @Override
-    public void execute(
-            final List<NodeStorage> createSetNode,
-            final List<RelationshipStorage> createSetRelationship,
-            final Map<NodeStorage, NodeStorage> updateSetNode,
-            final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
-            final List<NodeStorage> deleteSetNode,
-            final List<RelationshipStorage> deleteSetRelationship,
-            final long snapshotId)
+    public boolean compareNode(final NodeStorage storage)
     {
+        return false;
+    }
 
+    @Override
+    public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean applyCreate(final NodeStorage storage, final long snapshotId)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean applyDelete(final NodeStorage storage, final long snapshotId)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean applyDelete(final RelationshipStorage storage, final long snapshotId)
+    {
+        return false;
     }
 }

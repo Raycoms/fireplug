@@ -20,6 +20,7 @@ import java.util.stream.StreamSupport;
  */
 public class OrientDBDatabaseAccess implements IDatabaseAccess
 {
+    //todo May improve performance by commiting only after whole stack.
     /**
      * The base path of the database.
      */
@@ -174,82 +175,13 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     }
 
 
-    @Override
-    public boolean equalHash(final List readSet)
-    {
-        if(readSet.isEmpty())
-        {
-            return true;
-        }
-
-        if(readSet.get(0) instanceof NodeStorage)
-        {
-            equalHashNode(readSet);
-        }
-        else if(readSet.get(0) instanceof RelationshipStorage)
-        {
-            equalHashRelationship(readSet);
-        }
-
-        return true;
-    }
-
-    @Override
-    public String getType()
-    {
-        return Constants.ORIENTDB;
-    }
-
-    /**
-     * Checks if the hash of a node is equal to the hash in the database.
-     * @param readSet the readSet of nodes which should be compared.
-     * @return true if all nodes are equal.
-     */
-    private boolean equalHashNode(final List readSet)
-    {
-        for(Object storage: readSet)
-        {
-            if(storage instanceof NodeStorage)
-            {
-                NodeStorage nodeStorage = (NodeStorage) storage;
-
-                if(!compareNode(nodeStorage))
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks if the hash of a list of relationships matches the relationship in the database.
-     * @param readSet the set of relationships
-     * @return true if all are correct.
-     */
-    private boolean equalHashRelationship(final List<RelationshipStorage> readSet)
-    {
-        for(Object storage: readSet)
-        {
-            if(storage instanceof RelationshipStorage)
-            {
-                RelationshipStorage relationshipStorage = (RelationshipStorage) storage;
-
-                if(!compareRelationship(relationshipStorage))
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     /**
      * Compares a nodeStorage with the node inside the db to check if correct.
      * @param nodeStorage the node to compare
      * @return true if equal hash, else false.
      */
-    private boolean compareNode(final NodeStorage nodeStorage)
+    @Override
+    public boolean compareNode(final NodeStorage nodeStorage)
     {
         if(factory == null)
         {
@@ -280,12 +212,252 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         return true;
     }
 
+    @Override
+    public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
+    {
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            Iterable<Vertex> result = getVertexList(key, graph);
+
+            Set<String> keys = key.getProperties().keySet();
+            keys.addAll(value.getProperties().keySet());
+
+            NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
+            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
+            {
+                tempStorage.addProperty(entry.getKey(), entry.getValue());
+            }
+
+            for (Vertex vertex : result)
+            {
+                for (String tempKey : keys)
+                {
+                    Object value1 = key.getProperties().get(tempKey);
+                    Object value2 = value.getProperties().get(tempKey);
+
+                    if (value1 == null)
+                    {
+                        vertex.setProperty(tempKey, value2);
+                    }
+                    else if (value2 == null)
+                    {
+                        vertex.removeProperty(tempKey);
+                    }
+                    else
+                    {
+                        if (value1.equals(value2))
+                        {
+                            continue;
+                        }
+                        vertex.setProperty(tempKey, value2);
+                    }
+                }
+                vertex.setProperty(Constants.TAG_HASH, tempStorage);
+                vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+            }
+
+            graph.commit();
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.shutdown();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyCreate(final NodeStorage storage, final long snapshotId)
+    {
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            Vertex vertex = graph.addVertex(storage.getId());
+            for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+            {
+                vertex.setProperty(entry.getKey(), entry.getValue());
+            }
+            vertex.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(storage));
+            vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+
+            graph.commit();
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.shutdown();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyDelete(final NodeStorage storage, final long snapshotId)
+    {
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            for (final Vertex vertex : getVertexList(storage, graph))
+            {
+                vertex.remove();
+            }
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.shutdown();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
+    {
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            final String relationshipId = key.getId();
+
+            Iterable<Vertex> startNodes = getVertexList(key.getStartNode(), graph);
+            Iterable<Vertex> endNodes = getVertexList(key.getEndNode(), graph);
+
+            NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
+            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
+            {
+                tempStorage.addProperty(entry.getKey(), entry.getValue());
+            }
+
+            Set<String> keys = key.getProperties().keySet();
+            keys.addAll(value.getProperties().keySet());
+
+            List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
+                    .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
+                    .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
+                    .collect(Collectors.toList());
+            for (Edge edge : list)
+            {
+                for (String tempKey : keys)
+                {
+                    Object value1 = key.getProperties().get(tempKey);
+                    Object value2 = value.getProperties().get(tempKey);
+
+                    if (value1 == null)
+                    {
+                        edge.setProperty(tempKey, value2);
+                    }
+                    else if (value2 == null)
+                    {
+                        edge.removeProperty(tempKey);
+                    }
+                    else
+                    {
+                        if (value1.equals(value2))
+                        {
+                            continue;
+                        }
+                        edge.setProperty(tempKey, value2);
+                    }
+                }
+                edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage));
+                edge.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.shutdown();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
+    {
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            Iterable<Vertex> startNodes = this.getVertexList(storage.getStartNode(), graph);
+            Iterable<Vertex> endNodes = this.getVertexList(storage.getEndNode(), graph);
+
+            for (Vertex startNode : startNodes)
+            {
+                for (Vertex endNode : endNodes)
+                {
+                    Edge edge = startNode.addEdge(storage.getId(), endNode);
+
+                    for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+                    {
+                        edge.setProperty(entry.getKey(), entry.getValue());
+                    }
+                    edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(storage));
+                    edge.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+                }
+            }
+
+            graph.commit();
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.shutdown();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyDelete(final RelationshipStorage storage, final long snapshotId)
+    {
+        OrientGraph graph = factory.getTx();
+        try
+        {
+            final String relationshipId = storage.getId();
+
+            Iterable<Vertex> startNodes = getVertexList(storage.getStartNode(), graph);
+            Iterable<Vertex> endNodes = getVertexList(storage.getEndNode(), graph);
+
+            StreamSupport.stream(startNodes.spliterator(), false)
+                    .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
+                    .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
+                    .forEach(Edge::remove);
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.shutdown();
+        }
+        return true;
+    }
+
     /**
      * Compares a nodeStorage with the node inside the db to check if correct.
      * @param relationshipStorage the node to compare
      * @return true if equal hash, else false.
      */
-    private boolean compareRelationship(final RelationshipStorage relationshipStorage)
+    public boolean compareRelationship(final RelationshipStorage relationshipStorage)
     {
         if (factory == null)
         {
@@ -322,191 +494,5 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
 
         return true;
-    }
-
-    //todo create hash over incoming storage or do I have to retrieve the whole node data first?
-    @Override
-    public void execute(
-            final List<NodeStorage> createSetNode,
-            final List<RelationshipStorage> createSetRelationship,
-            final Map<NodeStorage, NodeStorage> updateSetNode,
-            final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
-            final List<NodeStorage> deleteSetNode,
-            final List<RelationshipStorage> deleteSetRelationship, long snapshotId)
-    {
-        if (factory == null)
-        {
-            start();
-        }
-
-        OrientGraph graph = factory.getTx();
-        try
-        {
-            //Create node
-            for (NodeStorage node : createSetNode)
-            {
-                Vertex vertex = graph.addVertex(node.getId());
-                for (Map.Entry<String, Object> entry : node.getProperties().entrySet())
-                {
-                    vertex.setProperty(entry.getKey(), entry.getValue());
-                }
-                vertex.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(node));
-                vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
-
-
-                graph.commit();
-            }
-
-            //Create relationships
-            for (RelationshipStorage relationship : createSetRelationship)
-            {
-                Iterable<Vertex> startNodes = this.getVertexList(relationship.getStartNode(), graph);
-                Iterable<Vertex> endNodes = this.getVertexList(relationship.getEndNode(), graph);
-
-                for(Vertex startNode: startNodes)
-                {
-                    for(Vertex endNode: endNodes)
-                    {
-                        Edge edge = startNode.addEdge(relationship.getId(), endNode);
-
-                        for(Map.Entry<String, Object> entry: relationship.getProperties().entrySet())
-                        {
-                            edge.setProperty(entry.getKey(), entry.getValue());
-                        }
-                        edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(relationship));
-                        edge.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
-                    }
-                }
-
-                graph.commit();
-            }
-
-            //Update nodes
-            for (Map.Entry<NodeStorage, NodeStorage> node : updateSetNode.entrySet())
-            {
-                Iterable<Vertex> result = getVertexList(node.getKey(), graph);
-
-                Set<String> keys = node.getKey().getProperties().keySet();
-                keys.addAll(node.getValue().getProperties().keySet());
-
-                NodeStorage tempStorage = new NodeStorage(node.getValue().getId(), node.getKey().getProperties());
-                for(Map.Entry<String, Object> entry: node.getValue().getProperties().entrySet())
-                {
-                    tempStorage.addProperty(entry.getKey(), entry.getValue());
-                }
-
-                for(Vertex vertex: result)
-                {
-                    for (String key : keys)
-                    {
-                        Object value1 = node.getKey().getProperties().get(key);
-                        Object value2 = node.getValue().getProperties().get(key);
-
-                        if (value1 == null)
-                        {
-                            vertex.setProperty(key, value2);
-                        }
-                        else if (value2 == null)
-                        {
-                            vertex.removeProperty(key);
-                        }
-                        else
-                        {
-                            if (value1.equals(value2))
-                            {
-                                continue;
-                            }
-                            vertex.setProperty(key, value2);
-                        }
-                    }
-                    vertex.setProperty(Constants.TAG_HASH, tempStorage);
-                    vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
-                }
-
-                graph.commit();
-            }
-
-            //Update relationships
-            for (Map.Entry<RelationshipStorage, RelationshipStorage> relationship : updateSetRelationship.entrySet())
-            {
-                final String relationshipId = relationship.getKey().getId();
-
-                Iterable<Vertex> startNodes = getVertexList(relationship.getKey().getStartNode(), graph);
-                Iterable<Vertex> endNodes = getVertexList(relationship.getKey().getEndNode(), graph);
-
-                NodeStorage tempStorage = new NodeStorage(relationship.getValue().getId(), relationship.getKey().getProperties());
-                for(Map.Entry<String, Object> entry: relationship.getValue().getProperties().entrySet())
-                {
-                    tempStorage.addProperty(entry.getKey(), entry.getValue());
-                }
-
-                Set<String> keys = relationship.getKey().getProperties().keySet();
-                keys.addAll(relationship.getValue().getProperties().keySet());
-
-                List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
-                        .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
-                        .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
-                        .collect(Collectors.toList());
-                for(Edge edge: list)
-                {
-                    for(String key : keys)
-                    {
-                        Object value1 = relationship.getKey().getProperties().get(key);
-                        Object value2 = relationship.getValue().getProperties().get(key);
-
-                        if(value1 == null)
-                        {
-                            edge.setProperty(key, value2);
-                        }
-                        else if(value2 == null)
-                        {
-                            edge.removeProperty(key);
-                        }
-                        else
-                        {
-                            if(value1.equals(value2))
-                            {
-                                continue;
-                            }
-                            edge.setProperty(key, value2);
-                        }
-                    }
-                    edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage));
-                    edge.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
-                }
-
-            }
-
-            //Delete relationships
-            for (RelationshipStorage relationship : deleteSetRelationship)
-            {
-                final String relationshipId = relationship.getId();
-
-                Iterable<Vertex> startNodes = getVertexList(relationship.getStartNode(), graph);
-                Iterable<Vertex> endNodes = getVertexList(relationship.getEndNode(), graph);
-
-                StreamSupport.stream(startNodes.spliterator(), false)
-                        .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
-                        .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
-                        .forEach(Edge::remove);
-            }
-
-            for (NodeStorage node : deleteSetNode)
-            {
-
-                for (final Vertex vertex : getVertexList(node, graph))
-                {
-                    vertex.remove();
-                }
-            }
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            Log.getLogger().warn("Couldn't create hash in server " + id, e);
-        }
-        finally
-        {
-            graph.shutdown();
-        }
     }
 }

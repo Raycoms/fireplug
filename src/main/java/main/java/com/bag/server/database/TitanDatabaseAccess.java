@@ -38,6 +38,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         this.id = id;
     }
 
+    @Override
     public void start()
     {
         TitanFactory.Builder config = TitanFactory.build();
@@ -174,7 +175,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     {
         GraphTraversal<Vertex, Vertex> tempOutput = getVertexList(nodeStorage, g);
         ArrayList<Vertex> nodeList = new ArrayList<>();
-        if (tempOutput != null && tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
+        if (tempOutput != null && (tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null))
         {
             tempOutput.fill(nodeList);
         }
@@ -221,77 +222,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public void terminate()
     {
-        graph.close();;
-    }
-
-    @Override
-    public boolean equalHash(final List readSet)
-    {
-        if(readSet.isEmpty())
-        {
-            return true;
-        }
-
-        if(readSet.get(0) instanceof NodeStorage)
-        {
-            equalHashNode(readSet);
-        }
-        else if(readSet.get(0) instanceof RelationshipStorage)
-        {
-            equalHashRelationship(readSet);
-        }
-
-        return true;
-    }
-
-    @Override
-    public String getType()
-    {
-        return Constants.TITAN;
-    }
-
-    /**
-     * Checks if the hash of a node is equal to the hash in the database.
-     * @param readSet the readSet of nodes which should be compared.
-     * @return true if all nodes are equal.
-     */
-    private boolean equalHashNode(final List readSet)
-    {
-        for(Object storage: readSet)
-        {
-            if(storage instanceof NodeStorage)
-            {
-                NodeStorage nodeStorage = (NodeStorage) storage;
-
-                if(!compareNode(nodeStorage))
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks if the hash of a list of relationships matches the relationship in the database.
-     * @param readSet the set of relationships
-     * @return true if all are correct.
-     */
-    private boolean equalHashRelationship(final List<RelationshipStorage> readSet)
-    {
-        for(Object storage: readSet)
-        {
-            if(storage instanceof RelationshipStorage)
-            {
-                RelationshipStorage relationshipStorage = (RelationshipStorage) storage;
-
-                if(!compareRelationship(relationshipStorage))
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
+        graph.close();
     }
 
     /**
@@ -299,7 +230,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @param nodeStorage the node to compare
      * @return true if equal hash, else false.
      */
-    private boolean compareNode(final NodeStorage nodeStorage)
+    public boolean compareNode(final NodeStorage nodeStorage)
     {
         if(graph == null)
         {
@@ -338,12 +269,263 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         return true;
     }
 
+    @Override
+    public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
+    {
+        try
+        {
+            graph.newTransaction();
+            GraphTraversalSource g = graph.traversal();
+
+            //Can't change label in titan!
+
+            GraphTraversal<Vertex, Vertex> tempNode = getVertexList(key, g);
+
+            NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
+            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
+            {
+                tempStorage.addProperty(entry.getKey(), entry.getValue());
+            }
+
+
+            while (tempNode.hasNext())
+            {
+                Vertex vertex = tempNode.next();
+
+                final int length = key.getProperties().size() * 2 + 2;
+                Object[] keyValue = new Object[length];
+
+                int i = 0;
+                for (Map.Entry<String, Object> entry : key.getProperties().entrySet())
+                {
+                    keyValue[i] = entry.getKey();
+                    keyValue[i + 1] = entry.getValue();
+                    i += 2;
+                }
+
+                vertex.property(Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage), keyValue);
+                vertex.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyCreate(final NodeStorage storage, final long snapshotId)
+    {
+        try
+        {
+            graph.newTransaction();
+
+            TitanVertex vertex = graph.addVertex(storage.getId());
+            for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+            {
+                vertex.property(entry.getKey(), entry.getValue());
+            }
+            vertex.property(Constants.TAG_HASH, HashCreator.sha1FromNode(storage));
+            vertex.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyDelete(final NodeStorage storage, final long snapshotId)
+    {
+        try
+        {
+            graph.newTransaction();
+            GraphTraversalSource g = graph.traversal();
+
+            GraphTraversal<Vertex, Vertex> tempNode = getVertexList(storage, g);
+
+            while (tempNode.hasNext())
+            {
+                tempNode.remove();
+            }
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
+    {
+        try
+        {
+            graph.newTransaction();
+            GraphTraversalSource g = graph.traversal();
+
+            GraphTraversal<Vertex, Vertex> startNode = getVertexList(key.getStartNode(), g);
+            GraphTraversal<Vertex, Vertex> endNode = getVertexList(key.getEndNode(), g);
+
+            Set<String> keys = key.getProperties().keySet();
+            keys.addAll(value.getProperties().keySet());
+
+            //Max size is the mix between properties of both maps + 4 (hash and snapshotId)
+
+            RelationshipStorage tempStorage = new RelationshipStorage(value.getId(),
+                    key.getProperties(),
+                    key.getStartNode(),
+                    key.getEndNode());
+            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
+            {
+                tempStorage.addProperty(entry.getKey(), entry.getValue());
+            }
+
+            while (startNode.hasNext())
+            {
+                while (endNode.hasNext())
+                {
+                    Iterator<Edge> edges = startNode.next().edges(Direction.OUT, key.getId());
+
+                    while (edges.hasNext())
+                    {
+                        Edge edge = edges.next();
+                        for (String tempKey : keys)
+                        {
+                            //does a null value set the property to null?
+                            Object tempValue = value.getProperties().get(tempKey);
+                            edge.property(tempKey, tempValue);
+                        }
+                        edge.property(Constants.TAG_HASH, HashCreator.sha1FromRelationship(tempStorage));
+                        edge.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+        return true;    }
+
+    @Override
+    public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
+    {
+        try
+        {
+            graph.newTransaction();
+            GraphTraversalSource g = graph.traversal();
+
+            GraphTraversal<Vertex, Vertex> startNode = getVertexList(storage.getStartNode(), g);
+            GraphTraversal<Vertex, Vertex> endNode = getVertexList(storage.getEndNode(), g);
+
+            final int length = storage.getProperties().size() * 2 + 4;
+            Object[] keyValue = new Object[length];
+
+            int i = 0;
+            for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+            {
+                keyValue[i] = entry.getKey();
+                keyValue[i + 1] = entry.getValue();
+                i += 2;
+            }
+
+            keyValue[i] = Constants.TAG_HASH;
+            keyValue[i + 1] = HashCreator.sha1FromRelationship(storage);
+
+            keyValue[i] = Constants.TAG_SNAPSHOT_ID;
+            keyValue[i + 1] = snapshotId;
+
+            while (startNode.hasNext())
+            {
+                Vertex tempVertex = startNode.next();
+                while (endNode.hasNext())
+                {
+                    tempVertex.addEdge(storage.getId(), endNode.next(), keyValue);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean applyDelete(final RelationshipStorage storage, final long snapshotId)
+    {
+        try
+        {
+            graph.newTransaction();
+            GraphTraversalSource g = graph.traversal();
+
+            ArrayList<Vertex> nodeStartList = getVertexList(storage.getStartNode(), g, snapshotId);
+            ArrayList<Vertex> nodeEndList = getVertexList(storage.getEndNode(), g, snapshotId);
+            GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList.toArray()).bothE().where(__.is(P.within(nodeEndList.toArray()))).hasLabel(storage.getId());
+
+            for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+            {
+                if (tempOutput == null)
+                {
+                    break;
+                }
+                tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
+            }
+
+            if (tempOutput != null)
+            {
+                if (tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
+                {
+                    tempOutput.remove();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
+            return false;
+        }
+        finally
+        {
+            graph.tx().commit();
+        }
+        return true;
+    }
+
     /**
      * Compares a nodeStorage with the node inside the db to check if correct.
      * @param relationshipStorage the node to compare
      * @return true if equal hash, else false.
      */
-    private boolean compareRelationship(final RelationshipStorage relationshipStorage)
+    public boolean compareRelationship(final RelationshipStorage relationshipStorage)
     {
         if(graph == null)
         {
@@ -354,8 +536,6 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
-
-
             GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(relationshipStorage.getId());
 
             for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
@@ -382,194 +562,6 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
 
         return true;
-    }
-
-    //todo add hash on creation and update
-    @Override
-    public void execute(
-            final List<NodeStorage> createSetNode,
-            final List<RelationshipStorage> createSetRelationship,
-            final Map<NodeStorage, NodeStorage> updateSetNode,
-            final Map<RelationshipStorage, RelationshipStorage> updateSetRelationship,
-            final List<NodeStorage> deleteSetNode,
-            final List<RelationshipStorage> deleteSetRelationship, long snapshotId)
-    {
-        if(graph == null)
-        {
-            start();
-        }
-
-        try
-        {
-            graph.newTransaction();
-            GraphTraversalSource g = graph.traversal();
-
-            //Create node
-            for (NodeStorage node : createSetNode)
-            {
-                TitanVertex vertex = graph.addVertex(node.getId());
-                for (Map.Entry<String, Object> entry : node.getProperties().entrySet())
-                {
-                    vertex.property(entry.getKey(), entry.getValue());
-                }
-                vertex.property(Constants.TAG_HASH, HashCreator.sha1FromNode(node));
-                vertex.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
-
-            }
-
-            //Create relationships
-            for (RelationshipStorage relationship : createSetRelationship)
-            {
-                GraphTraversal<Vertex,Vertex> startNode =  getVertexList(relationship.getStartNode(), g);
-                GraphTraversal<Vertex,Vertex> endNode =  getVertexList(relationship.getEndNode(), g);
-
-                final int length = relationship.getProperties().size() * 2 + 4;
-                Object[] keyValue = new Object[length];
-
-                int i = 0;
-                for(Map.Entry<String, Object> entry: relationship.getProperties().entrySet())
-                {
-                    keyValue[i] = entry.getKey();
-                    keyValue[i+1] = entry.getValue();
-                    i += 2;
-                }
-
-                keyValue[i] = Constants.TAG_HASH;
-                keyValue[i+1] = HashCreator.sha1FromRelationship(relationship);
-
-                keyValue[i] = Constants.TAG_SNAPSHOT_ID;
-                keyValue[i+1] = snapshotId;
-
-                while(startNode.hasNext())
-                {
-                    Vertex tempVertex = startNode.next();
-                    while (endNode.hasNext())
-                    {
-                        tempVertex.addEdge(relationship.getId(), endNode.next(), keyValue);
-                    }
-                }
-            }
-
-            //Can't change label in titan!
-            //Update nodes
-            for (Map.Entry<NodeStorage, NodeStorage> node : updateSetNode.entrySet())
-            {
-                GraphTraversal<Vertex,Vertex> tempNode =  getVertexList(node.getKey(), g);
-
-                NodeStorage tempStorage = new NodeStorage(node.getValue().getId(), node.getKey().getProperties());
-                for(Map.Entry<String, Object> entry: node.getValue().getProperties().entrySet())
-                {
-                    tempStorage.addProperty(entry.getKey(), entry.getValue());
-                }
-
-
-                while(tempNode.hasNext())
-                {
-                    Vertex vertex = tempNode.next();
-
-                    final int length = node.getKey().getProperties().size() * 2 + 2;
-                    Object[] keyValue = new Object[length];
-
-                    int i = 0;
-                    for(Map.Entry<String, Object> entry: node.getKey().getProperties().entrySet())
-                    {
-                        keyValue[i] = entry.getKey();
-                        keyValue[i+1] = entry.getValue();
-                        i += 2;
-                    }
-
-                    vertex.property(Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage), keyValue);
-                    vertex.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
-                }
-            }
-
-            //Update relationships
-            for (Map.Entry<RelationshipStorage, RelationshipStorage> relationship : updateSetRelationship.entrySet())
-            {
-                GraphTraversal<Vertex,Vertex> startNode =  getVertexList(relationship.getKey().getStartNode(), g);
-                GraphTraversal<Vertex,Vertex> endNode =  getVertexList(relationship.getKey().getEndNode(), g);
-
-                Set<String> keys = relationship.getKey().getProperties().keySet();
-                keys.addAll(relationship.getValue().getProperties().keySet());
-
-                //Max size is the mix between properties of both maps + 4 (hash and snapshotId)
-
-                RelationshipStorage tempStorage = new RelationshipStorage(relationship.getValue().getId(), relationship.getKey().getProperties(), relationship.getKey().getStartNode(), relationship.getKey().getEndNode());
-                for(Map.Entry<String, Object> entry: relationship.getValue().getProperties().entrySet())
-                {
-                    tempStorage.addProperty(entry.getKey(), entry.getValue());
-                }
-
-                while(startNode.hasNext())
-                {
-                    while(endNode.hasNext())
-                    {
-                        Iterator<Edge> edges = startNode.next().edges(Direction.OUT, relationship.getKey().getId());
-
-                        while(edges.hasNext())
-                        {
-                            Edge edge = edges.next();
-                            for(String key : keys)
-                            {
-                                //does a null value set the property to null?
-                                Object value = relationship.getValue().getProperties().get(key);
-                                edge.property(key, value);
-                            }
-                            edge.property(Constants.TAG_HASH, HashCreator.sha1FromRelationship(tempStorage));
-                            edge.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
-
-
-                        }
-                    }
-                }
-            }
-
-            //Delete relationships
-            for (RelationshipStorage relationship : deleteSetRelationship)
-            {
-                ArrayList<Vertex> nodeStartList =  getVertexList(relationship.getStartNode(), g, snapshotId);
-                ArrayList<Vertex> nodeEndList =  getVertexList(relationship.getEndNode(), g, snapshotId);
-
-                GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList.toArray()).bothE().where(__.is(P.within(nodeEndList.toArray()))).hasLabel(relationship.getId());
-
-
-                for (Map.Entry<String, Object> entry : relationship.getProperties().entrySet())
-                {
-                    if (tempOutput == null)
-                    {
-                        break;
-                    }
-                    tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
-                }
-
-                if(tempOutput != null)
-                {
-                    if(tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
-                    {
-                        tempOutput.remove();
-                    }
-                }
-            }
-
-            for (NodeStorage node : deleteSetNode)
-            {
-                GraphTraversal<Vertex,Vertex> tempNode =  getVertexList(node, g);
-
-                while(tempNode.hasNext())
-                {
-                    tempNode.remove();
-                }
-            }
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            Log.getLogger().warn("Couldn't create hash in server " + id, e);
-        }
-        finally
-        {
-            graph.tx().commit();
-        }
-
     }
 
     /**
