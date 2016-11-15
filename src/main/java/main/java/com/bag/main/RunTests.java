@@ -36,16 +36,21 @@ public class RunTests
             carol.put("Age", "22");
 
             Map<String, Object> ray = new HashMap<>();
-            carol.put("Name", "Ray");
-            carol.put("Surname", "Neiheiser");
-            carol.put("Age", "25");
+            ray.put("Name", "Ray");
+            ray.put("Surname", "Neiheiser");
+            ray.put("Age", "25");
 
             client1.write(null, new NodeStorage("Person", carol));
             client1.write(null, new NodeStorage("Person", ray));
             client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", carol),  new NodeStorage("Person", ray)));
             client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", ray),  new NodeStorage("Person", carol)));*/
 
-            for (int i = 0; i < 10000; i++)
+
+            //client1.write(new NodeStorage("Person"), new NodeStorage("Person", ));
+
+            //client1.write(new NodeStorage("Person"), null);
+
+            for (int i = 0; i < 1000; i++)
             {
                 try
                 {

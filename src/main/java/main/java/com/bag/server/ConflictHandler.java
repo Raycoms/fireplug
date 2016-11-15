@@ -51,7 +51,7 @@ public class ConflictHandler
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
 
-        return !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> Collections.unmodifiableList(writeSet.get(id)).retainAll(readSetNode))
+        return !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetNode))
                 && !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetRelationship));
     }
 

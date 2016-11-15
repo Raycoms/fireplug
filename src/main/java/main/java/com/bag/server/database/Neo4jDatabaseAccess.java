@@ -368,6 +368,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             }
             myNode.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(storage));
             myNode.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+
+            tx.success();
         }
         catch (Exception e)
         {

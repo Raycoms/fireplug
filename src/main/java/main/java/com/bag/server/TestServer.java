@@ -101,6 +101,8 @@ public class TestServer extends DefaultRecoverable
             default:
                 Log.getLogger().warn("Invalid databaseAccess");
         }
+
+        databaseAccess.start();
     }
 
     @Override
@@ -335,7 +337,11 @@ public class TestServer extends DefaultRecoverable
                 Log.getLogger().info("Transaction found conflict - terminating", e);
                 terminate();
             }
-            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
+
+            if(returnList != null)
+            {
+                Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
+            }
         }
 
         kryo.writeObject(output, localSnapshotId);
