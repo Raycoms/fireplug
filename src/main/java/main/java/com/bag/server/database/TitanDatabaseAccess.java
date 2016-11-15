@@ -45,12 +45,12 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     {
         TitanFactory.Builder config = TitanFactory.build();
 
-        config.set("storage.backend", "berkeleyje");
+        config.set("storage.backend", "embeddedcassandra");
         config.set("storage.directory", DIRECTORY);
-        config.set("index." + INDEX_NAME + ".backend", "elasticsearch");
+        /*config.set("index." + INDEX_NAME + ".backend", "elasticsearch");
         config.set("index." + INDEX_NAME + ".DIRECTORY", DIRECTORY + File.separator + "es");
         config.set("index." + INDEX_NAME + ".elasticsearch.local-mode", true);
-        config.set("index." + INDEX_NAME + ".elasticsearch.client-only", false);
+        config.set("index." + INDEX_NAME + ".elasticsearch.client-only", false);*/
 
         graph = config.open();
     }

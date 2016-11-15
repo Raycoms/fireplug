@@ -26,7 +26,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     /**
      * The base path of the database.
      */
-    private static final String BASE_PATH = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/OrientDB";
+    private static final String BASE_PATH = "PLOCAL:../home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/OrientDB";
 
     /**
      * The id of the server.
@@ -102,49 +102,36 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         .collect(Collectors.toList());
                 for(Edge edge: list)
                 {
-                    Object sId = edge.getProperty(Constants.TAG_SNAPSHOT_ID);
-                    //todo relationship get by properties not yet supported.
-                    if(sId == null || (sId instanceof Long && (long) sId <= snapshotId))
+                    RelationshipStorage storage = new RelationshipStorage(edge.getClass().toString(), relationshipStorage.getStartNode(), relationshipStorage.getEndNode());
+                    for (String key : edge.getPropertyKeys())
                     {
-                        RelationshipStorage storage = new RelationshipStorage(edge.getClass().toString(), relationshipStorage.getStartNode(), relationshipStorage.getEndNode());
-                        for (String key : edge.getPropertyKeys())
-                        {
-                            storage.addProperty(key, edge.getProperty(key));
-                        }
-                        if(storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
-                        {
-                            Object localSId =  storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                            OutDatedDataException.checkSnapshotId(localSId, snapshotId);
-                        }
-                        returnStorage.add(storage);
+                        storage.addProperty(key, edge.getProperty(key));
                     }
+                    if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                    {
+                        Object localSId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        OutDatedDataException.checkSnapshotId(localSId, snapshotId);
+                    }
+                    returnStorage.add(storage);
                 }
             }
             else
             {
                 for (final Vertex tempVertex : getVertexList(nodeStorage, graph))
                 {
-                    Object sId = tempVertex.getProperty(Constants.TAG_SNAPSHOT_ID);
-
-                    if(sId == null || (sId instanceof Long && (long) sId <= snapshotId))
+                    NodeStorage temp = new NodeStorage(tempVertex.getClass().toString());
+                    for (String key : tempVertex.getPropertyKeys())
                     {
-                        NodeStorage temp = new NodeStorage(tempVertex.getClass().toString());
-                        for (String key : tempVertex.getPropertyKeys())
-                        {
-                            temp.addProperty(key, tempVertex.getProperty(key));
-                        }
-                        if(temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
-                        {
-                            Object localSId =  temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                            OutDatedDataException.checkSnapshotId(localSId, snapshotId);
-                        }
-                        returnStorage.add(temp);
+                        temp.addProperty(key, tempVertex.getProperty(key));
                     }
+                    if(temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                    {
+                        Object localSId =  temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        OutDatedDataException.checkSnapshotId(localSId, snapshotId);
+                    }
+                    returnStorage.add(temp);
                 }
             }
-
-            //odb.createVertexType("Person"); this is our class (neo4j label)
-
         }
         finally
         {
@@ -279,7 +266,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         OrientGraph graph = factory.getTx();
         try
         {
-            Vertex vertex = graph.addVertex(storage.getId());
+            String vertexClass = "class:" + storage.getId();
+            Vertex vertex = graph.addVertex(vertexClass);
             for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
             {
                 vertex.setProperty(entry.getKey(), entry.getValue());
@@ -298,6 +286,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         {
             graph.shutdown();
         }
+        Log.getLogger().warn("Successfully executed create node transaction in server:  " + id);
+
         return true;
     }
 
@@ -401,7 +391,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             {
                 for (Vertex endNode : endNodes)
                 {
-                    Edge edge = startNode.addEdge(storage.getId(), endNode);
+                    String edgeClass = "class:" + storage.getId();
+                    Edge edge = startNode.addEdge(edgeClass, endNode);
 
                     for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
                     {

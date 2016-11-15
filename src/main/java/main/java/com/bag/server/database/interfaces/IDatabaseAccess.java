@@ -1,6 +1,7 @@
 package main.java.com.bag.server.database.interfaces;
 
 
+import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
@@ -136,4 +137,12 @@ public interface IDatabaseAccess
      * @return true if successful.
      */
     boolean applyDelete(RelationshipStorage storage, long snapshotId);
+
+    /**
+     * Method to read an object from the database.
+     * @param identifier identifier of the object.
+     * @param localSnapshotId snapshotId.
+     * @return list of objects.
+     */
+    List<Object>  readObject(Object identifier, long localSnapshotId) throws OutDatedDataException;
 }

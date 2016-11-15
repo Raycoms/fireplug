@@ -325,24 +325,23 @@ public class TestServer extends DefaultRecoverable
         }
         ArrayList<Object> returnList = null;
 
-        if (databaseAccess instanceof Neo4jDatabaseAccess)
-        {
-            Log.getLogger().info("Get info from databaseAccess");
-            try
-            {
-                returnList = new ArrayList<>(((Neo4jDatabaseAccess) databaseAccess).readObject(identifier, localSnapshotId));
-            }
-            catch (OutDatedDataException e)
-            {
-                Log.getLogger().info("Transaction found conflict - terminating", e);
-                terminate();
-            }
 
-            if(returnList != null)
-            {
-                Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
-            }
+        Log.getLogger().info("Get info from databaseAccess");
+        try
+        {
+            returnList = new ArrayList<>( databaseAccess.readObject(identifier, localSnapshotId));
         }
+        catch (OutDatedDataException e)
+        {
+            Log.getLogger().info("Transaction found conflict - terminating", e);
+            terminate();
+        }
+
+        if(returnList != null)
+        {
+            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
+        }
+
 
         kryo.writeObject(output, localSnapshotId);
 
