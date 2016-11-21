@@ -11,6 +11,7 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.io.FileNotFoundException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -81,14 +82,21 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         Graph graph = sess.getGraph();
 
         int nodeType = graph.findType(storage.getId());
+        Objects objs;
 
-        //graph.select(0, Condition.Equal, new Value(), Objects)
+        for(Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+        {
+            int attributeId = graph.findAttribute(nodeType, entry.getKey());
 
+            objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
+
+            if(objs.isEmpty())
+            {
+                return false;
+            }
+        }
 
         //Objects people  = graph.select(nameAttrId, Condition.Equal, v.setString("Carol"));
-
-
-
         //Assuming we only get one node in return.
         /*if (result.hasNext())
         {

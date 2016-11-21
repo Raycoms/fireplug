@@ -14,18 +14,19 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile files('libs/BFT-SMaRt.jar')
-    compile "org.neo4j:neo4j-enterprise:${neo4jVersion}"
     compile group: 'commons-codec', name: 'commons-codec', version: '1.5'
     compile group: 'io.netty', name: 'netty-all', version: '4.0.36.Final'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'
-    compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.5.8'
-    compile group: 'com.thinkaurelius.titan', name: 'titan-cassandra', version: '1.0.0'
-    compile group: 'com.arangodb', name: 'arangodb-java-driver', version: '3.0.0'
+    compile group: 'com.sparsity', name: 'sparkseejava', version: '5.2.0'
     compile group: 'com.orientechnologies', name: 'orientdb-graphdb', version: '2.2.11'
     compile group: 'org.jboss.spec.javax.ws.rs', name: 'jboss-jaxrs-api_2.0_spec', version: '1.0.0.Final'
     compile group: 'com.esotericsoftware', name: 'kryo', version: '4.0.0'
     compile 'com.intellij:annotations:+@jar'
     compile group: 'org.apache.tinkerpop', name: 'gremlin-core', version: '3.0.0.M9-incubating'
+    compile group: 'com.thinkaurelius.titan', name: 'titan-cassandra', version: '1.0.0'
+    compile group: 'com.thinkaurelius.titan', name: 'titan-core', version: '1.0.0'
+    compile group: 'com.thinkaurelius.titan', name: 'titan-es', version: '1.0.0'
+    compile group: 'com.thinkaurelius.titan', name: 'titan-lucene', version: '1.0.0'
+    compile "org.neo4j:neo4j-enterprise:${neo4jVersion}"
 }
 
 

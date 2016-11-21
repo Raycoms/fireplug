@@ -29,7 +29,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 {
     private static final String INDEX_NAME = "search";
 
-    private static final String DIRECTORY ="/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/TITAN";
+    private static final String DIRECTORY ="/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/TitanDB";
 
     private TitanGraph graph;
 
@@ -45,9 +45,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     {
         TitanFactory.Builder config = TitanFactory.build();
 
-        config.set("storage.backend", "berkeleyje");
+        config.set("storage.backend", "embeddedcassandra");
         config.set("storage.directory", DIRECTORY);
-        //config.set("storage.conf-file", "file:////" + DIRECTORY + "/cassandra/cassandra.yaml");
+        config.set("storage.conf-file", "file:///" + DIRECTORY + "/conf/cassandra/cassandra.yaml");
         config.set("index." + INDEX_NAME + ".backend", "elasticsearch");
         config.set("index." + INDEX_NAME + ".DIRECTORY", DIRECTORY + File.separator + "es");
         config.set("index." + INDEX_NAME + ".elasticsearch.local-mode", true);
