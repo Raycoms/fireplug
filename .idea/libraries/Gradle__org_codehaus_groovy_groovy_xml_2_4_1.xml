@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.codehaus.groovy:groovy-xml:2.4.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-xml/2.4.1/43783b1ddaa495eff815951788bc0710dda485a5/groovy-xml-2.4.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-xml/2.4.1/c752e09d004c03de1f87574155725cf48f8feca5/groovy-xml-2.4.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

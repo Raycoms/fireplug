@@ -2,198 +2,207 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b25c77af-4557-4786-a808-ade860b1172d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__ch_qos_logback_logback_classic_1_1_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__ch_qos_logback_logback_core_1_1_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_addthis_metrics_reporter_config_2_1_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_arangodb_arangodb_java_driver_3_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_boundary_high_scale_lib_1_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_carrotsearch_hppc_0_7_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_carrotsearch_junit_benchmarks_0_7_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_carrotsearch_randomizedtesting_randomizedtesting_runner_2_0_8.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_clearspring_analytics_stream_2_5_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_codahale_metrics_metrics_core_3_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_codahale_metrics_metrics_ganglia_3_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_codahale_metrics_metrics_graphite_3_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_eaio_uuid_uuid_3_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_esotericsoftware_kryo_4_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_esotericsoftware_minlog_1_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_esotericsoftware_reflectasm_1_11_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_fasterxml_jackson_core_jackson_annotations_2_6_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_fasterxml_jackson_core_jackson_core_2_6_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_fasterxml_jackson_core_jackson_databind_2_6_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_jbellis_jamm_0_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_stephenc_high_scale_lib_high_scale_lib_1_1_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_code_findbugs_jsr305_3_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_code_gson_gson_2_5.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_guava_guava_18_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_googlecode_concurrentlinkedhashmap_concurrentlinkedhashmap_lru_1_4_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_googlecode_json_simple_json_simple_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_intellij_annotations_12_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_jcabi_jcabi_log_0_14.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_jcabi_jcabi_manifests_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_lmax_disruptor_3_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_netflix_astyanax_astyanax_cassandra_3_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_netflix_astyanax_astyanax_core_3_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_netflix_astyanax_astyanax_recipes_3_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_netflix_astyanax_astyanax_thrift_3_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_ning_compress_lzf_0_8_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_orientechnologies_orientdb_client_2_2_11.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_orientechnologies_orientdb_core_2_2_11.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_orientechnologies_orientdb_graphdb_2_2_11.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_orientechnologies_orientdb_server_2_2_11.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_orientechnologies_orientdb_tools_2_2_11.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_spatial4j_spatial4j_0_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_thinkaurelius_thrift_thrift_server_0_3_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_thinkaurelius_titan_titan_cassandra_1_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_thinkaurelius_titan_titan_core_1_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_tinkerpop_blueprints_blueprints_core_2_6_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_tinkerpop_gremlin_gremlin_java_2_6_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_tinkerpop_pipes_2_6_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_yammer_metrics_metrics_core_2_2_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_cli_commons_cli_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_codec_commons_codec_1_9.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_collections_commons_collections_3_2_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_configuration_commons_configuration_1_10.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_io_commons_io_2_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_lang_commons_lang_2_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_logging_commons_logging_1_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_pool_commons_pool_1_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__dom4j_dom4j_1_6_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__info_ganglia_gmetric4j_gmetric4j_1_0_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__io_dropwizard_metrics_metrics_core_3_1_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__io_dropwizard_metrics_metrics_graphite_3_1_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__io_netty_netty_3_9_9_Final.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__io_netty_netty_all_4_0_36_Final.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__it_unimi_dsi_fastutil_6_5_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__javax_activation_activation_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__javax_mail_mail_1_4_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__javax_validation_validation_api_1_0_0_GA.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__jline_jline_2_12.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__joda_time_joda_time_1_6_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_10.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_11.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__log4j_log4j_1_2_17.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__net_java_dev_jna_jna_4_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__net_jpountz_lz4_lz4_1_2_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__net_sf_opencsv_opencsv_2_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__net_sf_supercsv_super_csv_2_1_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_acplt_oncrpc_1_0_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_antlr_ST4_4_0_8.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_antlr_antlr_3_5_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_antlr_antlr_runtime_3_5_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_cassandra_cassandra_all_2_1_9.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_cassandra_cassandra_thrift_2_1_9.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_commons_commons_lang3_3_3_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_commons_commons_math3_3_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_httpcomponents_httpclient_4_5_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_httpcomponents_httpcore_4_4_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_ivy_ivy_2_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_analyzers_common_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_backward_codecs_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_codecs_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_core_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_queryparser_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_servicemix_bundles_org_apache_servicemix_bundles_commons_csv_1_0_r706900_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_thrift_libthrift_0_9_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_tinkerpop_gremlin_core_3_0_1_incubating.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_tinkerpop_gremlin_groovy_3_0_1_incubating.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_tinkerpop_gremlin_shaded_3_0_1_incubating.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_tinkerpop_tinkergraph_gremlin_3_0_1_incubating.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_console_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_groovysh_indy_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_indy_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_json_indy_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_jsr223_indy_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_swing_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_templates_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_groovy_groovy_xml_2_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_jackson_jackson_core_asl_1_9_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_jackson_jackson_mapper_asl_1_9_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_jettison_jettison_1_3_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_glassfish_javax_json_1_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hibernate_hibernate_validator_4_3_0_Final.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_javassist_javassist_3_16_1_GA.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_javatuples_javatuples_1_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jboss_logging_jboss_logging_3_1_0_CR2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jboss_spec_javax_ws_rs_jboss_jaxrs_api_2_0_spec_1_0_0_Final.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_mindrot_jbcrypt_0_3m.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_backup_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_cluster_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_codegen_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_collections_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_com_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_common_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_consistency_check_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_csv_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_cypher_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_cypher_compiler_2_3_2_3_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_cypher_compiler_3_0_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_cypher_frontend_2_3_2_3_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_cypher_frontend_3_0_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_enterprise_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_enterprise_kernel_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_graph_algo_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_graph_matching_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_graphdb_api_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_ha_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_io_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_jmx_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_kernel_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_logging_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_lucene_index_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_lucene_upgrade_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_management_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_metrics_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_primitive_collections_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_query_logging_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_resource_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_security_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_udc_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_neo4j_neo4j_unsafe_3_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_objenesis_objenesis_2_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_ow2_asm_asm_5_0_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_parboiled_parboiled_core_1_1_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_parboiled_parboiled_scala_2_11_1_1_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_reflections_reflections_0_9_9_RC1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_scala_lang_scala_library_2_11_8.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_scala_lang_scala_reflect_2_11_8.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_jcl_over_slf4j_1_7_12.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_slf4j_api_1_7_13.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_slf4j_jdk14_1_5_8.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_slf4j_log4j12_1_7_12.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_xerial_snappy_snappy_java_1_1_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_yaml_snakeyaml_1_15.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__stax_stax_api_1_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__xml_apis_xml_apis_1_0_b2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/exceptions/OutDatedDataException.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/CreateOperation.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/DeleteOperation.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/Operation.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/UpdateOperation.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/ConflictHandler.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/ArangoDBDatabaseAccess.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess$1.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/OrientDBDatabaseAccess.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/interfaces/IDatabaseAccess.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Constants$TAG_HASH.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Constants.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/HashCreator.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Log.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/storage/NodeStorage.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/storage/ReadStorage.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/storage/RelationshipStorage.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/storage/TransactionStorage.class" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.13/taskArtifacts/cache.properties.lock" afterPath="$PROJECT_DIR$/.gradle/2.13/taskArtifacts/cache.properties.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.13/taskArtifacts/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/2.13/taskArtifacts/fileHashes.bin" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/commitlog/CommitLog-4-1479730722467.log" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/commitlog/CommitLog-4-1479730722468.log" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/commitlog/CommitLog-4-1479730722469.log" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/commitlog/CommitLog-4-1479730722470.log" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/commitlog/CommitLog-4-1479730722471.log" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-1-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-1-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-1-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-1-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-1-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-1-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-1-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-1-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-2-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-2-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-2-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-2-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-2-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-2-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-2-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-2-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-3-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-3-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-3-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-3-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-3-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-3-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-3-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compaction_history-b4dbb7b4dc493fb5b3bfce6e434832ca/system-compaction_history-ka-3-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/snapshots/1479722037196-compactions_in_progress/manifest.json" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/snapshots/1479722965377-compactions_in_progress/manifest.json" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/snapshots/1479729804876-compactions_in_progress/manifest.json" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/snapshots/1479730724499-compactions_in_progress/manifest.json" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-21-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-21-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-21-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-21-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-21-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-21-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-21-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-21-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-1-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-1-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-1-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-1-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-1-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-1-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-1-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-1-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-2-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-2-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-2-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-2-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-2-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-2-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-2-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-2-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-3-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-3-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-3-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-3-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-3-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-3-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-3-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/peers-37f71aca7dc2383ba70672528af04d4f/system-peers-ka-3-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columnfamilies-45f5b36024bc3f83a3631034ea4fa697/system-schema_columnfamilies-ka-5-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columnfamilies-45f5b36024bc3f83a3631034ea4fa697/system-schema_columnfamilies-ka-5-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columnfamilies-45f5b36024bc3f83a3631034ea4fa697/system-schema_columnfamilies-ka-5-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columnfamilies-45f5b36024bc3f83a3631034ea4fa697/system-schema_columnfamilies-ka-5-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columnfamilies-45f5b36024bc3f83a3631034ea4fa697/system-schema_columnfamilies-ka-5-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columnfamilies-45f5b36024bc3f83a3631034ea4fa697/system-schema_columnfamilies-ka-5-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columnfamilies-45f5b36024bc3f83a3631034ea4fa697/system-schema_columnfamilies-ka-5-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columnfamilies-45f5b36024bc3f83a3631034ea4fa697/system-schema_columnfamilies-ka-5-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columns-296e9c049bec3085827dc17d3df2122a/system-schema_columns-ka-5-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columns-296e9c049bec3085827dc17d3df2122a/system-schema_columns-ka-5-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columns-296e9c049bec3085827dc17d3df2122a/system-schema_columns-ka-5-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columns-296e9c049bec3085827dc17d3df2122a/system-schema_columns-ka-5-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columns-296e9c049bec3085827dc17d3df2122a/system-schema_columns-ka-5-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columns-296e9c049bec3085827dc17d3df2122a/system-schema_columns-ka-5-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columns-296e9c049bec3085827dc17d3df2122a/system-schema_columns-ka-5-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_columns-296e9c049bec3085827dc17d3df2122a/system-schema_columns-ka-5-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-5-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-5-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-5-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-5-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-5-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-5-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-5-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-5-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-6-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-6-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-6-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-6-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-6-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-6-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-6-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_keyspaces-b0f2235744583cdb9631c43e59ce3676/system-schema_keyspaces-ka-6-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-1-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-1-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-1-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-1-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-1-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-1-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-1-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-1-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-2-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-2-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-2-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-2-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-2-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-2-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-2-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-2-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-3-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-3-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-3-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-3-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-3-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-3-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-3-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_triggers-0359bc7171233ee19a4ab9dfb11fc125/system-schema_triggers-ka-3-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-1-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-1-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-1-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-1-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-1-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-1-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-1-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-1-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-2-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-2-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-2-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-2-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-2-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-2-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-2-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-2-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-3-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-3-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-3-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-3-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-3-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-3-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-3-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/schema_usertypes-3aa752254f82350b8d5c430fa221fa0a/system-schema_usertypes-ka-3-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-1-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-1-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-1-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-1-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-1-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-1-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-1-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-1-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-2-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-2-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-2-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-2-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-2-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-2-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-2-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-2-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-3-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-3-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-3-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-3-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-3-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-3-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-3-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/size_estimates-618f817b005f3678b8a453f3930b8e86/system-size_estimates-ka-3-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-1-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-1-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-1-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-1-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-1-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-1-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-1-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-1-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-2-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-2-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-2-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-2-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-2-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-2-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-2-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-2-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-3-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-3-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-3-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-3-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-3-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-3-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-3-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/system/sstable_activity-5a1ff267ace03f128563cfae6103c65e/system-sstable_activity-ka-3-TOC.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/titan/system_properties-6cba35e0afd011e6973c1f7ec3cf30bd/titan-system_properties-ka-1-CompressionInfo.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/titan/system_properties-6cba35e0afd011e6973c1f7ec3cf30bd/titan-system_properties-ka-1-Data.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/titan/system_properties-6cba35e0afd011e6973c1f7ec3cf30bd/titan-system_properties-ka-1-Digest.sha1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/titan/system_properties-6cba35e0afd011e6973c1f7ec3cf30bd/titan-system_properties-ka-1-Filter.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/titan/system_properties-6cba35e0afd011e6973c1f7ec3cf30bd/titan-system_properties-ka-1-Index.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/titan/system_properties-6cba35e0afd011e6973c1f7ec3cf30bd/titan-system_properties-ka-1-Statistics.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/titan/system_properties-6cba35e0afd011e6973c1f7ec3cf30bd/titan-system_properties-ka-1-Summary.db" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/db/cassandra/data/titan/system_properties-6cba35e0afd011e6973c1f7ec3cf30bd/titan-system_properties-ka-1-TOC.txt" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.names.id" />
@@ -209,7 +218,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.names.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.schemastore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.schemastore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.labeltokenstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.labeltokenstore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.labeltokenstore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.labeltokenstore.db.names.id" />
@@ -225,7 +233,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.relationshiptypestore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.relationshiptypestore.db.names.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.schemastore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.schemastore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.transaction.db.0" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.names.id" />
@@ -241,16 +248,12 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.names.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.schemastore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.schemastore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/1.0_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/1.0_main.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/1.0_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/1.0_test.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB2/logs/debug.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
     </list>
     <ignored path="BAG - Byzantine fault-tolerant Architecture for Graph database.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -1026,7 +1029,7 @@
       <recent name="$PROJECT_DIR$/src/main/java/com" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [clean]">
+  <component name="RunManager" selected="Application.Server3">
     <configuration default="false" name="BAG - Byzantine fault-tolerant Architecture for Graph database [buildDependents]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1451,12 +1454,12 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.45600858" sideWeight="0.5586354" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.45600858" sideWeight="0.44136462" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.45600858" sideWeight="0.44136462" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.4978678" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26332623" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26332623" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="SonarLint" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23400854" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />

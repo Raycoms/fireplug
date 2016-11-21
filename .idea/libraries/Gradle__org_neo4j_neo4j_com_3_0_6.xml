@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.neo4j:neo4j-com:3.0.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.neo4j/neo4j-com/3.0.6/dd5d4002221e1f3b7c16bdf6302b4cd976ea24a5/neo4j-com-3.0.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.neo4j/neo4j-com/3.0.6/826562854ef5f319cb1c0632d6676afeee1e786e/neo4j-com-3.0.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

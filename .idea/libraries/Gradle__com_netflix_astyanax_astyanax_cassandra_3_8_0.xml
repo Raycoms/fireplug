@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.netflix.astyanax:astyanax-cassandra:3.8.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.netflix.astyanax/astyanax-cassandra/3.8.0/8b9704784b34229faace4aa986d08b80dba6aac6/astyanax-cassandra-3.8.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.netflix.astyanax/astyanax-cassandra/3.8.0/5ba9750225c96282ffeb687a742911e7084c8aea/astyanax-cassandra-3.8.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.apache.tinkerpop:tinkergraph-gremlin:3.0.1-incubating">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.tinkerpop/tinkergraph-gremlin/3.0.1-incubating/310de81c2422efd0cc4efa569316527f59615cf8/tinkergraph-gremlin-3.0.1-incubating.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.tinkerpop/tinkergraph-gremlin/3.0.1-incubating/77a3e063696f76870f844872830fab1e29580581/tinkergraph-gremlin-3.0.1-incubating-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

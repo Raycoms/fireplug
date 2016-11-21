@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.eaio.uuid:uuid:3.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.eaio.uuid/uuid/3.2/77ba5105d949cd589aff75400d9f7d3676691a46/uuid-3.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.eaio.uuid/uuid/3.2/1ccd15614c8848831943a5283ce17763c04cee3c/uuid-3.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

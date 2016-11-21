@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.neo4j:neo4j-unsafe:3.0.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.neo4j/neo4j-unsafe/3.0.6/ead3a694e9d26b08071a3808064a3f5a1dab6f23/neo4j-unsafe-3.0.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.neo4j/neo4j-unsafe/3.0.6/a62b01155dffdbd8728365b51b9f3de0ff420146/neo4j-unsafe-3.0.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

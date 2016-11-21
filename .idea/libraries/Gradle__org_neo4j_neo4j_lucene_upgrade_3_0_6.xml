@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.neo4j:neo4j-lucene-upgrade:3.0.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.neo4j/neo4j-lucene-upgrade/3.0.6/67e4f44573fd277d8f19b36d24f1f5e62f4227bb/neo4j-lucene-upgrade-3.0.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.neo4j/neo4j-lucene-upgrade/3.0.6/f6bc4992ae4e0164fa89c48bed6f4de29ed28053/neo4j-lucene-upgrade-3.0.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
