@@ -82,19 +82,49 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         Graph graph = sess.getGraph();
 
         int nodeType = graph.findType(storage.getId());
-        Objects objs;
+        Objects objs = null;
 
         for(Map.Entry<String, Object> entry : storage.getProperties().entrySet())
         {
             int attributeId = graph.findAttribute(nodeType, entry.getKey());
 
-            objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
+            if(objs == null)
+            {
+                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
+            }
+            else
+            {
+                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objs);
+            }
 
             if(objs.isEmpty())
             {
                 return false;
             }
         }
+
+        if(objs == null || objs.isEmpty())
+        {
+            return false;
+        }
+
+        Iterator it = objs.iterator();
+
+            try
+            {
+                //if(it.next()
+                if (!HashCreator.sha1FromNode(storage).equals(null))//.equals(n.getProperty(Constants.TAG_HASH)))
+                {
+                    sess.close();
+                    return false;
+                }
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                Log.getLogger().warn("Couldn't execute SHA1 for node", e);
+            }
+
+
 
         //Objects people  = graph.select(nameAttrId, Condition.Equal, v.setString("Carol"));
         //Assuming we only get one node in return.
