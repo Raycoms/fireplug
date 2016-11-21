@@ -24,7 +24,12 @@ public class RunTests
 
     public static void main(String [] args)
     {
-        try (TestClient client1 = new TestClient(1))
+        int serverPartner = 0;
+        if(args.length > 0)
+        {
+            serverPartner  = Integer.parseInt(args[0]);
+        }
+        try (TestClient client1 = new TestClient(1, serverPartner))
         {
             client1.read(new NodeStorage("Person"));
 

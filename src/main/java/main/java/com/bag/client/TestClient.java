@@ -46,6 +46,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     private long localTimestamp = 0;
 
     /**
+     *
+     */
+    private final int serverProcess;
+
+    /**
      * Create a threadsafe version of kryo.
      */
     private KryoFactory factory = () ->
@@ -59,22 +64,25 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         return kryo;
     };
 
-    public TestClient(final int processId)
+    public TestClient(final int processId, final int serverId)
     {
         super(processId);
         secureMode = true;
+        this.serverProcess = serverId;
         initClient();
     }
 
     public TestClient(final int processId, final String configHome)
     {
         super(processId, configHome);
+        serverProcess = 0;
         initClient();
     }
 
     public TestClient(final int processId, final String configHome, final Comparator<byte[]> replyComparator, final Extractor replyExtractor)
     {
         super(processId, configHome, replyComparator, replyExtractor);
+        serverProcess = 0;
         initClient();
     }
 
@@ -180,11 +188,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             if (identifier instanceof NodeStorage)
             {
                 //this sends the message straight to server 0 not to the others.
-                sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, localTimestamp, identifier), 0, new int[] {0}, TOMMessageType.UNORDERED_REQUEST);
+                sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, localTimestamp, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
             }
             else if (identifier instanceof RelationshipStorage)
             {
-                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier), 0, new int[] {0}, TOMMessageType.UNORDERED_REQUEST);
+                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
             }
             else
             {

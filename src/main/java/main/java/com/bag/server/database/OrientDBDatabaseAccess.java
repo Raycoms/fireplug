@@ -183,10 +183,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             //Assuming we only get one node in return.
             for (final Vertex tempVertex : getVertexList(nodeStorage, graph))
             {
-                if(!HashCreator.sha1FromNode(nodeStorage).equals(tempVertex.getProperty("hash")))
-                {
-                    return false;
-                }
+                return HashCreator.sha1FromNode(nodeStorage).equals(tempVertex.getProperty("hash"));
             }
         }
         catch(NoSuchAlgorithmException e)
@@ -198,7 +195,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             graph.shutdown();
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -471,10 +468,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                     .collect(Collectors.toList());
             for (Edge edge : list)
             {
-                if(!HashCreator.sha1FromRelationship(relationshipStorage).equals(edge.getProperty("hash")))
-                {
-                    return false;
-                }
+                return HashCreator.sha1FromRelationship(relationshipStorage).equals(edge.getProperty("hash"));
             }
         }
         catch (NoSuchAlgorithmException e)
@@ -486,6 +480,6 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             graph.shutdown();
         }
 
-        return true;
+        return false;
     }
 }

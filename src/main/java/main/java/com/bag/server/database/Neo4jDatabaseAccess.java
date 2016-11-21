@@ -259,45 +259,39 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean compareNode(final NodeStorage nodeStorage)
     {
-        if(graphDb == null)
+        if (graphDb == null)
         {
             start();
         }
 
-        try (Transaction tx = graphDb.beginTx())
+        final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
+        Result result = graphDb.execute(builder);
+
+        //Assuming we only get one node in return.
+        if (result.hasNext())
         {
-            final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
-            Result result = graphDb.execute(builder);
-
-            //Assuming we only get one node in return.
-            if(result.hasNext())
+            Map<String, Object> value = result.next();
+            for (Map.Entry<String, Object> entry : value.entrySet())
             {
-                Map<String, Object> value = result.next();
-                for (Map.Entry<String, Object> entry : value.entrySet())
+                if (entry.getValue() instanceof NodeProxy)
                 {
-                    if (entry.getValue() instanceof NodeProxy)
-                    {
-                        NodeProxy n = (NodeProxy) entry.getValue();
+                    NodeProxy n = (NodeProxy) entry.getValue();
 
-                        try
-                        {
-                            if(!HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH)))
-                            {
-                                return false;
-                            }
-                        }
-                        catch (NoSuchAlgorithmException e)
-                        {
-                            Log.getLogger().warn("Couldn't execute SHA1 for node", e);
-                        }
-                        break;
+                    try
+                    {
+                        return HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH));
                     }
+                    catch (NoSuchAlgorithmException e)
+                    {
+                        Log.getLogger().warn("Couldn't execute SHA1 for node", e);
+                    }
+                    break;
                 }
             }
-
-            tx.success();
         }
-        return true;
+
+        //If can't find the node its different probably.
+        return false;
     }
 
     @Override
@@ -505,40 +499,34 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean compareRelationship(final RelationshipStorage relationshipStorage)
     {
-        try (Transaction tx = graphDb.beginTx())
+
+        final String builder = MATCH + buildRelationshipString(relationshipStorage) + " RETURN r";
+        Result result = graphDb.execute(builder);
+
+        //Assuming we only get one node in return.
+        if (result.hasNext())
         {
-            final String builder = MATCH + buildRelationshipString(relationshipStorage) + " RETURN r";
-            Result result = graphDb.execute(builder);
-
-            //Assuming we only get one node in return.
-            if(result.hasNext())
+            Map<String, Object> value = result.next();
+            for (Map.Entry<String, Object> entry : value.entrySet())
             {
-                Map<String, Object> value = result.next();
-                for (Map.Entry<String, Object> entry : value.entrySet())
+                if (entry.getValue() instanceof NodeProxy)
                 {
-                    if (entry.getValue() instanceof NodeProxy)
-                    {
-                        NodeProxy n = (NodeProxy) entry.getValue();
+                    NodeProxy n = (NodeProxy) entry.getValue();
 
-                        try
-                        {
-                            if(!HashCreator.sha1FromRelationship(relationshipStorage).equals(n.getProperty(Constants.TAG_HASH)))
-                            {
-                                return false;
-                            }
-                        }
-                        catch (NoSuchAlgorithmException e)
-                        {
-                            Log.getLogger().warn("Couldn't execute SHA1 for relationship", e);
-                        }
-                        break;
+                    try
+                    {
+                        return HashCreator.sha1FromRelationship(relationshipStorage).equals(n.getProperty(Constants.TAG_HASH));
                     }
+                    catch (NoSuchAlgorithmException e)
+                    {
+                        Log.getLogger().warn("Couldn't execute SHA1 for relationship", e);
+                    }
+                    break;
                 }
             }
-
-            tx.success();
         }
-        return true;
+
+        return false;
     }
 
     /**

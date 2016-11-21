@@ -14,7 +14,7 @@ import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
 import main.java.com.bag.operations.UpdateOperation;
-import main.java.com.bag.server.database.ArangoDBDatabaseAccess;
+import main.java.com.bag.server.database.SparkseeDatabaseAccess;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.server.database.OrientDBDatabaseAccess;
 import main.java.com.bag.server.database.TitanDatabaseAccess;
@@ -93,7 +93,7 @@ public class TestServer extends DefaultRecoverable
                 databaseAccess = new TitanDatabaseAccess(id);
                 break;
             case Constants.ARANGODB:
-                databaseAccess = new ArangoDBDatabaseAccess(id);
+                databaseAccess = new SparkseeDatabaseAccess(id);
                 break;
             case Constants.ORIENTDB:
                 databaseAccess = new OrientDBDatabaseAccess(id);
