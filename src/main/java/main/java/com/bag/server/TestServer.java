@@ -122,7 +122,6 @@ public class TestServer extends DefaultRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
-        this.replica.getId();
         for(int i = 0; i < bytes.length; ++i)
         {
             if(messageContexts != null && messageContexts[i] != null)

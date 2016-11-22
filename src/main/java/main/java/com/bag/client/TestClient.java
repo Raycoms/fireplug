@@ -43,7 +43,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     /**
      * Local timestamp of the current transaction.
      */
-    private long localTimestamp = 0;
+    private long localTimestamp = -1;
 
     /**
      *

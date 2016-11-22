@@ -31,7 +31,7 @@ public class RunTests
         }
         try (TestClient client1 = new TestClient(1, serverPartner))
         {
-            client1.read(new NodeStorage("Person"));
+            client1.read(new NodeStorage(""));
 
             //client1.read(new RelationshipStorage("Loves", new NodeStorage("Person"), new NodeStorage("Person")));
 
@@ -48,8 +48,8 @@ public class RunTests
             client1.write(null, new NodeStorage("Person", carol));
             client1.write(null, new NodeStorage("Person", ray));
             client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", carol),  new NodeStorage("Person", ray)));
-            client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", ray),  new NodeStorage("Person", carol)));*/
-
+            client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", ray),  new NodeStorage("Person", carol)));
+            */
 
             //client1.write(new NodeStorage("Person"), new NodeStorage("Person", ));
 

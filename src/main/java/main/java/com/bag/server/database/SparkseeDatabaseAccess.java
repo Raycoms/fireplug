@@ -1,6 +1,8 @@
 package main.java.com.bag.server.database;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.sparsity.sparksee.gdb.*;
+import com.sparsity.sparksee.gdb.Objects;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
@@ -8,12 +10,14 @@ import main.java.com.bag.util.HashCreator;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import org.neo4j.graphdb.Result;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.kernel.impl.core.NodeProxy;
+import org.neo4j.kernel.impl.core.RelationshipProxy;
 
 import java.io.FileNotFoundException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Database access for the arangoDB database.
@@ -56,22 +60,96 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         Session sess = db.newSession();
         Graph graph = sess.getGraph();
 
+        NodeStorage nodeStorage = null;
+        RelationshipStorage relationshipStorage = null;
 
-        // Use 'graph' to perform operations on the graph database
+        if (identifier instanceof NodeStorage)
+        {
+            nodeStorage = (NodeStorage) identifier;
+        }
+        else if (identifier instanceof RelationshipStorage)
+        {
+            relationshipStorage = (RelationshipStorage) identifier;
+        }
+        else
+        {
+            Log.getLogger().warn("Can't read data on object: " + identifier.getClass().toString());
+            return Collections.emptyList();
+        }
+
+        ArrayList<Object> returnStorage = new ArrayList<>();
+
+        if (nodeStorage == null)
+        {
+            Log.getLogger().info(Long.toString(snapshotId));
+            builder.append(buildRelationshipString(relationshipStorage));
+            builder.append(" RETURN r");
+        }
+        else
+        {
+            Log.getLogger().info(Long.toString(snapshotId));
+            builder.append(buildNodeString(nodeStorage, ""));
+            builder.append(" RETURN n");
+        }
+
         sess.close();
 
-        return null;
-    }
-
-    @Override
-    public boolean equalHash(final List readSet)
-    {
-        return false;
+        return returnStorage;
     }
 
     @Override
     public boolean compareRelationship(final RelationshipStorage storage)
     {
+        Session sess = db.newSession();
+        Graph graph = sess.getGraph();
+
+
+        int nodeType = graph.findType(storage.getId());
+        Objects objs = null;
+
+        for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+        {
+            int attributeId = graph.findAttribute(nodeType, entry.getKey());
+
+            if (objs == null)
+            {
+                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
+            }
+            else
+            {
+                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objs);
+            }
+
+            if (objs.isEmpty())
+            {
+                return false;
+            }
+        }
+
+        if (objs == null || objs.isEmpty())
+        {
+            return false;
+        }
+
+        ObjectsIterator it = objs.iterator();
+
+        try
+        {
+            long oId = it.next();
+            return HashCreator.sha1FromRelationship(storage).equals(graph.getAttribute(oId, graph.findAttribute(nodeType, "hash")).getString());
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Couldn't execute SHA1 for node", e);
+        }
+        finally
+        {
+            sess.close();
+            it.close();
+            objs.close();
+        }
+
+        sess.close();
         return false;
     }
 
@@ -84,11 +162,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         int nodeType = graph.findType(storage.getId());
         Objects objs = null;
 
-        for(Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+        for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
         {
             int attributeId = graph.findAttribute(nodeType, entry.getKey());
 
-            if(objs == null)
+            if (objs == null)
             {
                 objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
             }
@@ -97,65 +175,37 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objs);
             }
 
-            if(objs.isEmpty())
+            if (objs.isEmpty())
             {
                 return false;
             }
         }
 
-        if(objs == null || objs.isEmpty())
+        if (objs == null || objs.isEmpty())
         {
             return false;
         }
 
-        Iterator it = objs.iterator();
+        ObjectsIterator it = objs.iterator();
 
-            try
-            {
-                //if(it.next()
-                if (!HashCreator.sha1FromNode(storage).equals(null))//.equals(n.getProperty(Constants.TAG_HASH)))
-                {
-                    sess.close();
-                    return false;
-                }
-            }
-            catch (NoSuchAlgorithmException e)
-            {
-                Log.getLogger().warn("Couldn't execute SHA1 for node", e);
-            }
-
-
-
-        //Objects people  = graph.select(nameAttrId, Condition.Equal, v.setString("Carol"));
-        //Assuming we only get one node in return.
-        /*if (result.hasNext())
+        try
         {
-            Map<String, Object> value = result.next();
-            for (Map.Entry<String, Object> entry : value.entrySet())
-            {
-                if (entry.getValue() instanceof NodeProxy)
-                {
-                    NodeProxy n = (NodeProxy) entry.getValue();
-
-                    try
-                    {
-                        if (!HashCreator.sha1FromNode(storage).equals(n.getProperty(Constants.TAG_HASH)))
-                        {
-                            sess.close();
-                            return false;
-                        }
-                    }
-                    catch (NoSuchAlgorithmException e)
-                    {
-                        Log.getLogger().warn("Couldn't execute SHA1 for node", e);
-                    }
-                    break;
-                }
-            }
-        }*/
+            long oId = it.next();
+            return HashCreator.sha1FromNode(storage).equals(graph.getAttribute(oId, graph.findAttribute(nodeType, "hash")).getString());
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            Log.getLogger().warn("Couldn't execute SHA1 for node", e);
+        }
+        finally
+        {
+            sess.close();
+            it.close();
+            objs.close();
+        }
 
         sess.close();
-        return true;
+        return false;
     }
 
     @Override

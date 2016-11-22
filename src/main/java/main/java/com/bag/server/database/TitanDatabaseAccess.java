@@ -45,13 +45,13 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     {
         TitanFactory.Builder config = TitanFactory.build();
 
-        config.set("storage.backend", "embeddedcassandra");
+        config.set("storage.backend", "berkeleyje");
         config.set("storage.directory", DIRECTORY);
-        config.set("storage.conf-file", "file:///" + DIRECTORY + "/conf/cassandra/cassandra.yaml");
+        /*config.set("storage.conf-file", "file:///" + DIRECTORY + "/conf/cassandra/cassandra.yaml");
         config.set("index." + INDEX_NAME + ".backend", "elasticsearch");
         config.set("index." + INDEX_NAME + ".DIRECTORY", DIRECTORY + File.separator + "es");
         config.set("index." + INDEX_NAME + ".elasticsearch.local-mode", true);
-        config.set("index." + INDEX_NAME + ".elasticsearch.client-only", false);
+        config.set("index." + INDEX_NAME + ".elasticsearch.client-only", false);*/
 
         graph = config.open();
     }
@@ -458,8 +458,8 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             keyValue[i] = Constants.TAG_HASH;
             keyValue[i + 1] = HashCreator.sha1FromRelationship(storage);
 
-            keyValue[i] = Constants.TAG_SNAPSHOT_ID;
-            keyValue[i + 1] = snapshotId;
+            keyValue[i + 2] = Constants.TAG_SNAPSHOT_ID;
+            keyValue[i + 3] = snapshotId;
 
             while (startNode.hasNext())
             {
