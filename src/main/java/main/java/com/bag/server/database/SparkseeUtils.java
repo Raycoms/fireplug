@@ -20,6 +20,29 @@ public class SparkseeUtils
          * Intentionally left empty.
          */
     }
+
+    /**
+     * Gets the object from the value.
+     * @param value the input value.
+     * @return an object from the value depending on the type.
+     */
+    protected static Object getObjectFromValue(Value value)
+    {
+        switch (value.getDataType())
+        {
+            case Boolean:
+                return value.getBoolean();
+            case Integer:
+                return value.getInteger();
+            case Long:
+                return value.getLong();
+            case Double:
+                return value.getDouble();
+            default:
+                return value.getString();
+        }
+    }
+
     /**
      * Returns a Value object for a certain object.
      * @param obj ingoing object.

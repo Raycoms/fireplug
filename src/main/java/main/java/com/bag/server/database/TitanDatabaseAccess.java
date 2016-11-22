@@ -151,6 +151,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         for(Edge edge: relationshipList)
         {
+            //todo might update the nodeStorages as well
             RelationshipStorage tempStorage = new RelationshipStorage(edge.label(), relationshipStorage.getStartNode(), relationshipStorage.getEndNode());
 
             for(String s: edge.keys())

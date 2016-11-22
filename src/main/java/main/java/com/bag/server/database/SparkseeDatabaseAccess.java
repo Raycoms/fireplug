@@ -1,6 +1,5 @@
 package main.java.com.bag.server.database;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.sparsity.sparksee.gdb.*;
 import com.sparsity.sparksee.gdb.Objects;
 import main.java.com.bag.exceptions.OutDatedDataException;
@@ -10,10 +9,6 @@ import main.java.com.bag.util.HashCreator;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
-import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.kernel.impl.core.NodeProxy;
-import org.neo4j.kernel.impl.core.RelationshipProxy;
 
 import java.io.FileNotFoundException;
 import java.security.NoSuchAlgorithmException;
@@ -81,15 +76,95 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if (nodeStorage == null)
         {
-            Log.getLogger().info(Long.toString(snapshotId));
-            builder.append(buildRelationshipString(relationshipStorage));
-            builder.append(" RETURN r");
+            NodeStorage startNode = relationshipStorage.getStartNode();
+            NodeStorage endNode = relationshipStorage.getEndNode();
+            int nodeTypeStart = graph.findType(startNode.getId());
+            int nodeTypeEnd = graph.findType(endNode.getId());
+
+            Objects objsStart = findNode(graph, startNode, nodeTypeStart);
+            Objects objsEnd = findNode(graph, startNode, nodeTypeEnd);
+
+            if (objsStart == null || objsStart.isEmpty() || objsEnd == null || objsEnd.isEmpty())
+            {
+                return Collections.emptyList();
+            }
+
+            ObjectsIterator itStart = objsStart.iterator();
+            ObjectsIterator itEnd = objsEnd.iterator();
+
+            //Sparkee, can't search for node or relationship without it's type set!
+            int relationshipTypeId = graph.findType(relationshipStorage.getId());
+
+            while (itStart.hasNext())
+            {
+                long localStartNodeId = itStart.next();
+                while (itEnd.hasNext())
+                {
+                    long localEndNodeId = itEnd.next();
+                    long edgeId = graph.findEdge(relationshipTypeId, localStartNodeId, localEndNodeId);
+                    Iterator<Integer> attributes = graph.getAttributes(edgeId).iterator();
+                    Map<String, Object> localProperties = new HashMap<>();
+                    while (attributes.hasNext())
+                    {
+                        String attributeKey = graph.getAttributeText(edgeId, attributes.next()).toString();
+                        Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(edgeId, attributes.next()));
+                        localProperties.put(attributeKey, attributeValue);
+                    }
+
+                    boolean relationshipMatches = true;
+
+                    for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
+                    {
+                        if (localProperties.containsKey(entry.getKey()) && !localProperties.get(entry.getKey()).equals(entry.getValue()))
+                        {
+                            relationshipMatches = false;
+                        }
+                    }
+
+                    if (relationshipMatches)
+                    {
+                        //todo might update the nodeStorages as well
+                        RelationshipStorage storage = new RelationshipStorage(relationshipStorage.getId(), localProperties, startNode, endNode);
+                        returnStorage.add(storage);
+                    }
+                }
+            }
         }
         else
         {
-            Log.getLogger().info(Long.toString(snapshotId));
-            builder.append(buildNodeString(nodeStorage, ""));
-            builder.append(" RETURN n");
+            int nodeType = graph.findType(nodeStorage.getId());
+            Objects objs = findNode(graph, nodeStorage, nodeType);
+
+            if (objs == null || objs.isEmpty())
+            {
+                return Collections.emptyList();
+            }
+
+            for (final Long nodeId : objs)
+            {
+                Iterator<Integer> attributes = graph.getAttributes(nodeId).iterator();
+                Map<String, Object> localProperties = new HashMap<>();
+                while (attributes.hasNext())
+                {
+                    String attributeKey = graph.getAttributeText(nodeId, attributes.next()).toString();
+                    Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(nodeId, attributes.next()));
+                    localProperties.put(attributeKey, attributeValue);
+                }
+
+                boolean nodeMatches = true;
+                for (Map.Entry<String, Object> entry : nodeStorage.getProperties().entrySet())
+                {
+                    if (localProperties.containsKey(entry.getKey()) && !localProperties.get(entry.getKey()).equals(entry.getValue()))
+                    {
+                        nodeMatches = false;
+                    }
+                }
+
+                if (nodeMatches)
+                {
+                    returnStorage.add(new NodeStorage(nodeStorage.getId(), localProperties));
+                }
+            }
         }
 
         sess.close();
@@ -102,41 +177,28 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     {
         Session sess = db.newSession();
         Graph graph = sess.getGraph();
+        NodeStorage startNode = storage.getStartNode();
+        NodeStorage endNode = storage.getEndNode();
+        int nodeTypeStart = graph.findType(startNode.getId());
+        int nodeTypeEnd = graph.findType(endNode.getId());
 
+        Objects objsStart = findNode(graph, startNode, nodeTypeStart);
+        Objects objsEnd = findNode(graph, startNode, nodeTypeEnd);
 
-        int nodeType = graph.findType(storage.getId());
-        Objects objs = null;
-
-        for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
-        {
-            int attributeId = graph.findAttribute(nodeType, entry.getKey());
-
-            if (objs == null)
-            {
-                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
-            }
-            else
-            {
-                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objs);
-            }
-
-            if (objs.isEmpty())
-            {
-                return false;
-            }
-        }
-
-        if (objs == null || objs.isEmpty())
+        if (objsStart == null || objsStart.isEmpty() || objsEnd == null || objsEnd.isEmpty())
         {
             return false;
         }
 
-        ObjectsIterator it = objs.iterator();
+        ObjectsIterator itStart = objsStart.iterator();
+        ObjectsIterator itEnd = objsEnd.iterator();
+
+        int relationshipTypeId = graph.findType(storage.getId());
 
         try
         {
-            long oId = it.next();
-            return HashCreator.sha1FromRelationship(storage).equals(graph.getAttribute(oId, graph.findAttribute(nodeType, "hash")).getString());
+            long oId = graph.findEdge(relationshipTypeId, itStart.next(), itEnd.next());
+            return HashCreator.sha1FromRelationship(storage).equals(graph.getAttribute(oId, graph.findAttribute(relationshipTypeId, "hash")).getString());
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -145,8 +207,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         finally
         {
             sess.close();
-            it.close();
-            objs.close();
+            itStart.close();
+            itEnd.close();
+            objsStart.close();
+            objsEnd.close();
         }
 
         sess.close();
@@ -160,26 +224,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         Graph graph = sess.getGraph();
 
         int nodeType = graph.findType(storage.getId());
-        Objects objs = null;
-
-        for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
-        {
-            int attributeId = graph.findAttribute(nodeType, entry.getKey());
-
-            if (objs == null)
-            {
-                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
-            }
-            else
-            {
-                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objs);
-            }
-
-            if (objs.isEmpty())
-            {
-                return false;
-            }
-        }
+        Objects objs = findNode(graph, storage, nodeType);
 
         if (objs == null || objs.isEmpty())
         {
@@ -206,6 +251,37 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         sess.close();
         return false;
+    }
+
+    /**
+     * Return a Objects array matching the nodeType and properties.
+     * @param graph the graph.
+     * @param storage the storage of the node.
+     * @param nodeType the node type.
+     * @return Objects which match the attributes.
+     */
+    private Objects findNode(Graph graph, NodeStorage storage, int nodeType)
+    {
+        Objects objs = null;
+        for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+        {
+            int attributeId = graph.findAttribute(nodeType, entry.getKey());
+
+            if (objs == null)
+            {
+                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
+            }
+            else
+            {
+                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objs);
+            }
+
+            if (objs.isEmpty())
+            {
+                return null;
+            }
+        }
+        return objs;
     }
 
     @Override

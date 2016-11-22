@@ -2,121 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b25c77af-4557-4786-a808-ade860b1172d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__ch_qos_logback_logback_classic_1_1_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__ch_qos_logback_logback_core_1_1_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_addthis_metrics_reporter_config_2_1_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_boundary_high_scale_lib_1_0_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_carrotsearch_junit_benchmarks_0_7_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_carrotsearch_randomizedtesting_randomizedtesting_runner_2_0_8.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_clearspring_analytics_stream_2_5_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_eaio_uuid_uuid_3_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_jbellis_jamm_0_3_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_googlecode_json_simple_json_simple_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_lmax_disruptor_3_0_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_netflix_astyanax_astyanax_cassandra_3_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_netflix_astyanax_astyanax_core_3_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_netflix_astyanax_astyanax_recipes_3_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_netflix_astyanax_astyanax_thrift_3_8_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_ning_compress_lzf_0_8_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_spatial4j_spatial4j_0_5.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_thinkaurelius_thrift_thrift_server_0_3_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_thinkaurelius_titan_titan_cassandra_1_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_thinkaurelius_titan_titan_es_1_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_thinkaurelius_titan_titan_lucene_1_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_yammer_metrics_metrics_core_2_2_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_cli_commons_cli_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_pool_commons_pool_1_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__it_unimi_dsi_fastutil_6_5_7.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__javax_validation_validation_api_1_0_0_GA.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__joda_time_joda_time_1_6_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_10.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__net_java_dev_jna_jna_4_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__net_jpountz_lz4_lz4_1_2_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__net_sf_supercsv_super_csv_2_1_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_antlr_ST4_4_0_8.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_antlr_antlr_3_5_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_antlr_antlr_runtime_3_5_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_cassandra_cassandra_all_2_1_9.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_cassandra_cassandra_thrift_2_1_9.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_commons_commons_math3_3_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_httpcomponents_httpclient_4_2_5.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_httpcomponents_httpcore_4_2_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_grouping_4_10_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_highlighter_4_10_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_join_4_10_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_memory_4_10_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_misc_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_queries_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_sandbox_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_spatial3d_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_spatial_5_5_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_lucene_lucene_suggest_4_10_4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_servicemix_bundles_org_apache_servicemix_bundles_commons_csv_1_0_r706900_3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_thrift_libthrift_0_9_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_jackson_jackson_core_asl_1_9_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_codehaus_jackson_jackson_mapper_asl_1_9_2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_elasticsearch_elasticsearch_1_5_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hibernate_hibernate_validator_4_3_0_Final.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jboss_logging_jboss_logging_3_1_0_CR2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_ow2_asm_asm_commons_4_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB1/schema/label/lucene/labelStore/1/_7.cfe" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB1/schema/label/lucene/labelStore/1/_7.cfs" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB1/schema/label/lucene/labelStore/1/_7.si" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB1/schema/label/lucene/labelStore/1/segments_6" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB2/schema/label/lucene/labelStore/1/_7.cfe" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB2/schema/label/lucene/labelStore/1/_7.cfs" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB2/schema/label/lucene/labelStore/1/_7.si" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB2/schema/label/lucene/labelStore/1/segments_6" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB3/schema/label/lucene/labelStore/1/_7.cfe" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB3/schema/label/lucene/labelStore/1/_7.cfs" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB3/schema/label/lucene/labelStore/1/_7.si" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB3/schema/label/lucene/labelStore/1/segments_6" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.a" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.b" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.b" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.counts.db.a" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.counts.db.b" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.counts.db.b" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.nodestore.db" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.nodestore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.nodestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.propertystore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.relationshipstore.db" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.relationshipstore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.relationshipstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB2/neostore.transaction.db.0" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.counts.db.a" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.counts.db.b" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.counts.db.b" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipstore.db" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipstore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/SparkseeDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/SparkseeDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/1.0_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/1.0_main.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/1.0_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/1.0_test.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB2/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB2/logs/debug.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeUtils.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeUtils.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
     </list>
     <ignored path="BAG - Byzantine fault-tolerant Architecture for Graph database.iws" />
@@ -240,8 +128,8 @@
       <file leaf-file-name="SparkseeUtils.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+            <state relative-caret-position="285">
+              <caret line="41" column="41" selection-start-line="41" selection-start-column="41" selection-end-line="41" selection-end-column="41" />
               <folding />
             </state>
           </provider>
@@ -250,8 +138,8 @@
       <file leaf-file-name="Neo4jDatabaseAccess.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="373">
-              <caret line="168" column="29" selection-start-line="88" selection-start-column="8" selection-end-line="168" selection-end-column="29" />
+            <state relative-caret-position="-121">
+              <caret line="126" column="41" selection-start-line="126" selection-start-column="40" selection-end-line="126" selection-end-column="41" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -292,8 +180,20 @@
       <file leaf-file-name="SparkseeDatabaseAccess.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="112" column="0" selection-start-line="112" selection-start-column="0" selection-end-line="123" selection-end-column="13" />
+            <state relative-caret-position="2078">
+              <caret line="163" column="13" selection-start-line="163" selection-start-column="13" selection-end-line="163" selection-end-column="13" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OrientDBDatabaseAccess.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="104" column="64" selection-start-line="104" selection-start-column="64" selection-end-line="104" selection-end-column="64" />
               <folding />
             </state>
           </provider>
@@ -302,8 +202,8 @@
       <file leaf-file-name="TitanDatabaseAccess.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="279">
-              <caret line="461" column="26" selection-start-line="461" selection-start-column="26" selection-end-line="461" selection-end-column="26" />
+            <state relative-caret-position="441">
+              <caret line="153" column="43" selection-start-line="153" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -693,12 +593,13 @@
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeUtils.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java" />
       </list>
     </option>
@@ -1405,7 +1306,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.45600858" sideWeight="0.5586354" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.44635195" sideWeight="0.44136462" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4302575" sideWeight="0.44136462" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.4978678" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1694,14 +1595,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1230">
-          <caret line="103" column="17" selection-start-line="103" selection-start-column="17" selection-end-line="103" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/exceptions/OutDatedDataException.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="780">
@@ -1721,14 +1614,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
           <caret line="25" column="44" selection-start-line="25" selection-start-column="44" selection-end-line="25" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="461" column="26" selection-start-line="461" selection-start-column="26" selection-end-line="461" selection-end-column="26" />
           <folding />
         </state>
       </provider>
@@ -1760,14 +1645,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sparsity/sparkseejava/5.2.0/fcf7acac4b0789ea7f8720fec0b6f5269aada8/sparkseejava-5.2.0.jar!/com/sparsity/sparksee/gdb/Graph.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
@@ -1776,21 +1653,47 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="41" column="41" selection-start-line="41" selection-start-column="41" selection-end-line="41" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="373">
-          <caret line="168" column="29" selection-start-line="88" selection-start-column="8" selection-end-line="168" selection-end-column="29" />
+        <state relative-caret-position="-121">
+          <caret line="126" column="41" selection-start-line="126" selection-start-column="40" selection-end-line="126" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="441">
+          <caret line="153" column="43" selection-start-line="153" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="104" column="64" selection-start-line="104" selection-start-column="64" selection-end-line="104" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="112" column="0" selection-start-line="112" selection-start-column="0" selection-end-line="123" selection-end-column="13" />
-          <folding />
+        <state relative-caret-position="2078">
+          <caret line="163" column="13" selection-start-line="163" selection-start-column="13" selection-end-line="163" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

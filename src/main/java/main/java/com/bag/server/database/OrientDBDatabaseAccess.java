@@ -102,6 +102,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         .collect(Collectors.toList());
                 for(Edge edge: list)
                 {
+                    //todo might update the nodeStorages as well
                     RelationshipStorage storage = new RelationshipStorage(edge.getClass().toString(), relationshipStorage.getStartNode(), relationshipStorage.getEndNode());
                     for (String key : edge.getPropertyKeys())
                     {
