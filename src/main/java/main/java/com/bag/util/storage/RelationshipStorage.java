@@ -190,12 +190,13 @@ public class RelationshipStorage implements Serializable
 
         final RelationshipStorage that = (RelationshipStorage) o;
 
-        if (!getId().equals(that.getId()))
+        if (!this.getId().equals(that.getId()) && !this.getId().isEmpty() && !that.getId().isEmpty())
         {
             return false;
         }
 
-        if (!(this.getProperties().entrySet().containsAll(that.getProperties().entrySet())))
+        if (!(this.getProperties().entrySet().containsAll(that.getProperties().entrySet())
+                || that.getProperties().entrySet().containsAll(this.getProperties().entrySet())))
         {
             return false;
         }

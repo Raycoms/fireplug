@@ -114,11 +114,13 @@ public class NodeStorage implements Serializable
         final NodeStorage that = (NodeStorage) o;
 
         //We always have some type of type/class/name
-        if (!this.getId().equals(that.getId()))
+        if (!this.getId().equals(that.getId()) && !this.getId().isEmpty() && !that.getId().isEmpty())
         {
             return false;
         }
-        return this.getProperties().entrySet().containsAll(that.getProperties().entrySet());
+        //todo is the same if valid subset in whatEver direction.
+        return this.getProperties().entrySet().containsAll(that.getProperties().entrySet())
+                || that.getProperties().entrySet().containsAll(this.getProperties().entrySet());
     }
 
     @Override

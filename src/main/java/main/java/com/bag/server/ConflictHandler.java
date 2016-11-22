@@ -35,6 +35,9 @@ public class ConflictHandler
             List<RelationshipStorage> readSetRelationship,
             long snapshotId, IDatabaseAccess access)
     {
+        //todo add update and deleteSets and counter check them with the writeSets.
+        //todo If key is in delete then -> conflict
+        //todo if key is in update -> if key changes consistency -> conflict
         return isUpToDate(writeSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
