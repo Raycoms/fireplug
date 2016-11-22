@@ -40,4 +40,20 @@ public class CreateOperation<S extends Serializable> implements Operation, Seria
             Log.getLogger().warn("Trying to create incorrect type in the database.");
         }
     }
+
+    @Override
+    public int hashCode()
+    {
+        return storage == null ? 0 : storage.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object e)
+    {
+        if((storage instanceof NodeStorage && e instanceof NodeStorage) || (storage instanceof RelationshipStorage && e instanceof RelationshipStorage))
+        {
+            return storage.equals(e);
+        }
+        return false;
+    }
 }

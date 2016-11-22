@@ -4,6 +4,7 @@ import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -25,7 +26,7 @@ public class DeleteOperation<S extends Serializable> implements Operation, Seria
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId)
+    public void apply(@NotNull final IDatabaseAccess access, long snapshotId)
     {
         if(storage instanceof NodeStorage)
         {
@@ -39,5 +40,21 @@ public class DeleteOperation<S extends Serializable> implements Operation, Seria
         {
             Log.getLogger().warn("Trying to delete incorrect type in the database.");
         }
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return storage == null ? 0 : storage.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object e)
+    {
+        if((storage instanceof NodeStorage && e instanceof NodeStorage) || (storage instanceof RelationshipStorage && e instanceof RelationshipStorage))
+        {
+            return storage.equals(e);
+        }
+        return false;
     }
 }

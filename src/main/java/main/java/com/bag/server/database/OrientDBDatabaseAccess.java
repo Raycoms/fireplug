@@ -102,35 +102,34 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         .collect(Collectors.toList());
                 for(Edge edge: list)
                 {
-                    //todo might update the nodeStorages as well
-                    RelationshipStorage storage = new RelationshipStorage(edge.getClass().toString(), relationshipStorage.getStartNode(), relationshipStorage.getEndNode());
+                    RelationshipStorage tempStorage = new RelationshipStorage(edge.getClass().toString(), getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
                     for (String key : edge.getPropertyKeys())
                     {
-                        storage.addProperty(key, edge.getProperty(key));
+                        tempStorage.addProperty(key, edge.getProperty(key));
                     }
-                    if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                    if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                     {
-                        Object localSId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        Object localSId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                         OutDatedDataException.checkSnapshotId(localSId, snapshotId);
+                        tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+
                     }
-                    returnStorage.add(storage);
+                    returnStorage.add(tempStorage);
                 }
             }
             else
             {
                 for (final Vertex tempVertex : getVertexList(nodeStorage, graph))
                 {
-                    NodeStorage temp = new NodeStorage(tempVertex.getClass().toString());
-                    for (String key : tempVertex.getPropertyKeys())
+                    NodeStorage tempStorage = getNodeStorageFromVertex(tempVertex);
+                    if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                     {
-                        temp.addProperty(key, tempVertex.getProperty(key));
-                    }
-                    if(temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
-                    {
-                        Object localSId =  temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        Object localSId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                         OutDatedDataException.checkSnapshotId(localSId, snapshotId);
+                        tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+
                     }
-                    returnStorage.add(temp);
+                    returnStorage.add(tempStorage);
                 }
             }
         }
@@ -140,6 +139,21 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
 
         return returnStorage;
+    }
+
+    /**
+     * Generated a NodeStorage from a Vertex.
+     * @param tempVertex the base vertex.
+     * @return the nodeStorage.
+     */
+    private NodeStorage getNodeStorageFromVertex(Vertex tempVertex)
+    {
+        NodeStorage temp = new NodeStorage(tempVertex.getClass().toString());
+        for (String key : tempVertex.getPropertyKeys())
+        {
+            temp.addProperty(key, tempVertex.getProperty(key));
+        }
+        return temp;
     }
 
     /**

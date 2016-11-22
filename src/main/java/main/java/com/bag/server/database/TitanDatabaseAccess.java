@@ -17,7 +17,6 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -27,8 +26,6 @@ import java.util.*;
  */
 public class TitanDatabaseAccess implements IDatabaseAccess
 {
-    private static final String INDEX_NAME = "search";
-
     private static final String DIRECTORY ="/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/TitanDB";
 
     private TitanGraph graph;
@@ -47,11 +44,6 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         config.set("storage.backend", "berkeleyje");
         config.set("storage.directory", DIRECTORY);
-        /*config.set("storage.conf-file", "file:///" + DIRECTORY + "/conf/cassandra/cassandra.yaml");
-        config.set("index." + INDEX_NAME + ".backend", "elasticsearch");
-        config.set("index." + INDEX_NAME + ".DIRECTORY", DIRECTORY + File.separator + "es");
-        config.set("index." + INDEX_NAME + ".elasticsearch.local-mode", true);
-        config.set("index." + INDEX_NAME + ".elasticsearch.client-only", false);*/
 
         graph = config.open();
     }
@@ -139,20 +131,16 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
         }
 
-        if(tempOutput != null)
+        if(tempOutput != null && (tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null))
         {
-            if(tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
-            {
-                tempOutput.fill(relationshipList);
-            }
+            tempOutput.fill(relationshipList);
         }
 
         ArrayList<RelationshipStorage> returnList = new ArrayList<>();
 
         for(Edge edge: relationshipList)
         {
-            //todo might update the nodeStorages as well
-            RelationshipStorage tempStorage = new RelationshipStorage(edge.label(), relationshipStorage.getStartNode(), relationshipStorage.getEndNode());
+            RelationshipStorage tempStorage = new RelationshipStorage(edge.label(), getNodeStorageFromVertex(edge.outVertex()), getNodeStorageFromVertex(edge.inVertex()));
 
             for(String s: edge.keys())
             {
@@ -162,6 +150,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             {
                 Object sId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                 OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
             }
 
             returnList.add(tempStorage);
@@ -200,25 +189,36 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         for(Vertex vertex: nodeList)
         {
-            NodeStorage storage = new NodeStorage(vertex.label());
+            NodeStorage tempStorage = getNodeStorageFromVertex(vertex);
 
-            for(String key: vertex.keys())
+            if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
             {
-                storage.addProperty(key, vertex.property(key).value());
-            }
-
-            if(storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
-            {
-                Object sId =  storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                Object sId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                 OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
             }
 
-            returnStorage.add(storage);
+            returnStorage.add(tempStorage);
         }
 
         return returnStorage;
     }
 
+    /**
+     * Generated a NodeStorage from a Vertex.
+     * @param tempVertex the base vertex.
+     * @return the nodeStorage.
+     */
+    private NodeStorage getNodeStorageFromVertex(Vertex tempVertex)
+    {
+        NodeStorage tempStorage = new NodeStorage(tempVertex.label());
+
+        for(String key: tempVertex.keys())
+        {
+            tempStorage.addProperty(key, tempVertex.property(key).value());
+        }
+        return tempStorage;
+    }
 
     /**
      * Kills the graph database.
@@ -234,6 +234,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @param nodeStorage the node to compare
      * @return true if equal hash, else false.
      */
+    @Override
     public boolean compareNode(final NodeStorage nodeStorage)
     {
         if(graph == null)
@@ -504,12 +505,10 @@ public class TitanDatabaseAccess implements IDatabaseAccess
                 tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
             }
 
-            if (tempOutput != null)
+            if (tempOutput != null && (tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null))
             {
-                if (tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null)
-                {
-                    tempOutput.remove();
-                }
+
+                tempOutput.remove();
             }
         }
         catch (Exception e)
@@ -529,6 +528,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
      * @param relationshipStorage the node to compare
      * @return true if equal hash, else false.
      */
+    @Override
     public boolean compareRelationship(final RelationshipStorage relationshipStorage)
     {
         if(graph == null)

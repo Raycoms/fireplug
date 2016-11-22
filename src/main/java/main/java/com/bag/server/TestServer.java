@@ -173,7 +173,7 @@ public class TestServer extends DefaultRecoverable
         Output output = new Output(1024);
         output.writeString(Constants.COMMIT_RESPONSE);
 
-        if (!ConflictHandler.checkForConflict(this.globalWriteSet, readSetNode, readsSetRelationship, timeStamp, databaseAccess))
+        if (!ConflictHandler.checkForConflict(this.globalWriteSet, localWriteSet, readSetNode, readsSetRelationship, timeStamp, databaseAccess))
         {
             Log.getLogger().info("Found conflict, returning abort");
             output.writeString(Constants.ABORT);

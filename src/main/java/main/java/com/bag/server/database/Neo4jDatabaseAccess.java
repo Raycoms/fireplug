@@ -144,6 +144,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             Object sId =  temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                             OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                            temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         returnStorage.add(temp);
                     }
@@ -159,6 +160,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             Object sId =  temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                             OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                            temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                     }
                 }

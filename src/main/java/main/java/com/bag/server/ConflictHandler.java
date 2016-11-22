@@ -1,11 +1,15 @@
 package main.java.com.bag.server;
 
+import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Receives read and write sets and checks them for conflicts
@@ -24,38 +28,39 @@ public class ConflictHandler
 
     /**
      * Checks for conflicts between read and writeSets.
-     * @param writeSet the node and relationship writeSet.
+     * @param globalWriteSet the node and relationship global writeSet.
+     * @param localWriteSet the node and relationship write set of the transaction.
      * @param readSetNode the node readSet.
      * @param readSetRelationship the relationship readSet
      * @param snapshotId the snapShotId of the transaction.
      * @return true if no conflict has been found.
      */
-    protected static boolean checkForConflict(Map<Long, List<Operation>> writeSet,
+    protected static boolean checkForConflict(Map<Long, List<Operation>> globalWriteSet, List<Operation> localWriteSet,
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship,
             long snapshotId, IDatabaseAccess access)
     {
-        //todo add update and deleteSets and counter check them with the writeSets.
-        //todo If key is in delete then -> conflict
-        //todo if key is in update -> if key changes consistency -> conflict
-        return isUpToDate(writeSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
+        return isUpToDate(globalWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
     /**
      * Checks if no changes have been made since the start of the transaction.
      * @param writeSet the node and relationship writeSet.
+     * @param localWriteSet the node and relationship writeSet of the transaction.
      * @param readSetNode the node readSet.
      * @param readSetRelationship the relationship readSet
      * @param snapshotId the snapShotId of the transaction.
      * @return true if data is up to date.
      */
-    private static boolean isUpToDate(Map<Long, List<Operation>> writeSet,
+    private static boolean isUpToDate(Map<Long, List<Operation>> writeSet, List<Operation> localWriteSet,
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
-
         return !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetNode))
-                && !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetRelationship));
+                && !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetRelationship))
+                && !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id))
+                .retainAll(localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
+                        .collect(Collectors.toList())));
     }
 
     /**

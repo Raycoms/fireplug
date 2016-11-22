@@ -130,6 +130,18 @@ public class NodeStorage implements Serializable
     }
 
     /**
+     * Remove a certain property from the properties.
+     * @param key the key of the property which should be removed.
+     */
+    public void removeProperty(String key)
+    {
+        if(properties != null)
+        {
+            properties.remove(key);
+        }
+    }
+
+    /**
      * Returns a byte representation of the nodeStorage.
      * @return a byte array.
      */

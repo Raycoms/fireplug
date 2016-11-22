@@ -42,4 +42,22 @@ public class UpdateOperation<S extends Serializable> implements Operation, Seria
             Log.getLogger().warn("Can't update Node with Relationship or vice versa.");
         }
     }
+
+    @Override
+    public int hashCode()
+    {
+        int result = key != null ? key.hashCode() : 0;
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object e)
+    {
+        if((key instanceof NodeStorage && e instanceof NodeStorage) || (key instanceof RelationshipStorage && e instanceof RelationshipStorage))
+        {
+            return key.equals(e);
+        }
+        return false;
+    }
 }
