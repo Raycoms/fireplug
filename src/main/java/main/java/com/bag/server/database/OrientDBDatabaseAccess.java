@@ -22,7 +22,6 @@ import java.util.stream.StreamSupport;
  */
 public class OrientDBDatabaseAccess implements IDatabaseAccess
 {
-    //todo May improve performance by commiting only after whole stack.
     /**
      * The base path of the database.
      */
@@ -102,11 +101,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         .collect(Collectors.toList());
                 for(Edge edge: list)
                 {
-                    RelationshipStorage tempStorage = new RelationshipStorage(edge.getClass().toString(), getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
-                    for (String key : edge.getPropertyKeys())
-                    {
-                        tempStorage.addProperty(key, edge.getProperty(key));
-                    }
+                    RelationshipStorage tempStorage = getRelationshipStorageFromEdge(edge);
                     if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                     {
                         Object localSId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
@@ -139,6 +134,21 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
 
         return returnStorage;
+    }
+
+    /**
+     * Generated a RelationshipStorage from an Edge.
+     * @param edge the base edge.
+     * @return the relationshipStorage.
+     */
+    private RelationshipStorage getRelationshipStorageFromEdge(Edge edge)
+    {
+        RelationshipStorage tempStorage = new RelationshipStorage(edge.getClass().toString(), getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
+        for (String key : edge.getPropertyKeys())
+        {
+            tempStorage.addProperty(key, edge.getProperty(key));
+        }
+        return tempStorage;
     }
 
     /**
@@ -224,12 +234,6 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             Set<String> keys = key.getProperties().keySet();
             keys.addAll(value.getProperties().keySet());
 
-            NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
-            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
-            {
-                tempStorage.addProperty(entry.getKey(), entry.getValue());
-            }
-
             for (Vertex vertex : result)
             {
                 for (String tempKey : keys)
@@ -254,7 +258,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         vertex.setProperty(tempKey, value2);
                     }
                 }
-                vertex.setProperty(Constants.TAG_HASH, tempStorage);
+
+                vertex.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(getNodeStorageFromVertex(vertex)));
                 vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
             }
 
@@ -337,12 +342,6 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             Iterable<Vertex> startNodes = getVertexList(key.getStartNode(), graph);
             Iterable<Vertex> endNodes = getVertexList(key.getEndNode(), graph);
 
-            NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
-            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
-            {
-                tempStorage.addProperty(entry.getKey(), entry.getValue());
-            }
-
             Set<String> keys = key.getProperties().keySet();
             keys.addAll(value.getProperties().keySet());
 
@@ -374,7 +373,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         edge.setProperty(tempKey, value2);
                     }
                 }
-                edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage));
+                edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(getRelationshipStorageFromEdge(edge)));
                 edge.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
             }
         }
@@ -483,7 +482,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                     .collect(Collectors.toList());
             for (Edge edge : list)
             {
-                return HashCreator.sha1FromRelationship(relationshipStorage).equals(edge.getProperty("hash"));
+                return HashCreator.sha1FromRelationship(relationshipStorage).equals(edge.getProperty(Constants.TAG_HASH));
             }
         }
         catch (NoSuchAlgorithmException e)

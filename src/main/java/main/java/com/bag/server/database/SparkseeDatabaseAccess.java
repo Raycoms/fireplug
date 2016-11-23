@@ -91,7 +91,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
             ObjectsIterator itStart = objsStart.iterator();
             ObjectsIterator itEnd = objsEnd.iterator();
-
+            //todo if no type given, then what?
             //Sparkee, can't search for node or relationship without it's type set!
             int relationshipTypeId = graph.findType(relationshipStorage.getId());
 
@@ -102,31 +102,16 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 {
                     long localEndNodeId = itEnd.next();
                     long edgeId = graph.findEdge(relationshipTypeId, localStartNodeId, localEndNodeId);
-                    Iterator<Integer> attributes = graph.getAttributes(edgeId).iterator();
-                    Map<String, Object> localProperties = new HashMap<>();
-                    while (attributes.hasNext())
+                    RelationshipStorage storage = getRelationshipFromRelationshipId(graph, edgeId);
+
+                    if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                     {
-                        String attributeKey = graph.getAttributeText(edgeId, attributes.next()).toString();
-                        Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(edgeId, attributes.next()));
-                        localProperties.put(attributeKey, attributeValue);
+                        Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
+                        storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
                     }
 
-                    boolean relationshipMatches = true;
-
-                    for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
-                    {
-                        if (localProperties.containsKey(entry.getKey()) && !localProperties.get(entry.getKey()).equals(entry.getValue()))
-                        {
-                            relationshipMatches = false;
-                        }
-                    }
-
-                    if (relationshipMatches)
-                    {
-                        //todo might update the nodeStorages as well
-                        RelationshipStorage storage = new RelationshipStorage(relationshipStorage.getId(), localProperties, startNode, endNode);
-                        returnStorage.add(storage);
-                    }
+                    returnStorage.add(storage);
                 }
             }
         }
@@ -142,34 +127,64 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
             for (final Long nodeId : objs)
             {
-                Iterator<Integer> attributes = graph.getAttributes(nodeId).iterator();
-                Map<String, Object> localProperties = new HashMap<>();
-                while (attributes.hasNext())
-                {
-                    String attributeKey = graph.getAttributeText(nodeId, attributes.next()).toString();
-                    Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(nodeId, attributes.next()));
-                    localProperties.put(attributeKey, attributeValue);
-                }
+                NodeStorage tempStorage = getNodeFromNodeId(graph, nodeId);
 
-                boolean nodeMatches = true;
-                for (Map.Entry<String, Object> entry : nodeStorage.getProperties().entrySet())
+                if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                 {
-                    if (localProperties.containsKey(entry.getKey()) && !localProperties.get(entry.getKey()).equals(entry.getValue()))
-                    {
-                        nodeMatches = false;
-                    }
+                    Object sId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                    OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
+                    tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
                 }
-
-                if (nodeMatches)
-                {
-                    returnStorage.add(new NodeStorage(nodeStorage.getId(), localProperties));
-                }
+                returnStorage.add(tempStorage);
             }
         }
 
         sess.close();
 
         return returnStorage;
+    }
+
+    /**
+     * Creates a RelationshipStorage from the edgeId.
+     * @param graph the graph.
+     * @param edgeId the edgeId.
+     * @return the relationshipStorage.
+     */
+    private RelationshipStorage getRelationshipFromRelationshipId(Graph graph, long edgeId)
+    {
+        Iterator<Integer> attributes = graph.getAttributes(edgeId).iterator();
+        Map<String, Object> localProperties = new HashMap<>();
+        while (attributes.hasNext())
+        {
+            String attributeKey = graph.getAttributeText(edgeId, attributes.next()).toString();
+            Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(edgeId, attributes.next()));
+            localProperties.put(attributeKey, attributeValue);
+        }
+
+        NodeStorage tempStartNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getTail());
+        NodeStorage tempEndNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getTail());
+
+        return new RelationshipStorage(graph.getType(graph.getObjectType(edgeId)).getName(), localProperties, tempStartNode, tempEndNode);
+    }
+
+    /**
+     * Creates a NodeStorage from the nodeId.
+     * @param graph the graph.
+     * @param nodeId the nodeId.
+     * @return the nodeStorage.
+     */
+    private NodeStorage getNodeFromNodeId(Graph graph, long nodeId)
+    {
+        AttributeListIterator attributes = graph.getAttributes(nodeId).iterator();
+        Map<String, Object> localProperties = new HashMap<>();
+        while (attributes.hasNext())
+        {
+            String attributeKey = graph.getAttributeText(nodeId, attributes.next()).toString();
+            Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(nodeId, attributes.next()));
+            localProperties.put(attributeKey, attributeValue);
+        }
+
+        return new NodeStorage(graph.getType(graph.getObjectType(nodeId)).getName(), localProperties);
     }
 
     @Override
@@ -212,8 +227,6 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             objsStart.close();
             objsEnd.close();
         }
-
-        sess.close();
         return false;
     }
 
@@ -248,8 +261,6 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             it.close();
             objs.close();
         }
-
-        sess.close();
         return false;
     }
 
@@ -287,11 +298,74 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
     {
+        Session sess = db.newSession();
+        Graph graph = sess.getGraph();
+
+        int nodeType = graph.findType(key.getId());
+        Objects objs = findNode(graph, key, nodeType);
+        Set<String> keys = key.getProperties().keySet();
+        keys.addAll(value.getProperties().keySet());
+
+        if (objs == null || objs.isEmpty())
+        {
+            //Node not found
+            return false;
+        }
+
+        ObjectsIterator it = objs.iterator();
+
+        while(it.hasNext())
+        {
+            long nodeId = it.next();
+
+            for (String tempKey : keys)
+            {
+                Object value1 = key.getProperties().get(tempKey);
+                Object value2 = value.getProperties().get(tempKey);
+
+                if (value1 == null)
+                {
+                    int attributeTypeId = SparkseeUtils.createOrFindAttributeType(tempKey, value2, nodeType, graph);
+                    graph.setAttribute(nodeId, attributeTypeId, SparkseeUtils.getValue(value2));
+                }
+                else if (value2 == null)
+                {
+                    int attributeTypeId = SparkseeUtils.createOrFindAttributeType(tempKey, value1, nodeType, graph);
+                    graph.setAttribute(nodeId, attributeTypeId, null);
+                }
+                else
+                {
+                    if (value1.equals(value2))
+                    {
+                        continue;
+                    }
+
+                    int attributeTypeId = SparkseeUtils.createOrFindAttributeType(tempKey, value2, nodeType, graph);
+                    graph.setAttribute(nodeId, attributeTypeId, SparkseeUtils.getValue(value2));
+                }
+            }
+            int attributeTypeIdHash = SparkseeUtils.createOrFindAttributeType(Constants.TAG_HASH, "", nodeType, graph);
+
+            try
+            {
+                graph.setAttribute(nodeId, attributeTypeIdHash, SparkseeUtils.getValue(HashCreator.sha1FromNode(getNodeFromNodeId(graph, nodeId))));
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+                return false;
+            }
+
+            int attributeTypeIdSnapshotId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_SNAPSHOT_ID, 1L, nodeType, graph);
+            graph.setAttribute(nodeId, attributeTypeIdSnapshotId, SparkseeUtils.getValue(snapshotId));
+        }
+
+        objs.close();
+        it.close();
+        sess.close();
+
         return false;
     }
-
-
-
 
     @Override
     public boolean applyCreate(final NodeStorage storage, final long snapshotId)
@@ -330,7 +404,14 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyDelete(final NodeStorage storage, final long snapshotId)
     {
-        return false;
+        Session sess = db.newSession();
+        Graph graph = sess.getGraph();
+
+        int nodeType = graph.findType(storage.getId());
+        Objects objs = findNode(graph, storage, nodeType);
+        graph.drop(objs);
+
+        return true;
     }
 
     @Override

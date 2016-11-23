@@ -140,12 +140,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         for(Edge edge: relationshipList)
         {
-            RelationshipStorage tempStorage = new RelationshipStorage(edge.label(), getNodeStorageFromVertex(edge.outVertex()), getNodeStorageFromVertex(edge.inVertex()));
-
-            for(String s: edge.keys())
-            {
-                tempStorage.addProperty(s, edge.property(s));
-            }
+            RelationshipStorage tempStorage = getRelationshipStorageFromEdge(edge);
             if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
             {
                 Object sId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
@@ -216,6 +211,21 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         for(String key: tempVertex.keys())
         {
             tempStorage.addProperty(key, tempVertex.property(key).value());
+        }
+        return tempStorage;
+    }
+
+    /**
+     * Generated a RelationshipStorage from an Edge.
+     * @param edge the base edge.
+     * @return the relationshipStorage.
+     */
+    private RelationshipStorage getRelationshipStorageFromEdge(Edge edge)
+    {
+        RelationshipStorage tempStorage = new RelationshipStorage(edge.label(), getNodeStorageFromVertex(edge.outVertex()), getNodeStorageFromVertex(edge.inVertex()));
+        for(String s: edge.keys())
+        {
+            tempStorage.addProperty(s, edge.property(s));
         }
         return tempStorage;
     }
@@ -307,8 +317,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
                     keyValue[i + 1] = entry.getValue();
                     i += 2;
                 }
-
-                vertex.property(Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage), keyValue);
+                vertex.property(Constants.TAG_HASH, HashCreator.sha1FromNode(getNodeStorageFromVertex(vertex)), keyValue);
                 vertex.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
             }
         }
@@ -418,7 +427,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
                             Object tempValue = value.getProperties().get(tempKey);
                             edge.property(tempKey, tempValue);
                         }
-                        edge.property(Constants.TAG_HASH, HashCreator.sha1FromRelationship(tempStorage));
+                        edge.property(Constants.TAG_HASH, HashCreator.sha1FromRelationship(getRelationshipStorageFromEdge(edge)));
                         edge.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
                     }
                 }

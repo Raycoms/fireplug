@@ -305,7 +305,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             Set<String> keys = key.getProperties().keySet();
             keys.addAll(value.getProperties().keySet());
-
+            graphDb.beginTx();
+            
             for (String tempKey : keys)
             {
                 Object value1 = key.getProperties().get(tempKey);
@@ -330,6 +331,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 }
             }
 
+            //todo incomplete hash creation, use all not only from sets.
             NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
             for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
             {
