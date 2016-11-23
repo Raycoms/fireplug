@@ -123,7 +123,7 @@ public class SparkseeUtils
         int attributeId = graph.findAttribute(nodeTypeId, key);
         if (Attribute.InvalidAttribute == attributeId)
         {
-            attributeId = graph.newAttribute(nodeTypeId, key, SparkseeUtils.getDataTypeFromObject(value), AttributeKind.Indexed);
+            attributeId = graph.newAttribute(Type.getGlobalType(), key, SparkseeUtils.getDataTypeFromObject(value), AttributeKind.Indexed);
         }
         return attributeId;
     }

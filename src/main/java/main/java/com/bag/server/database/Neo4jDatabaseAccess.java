@@ -198,7 +198,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             builder.append(String.format(":%s", relationshipStorage.getId()));
         }
 
-
         if(!relationshipStorage.getProperties().isEmpty())
         {
             builder.append(" {");
@@ -301,47 +300,51 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            final StringBuilder builder = new StringBuilder(MATCH + buildNodeString(key, ""));
-
             Set<String> keys = key.getProperties().keySet();
             keys.addAll(value.getProperties().keySet());
             graphDb.beginTx();
-            
-            for (String tempKey : keys)
-            {
-                Object value1 = key.getProperties().get(tempKey);
-                Object value2 = value.getProperties().get(tempKey);
 
-                if (value1 == null)
+            Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n");
+
+            while (result.hasNext())
+            {
+                Map<String, Object> resultValue = result.next();
+
+                for (Map.Entry<String, Object> entry : resultValue.entrySet())
                 {
-                    builder.append(" SET n.").append(tempKey).append(" = ").append(value2);
-                }
-                else if (value2 == null)
-                {
-                    builder.append(String.format(" REMOVE n.%s", tempKey));
-                }
-                else
-                {
-                    if (value1.equals(value2))
+                    if (entry.getValue() instanceof NodeProxy)
                     {
-                        continue;
-                    }
+                        NodeProxy proxy = (NodeProxy) entry.getValue();
 
-                    builder.append(" SET n.").append(tempKey).append(" = ").append(value2);
+                        for (String tempKey : keys)
+                        {
+                            Object value1 = key.getProperties().get(tempKey);
+                            Object value2 = value.getProperties().get(tempKey);
+
+                            if (value1 == null)
+                            {
+                                proxy.setProperty(tempKey, value2);
+                            }
+                            else if (value2 == null)
+                            {
+                                proxy.removeProperty(tempKey);
+                            }
+                            else
+                            {
+                                if (value1.equals(value2))
+                                {
+                                    continue;
+                                }
+
+                                proxy.setProperty(tempKey, value2);
+                            }
+                        }
+
+                        proxy.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(new NodeStorage(proxy.getLabels().iterator().next().name(), proxy.getAllProperties())));
+                        proxy.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+                    }
                 }
             }
-
-            //todo incomplete hash creation, use all not only from sets.
-            NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
-            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
-            {
-                tempStorage.addProperty(entry.getKey(), entry.getValue());
-            }
-
-            builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromNode(tempStorage)));
-            builder.append(String.format(" SET n.%s = ", Constants.TAG_SNAPSHOT_ID)).append(snapshotId);
-
-            graphDb.execute(builder.toString());
         }
         catch (Exception e)
         {
@@ -400,52 +403,53 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            final StringBuilder builder = new StringBuilder(MATCH + buildRelationshipString(key));
-
-            if (!key.getId().equals(value.getId()))
-            {
-                builder.append(String.format("REMOVE n:%s", key.getId()));
-                builder.append(String.format("SET n:%s", value.getId()));
-            }
-
             Set<String> keys = key.getProperties().keySet();
             keys.addAll(value.getProperties().keySet());
 
-            for (String tempKey : keys)
+            Result result = graphDb.execute(MATCH + buildRelationshipString(key) + " RETURN r");
+            while (result.hasNext())
             {
-                Object value1 = key.getProperties().get(tempKey);
-                Object value2 = value.getProperties().get(tempKey);
+                Map<String, Object> relValue = result.next();
 
-                if (value1 == null)
+                for(Map.Entry<String, Object> entry: relValue.entrySet())
                 {
-                    builder.append(" SET n.").append(tempKey).append(" = ").append(value2);
-                }
-                else if (value2 == null)
-                {
-                    builder.append(String.format("REMOVE n.%s", tempKey));
-                }
-                else
-                {
-                    if (value1.equals(value2))
+                    if(entry.getValue() instanceof RelationshipProxy)
                     {
-                        continue;
+                        RelationshipProxy proxy = (RelationshipProxy) entry.getValue();
+
+                        for (String tempKey : keys)
+                        {
+                            Object value1 = key.getProperties().get(tempKey);
+                            Object value2 = value.getProperties().get(tempKey);
+
+                            if (value1 == null)
+                            {
+                                proxy.setProperty(tempKey, value2);
+                            }
+                            else if (value2 == null)
+                            {
+                                proxy.removeProperty(tempKey);
+                            }
+                            else
+                            {
+                                if (value1.equals(value2))
+                                {
+                                    continue;
+                                }
+
+                                proxy.setProperty(tempKey, value2);
+                            }
+                        }
+
+                        NodeStorage start = new NodeStorage(proxy.getStartNode().getLabels().iterator().next().name(), proxy.getStartNode().getAllProperties());
+                        NodeStorage end = new NodeStorage(proxy.getEndNode().getLabels().iterator().next().name(), proxy.getEndNode().getAllProperties());
+
+                        proxy.setProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(new RelationshipStorage(proxy.getType().name(), proxy.getAllProperties(), start, end)));
+                        proxy.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
                     }
-                    builder.append(" SET n.").append(tempKey).append(" = ").append(value2);
                 }
             }
 
-            RelationshipStorage tempStorage = new RelationshipStorage(value.getId(),
-                    key.getProperties(),
-                    key.getStartNode(),
-                    key.getEndNode());
-            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
-            {
-                tempStorage.addProperty(entry.getKey(), entry.getValue());
-            }
-
-            builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_HASH, HashCreator.sha1FromRelationship(tempStorage)));
-            builder.append(String.format(" SET n.%s = '%s'", Constants.TAG_SNAPSHOT_ID, snapshotId));
-            graphDb.execute(builder.toString());
         }
         catch (NoSuchAlgorithmException e)
         {
