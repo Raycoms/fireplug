@@ -169,11 +169,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     {
         if(identifier instanceof NodeStorage)
         {
-            writeSet.add(new CreateOperation<>((NodeStorage) identifier));
+            writeSet.add(new DeleteOperation<>((NodeStorage) identifier));
         }
         else if(identifier instanceof RelationshipStorage)
         {
-            writeSet.add(new CreateOperation<>((RelationshipStorage) identifier));
+            writeSet.add(new DeleteOperation<>((RelationshipStorage) identifier));
         }
     }
 
@@ -232,7 +232,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Kryo kryo = pool.borrow();
 
         Input input = new Input(value);
-        localTimestamp = kryo.readObject(input, Long.class);
+        this.localTimestamp = kryo.readObject(input, Long.class);
 
         Object nodes = kryo.readClassAndObject(input);
         Object relationships = kryo.readClassAndObject(input);
@@ -370,7 +370,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Kryo kryo = pool.borrow();
 
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
-        Output output = new Output(0, 10024);
+        Output output = new Output(0, 100240);
 
         kryo.writeObject(output, Constants.COMMIT_MESSAGE);
         //Write the timeStamp to the server

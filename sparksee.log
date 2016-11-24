@@ -1,0 +1,32 @@
+2016-11-24 14:52:31.945|SPARKSEE[INFO] ** START ** 2016-11-24 14:52:31.943 Software version: 5.2.0
+2016-11-24 14:52:31.945|SPARKSEE[INFO] No license code
+2016-11-24 14:52:32.015|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-24 15:01:08.253|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:01:46.957|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:02:11.474|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:02:50.457|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:04:27.761|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:06:52.946|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:14:53.135|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:18:06.334|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:18:39.745|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:24:05.691|SPARKSEE[INFO] ** START ** 2016-11-24 15:24:05.688 Software version: 5.2.0
+2016-11-24 15:24:05.691|SPARKSEE[INFO] No license code
+2016-11-24 15:24:05.739|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-24 15:24:33.023|Graph[SEVERE] Select failed because the type (0) does not exist.
+2016-11-24 15:27:13.287|SPARKSEE[INFO] ** START ** 2016-11-24 15:27:13.285 Software version: 5.2.0
+2016-11-24 15:27:13.288|SPARKSEE[INFO] No license code
+2016-11-24 15:27:13.342|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-24 15:27:40.840|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-24 15:35:37.696|SPARKSEE[INFO] ** START ** 2016-11-24 15:35:37.694 Software version: 5.2.0
+2016-11-24 15:35:37.696|SPARKSEE[INFO] No license code
+2016-11-24 15:35:37.742|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-24 15:35:52.458|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-24 15:36:46.477|SPARKSEE[INFO] ** START ** 2016-11-24 15:36:46.463 Software version: 5.2.0
+2016-11-24 15:36:46.477|SPARKSEE[INFO] No license code
+2016-11-24 15:36:46.519|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-24 15:37:19.825|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-24 15:39:05.058|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:42:22.209|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:42:55.918|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-24 15:44:30.143|GraphPool[SEVERE] The license is limited to 1 sessions.

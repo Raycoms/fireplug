@@ -163,7 +163,8 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     {
         GraphTraversal<Vertex, Vertex> tempOutput = getVertexList(nodeStorage, g);
         ArrayList<Vertex> nodeList = new ArrayList<>();
-        if (tempOutput != null && (tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null))
+
+        if(tempOutput!= null)
         {
             tempOutput.fill(nodeList);
         }
@@ -210,6 +211,10 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         for(String key: tempVertex.keys())
         {
+            if(key.equals(Constants.TAG_SNAPSHOT_ID))
+            {
+                continue;
+            }
             tempStorage.addProperty(key, tempVertex.property(key).value());
         }
         return tempStorage;
@@ -296,28 +301,15 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
             GraphTraversal<Vertex, Vertex> tempNode = getVertexList(key, g);
 
-            NodeStorage tempStorage = new NodeStorage(value.getId(), key.getProperties());
-            for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
-            {
-                tempStorage.addProperty(entry.getKey(), entry.getValue());
-            }
-
-
             while (tempNode.hasNext())
             {
                 Vertex vertex = tempNode.next();
 
-                final int length = key.getProperties().size() * 2 + 2;
-                Object[] keyValue = new Object[length];
-
-                int i = 0;
-                for (Map.Entry<String, Object> entry : key.getProperties().entrySet())
+                for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
                 {
-                    keyValue[i] = entry.getKey();
-                    keyValue[i + 1] = entry.getValue();
-                    i += 2;
+                    vertex.property(entry.getKey(), entry.getValue());
                 }
-                vertex.property(Constants.TAG_HASH, HashCreator.sha1FromNode(getNodeStorageFromVertex(vertex)), keyValue);
+                vertex.property(Constants.TAG_HASH, HashCreator.sha1FromNode(getNodeStorageFromVertex(vertex)));
                 vertex.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
             }
         }
@@ -330,6 +322,8 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
+        Log.getLogger().warn("Successfully executed update node transaction in server:  " + id);
+
         return true;
     }
 
@@ -372,7 +366,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
             while (tempNode.hasNext())
             {
-                tempNode.remove();
+                tempNode.next().remove();
             }
         }
         catch (Exception e)
@@ -398,7 +392,8 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             GraphTraversal<Vertex, Vertex> startNode = getVertexList(key.getStartNode(), g);
             GraphTraversal<Vertex, Vertex> endNode = getVertexList(key.getEndNode(), g);
 
-            Set<String> keys = key.getProperties().keySet();
+            Set<String> keys = new HashSet<>();
+            keys.addAll(key.getProperties().keySet());
             keys.addAll(value.getProperties().keySet());
 
             //Max size is the mix between properties of both maps + 4 (hash and snapshotId)

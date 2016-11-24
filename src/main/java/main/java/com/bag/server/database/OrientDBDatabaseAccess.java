@@ -231,7 +231,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         {
             Iterable<Vertex> result = getVertexList(key, graph);
 
-            Set<String> keys = key.getProperties().keySet();
+            Set<String> keys = new HashSet<>();
+            keys.addAll(key.getProperties().keySet());
             keys.addAll(value.getProperties().keySet());
 
             for (Vertex vertex : result)
@@ -342,7 +343,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             Iterable<Vertex> startNodes = getVertexList(key.getStartNode(), graph);
             Iterable<Vertex> endNodes = getVertexList(key.getEndNode(), graph);
 
-            Set<String> keys = key.getProperties().keySet();
+            Set<String> keys = new HashSet<>();
+            keys.addAll(key.getProperties().keySet());
             keys.addAll(value.getProperties().keySet());
 
             List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)

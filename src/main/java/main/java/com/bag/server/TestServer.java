@@ -92,7 +92,7 @@ public class TestServer extends DefaultRecoverable
             case Constants.TITAN:
                 databaseAccess = new TitanDatabaseAccess(id);
                 break;
-            case Constants.ARANGODB:
+            case Constants.SPARKSEE:
                 databaseAccess = new SparkseeDatabaseAccess(id);
                 break;
             case Constants.ORIENTDB:
@@ -208,7 +208,7 @@ public class TestServer extends DefaultRecoverable
         Input input = new Input(bytes);
         String reason = kryo.readObject(input, String.class);
 
-        Output output = new Output(0, 10240);
+        Output output = new Output(0, 100240);
 
         switch (reason)
         {
@@ -250,10 +250,13 @@ public class TestServer extends DefaultRecoverable
         input.close();
 
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
-        TransactionStorage transaction = new TransactionStorage();
-        transaction.addReadSetRelationship(identifier);
-        localTransactionList.put(messageContext.getSender(), transaction);
-        localSnapshotId = globalSnapshotId;
+        if (localSnapshotId == -1)
+        {
+            TransactionStorage transaction = new TransactionStorage();
+            transaction.addReadSetRelationship(identifier);
+            localTransactionList.put(messageContext.getSender(), transaction);
+            localSnapshotId = globalSnapshotId;
+        }
         ArrayList<Object> returnList = null;
 
         if (databaseAccess instanceof Neo4jDatabaseAccess)
@@ -403,6 +406,16 @@ public class TestServer extends DefaultRecoverable
         }
         else if(args.length == 2)
         {
+            try
+            {
+                serverId = Integer.parseInt(args[0]);
+            }
+            catch (NumberFormatException ne)
+            {
+                Log.getLogger().warn("Invalid program arguments, terminating server");
+                return;
+            }
+
             String tempInstance = args[1];
 
             if(tempInstance.toLowerCase().contains("titan"))
@@ -413,9 +426,9 @@ public class TestServer extends DefaultRecoverable
             {
                 instance = Constants.ORIENTDB;
             }
-            else if(tempInstance.toLowerCase().contains("arangodb"))
+            else if(tempInstance.toLowerCase().contains("sparksee"))
             {
-                instance = Constants.ARANGODB;
+                instance = Constants.SPARKSEE;
             }
             else
             {

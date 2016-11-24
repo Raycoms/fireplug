@@ -300,7 +300,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Set<String> keys = key.getProperties().keySet();
+            Set<String> keys = new HashSet<>();
+            keys.addAll(key.getProperties().keySet());
             keys.addAll(value.getProperties().keySet());
             graphDb.beginTx();
 
@@ -403,7 +404,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Set<String> keys = key.getProperties().keySet();
+            Set<String> keys = new HashSet<>();
+            keys.addAll(key.getProperties().keySet());
             keys.addAll(value.getProperties().keySet());
 
             Result result = graphDb.execute(MATCH + buildRelationshipString(key) + " RETURN r");

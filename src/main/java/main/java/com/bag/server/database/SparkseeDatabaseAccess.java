@@ -15,7 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
- * Database access for the arangoDB database.
+ * Database access for the sparksee graph database.
  */
 public class SparkseeDatabaseAccess implements IDatabaseAccess
 {
@@ -271,7 +271,8 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if(!storage.getId().isEmpty())
         {
-            objs = graph.select(graph.findType(storage.getId()));
+            int nodeTypeId = SparkseeUtils.createOrFindNodeType(storage, graph);
+            objs = graph.select(nodeTypeId);
         }
 
         for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
@@ -302,7 +303,8 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         Graph graph = sess.getGraph();
 
         Objects objs = findNode(graph, key);
-        Set<String> keys = key.getProperties().keySet();
+        Set<String> keys = new HashSet<>();
+        keys.addAll(key.getProperties().keySet());
         keys.addAll(value.getProperties().keySet());
 
         if (objs == null || objs.isEmpty())
@@ -424,7 +426,8 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             return false;
         }
 
-        Set<String> keys = key.getProperties().keySet();
+        Set<String> keys = new HashSet<>();
+        keys.addAll(key.getProperties().keySet());
         keys.addAll(value.getProperties().keySet());
 
         ObjectsIterator startIt = startObjs.iterator();
