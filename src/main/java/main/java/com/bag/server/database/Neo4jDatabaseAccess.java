@@ -317,28 +317,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     {
                         NodeProxy proxy = (NodeProxy) entry.getValue();
 
-                        for (String tempKey : keys)
+                        for (Map.Entry<String, Object> properties : value.getProperties().entrySet())
                         {
-                            Object value1 = key.getProperties().get(tempKey);
-                            Object value2 = value.getProperties().get(tempKey);
-
-                            if (value1 == null)
-                            {
-                                proxy.setProperty(tempKey, value2);
-                            }
-                            else if (value2 == null)
-                            {
-                                proxy.removeProperty(tempKey);
-                            }
-                            else
-                            {
-                                if (value1.equals(value2))
-                                {
-                                    continue;
-                                }
-
-                                proxy.setProperty(tempKey, value2);
-                            }
+                            proxy.setProperty(properties.getKey(), properties.getValue());
                         }
 
                         proxy.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(new NodeStorage(proxy.getLabels().iterator().next().name(), proxy.getAllProperties())));
@@ -404,10 +385,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Set<String> keys = new HashSet<>();
-            keys.addAll(key.getProperties().keySet());
-            keys.addAll(value.getProperties().keySet());
-
             Result result = graphDb.execute(MATCH + buildRelationshipString(key) + " RETURN r");
             while (result.hasNext())
             {
@@ -419,28 +396,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     {
                         RelationshipProxy proxy = (RelationshipProxy) entry.getValue();
 
-                        for (String tempKey : keys)
+                        for (Map.Entry<String, Object> properties : value.getProperties().entrySet())
                         {
-                            Object value1 = key.getProperties().get(tempKey);
-                            Object value2 = value.getProperties().get(tempKey);
-
-                            if (value1 == null)
-                            {
-                                proxy.setProperty(tempKey, value2);
-                            }
-                            else if (value2 == null)
-                            {
-                                proxy.removeProperty(tempKey);
-                            }
-                            else
-                            {
-                                if (value1.equals(value2))
-                                {
-                                    continue;
-                                }
-
-                                proxy.setProperty(tempKey, value2);
-                            }
+                            proxy.setProperty(properties.getKey(), properties.getValue());
                         }
 
                         NodeStorage start = new NodeStorage(proxy.getStartNode().getLabels().iterator().next().name(), proxy.getStartNode().getAllProperties());

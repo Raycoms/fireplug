@@ -231,33 +231,11 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         {
             Iterable<Vertex> result = getVertexList(key, graph);
 
-            Set<String> keys = new HashSet<>();
-            keys.addAll(key.getProperties().keySet());
-            keys.addAll(value.getProperties().keySet());
-
             for (Vertex vertex : result)
             {
-                for (String tempKey : keys)
+                for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
                 {
-                    Object value1 = key.getProperties().get(tempKey);
-                    Object value2 = value.getProperties().get(tempKey);
-
-                    if (value1 == null)
-                    {
-                        vertex.setProperty(tempKey, value2);
-                    }
-                    else if (value2 == null)
-                    {
-                        vertex.removeProperty(tempKey);
-                    }
-                    else
-                    {
-                        if (value1.equals(value2))
-                        {
-                            continue;
-                        }
-                        vertex.setProperty(tempKey, value2);
-                    }
+                    vertex.setProperty(entry.getKey(), entry.getValue());
                 }
 
                 vertex.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(getNodeStorageFromVertex(vertex)));
@@ -343,37 +321,15 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             Iterable<Vertex> startNodes = getVertexList(key.getStartNode(), graph);
             Iterable<Vertex> endNodes = getVertexList(key.getEndNode(), graph);
 
-            Set<String> keys = new HashSet<>();
-            keys.addAll(key.getProperties().keySet());
-            keys.addAll(value.getProperties().keySet());
-
             List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
                     .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
                     .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
                     .collect(Collectors.toList());
             for (Edge edge : list)
             {
-                for (String tempKey : keys)
+                for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
                 {
-                    Object value1 = key.getProperties().get(tempKey);
-                    Object value2 = value.getProperties().get(tempKey);
-
-                    if (value1 == null)
-                    {
-                        edge.setProperty(tempKey, value2);
-                    }
-                    else if (value2 == null)
-                    {
-                        edge.removeProperty(tempKey);
-                    }
-                    else
-                    {
-                        if (value1.equals(value2))
-                        {
-                            continue;
-                        }
-                        edge.setProperty(tempKey, value2);
-                    }
+                    edge.setProperty(entry.getKey(), entry.getValue());
                 }
                 edge.setProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(getRelationshipStorageFromEdge(edge)));
                 edge.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);

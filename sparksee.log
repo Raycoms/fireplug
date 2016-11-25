@@ -30,3 +30,24 @@
 2016-11-24 15:42:22.209|GraphPool[SEVERE] The license is limited to 1 sessions.
 2016-11-24 15:42:55.918|GraphPool[SEVERE] The license is limited to 1 sessions.
 2016-11-24 15:44:30.143|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-25 07:58:46.295|SPARKSEE[INFO] ** START ** 2016-11-25 07:58:46.293 Software version: 5.2.0
+2016-11-25 07:58:46.298|SPARKSEE[INFO] No license code
+2016-11-25 07:58:46.550|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-25 08:15:41.652|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-25 08:20:16.520|SPARKSEE[INFO] ** START ** 2016-11-25 08:20:16.518 Software version: 5.2.0
+2016-11-25 08:20:16.520|SPARKSEE[INFO] No license code
+2016-11-25 08:20:16.581|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-25 08:33:30.974|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-25 08:42:18.671|SPARKSEE[INFO] ** START ** 2016-11-25 08:42:18.668 Software version: 5.2.0
+2016-11-25 08:42:18.671|SPARKSEE[INFO] No license code
+2016-11-25 08:42:18.711|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-25 08:55:56.439|Tx[SEVERE] Objects references still active when closing.
+2016-11-25 08:57:25.538|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-25 09:01:15.176|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-25 09:03:42.874|GraphPool[SEVERE] The license is limited to 1 sessions.
+2016-11-25 09:12:16.877|SPARKSEE[INFO] ** START ** 2016-11-25 09:12:16.875 Software version: 5.2.0
+2016-11-25 09:12:16.877|SPARKSEE[INFO] No license code
+2016-11-25 09:12:16.928|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-25 09:27:19.591|SPARKSEE[INFO] ** START ** 2016-11-25 09:27:19.589 Software version: 5.2.0
+2016-11-25 09:27:19.591|SPARKSEE[INFO] No license code
+2016-11-25 09:27:19.630|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb

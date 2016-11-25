@@ -32,20 +32,22 @@ public class RunTests
         {
             HashMap<String, Object> find = new HashMap<>();
             find.put("Age", 70);
-            find.put("Surname", "Oma");
+            //find.put("Name", "Denis");
 
             HashMap<String, Object> find2 = new HashMap<>();
             find2.put("Age", 70);
+            find2.put("Name", "Dennis");
+
 
             //client1.read(new NodeStorage("JustToGetAValidSnapshotId"));
 
 
-            client1.read(new NodeStorage("Person" , find));
+            //client1.read(new NodeStorage("Person", find));
 
             //client1.write(new NodeStorage("Person", find), new NodeStorage("Person", find2));
 
             //Relationship read
-            //client1.read(new RelationshipStorage("Loves", new NodeStorage("Person"), new NodeStorage("Person")));
+            client1.read(new RelationshipStorage("Loves", new NodeStorage("Person"), new NodeStorage("Person")));
 
             //Fill the DB with Person nodes.
             //writeSomeNodes(client1);
@@ -124,11 +126,11 @@ public class RunTests
         String[] names = new String[] {"Tyler", "Jenelle", "Eden", "Rene", "Trinidad", "Mikaela", "Mandi", "Dwight", "Shelia", "Adolph",
                 "Marybelle", "Krista", " Misty", "Ling", "Andera", "Lilliana", "Bridgette", "Ona", "Walter", "Akiko", "Tijuana", "Maribel",
                 "Eleni", "Marcus", "Shaina", "Bobbie", "Darrick", "Rayford", "Trenton", "Ilona", "Oma", "Jacinda", "Chelsie", "Henry",
-                "Maren", "Louise", "Tayna", "Denis", "Ashleigh", "Providencia", "Osvaldo", "Jeanie",
+                "Maren", "Louise", "Tayna", "Dennis", "Ashleigh", "Providencia", "Osvaldo", "Jeanie",
                 "Neta", "Brittni", "Lindsey", "Pearline", "Kelsey", "Amiee", "Candance", "Earlean", "Tyler", "Jenelle", "Eden", "Rene", "Trinidad", "Mikaela", "Mandi", "Dwight", "Shelia", "Adolph",
                 "Marybelle", "Krista", " Misty", "Ling", "Andera", "Lilliana", "Bridgette", "Ona", "Walter", "Akiko", "Tijuana", "Maribel",
                 "Eleni", "Marcus", "Shaina", "Bobbie", "Darrick", "Rayford", "Trenton", "Ilona", "Oma", "Jacinda", "Chelsie", "Henry",
-                "Maren", "Louise", "Tayna", "Denis", "Ashleigh", "Providencia", "Osvaldo", "Jeanie",
+                "Maren", "Louise", "Tayna", "Peter", "Ashleigh", "Providencia", "Osvaldo", "Jeanie",
                 "Neta", "Brittni", "Lindsey", "Pearline", "Kelsey", "Amiee", "Candance", "Earlean"};
 
         return names[random.nextInt(names.length)];

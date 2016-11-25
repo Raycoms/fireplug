@@ -121,7 +121,6 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList.toArray()).bothE().where(__.is(P.within(nodeEndList.toArray()))).hasLabel(relationshipStorage.getId());
 
-
         for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
         {
             if (tempOutput == null)
@@ -131,7 +130,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
         }
 
-        if(tempOutput != null && (tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null))
+        if(tempOutput != null)
         {
             tempOutput.fill(relationshipList);
         }
@@ -392,10 +391,6 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             GraphTraversal<Vertex, Vertex> startNode = getVertexList(key.getStartNode(), g);
             GraphTraversal<Vertex, Vertex> endNode = getVertexList(key.getEndNode(), g);
 
-            Set<String> keys = new HashSet<>();
-            keys.addAll(key.getProperties().keySet());
-            keys.addAll(value.getProperties().keySet());
-
             //Max size is the mix between properties of both maps + 4 (hash and snapshotId)
 
             RelationshipStorage tempStorage = new RelationshipStorage(value.getId(),
@@ -416,11 +411,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
                     while (edges.hasNext())
                     {
                         Edge edge = edges.next();
-                        for (String tempKey : keys)
+                        for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
                         {
-                            //does a null value set the property to null?
-                            Object tempValue = value.getProperties().get(tempKey);
-                            edge.property(tempKey, tempValue);
+                            edge.property(entry.getKey(), entry.getValue());
                         }
                         edge.property(Constants.TAG_HASH, HashCreator.sha1FromRelationship(getRelationshipStorageFromEdge(edge)));
                         edge.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
