@@ -14,12 +14,13 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-
+import java.util.stream.Collectors;
 
 /**
  * Class created to handle access to the titan database.
@@ -119,7 +120,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         ArrayList<Vertex> nodeStartList =  getVertexList(relationshipStorage.getStartNode(), g, snapshotId);
         ArrayList<Vertex> nodeEndList =  getVertexList(relationshipStorage.getEndNode(), g, snapshotId);
 
-        GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList.toArray()).bothE().where(__.is(P.within(nodeEndList.toArray()))).hasLabel(relationshipStorage.getId());
+        GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList).bothE().as("edges").otherV().hasId(nodeEndList.stream().map(Element::id).collect(Collectors.toList())).select("edges");
 
         for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
         {

@@ -30,7 +30,6 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     public void start()
     {
         SparkseeConfig cfg = new SparkseeConfig();
-        cfg.setCacheMaxSize(1024);
         sparksee = new Sparksee(cfg);
         try
         {
@@ -203,6 +202,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if (objsStart == null || objsStart.isEmpty() || objsEnd == null || objsEnd.isEmpty())
         {
+            sess.close();
             return false;
         }
 
@@ -342,14 +342,16 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
                 return false;
             }
+            finally
+            {
+                objs.close();
+                it.close();
+                sess.close();
+            }
 
             int attributeTypeIdSnapshotId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_SNAPSHOT_ID, 1L, Type.getGlobalType(), graph);
             graph.setAttribute(nodeId, attributeTypeIdSnapshotId, SparkseeUtils.getValue(snapshotId));
         }
-
-        objs.close();
-        it.close();
-        sess.close();
 
         return false;
     }
@@ -388,7 +390,6 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             sess.close();
         }
 
-        sess.close();
         return true;
     }
 
@@ -420,6 +421,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if(startObjs == null || endObjs == null)
         {
+            sess.close();
             return false;
         }
 
@@ -479,6 +481,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if(startObjs == null || endObjs == null)
         {
+            sess.close();
             return false;
         }
 
