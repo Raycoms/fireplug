@@ -120,7 +120,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         ArrayList<Vertex> nodeStartList =  getVertexList(relationshipStorage.getStartNode(), g, snapshotId);
         ArrayList<Vertex> nodeEndList =  getVertexList(relationshipStorage.getEndNode(), g, snapshotId);
 
-        GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList).bothE().as("edges").otherV().hasId(nodeEndList.stream().map(Element::id).collect(Collectors.toList())).select("edges");
+        GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList.toArray()).bothE().as("edges").otherV().hasId(nodeEndList.stream().map(Element::id).collect(Collectors.toList()).toArray()).select("edges");
 
         for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
         {
@@ -344,13 +344,14 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
+            Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
             return false;
         }
         finally
         {
             graph.tx().commit();
         }
+        Log.getLogger().warn("Successfully executed create node transaction in server:  " + id);
         return true;
     }
 
@@ -378,6 +379,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
+        Log.getLogger().warn("Successfully executed delete node transaction in server:  " + id);
         return true;
     }
 
@@ -431,7 +433,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
-        return true;    }
+        Log.getLogger().warn("Successfully executed update relationship transaction in server:  " + id);
+        return true;
+    }
 
     @Override
     public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
@@ -479,6 +483,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
+        Log.getLogger().warn("Successfully executed create relationship transaction in server:  " + id);
         return true;
     }
 
@@ -518,6 +523,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
+        Log.getLogger().warn("Successfully executed delete relationship transaction in server:  " + id);
         return true;
     }
 

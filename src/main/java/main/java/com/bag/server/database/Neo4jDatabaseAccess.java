@@ -15,6 +15,7 @@ import org.neo4j.kernel.impl.core.RelationshipProxy;
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class created to handle access to the neo4j database.
@@ -36,7 +37,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     /**
      * String used to match key value pairs.
      */
-    private static final String KEY_VALUE_PAIR = "%s: '%s'";
+    private static final String KEY_VALUE_PAIR = "%s: {%s}";
+    private static final String KEY_VALUE_PAIR_STRING = "%s: '%s'";
 
     private static final String MATCH = "MATCH ";
 
@@ -113,23 +115,36 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         try(Transaction tx = graphDb.beginTx())
         {
             StringBuilder builder = new StringBuilder(MATCH);
+            Map<String, Object> properties;
 
             if(nodeStorage == null)
             {
                 Log.getLogger().info(Long.toString(snapshotId));
                 builder.append(buildRelationshipString(relationshipStorage));
                 builder.append(" RETURN r");
+                Log.getLogger().info(builder.toString());
+
+                //Contains params of relationshipStorage.
+                properties = transFormToPropertyMap(relationshipStorage.getProperties(), "");
+
+                //Adds also params of start and end node.
+                properties.putAll(transFormToPropertyMap(relationshipStorage.getStartNode().getProperties(), "1"));
+                properties.putAll(transFormToPropertyMap(relationshipStorage.getEndNode().getProperties(), "2"));
             }
             else
             {
                 Log.getLogger().info(Long.toString(snapshotId));
                 builder.append(buildNodeString(nodeStorage, ""));
                 builder.append(" RETURN n");
+                Log.getLogger().info(builder.toString());
+
+                //Converts the keys to upper case to fit the params we send to neo4j.
+                properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
             }
 
             Log.getLogger().info("To database: " + builder.toString());
 
-            Result result = graphDb.execute(builder.toString());
+            Result result = graphDb.execute(builder.toString(), properties);
             while (result.hasNext())
             {
                 Map<String, Object> value = result.next();
@@ -172,6 +187,20 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     /**
+     * Transforms a map of properties to a map of params for neo4j.
+     * @param map the map to transform.
+     * @param id the id to add.
+     * @return the transformed map.
+     */
+    private Map<String, Object> transFormToPropertyMap(Map<String, Object> map, String id)
+    {
+        return map.entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey().toUpperCase() + id,
+                        Map.Entry::getValue));
+    }
+
+    /**
      * Creates a complete Neo4j cypher String for a certain relationshipStorage
      * @param relationshipStorage the relationshipStorage to transform.
      * @return a string which may be sent with cypher to neo4j.
@@ -206,7 +235,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             while (iterator.hasNext())
             {
                 Map.Entry<String, Object> currentProperty = iterator.next();
-                builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
+                builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getKey().toUpperCase()));
 
                 if (iterator.hasNext())
                 {
@@ -244,7 +273,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             while (iterator.hasNext())
             {
                 Map.Entry<String, Object> currentProperty = iterator.next();
-                builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString()));
+                builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getKey().toUpperCase() + n));
 
                 if (iterator.hasNext())
                 {
@@ -266,7 +295,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
 
         final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
-        Result result = graphDb.execute(builder);
+        Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
+
+        Result result = graphDb.execute(builder, properties);
 
         //Assuming we only get one node in return.
         if (result.hasNext())
@@ -434,7 +465,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     " CREATE (n1)" +
                     buildPureRelationshipString(storage) +
                     "(n2)";
-            graphDb.execute(builder);
+             graphDb.execute(builder);
         }
         catch (Exception e)
         {
@@ -469,7 +500,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
 
         final String builder = MATCH + buildRelationshipString(relationshipStorage) + " RETURN r";
-        Result result = graphDb.execute(builder);
+
+        //Contains params of relationshipStorage.
+        Map<String, Object> properties = transFormToPropertyMap(relationshipStorage.getProperties(), "");
+
+        //Adds also params of start and end node.
+        properties.putAll(transFormToPropertyMap(relationshipStorage.getStartNode().getProperties(), "1"));
+        properties.putAll(transFormToPropertyMap(relationshipStorage.getEndNode().getProperties(), "2"));
+
+        Result result = graphDb.execute(builder, properties);
 
         //Assuming we only get one node in return.
         if (result.hasNext())

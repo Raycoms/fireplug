@@ -30,30 +30,36 @@ public class RunTests
         }
         try (TestClient client1 = new TestClient(1, serverPartner))
         {
-            HashMap<String, Object> find = new HashMap<>();
-            find.put("Age", 70);
-            //find.put("Name", "Denis");
+            Map<String, Object> carol = new HashMap<>();
+            carol.put("Name", "Caroliny");
+            carol.put("Surname", "Goulart");
+            carol.put("Age", 22);
 
-            HashMap<String, Object> find2 = new HashMap<>();
-            find2.put("Age", 70);
-            find2.put("Name", "Dennis");
-
+            Map<String, Object> ray = new HashMap<>();
+            ray.put("Name", "Ray");
+            ray.put("Surname", "Neiheiser");
+            ray.put("Age", 25);
 
             //client1.read(new NodeStorage("JustToGetAValidSnapshotId"));
 
 
-            //client1.read(new NodeStorage("Person", find));
+            client1.read(new NodeStorage("Person", carol));
 
             //client1.write(new NodeStorage("Person", find), new NodeStorage("Person", find2));
 
             //Relationship read
-            client1.read(new RelationshipStorage("Loves", new NodeStorage("Person"), new NodeStorage("Person")));
+            //client1.read(new RelationshipStorage("Loves", new NodeStorage("Person"), new NodeStorage("Person")));
 
             //Fill the DB with Person nodes.
             //writeSomeNodes(client1);
 
             //This deletes all "Person" nodes.
             //client1.write(new NodeStorage("Person"), null);
+
+
+
+            //client1.read(new NodeStorage("Person", carol));
+            //client1.read(new NodeStorage("Person", ray));
 
             //Create relationship
             //client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", carol),  new NodeStorage("Person", ray)));
