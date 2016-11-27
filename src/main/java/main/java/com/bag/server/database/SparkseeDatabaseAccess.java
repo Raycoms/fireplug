@@ -29,6 +29,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
     public void start()
     {
+        SparkseeProperties.load("config/sparksee.cfg");
         SparkseeConfig cfg = new SparkseeConfig();
         sparksee = new Sparksee(cfg);
         try

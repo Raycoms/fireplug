@@ -51,3 +51,6 @@
 2016-11-25 09:27:19.591|SPARKSEE[INFO] ** START ** 2016-11-25 09:27:19.589 Software version: 5.2.0
 2016-11-25 09:27:19.591|SPARKSEE[INFO] No license code
 2016-11-25 09:27:19.630|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 09:20:08.878|SPARKSEE[INFO] ** START ** 2016-11-27 09:20:08.876 Software version: 5.2.0
+2016-11-27 09:20:08.878|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 09:20:08.929|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
