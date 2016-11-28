@@ -89,7 +89,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             //If nodeStorage is null, we're obviously trying to read relationships.
             if(nodeStorage == null)
             {
-                returnStorage.add(getRelationshipStorages(relationshipStorage, g, snapshotId));
+                returnStorage.addAll(getRelationshipStorages(relationshipStorage, g, snapshotId));
             }
             else
             {
@@ -120,7 +120,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         ArrayList<Vertex> nodeStartList =  getVertexList(relationshipStorage.getStartNode(), g, snapshotId);
         ArrayList<Vertex> nodeEndList =  getVertexList(relationshipStorage.getEndNode(), g, snapshotId);
 
-        GraphTraversal<Vertex, Edge> tempOutput = g.V(nodeStartList.toArray()).bothE().as("edges").otherV().hasId(nodeEndList.stream().map(Element::id).collect(Collectors.toList()).toArray()).select("edges");
+        GraphTraversal<Vertex, Edge> tempOutput =  graph.traversal().V(nodeStartList.toArray()).bothE().filter(__.otherV().is(P.within(nodeEndList.toArray())));
 
         for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
         {
@@ -448,29 +448,20 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             GraphTraversal<Vertex, Vertex> startNode = getVertexList(storage.getStartNode(), g);
             GraphTraversal<Vertex, Vertex> endNode = getVertexList(storage.getEndNode(), g);
 
-            final int length = storage.getProperties().size() * 2 + 4;
-            Object[] keyValue = new Object[length];
-
-            int i = 0;
-            for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
-            {
-                keyValue[i] = entry.getKey();
-                keyValue[i + 1] = entry.getValue();
-                i += 2;
-            }
-
-            keyValue[i] = Constants.TAG_HASH;
-            keyValue[i + 1] = HashCreator.sha1FromRelationship(storage);
-
-            keyValue[i + 2] = Constants.TAG_SNAPSHOT_ID;
-            keyValue[i + 3] = snapshotId;
-
             while (startNode.hasNext())
             {
                 Vertex tempVertex = startNode.next();
                 while (endNode.hasNext())
                 {
-                    tempVertex.addEdge(storage.getId(), endNode.next(), keyValue);
+                    Edge edge  = tempVertex.addEdge(storage.getId(), endNode.next());
+
+                    edge.property(Constants.TAG_HASH, HashCreator.sha1FromRelationship(storage));
+                    edge.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
+
+                    for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+                    {
+                        edge.property(entry.getKey(), entry.getValue());
+                    }
                 }
             }
         }

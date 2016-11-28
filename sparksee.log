@@ -54,3 +54,65 @@
 2016-11-27 09:20:08.878|SPARKSEE[INFO] ** START ** 2016-11-27 09:20:08.876 Software version: 5.2.0
 2016-11-27 09:20:08.878|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
 2016-11-27 09:20:08.929|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 09:28:01.317|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-27 09:28:56.101|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-27 09:30:57.786|SPARKSEE[INFO] ** START ** 2016-11-27 09:30:57.784 Software version: 5.2.0
+2016-11-27 09:30:57.787|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 09:30:57.835|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 09:31:30.490|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-27 09:36:09.016|SPARKSEE[INFO] ** START ** 2016-11-27 09:36:09.012 Software version: 5.2.0
+2016-11-27 09:36:09.017|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 09:36:09.042|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 09:53:42.348|SPARKSEE[INFO] ** START ** 2016-11-27 09:53:42.345 Software version: 5.2.0
+2016-11-27 09:53:42.348|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 09:53:42.368|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 10:00:55.912|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-27 10:05:17.133|SPARKSEE[INFO] ** START ** 2016-11-27 10:05:17.131 Software version: 5.2.0
+2016-11-27 10:05:17.133|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 10:05:17.169|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 10:05:47.577|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-27 10:29:46.877|SPARKSEE[INFO] ** START ** 2016-11-27 10:29:46.875 Software version: 5.2.0
+2016-11-27 10:29:46.877|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 10:29:46.903|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 10:30:25.656|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-27 10:36:41.448|SPARKSEE[INFO] ** START ** 2016-11-27 10:36:41.446 Software version: 5.2.0
+2016-11-27 10:36:41.448|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 10:36:41.475|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 19:15:26.661|SPARKSEE[INFO] ** START ** 2016-11-27 19:15:26.652 Software version: 5.2.0
+2016-11-27 19:15:26.666|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 19:15:26.677|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 19:56:16.734|SPARKSEE[INFO] ** START ** 2016-11-27 19:56:16.733 Software version: 5.2.0
+2016-11-27 19:56:16.734|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 19:56:16.814|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-27 20:27:12.222|SPARKSEE[INFO] ** START ** 2016-11-27 20:27:12.220 Software version: 5.2.0
+2016-11-27 20:27:12.222|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-27 20:27:12.263|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-28 07:46:46.323|SPARKSEE[INFO] ** START ** 2016-11-28 07:46:46.320 Software version: 5.2.0
+2016-11-28 07:46:46.323|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-28 07:46:46.363|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-28 07:53:40.416|SPARKSEE[INFO] ** START ** 2016-11-28 07:53:40.414 Software version: 5.2.0
+2016-11-28 07:53:40.416|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-28 07:53:40.455|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-28 07:54:06.187|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-28 07:55:25.918|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-28 07:57:25.446|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-28 08:04:07.952|SPARKSEE[INFO] ** START ** 2016-11-28 08:04:07.951 Software version: 5.2.0
+2016-11-28 08:04:07.953|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-28 08:04:07.992|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-28 08:05:44.701|SPARKSEE[INFO] ** START ** 2016-11-28 08:05:44.699 Software version: 5.2.0
+2016-11-28 08:05:44.701|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-28 08:05:44.753|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-28 08:07:31.266|SPARKSEE[INFO] ** START ** 2016-11-28 08:07:31.264 Software version: 5.2.0
+2016-11-28 08:07:31.266|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-28 08:07:31.310|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-28 08:07:48.586|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-28 08:10:37.504|SPARKSEE[INFO] ** START ** 2016-11-28 08:10:37.502 Software version: 5.2.0
+2016-11-28 08:10:37.504|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-28 08:10:37.553|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-28 08:10:59.960|Graph[SEVERE] Select failed because the attribute (0) does not exist.
+2016-11-28 08:19:15.716|SPARKSEE[INFO] ** START ** 2016-11-28 08:19:15.705 Software version: 5.2.0
+2016-11-28 08:19:15.716|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-28 08:19:15.762|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb
+2016-11-28 08:23:38.591|SPARKSEE[INFO] ** START ** 2016-11-28 08:23:38.589 Software version: 5.2.0
+2016-11-28 08:23:38.591|SPARKSEE[INFO] Decoded license: Software version [5] Objects limit [1000000000] Sessions limit [unlimited] Identifier [1204] Expiration date [2/2017] High-Availability [on]
+2016-11-28 08:23:38.632|SPARKSEE[INFO] GraphPool 'HelloSparksee' has been created at HelloSparksee.gdb

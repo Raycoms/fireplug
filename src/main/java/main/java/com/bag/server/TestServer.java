@@ -208,7 +208,7 @@ public class TestServer extends DefaultRecoverable
         Input input = new Input(bytes);
         String reason = kryo.readObject(input, String.class);
 
-        Output output = new Output(0, 100240);
+        Output output = new Output(0, 1000240);
 
         switch (reason)
         {
@@ -295,6 +295,7 @@ public class TestServer extends DefaultRecoverable
             }
         }
 
+        //todo problem returning the relationship here!
         kryo.writeClassAndObject(output, nodeStorage);
         kryo.writeClassAndObject(output, relationshipStorage);
 

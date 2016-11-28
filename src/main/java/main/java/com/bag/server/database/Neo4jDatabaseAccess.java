@@ -416,7 +416,14 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Result result = graphDb.execute(MATCH + buildRelationshipString(key) + " RETURN r");
+            //Transform relationship params.
+            Map<String, Object> propertyMap = transFormToPropertyMap(key.getProperties(), "");
+
+            //Adds also params of start and end node.
+            propertyMap.putAll(transFormToPropertyMap(key.getStartNode().getProperties(), "1"));
+            propertyMap.putAll(transFormToPropertyMap(key.getEndNode().getProperties(), "2"));
+
+            Result result = graphDb.execute(MATCH + buildRelationshipString(key) + " RETURN r", propertyMap);
             while (result.hasNext())
             {
                 Map<String, Object> relValue = result.next();
@@ -465,7 +472,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     " CREATE (n1)" +
                     buildPureRelationshipString(storage) +
                     "(n2)";
-             graphDb.execute(builder);
+
+            //Transform relationship params.
+            Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
+
+            //Adds also params of start and end node.
+            properties.putAll(transFormToPropertyMap(storage.getStartNode().getProperties(), "1"));
+            properties.putAll(transFormToPropertyMap(storage.getEndNode().getProperties(), "2"));
+
+             graphDb.execute(builder, properties);
         }
         catch (Exception e)
         {
@@ -484,7 +499,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         {
             //Delete relationship
             final String cypher = MATCH + buildRelationshipString(storage) + " DELETE r";
-            graphDb.execute(cypher);
+
+            //Transform relationship params.
+            Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
+
+            //Adds also params of start and end node.
+            properties.putAll(transFormToPropertyMap(storage.getStartNode().getProperties(), "1"));
+            properties.putAll(transFormToPropertyMap(storage.getEndNode().getProperties(), "2"));
+
+            graphDb.execute(cypher, properties);
         }
         catch (Exception e)
         {

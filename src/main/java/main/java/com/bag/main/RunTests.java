@@ -43,12 +43,12 @@ public class RunTests
             //client1.read(new NodeStorage("JustToGetAValidSnapshotId"));
 
 
-            client1.read(new NodeStorage("Person", carol));
+            //client1.read(new NodeStorage("Person", carol));
 
             //client1.write(new NodeStorage("Person", find), new NodeStorage("Person", find2));
 
             //Relationship read
-            //client1.read(new RelationshipStorage("Loves", new NodeStorage("Person"), new NodeStorage("Person")));
+            client1.read(new RelationshipStorage("Loves", new NodeStorage("Person"), new NodeStorage("Person")));
 
             //Fill the DB with Person nodes.
             //writeSomeNodes(client1);
