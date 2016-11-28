@@ -54,6 +54,10 @@ public class CreateOperation<S extends Serializable> implements Operation, Seria
         {
             return storage.equals(e);
         }
+        else if(storage instanceof NodeStorage && e instanceof RelationshipStorage)
+        {
+            return storage.equals(((RelationshipStorage) e).getStartNode()) || storage.equals(((RelationshipStorage) e).getEndNode());
+        }
         return false;
     }
 }

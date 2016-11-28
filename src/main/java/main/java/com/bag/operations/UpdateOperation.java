@@ -58,6 +58,10 @@ public class UpdateOperation<S extends Serializable> implements Operation, Seria
         {
             return key.equals(e);
         }
+        else if(key instanceof NodeStorage && e instanceof RelationshipStorage)
+        {
+            return key.equals(((RelationshipStorage) e).getStartNode()) || key.equals(((RelationshipStorage) e).getEndNode());
+        }
         return false;
     }
 }

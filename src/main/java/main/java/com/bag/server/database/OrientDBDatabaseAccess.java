@@ -107,7 +107,6 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         Object localSId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                         OutDatedDataException.checkSnapshotId(localSId, snapshotId);
                         tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
-
                     }
                     returnStorage.add(tempStorage);
                 }
