@@ -142,7 +142,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      */
     private RelationshipStorage getRelationshipStorageFromEdge(Edge edge)
     {
-        RelationshipStorage tempStorage = new RelationshipStorage(edge.getClass().toString(), getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
+        RelationshipStorage tempStorage = new RelationshipStorage(edge.getLabel(), getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
         for (String key : edge.getPropertyKeys())
         {
             tempStorage.addProperty(key, edge.getProperty(key));
@@ -157,7 +157,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      */
     private NodeStorage getNodeStorageFromVertex(Vertex tempVertex)
     {
-        NodeStorage temp = new NodeStorage(tempVertex.getClass().toString());
+        NodeStorage temp = new NodeStorage(tempVertex.getProperty("@class"));
         for (String key : tempVertex.getPropertyKeys())
         {
             temp.addProperty(key, tempVertex.getProperty(key));
