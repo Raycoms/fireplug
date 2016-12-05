@@ -39,7 +39,6 @@ public class RunTests
             ray.put("Name", "Ray");
             ray.put("Surname", "Neiheiser");
             ray.put("Age", 25);
-
             //client1.read(new NodeStorage("JustToGetAValidSnapshotId"));
 
 
