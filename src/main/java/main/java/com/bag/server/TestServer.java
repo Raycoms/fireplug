@@ -108,14 +108,51 @@ public class TestServer extends DefaultRecoverable
     @Override
     public void installSnapshot(final byte[] bytes)
     {
-        //todo synch all data of the server here from the byte.
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+
+        Kryo kryo = pool.borrow();
+        Input input = new Input(bytes);
+
+        globalSnapshotId = kryo.readObject(input, Long.class);
+        int writeSetSize = kryo.readObject(input, Integer.class);
+
+        for(int i = 0; i < writeSetSize; i++)
+        {
+            long snapshotId = kryo.readObject(input, Long.class);
+            Object object = kryo.readClassAndObject(input);
+            if(object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof Operation)
+            {
+                globalWriteSet.put(snapshotId, (List<Operation>) object);
+            }
+        }
+
+        input.close();
+        pool.release(kryo);
     }
 
     @Override
     public byte[] getSnapshot()
     {
-        //todo get all data from the server here
-        return new byte[0];
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+
+        //Todo probably will need a bigger buffer in the future. size depending on the set size?
+        Output output = new Output(0, 100240);
+
+        kryo.writeObject(output, globalSnapshotId);
+        kryo.writeObject(output, globalWriteSet.size());
+
+        for(Map.Entry<Long, List<Operation>> writeSet: globalWriteSet.entrySet())
+        {
+            kryo.writeObject(output, writeSet.getKey());
+            kryo.writeClassAndObject(output, writeSet.getValue());
+        }
+        //Write the writeSet.
+
+        byte[] bytes = output.toBytes();
+        output.close();
+        pool.release(kryo);
+        return bytes;
     }
 
     //Every byte array is one request.
@@ -183,6 +220,7 @@ public class TestServer extends DefaultRecoverable
             return returnBytes;
         }
 
+        globalSnapshotId+=1;
         //Execute the transaction.
         for(Operation op: localWriteSet)
         {
@@ -191,7 +229,6 @@ public class TestServer extends DefaultRecoverable
 
         //Store the write set.
         this.globalWriteSet.put(globalSnapshotId, localWriteSet);
-
         output.writeString(Constants.COMMIT);
         byte[][] returnBytes = {output.toBytes()};
         output.close();
