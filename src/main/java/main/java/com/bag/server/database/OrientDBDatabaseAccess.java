@@ -1,5 +1,6 @@
 package main.java.com.bag.server.database;
 
+import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -176,7 +177,16 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     {
         String[] propertyKeys   = nodeStorage.getProperties().keySet().toArray(new String[0]);
         Object[] propertyValues = nodeStorage.getProperties().values().toArray();
-        return graph.getVertices(nodeStorage.getId(), propertyKeys , propertyValues);
+
+        try
+        {
+            return graph.getVertices(nodeStorage.getId(), propertyKeys, propertyValues);
+        }
+        catch(OQueryParsingException e)
+        {
+            Log.getLogger().info(String.format("Class %s doesn't exist.", nodeStorage.getId()), e);
+            return Collections.emptyList();
+        }
     }
 
     /**

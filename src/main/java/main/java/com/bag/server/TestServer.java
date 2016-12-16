@@ -108,21 +108,29 @@ public class TestServer extends DefaultRecoverable
     @Override
     public void installSnapshot(final byte[] bytes)
     {
+        if(bytes == null)
+        {
+            return;
+        }
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
 
         Kryo kryo = pool.borrow();
         Input input = new Input(bytes);
 
         globalSnapshotId = kryo.readObject(input, Long.class);
-        int writeSetSize = kryo.readObject(input, Integer.class);
 
-        for(int i = 0; i < writeSetSize; i++)
+        if(input.canReadInt())
         {
-            long snapshotId = kryo.readObject(input, Long.class);
-            Object object = kryo.readClassAndObject(input);
-            if(object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof Operation)
+            int writeSetSize = kryo.readObject(input, Integer.class);
+
+            for (int i = 0; i < (Integer) writeSetSize; i++)
             {
-                globalWriteSet.put(snapshotId, (List<Operation>) object);
+                long snapshotId = kryo.readObject(input, Long.class);
+                Object object = kryo.readClassAndObject(input);
+                if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof Operation)
+                {
+                    globalWriteSet.put(snapshotId, (List<Operation>) object);
+                }
             }
         }
 
@@ -140,14 +148,20 @@ public class TestServer extends DefaultRecoverable
         Output output = new Output(0, 100240);
 
         kryo.writeObject(output, globalSnapshotId);
-        kryo.writeObject(output, globalWriteSet.size());
 
-        for(Map.Entry<Long, List<Operation>> writeSet: globalWriteSet.entrySet())
+        if(globalWriteSet == null)
         {
-            kryo.writeObject(output, writeSet.getKey());
-            kryo.writeClassAndObject(output, writeSet.getValue());
+            globalWriteSet = new HashMap<>();
         }
-        //Write the writeSet.
+        else
+        {
+            kryo.writeObject(output, globalWriteSet.size());
+            for (Map.Entry<Long, List<Operation>> writeSet : globalWriteSet.entrySet())
+            {
+                kryo.writeObject(output, writeSet.getKey());
+                kryo.writeClassAndObject(output, writeSet.getValue());
+            }
+        }
 
         byte[] bytes = output.toBytes();
         output.close();
