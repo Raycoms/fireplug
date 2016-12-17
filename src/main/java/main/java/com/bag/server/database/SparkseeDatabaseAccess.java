@@ -27,6 +27,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         this.id = id;
     }
 
+    @Override
     public void start()
     {
         SparkseeProperties.load("config/sparksee.cfg");
@@ -42,6 +43,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
     }
 
+    @Override
     public void terminate()
     {
         db.close();
@@ -115,6 +117,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                     returnStorage.add(storage);
                 }
             }
+            objsStart.close();
+            objsEnd.close();
+            itStart.close();
+            itEnd.close();
         }
         else
         {
@@ -143,7 +149,6 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
 
         sess.close();
-
         return returnStorage;
     }
 
@@ -203,6 +208,14 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if (objsStart == null || objsStart.isEmpty() || objsEnd == null || objsEnd.isEmpty())
         {
+            if(objsStart != null)
+            {
+                objsStart.close();
+            }
+            if(objsEnd != null)
+            {
+                objsEnd.close();
+            }
             sess.close();
             return false;
         }
@@ -242,6 +255,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if (objs == null || objs.isEmpty())
         {
+            if(objs != null)
+            {
+                objs.close();
+            }
             sess.close();
             return false;
         }
@@ -310,13 +327,12 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         Graph graph = sess.getGraph();
 
         Objects objs = findNode(graph, key);
-        Set<String> keys = new HashSet<>();
-        keys.addAll(key.getProperties().keySet());
-        keys.addAll(value.getProperties().keySet());
-
         if (objs == null || objs.isEmpty())
         {
-            //Node not found
+            if(objs != null)
+            {
+                objs.close();
+            }
             return false;
         }
 
@@ -422,13 +438,17 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if(startObjs == null || endObjs == null)
         {
+            if(startObjs != null)
+            {
+                startObjs.close();
+            }
+            if(endObjs != null)
+            {
+                endObjs.close();
+            }
             sess.close();
             return false;
         }
-
-        Set<String> keys = new HashSet<>();
-        keys.addAll(key.getProperties().keySet());
-        keys.addAll(value.getProperties().keySet());
 
         ObjectsIterator startIt = startObjs.iterator();
         ObjectsIterator endIt = endObjs.iterator();
@@ -460,9 +480,12 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 }
                 finally
                 {
+                    startObjs.close();
+                    endObjs.close();
+                    startIt.close();
+                    endIt.close();
                     sess.close();
                 }
-
 
                 int attributeTypeIdSnapshotId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_SNAPSHOT_ID, 1L, Type.getGlobalType(), graph);
                 graph.setAttribute(relationship, attributeTypeIdSnapshotId, SparkseeUtils.getValue(snapshotId));
@@ -482,6 +505,14 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if(startObjs == null || endObjs == null)
         {
+            if(startObjs != null)
+            {
+                startObjs.close();
+            }
+            if(endObjs != null)
+            {
+                endObjs.close();
+            }
             sess.close();
             return false;
         }
@@ -517,10 +548,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                     finally
                     {
                         sess.close();
-                        startIt.close();
-                        endIt.close();
                         endObjs.close();
                         startObjs.close();
+                        startIt.close();
+                        endIt.close();
                     }
                 }
             }
@@ -539,6 +570,14 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if(startObjs == null || endObjs == null)
         {
+            if(startObjs != null)
+            {
+                startObjs.close();
+            }
+            if(endObjs != null)
+            {
+                endObjs.close();
+            }
             sess.close();
             return false;
         }

@@ -53,6 +53,11 @@ public class TestServer extends DefaultRecoverable
     private long globalSnapshotId = 0;
 
     /**
+     * Unique Id of the server.
+     */
+    private int id;
+
+    /**
      * Write set of the nodes contains updates and deletes.
      */
     private HashMap<Long, List<Operation>> globalWriteSet;
@@ -71,6 +76,7 @@ public class TestServer extends DefaultRecoverable
 
     private TestServer(int id, String instance)
     {
+        this.id = id;
         globalSnapshotId = 1;
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
@@ -84,25 +90,34 @@ public class TestServer extends DefaultRecoverable
 
         globalWriteSet = new HashMap<>();
 
+        instantiateDBAccess(instance);
+
+        databaseAccess.start();
+    }
+
+    /**
+     * Instantiate the Database access classes depending on the String instance.
+     * @param instance the string describing which to use.
+     */
+    private void instantiateDBAccess(String instance)
+    {
         switch (instance)
         {
             case Constants.NEO4J:
-                databaseAccess = new Neo4jDatabaseAccess(id);
+                databaseAccess = new Neo4jDatabaseAccess(this.id);
                 break;
             case Constants.TITAN:
-                databaseAccess = new TitanDatabaseAccess(id);
+                databaseAccess = new TitanDatabaseAccess(this.id);
                 break;
             case Constants.SPARKSEE:
-                databaseAccess = new SparkseeDatabaseAccess(id);
+                databaseAccess = new SparkseeDatabaseAccess(this.id);
                 break;
             case Constants.ORIENTDB:
-                databaseAccess = new OrientDBDatabaseAccess(id);
+                databaseAccess = new OrientDBDatabaseAccess(this.id);
                 break;
             default:
                 Log.getLogger().warn("Invalid databaseAccess");
         }
-
-        databaseAccess.start();
     }
 
     @Override
@@ -134,6 +149,16 @@ public class TestServer extends DefaultRecoverable
             }
         }
 
+        this.id = kryo.readObject(input, Integer.class);
+        String instance = kryo.readObject(input, String.class);
+        instantiateDBAccess(instance);
+
+        this.replica = new ServiceReplica(id, this, this);
+        this.replica.setReplyController(new DefaultReplier());
+
+        kryo.register(NodeStorage.class, 100);
+        kryo.register(RelationshipStorage.class, 200);
+
         input.close();
         pool.release(kryo);
     }
@@ -161,6 +186,29 @@ public class TestServer extends DefaultRecoverable
                 kryo.writeObject(output, writeSet.getKey());
                 kryo.writeClassAndObject(output, writeSet.getValue());
             }
+        }
+
+        kryo.writeObject(output, id);
+
+        if(databaseAccess instanceof Neo4jDatabaseAccess)
+        {
+            kryo.writeObject(output, Constants.NEO4J);
+        }
+        else if(databaseAccess instanceof TitanDatabaseAccess)
+        {
+            kryo.writeObject(output, Constants.TITAN);
+        }
+        else if(databaseAccess instanceof OrientDBDatabaseAccess)
+        {
+            kryo.writeObject(output, Constants.ORIENTDB);
+        }
+        else if(databaseAccess instanceof SparkseeDatabaseAccess)
+        {
+            kryo.writeObject(output, Constants.SPARKSEE);
+        }
+        else
+        {
+            kryo.writeObject(output, "none");
         }
 
         byte[] bytes = output.toBytes();
