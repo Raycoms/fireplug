@@ -85,7 +85,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             Objects objsStart = findNode(graph, startNode);
             Objects objsEnd = findNode(graph, endNode);
 
-            if (objsStart == null || objsStart.isEmpty() || objsEnd == null || objsEnd.isEmpty())
+            if (objsStart == null || objsEnd == null)
             {
                 sess.close();
                 return Collections.emptyList();
@@ -126,7 +126,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         {
             Objects objs = findNode(graph, nodeStorage);
 
-            if (objs == null || objs.isEmpty())
+            if (objs == null)
             {
                 sess.close();
                 return Collections.emptyList();
@@ -314,6 +314,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
             if (objs.isEmpty())
             {
+                objs.close();
                 return null;
             }
         }
