@@ -283,9 +283,9 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            sess.close();
             it.close();
             objs.close();
+            sess.close();
         }
         return false;
     }
@@ -500,6 +500,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             }
         }
 
+        startObjs.close();
+        endObjs.close();
+        startIt.close();
+        endIt.close();
+        sess.close();
         return true;
     }
 
@@ -565,6 +570,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             }
         }
 
+        sess.close();
+        endObjs.close();
+        startObjs.close();
+        startIt.close();
+        endIt.close();
         return true;
     }
 
