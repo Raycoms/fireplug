@@ -50,7 +50,6 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         sparksee.close();
     }
 
-
     @Override
     public List<Object> readObject(final Object identifier, final long localSnapshotId) throws OutDatedDataException
     {
@@ -85,8 +84,16 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             Objects objsStart = findNode(graph, startNode);
             Objects objsEnd = findNode(graph, endNode);
 
-            if (objsStart == null || objsEnd == null)
+            if (objsStart == null || objsEnd == null || objsStart.isEmpty() || objsEnd.isEmpty())
             {
+                if(objsStart != null)
+                {
+                    objsStart.close();
+                }
+                if(objsEnd != null)
+                {
+                    objsEnd.close();
+                }
                 sess.close();
                 return Collections.emptyList();
             }
