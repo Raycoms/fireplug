@@ -2,6 +2,7 @@ package main.java.com.bag.server;
 
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
+import bftsmart.tom.server.RequestVerifier;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.server.defaultservices.DefaultReplier;
 import com.esotericsoftware.kryo.Kryo;
@@ -14,22 +15,28 @@ import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
 import main.java.com.bag.operations.UpdateOperation;
-import main.java.com.bag.server.database.SparkseeDatabaseAccess;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.server.database.OrientDBDatabaseAccess;
+import main.java.com.bag.server.database.SparkseeDatabaseAccess;
 import main.java.com.bag.server.database.TitanDatabaseAccess;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
-import main.java.com.bag.util.*;
+import main.java.com.bag.util.Constants;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.TransactionStorage;
+import sun.net.www.protocol.https.DefaultHostnameVerifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Class handling the server.
+ * Super class of local or global cluster.
+ * Used for common communication methods.
  */
-public class TestServer extends DefaultRecoverable
+public abstract class AbstractRecoverable extends DefaultRecoverable
 {
     /**
      * Contains the local server replica.
@@ -74,15 +81,15 @@ public class TestServer extends DefaultRecoverable
         return kryo;
     };
 
-    private TestServer(int id, String instance)
+    protected AbstractRecoverable(int id, final String instance, final String configDirectory)
     {
         this.id = id;
         globalSnapshotId = 1;
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
-        this.replica = new ServiceReplica(id, this, this);
-        this.replica.setReplyController(new DefaultReplier());
+        //the default verifier is instantiated with null in the ServerReplica.
+        this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());
 
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
@@ -97,6 +104,7 @@ public class TestServer extends DefaultRecoverable
 
     /**
      * Instantiate the Database access classes depending on the String instance.
+     *
      * @param instance the string describing which to use.
      */
     private void instantiateDBAccess(String instance)
@@ -123,7 +131,7 @@ public class TestServer extends DefaultRecoverable
     @Override
     public void installSnapshot(final byte[] bytes)
     {
-        if(bytes == null)
+        if (bytes == null)
         {
             return;
         }
@@ -134,7 +142,7 @@ public class TestServer extends DefaultRecoverable
 
         globalSnapshotId = kryo.readObject(input, Long.class);
 
-        if(input.canReadInt())
+        if (input.canReadInt())
         {
             int writeSetSize = kryo.readObject(input, Integer.class);
 
@@ -174,7 +182,7 @@ public class TestServer extends DefaultRecoverable
 
         kryo.writeObject(output, globalSnapshotId);
 
-        if(globalWriteSet == null)
+        if (globalWriteSet == null)
         {
             globalWriteSet = new HashMap<>();
         }
@@ -190,19 +198,19 @@ public class TestServer extends DefaultRecoverable
 
         kryo.writeObject(output, id);
 
-        if(databaseAccess instanceof Neo4jDatabaseAccess)
+        if (databaseAccess instanceof Neo4jDatabaseAccess)
         {
             kryo.writeObject(output, Constants.NEO4J);
         }
-        else if(databaseAccess instanceof TitanDatabaseAccess)
+        else if (databaseAccess instanceof TitanDatabaseAccess)
         {
             kryo.writeObject(output, Constants.TITAN);
         }
-        else if(databaseAccess instanceof OrientDBDatabaseAccess)
+        else if (databaseAccess instanceof OrientDBDatabaseAccess)
         {
             kryo.writeObject(output, Constants.ORIENTDB);
         }
-        else if(databaseAccess instanceof SparkseeDatabaseAccess)
+        else if (databaseAccess instanceof SparkseeDatabaseAccess)
         {
             kryo.writeObject(output, Constants.SPARKSEE);
         }
@@ -221,9 +229,9 @@ public class TestServer extends DefaultRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
-        for(int i = 0; i < bytes.length; ++i)
+        for (int i = 0; i < bytes.length; ++i)
         {
-            if(messageContexts != null && messageContexts[i] != null)
+            if (messageContexts != null && messageContexts[i] != null)
             {
                 KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
                 Kryo kryo = pool.borrow();
@@ -231,7 +239,7 @@ public class TestServer extends DefaultRecoverable
 
                 String type = kryo.readObject(input, String.class);
 
-                if(Constants.COMMIT_MESSAGE.equals(type))
+                if (Constants.COMMIT_MESSAGE.equals(type))
                 {
                     return executeCommit(kryo, input);
                 }
@@ -239,7 +247,6 @@ public class TestServer extends DefaultRecoverable
         }
         return new byte[0][];
     }
-
 
     public byte[][] executeCommit(Kryo kryo, Input input)
     {
@@ -282,9 +289,9 @@ public class TestServer extends DefaultRecoverable
             return returnBytes;
         }
 
-        globalSnapshotId+=1;
+        globalSnapshotId += 1;
         //Execute the transaction.
-        for(Operation op: localWriteSet)
+        for (Operation op : localWriteSet)
         {
             op.apply(databaseAccess, globalSnapshotId);
         }
@@ -330,16 +337,17 @@ public class TestServer extends DefaultRecoverable
 
         output.close();
         pool.release(kryo);
-        
+
         return returnValue;
     }
 
     /**
      * Handles the relationship read message and requests it to the database.
-     * @param input get info from.
+     *
+     * @param input          get info from.
      * @param messageContext additional context.
-     * @param kryo kryo object.
-     * @param output write info to.
+     * @param kryo           kryo object.
+     * @param output         write info to.
      * @return output object to return to client.
      */
     private Output handleRelationshipRead(final Input input, final MessageContext messageContext, final Kryo kryo, final Output output)
@@ -403,10 +411,11 @@ public class TestServer extends DefaultRecoverable
 
     /**
      * Handles the node read message and requests it to the database.
-     * @param input get info from.
+     *
+     * @param input          get info from.
      * @param messageContext additional context.
-     * @param kryo kryo object.
-     * @param output write info to.
+     * @param kryo           kryo object.
+     * @param output         write info to.
      * @return output object to return to client.
      */
     private Output handleNodeRead(Input input, MessageContext messageContext, Kryo kryo, Output output)
@@ -429,7 +438,7 @@ public class TestServer extends DefaultRecoverable
         Log.getLogger().info("Get info from databaseAccess");
         try
         {
-            returnList = new ArrayList<>( databaseAccess.readObject(identifier, localSnapshotId));
+            returnList = new ArrayList<>(databaseAccess.readObject(identifier, localSnapshotId));
         }
         catch (OutDatedDataException e)
         {
@@ -437,7 +446,7 @@ public class TestServer extends DefaultRecoverable
             terminate();
         }
 
-        if(returnList != null)
+        if (returnList != null)
         {
             Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
@@ -475,76 +484,9 @@ public class TestServer extends DefaultRecoverable
     /**
      * Shuts down the Server.
      */
-    private void terminate()
+    public void terminate()
     {
         this.databaseAccess.terminate();
         this.replica.kill();
-    }
-
-    /**
-     * Main method used to start each TestServer.
-     * @param args the id for each testServer, set it in the program arguments.
-     */
-    public static void main(String [] args)
-    {
-        int serverId = 0;
-        String instance = Constants.NEO4J;
-
-        if(args.length == 1)
-        {
-            try
-            {
-                serverId = Integer.parseInt(args[0]);
-            }
-            catch (NumberFormatException ne)
-            {
-                Log.getLogger().warn("Invalid program arguments, terminating server");
-                return;
-            }
-        }
-        else if(args.length == 2)
-        {
-            try
-            {
-                serverId = Integer.parseInt(args[0]);
-            }
-            catch (NumberFormatException ne)
-            {
-                Log.getLogger().warn("Invalid program arguments, terminating server");
-                return;
-            }
-
-            String tempInstance = args[1];
-
-            if(tempInstance.toLowerCase().contains("titan"))
-            {
-                instance = Constants.TITAN;
-            }
-            else if(tempInstance.toLowerCase().contains("orientdb"))
-            {
-                instance = Constants.ORIENTDB;
-            }
-            else if(tempInstance.toLowerCase().contains("sparksee"))
-            {
-                instance = Constants.SPARKSEE;
-            }
-            else
-            {
-                instance = Constants.NEO4J;
-            }
-        }
-
-
-        TestServer server = new TestServer(serverId, instance);
-        
-        Scanner reader = new Scanner(System.in);  // Reading from System.in
-        Log.getLogger().info("Write anything to the console to kill this process");
-        String command = reader.next();
-
-        if(command != null)
-        {
-            server.terminate();
-        }
-
     }
 }

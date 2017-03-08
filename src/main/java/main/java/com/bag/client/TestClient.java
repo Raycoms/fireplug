@@ -66,7 +66,8 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
     public TestClient(final int processId, final int serverId)
     {
-        super(processId);
+        //todo  move config home to global position
+        super(processId, "local");
         secureMode = true;
         this.serverProcess = serverId;
         initClient();
