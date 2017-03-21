@@ -32,6 +32,12 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      * Should the transaction run in secure mode?
      */
     private boolean secureMode = false;
+
+    /**
+     * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
+     */
+    private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
+
     /**
      * Sets to log reads, updates, deletes and node creations.
      */
@@ -64,9 +70,9 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         return kryo;
     };
 
-    public TestClient(final int processId, final int serverId)
+    public TestClient(final int processId, final int serverId, final int localClusterId)
     {
-        super(processId, "local");
+        super(processId, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         secureMode = true;
         this.serverProcess = serverId;
         initClient();

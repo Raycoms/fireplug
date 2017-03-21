@@ -23,12 +23,17 @@ public class RunTests
 
     public static void main(String [] args)
     {
+        int localClusterId = 0;
         int serverPartner = 0;
-        if(args.length > 0)
+        if(args.length > 1)
         {
             serverPartner  = Integer.parseInt(args[0]);
+            localClusterId  = Integer.parseInt(args[1]);
         }
-        try (TestClient client1 = new TestClient(1, serverPartner))
+
+
+
+        try (TestClient client1 = new TestClient(1, serverPartner, localClusterId))
         {
             Map<String, Object> carol = new HashMap<>();
             carol.put("Name", "Caroliny");

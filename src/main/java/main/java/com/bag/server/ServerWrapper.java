@@ -73,7 +73,9 @@ public class ServerWrapper
 
         databaseAccess.start();
 
-        localCluster = new LocalClusterSlave(localClusterSlaveId, this, globalServerId);
+
+        localCluster = new LocalClusterSlave(localClusterSlaveId, this, isPrimary ? globalServerId : initialLeaderId);
+
         if(isPrimary)
         {
             globalCluster = new GlobalClusterSlave(globalServerId, this);

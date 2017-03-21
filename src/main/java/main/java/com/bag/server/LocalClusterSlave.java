@@ -32,6 +32,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      * Name of the location of the global config.
      */
     private static final String GLOBAL_CONFIG_LOCATION = "global%d/config";
+
     /**
      * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
      */

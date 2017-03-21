@@ -2,351 +2,44 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b25c77af-4557-4786-a808-ade860b1172d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/currentView" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/hosts.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/privatekey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/keys/publickey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/sparksee.cfg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/system.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local1/config/workloads/workloada" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/currentView" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/hosts.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/privatekey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/keys/publickey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/sparksee.cfg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/system.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local2/config/workloads/workloada" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/currentView" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/hosts.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/privatekey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/keys/publickey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/sparksee.cfg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/system.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local3/config/workloads/workloada" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/currentView" afterPath="$PROJECT_DIR$/local0/config/currentView" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/hosts.config" afterPath="$PROJECT_DIR$/local0/config/hosts.config" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey0" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey0" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1001" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1001" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1002" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1002" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1003" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1003" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1004" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1004" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1005" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1005" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1006" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1006" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1007" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1007" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1008" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1008" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1009" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1009" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1010" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1010" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1011" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1011" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1012" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1012" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1013" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1013" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1014" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1014" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1015" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1015" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1016" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1016" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1017" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1017" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1018" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1018" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1019" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1019" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey1020" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey1020" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey2" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey2" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey3" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey3" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey4" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey4" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey5" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey5" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey5001" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey5001" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey5002" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey5002" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey6" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey6" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey6001" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey6001" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey6002" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey6002" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey7" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey7" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey7001" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey7001" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey7002" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey7002" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey8" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey8" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/privatekey9" afterPath="$PROJECT_DIR$/local0/config/keys/privatekey9" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey" afterPath="$PROJECT_DIR$/local0/config/keys/publickey" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey0" afterPath="$PROJECT_DIR$/local0/config/keys/publickey0" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1001" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1001" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1002" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1002" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1003" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1003" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1004" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1004" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1005" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1005" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1006" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1006" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1007" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1007" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1008" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1008" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1009" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1009" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1010" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1010" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1011" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1011" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1012" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1012" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1013" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1013" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1014" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1014" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1015" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1015" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1016" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1016" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1017" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1017" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1018" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1018" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1019" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1019" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey1020" afterPath="$PROJECT_DIR$/local0/config/keys/publickey1020" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey2" afterPath="$PROJECT_DIR$/local0/config/keys/publickey2" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey3" afterPath="$PROJECT_DIR$/local0/config/keys/publickey3" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey4" afterPath="$PROJECT_DIR$/local0/config/keys/publickey4" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey5" afterPath="$PROJECT_DIR$/local0/config/keys/publickey5" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey5001" afterPath="$PROJECT_DIR$/local0/config/keys/publickey5001" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey5002" afterPath="$PROJECT_DIR$/local0/config/keys/publickey5002" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey6" afterPath="$PROJECT_DIR$/local0/config/keys/publickey6" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey6001" afterPath="$PROJECT_DIR$/local0/config/keys/publickey6001" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey6002" afterPath="$PROJECT_DIR$/local0/config/keys/publickey6002" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey7" afterPath="$PROJECT_DIR$/local0/config/keys/publickey7" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey7001" afterPath="$PROJECT_DIR$/local0/config/keys/publickey7001" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey7002" afterPath="$PROJECT_DIR$/local0/config/keys/publickey7002" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey8" afterPath="$PROJECT_DIR$/local0/config/keys/publickey8" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/keys/publickey9" afterPath="$PROJECT_DIR$/local0/config/keys/publickey9" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/sparksee.cfg" afterPath="$PROJECT_DIR$/local0/config/sparksee.cfg" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/system.config" afterPath="$PROJECT_DIR$/local0/config/system.config" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/local/config/workloads/workloada" afterPath="$PROJECT_DIR$/local0/config/workloads/workloada" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.labeltokenstore.db.names.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.labels.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db.labels.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.arrays.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.arrays.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.index.keys.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.strings.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.strings.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipgroupstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipgroupstore.db.id" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshiptypestore.db.names.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.schemastore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.schemastore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.labeltokenstore.db.names.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.labels.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.nodestore.db.labels.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.arrays.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.arrays.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.keys.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.index.keys.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.strings.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.propertystore.db.strings.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipgroupstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipgroupstore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshipstore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.names.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.relationshiptypestore.db.names.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.schemastore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.schemastore.db.id" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB3/neostore.transaction.db.0" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TitanDB/00000000.jdb" afterPath="$PROJECT_DIR$/TitanDB/00000000.jdb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Constants$TAG_HASH.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Constants$TAG_HASH.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Constants.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/Constants.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/LocalClusterSlave.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/LocalClusterSlave.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/ServerWrapper.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/ServerWrapper.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB3/logs/debug.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/local0/config/hosts.config" afterPath="$PROJECT_DIR$/local0/config/hosts.config" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/local1/config/hosts.config" afterPath="$PROJECT_DIR$/local1/config/hosts.config" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/local2/config/hosts.config" afterPath="$PROJECT_DIR$/local2/config/hosts.config" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/local3/config/hosts.config" afterPath="$PROJECT_DIR$/local3/config/hosts.config" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sparksee.log" afterPath="$PROJECT_DIR$/sparksee.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
     </list>
     <ignored path="BAG - Byzantine fault-tolerant Architecture for Graph database.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -400,22 +93,18 @@
       <file leaf-file-name="TestClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="48" column="52" lean-forward="false" selection-start-line="48" selection-start-column="52" selection-end-line="48" selection-end-column="52" />
-              <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#13934#13935#0" expanded="false" />
-                <element signature="e#13975#13976#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="91">
+              <caret line="68" column="50" lean-forward="true" selection-start-line="68" selection-start-column="50" selection-end-line="68" selection-end-column="50" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Constants.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java">
+      <file leaf-file-name="RunTests.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="29" column="70" lean-forward="false" selection-start-line="29" selection-start-column="70" selection-end-line="29" selection-end-column="70" />
+            <state relative-caret-position="285">
+              <caret line="35" column="81" lean-forward="false" selection-start-line="35" selection-start-column="81" selection-end-line="35" selection-end-column="81" />
               <folding />
             </state>
           </provider>
@@ -424,21 +113,28 @@
       <file leaf-file-name="ServerWrapper.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="248">
-              <caret line="75" column="86" lean-forward="false" selection-start-line="75" selection-start-column="72" selection-end-line="75" selection-end-column="86" />
-              <folding>
-                <element signature="e#3029#3030#0" expanded="true" />
-                <element signature="e#3071#3072#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="333">
+              <caret line="76" column="39" lean-forward="false" selection-start-line="76" selection-start-column="27" selection-end-line="76" selection-end-column="44" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LocalClusterSlave.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="hosts.config" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/local1/config/hosts.config">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="29" column="16" lean-forward="false" selection-start-line="29" selection-start-column="16" selection-end-line="29" selection-end-column="16" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LocalClusterSlave.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="82" column="5" lean-forward="true" selection-start-line="82" selection-start-column="5" selection-end-line="82" selection-end-column="5" />
+            <state relative-caret-position="-677">
+              <caret line="33" column="54" lean-forward="false" selection-start-line="33" selection-start-column="32" selection-end-line="33" selection-end-column="54" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -446,38 +142,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AbstractRecoverable.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AbstractRecoverable.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
+            <state relative-caret-position="379">
               <caret line="78" column="0" lean-forward="false" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#7788#7789#0" expanded="true" />
-                <element signature="e#7823#7824#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GlobalClusterSlave.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="813">
-              <caret line="63" column="13" lean-forward="true" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SignatureStorage.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/SignatureStorage.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="21" column="70" lean-forward="false" selection-start-line="21" selection-start-column="70" selection-end-line="21" selection-end-column="70" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -493,7 +165,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>invokeOrdered</find>
       <find>sendMessageToTargets</find>
       <find>noo</find>
       <find>service</find>
@@ -523,6 +194,7 @@
       <find>notify</find>
       <find>getPrimary</find>
       <find>executeCom</find>
+      <find>main</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -859,7 +531,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/Database/IDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/Database/Interfaces/IDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/Database/TitanDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/JsonGenerator.java" />
@@ -890,7 +561,6 @@
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/operations/DeleteOperation.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/operations/CreateOperation.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/NodeStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" />
@@ -901,15 +571,17 @@
         <option value="$PROJECT_DIR$/local/config/hosts.config" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/SignatureStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java" />
         <option value="$PROJECT_DIR$/local0/config/hosts.config" />
         <option value="$PROJECT_DIR$/local1/config/hosts.config" />
         <option value="$PROJECT_DIR$/local2/config/hosts.config" />
         <option value="$PROJECT_DIR$/local3/config/hosts.config" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java" />
+        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
       </list>
     </option>
   </component>
@@ -933,7 +605,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -971,9 +642,186 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bag" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bag" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bag" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="local3" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="config" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="local2" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="config" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="local1" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="config" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="local0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="config" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="global" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="config" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -997,7 +845,7 @@
       <recent name="$PROJECT_DIR$/src/main/java/com" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Server3">
+  <component name="RunManager" selected="Application.Client">
     <configuration default="false" name="BAG - Byzantine fault-tolerant Architecture for Graph database [buildDependents]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1275,7 +1123,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="1 Neo4j 1 1 true" />
+      <option name="PROGRAM_PARAMETERS" value="1 Neo4j 0 1 true" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1290,7 +1138,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="2 orientdb 2 2 true" />
+      <option name="PROGRAM_PARAMETERS" value="2 orientdb 0 2 true" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1305,7 +1153,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="3 sparksee 3 3 true" />
+      <option name="PROGRAM_PARAMETERS" value="3 neo4j 0 3 true sparksee" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1320,7 +1168,22 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="4 Neo4j 2 1 false" />
+      <option name="PROGRAM_PARAMETERS" value="4 Neo4j 1 1 false" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="1.0_main" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="Server5" type="Application" factoryName="Application">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="5 Neo4j 2 1 false" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1335,7 +1198,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.main.RunTests" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="2 1" />
+      <option name="PROGRAM_PARAMETERS" value="1 1" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1346,16 +1209,17 @@
       <envs />
       <method />
     </configuration>
-    <list size="9">
+    <list size="10">
       <item index="0" class="java.lang.String" itemvalue="Application.Server0" />
       <item index="1" class="java.lang.String" itemvalue="Application.Server1" />
       <item index="2" class="java.lang.String" itemvalue="Application.Server2" />
       <item index="3" class="java.lang.String" itemvalue="Application.Server3" />
       <item index="4" class="java.lang.String" itemvalue="Application.Server4" />
-      <item index="5" class="java.lang.String" itemvalue="Application.Client" />
-      <item index="6" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [buildDependents]" />
-      <item index="7" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [clean]" />
-      <item index="8" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [buildNeeded]" />
+      <item index="5" class="java.lang.String" itemvalue="Application.Server5" />
+      <item index="6" class="java.lang.String" itemvalue="Application.Client" />
+      <item index="7" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [buildDependents]" />
+      <item index="8" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [clean]" />
+      <item index="9" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [buildNeeded]" />
     </list>
     <recent_temporary>
       <list size="3">
@@ -1426,20 +1290,20 @@
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17167382" sideWeight="0.5042644" order="8" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.40236053" sideWeight="0.3065032" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.4978678" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19349681" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1977612" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="SonarLint" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27145922" sideWeight="0.4978678" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17803837" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17803837" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.50429183" sideWeight="0.65085286" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1466,12 +1330,13 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="164" />
+      <option name="time" value="191" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
-        <watch expression="StreamSupport.stream(startNodes.spliterator(), false).flatMap(vertex1 -&gt; StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false)).collect(Collectors.toList())" language="JAVA" />
-        <watch expression="startNodes.iterator().hasNext()" language="JAVA" />
+        <watch expression="controller.getStaticConf().getProcessId()" language="JAVA" />
+        <watch expression="this.controller.getStaticConf().getHost(remoteId)" language="JAVA" />
+        <watch expression="this.controller.getStaticConf().getServerToServerPort(remoteId)" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>
@@ -1480,62 +1345,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/server/defaultservices/DefaultReplier.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="10" column="35" lean-forward="true" selection-start-line="10" selection-start-column="35" selection-end-line="10" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/ServiceReplica.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="599">
-          <caret line="93" column="25" lean-forward="true" selection-start-line="93" selection-start-column="25" selection-end-line="93" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/local0/config/keys/publickey">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/reconfiguration/Reconfiguration.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="62" column="56" lean-forward="false" selection-start-line="62" selection-start-column="56" selection-end-line="62" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/exceptions/OutDatedDataException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="619">
-          <caret line="55" column="0" lean-forward="false" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config/hosts.config">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="34" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/statemanagement/strategy/BaseStateManager.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="457">
-          <caret line="255" column="25" lean-forward="false" selection-start-line="255" selection-start-column="25" selection-end-line="255" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/statemanagement/strategy/durability/DurableStateManager.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="191">
@@ -1705,24 +1514,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/global/config/hosts.config">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="38" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/global/config/system.config">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="665">
           <caret line="111" column="22" lean-forward="false" selection-start-line="111" selection-start-column="22" selection-end-line="111" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-75">
-          <caret line="11" column="13" lean-forward="false" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
         </state>
       </provider>
     </entry>
@@ -1737,34 +1532,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
           <caret line="29" column="70" lean-forward="false" selection-start-line="29" selection-start-column="70" selection-end-line="29" selection-end-column="70" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="48" column="52" lean-forward="false" selection-start-line="48" selection-start-column="52" selection-end-line="48" selection-end-column="52" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#13934#13935#0" expanded="false" />
-            <element signature="e#13975#13976#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/SignatureStorage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="159">
+        <state relative-caret-position="255">
           <caret line="21" column="70" lean-forward="false" selection-start-line="21" selection-start-column="70" selection-end-line="21" selection-end-column="70" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/local1/config/hosts.config">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="39" column="17" lean-forward="false" selection-start-line="39" selection-start-column="17" selection-end-line="39" selection-end-column="17" />
           <folding />
         </state>
       </provider>
@@ -1773,15 +1547,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/local0/config/hosts.config">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="31" column="16" lean-forward="true" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1789,15 +1554,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/local2/config/hosts.config">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="39" column="17" lean-forward="false" selection-start-line="39" selection-start-column="17" selection-end-line="39" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1805,57 +1561,163 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="63" column="13" lean-forward="false" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/server/defaultservices/DefaultReplier.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/ServiceReplica.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="95" column="0" lean-forward="false" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/communication/ServerCommunicationSystem.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="36" column="40" lean-forward="false" selection-start-line="36" selection-start-column="31" selection-end-line="36" selection-end-column="56" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/local2/config/hosts.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="40" selection-end-column="20" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/local3/config/hosts.config">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="24" column="44" lean-forward="true" selection-start-line="24" selection-start-column="44" selection-end-line="24" selection-end-column="44" />
+        <state relative-caret-position="330">
+          <caret line="40" column="18" lean-forward="false" selection-start-line="40" selection-start-column="18" selection-end-line="40" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/communication/server/ServerConnection.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="65" column="0" lean-forward="false" selection-start-line="65" selection-start-column="0" selection-end-line="65" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/java/net/SocksSocketImpl.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="306" column="0" lean-forward="false" selection-start-line="306" selection-start-column="0" selection-end-line="306" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/java/net/AbstractPlainSocketImpl.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="127">
+          <caret line="125" column="0" lean-forward="false" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/hosts.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" column="17" lean-forward="true" selection-start-line="34" selection-start-column="17" selection-end-line="34" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/communication/server/ServersCommunicationLayer.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="202">
+          <caret line="51" column="0" lean-forward="false" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="379">
+          <caret line="78" column="0" lean-forward="false" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/local1/config/hosts.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="29" column="16" lean-forward="false" selection-start-line="29" selection-start-column="16" selection-end-line="29" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="35" column="81" lean-forward="false" selection-start-line="35" selection-start-column="81" selection-end-line="35" selection-end-column="81" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="68" column="50" lean-forward="true" selection-start-line="68" selection-start-column="50" selection-end-line="68" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/local0/config/hosts.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="245">
+          <caret line="30" column="17" lean-forward="false" selection-start-line="30" selection-start-column="17" selection-end-line="30" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="56" lean-forward="false" selection-start-line="15" selection-start-column="56" selection-end-line="15" selection-end-column="56" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="75" column="86" lean-forward="false" selection-start-line="75" selection-start-column="72" selection-end-line="75" selection-end-column="86" />
-          <folding>
-            <element signature="e#3029#3030#0" expanded="true" />
-            <element signature="e#3071#3072#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="333">
+          <caret line="76" column="39" lean-forward="false" selection-start-line="76" selection-start-column="27" selection-end-line="76" selection-end-column="44" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="82" column="5" lean-forward="true" selection-start-line="82" selection-start-column="5" selection-end-line="82" selection-end-column="5" />
+        <state relative-caret-position="-677">
+          <caret line="33" column="54" lean-forward="false" selection-start-line="33" selection-start-column="32" selection-end-line="33" selection-end-column="54" />
           <folding>
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="813">
-          <caret line="63" column="13" lean-forward="true" selection-start-line="63" selection-start-column="13" selection-end-line="63" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="78" column="0" lean-forward="false" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#7788#7789#0" expanded="true" />
-            <element signature="e#7823#7824#0" expanded="true" />
           </folding>
         </state>
       </provider>
