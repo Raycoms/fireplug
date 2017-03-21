@@ -18,7 +18,6 @@ import main.java.com.bag.server.database.SparkseeDatabaseAccess;
 import main.java.com.bag.server.database.TitanDatabaseAccess;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
-import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import java.util.List;
@@ -37,11 +36,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     private ServiceReplica replica = null;
 
     /**
-     * The database instance.
-     */
-    private IDatabaseAccess databaseAccess;
-
-    /**
      * Global snapshot id, increases with every committed transaction.
      */
     private long globalSnapshotId = 0;
@@ -56,6 +50,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     private TreeMap<Long, List<Operation>> globalWriteSet;
 
+    /**
+     * The wrapper class instance. Used to access the global cluster if possible.
+     */
+    private final ServerWrapper wrapper;
+
     private KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
@@ -68,9 +67,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         return kryo;
     };
 
-    protected AbstractRecoverable(int id, final String instance, final String configDirectory)
+    protected AbstractRecoverable(int id, final String configDirectory, final ServerWrapper wrapper)
     {
         this.id = id;
+        this.wrapper = wrapper;
         globalSnapshotId = 1;
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
@@ -83,36 +83,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         pool.release(kryo);
 
         globalWriteSet = new TreeMap<>();
-
-        instantiateDBAccess(instance);
-
-        databaseAccess.start();
-    }
-
-    /**
-     * Instantiate the Database access classes depending on the String instance.
-     *
-     * @param instance the string describing which to use.
-     */
-    private void instantiateDBAccess(String instance)
-    {
-        switch (instance)
-        {
-            case Constants.NEO4J:
-                databaseAccess = new Neo4jDatabaseAccess(this.id);
-                break;
-            case Constants.TITAN:
-                databaseAccess = new TitanDatabaseAccess(this.id);
-                break;
-            case Constants.SPARKSEE:
-                databaseAccess = new SparkseeDatabaseAccess(this.id);
-                break;
-            case Constants.ORIENTDB:
-                databaseAccess = new OrientDBDatabaseAccess(this.id);
-                break;
-            default:
-                Log.getLogger().warn("Invalid databaseAccess");
-        }
     }
 
     @Override
@@ -146,7 +116,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         this.id = kryo.readObject(input, Integer.class);
         String instance = kryo.readObject(input, String.class);
-        instantiateDBAccess(instance);
+        wrapper.instantiateDBAccess(instance);
 
         readSpecificData(input, kryo);
 
@@ -200,7 +170,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
 
         kryo.writeObject(output, id);
-
+        IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
         if (databaseAccess instanceof Neo4jDatabaseAccess)
         {
             kryo.writeObject(output, Constants.NEO4J);
@@ -240,7 +210,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         //Execute the transaction.
         for (Operation op : localWriteSet)
         {
-            op.apply(databaseAccess, globalSnapshotId);
+            op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
         }
         this.globalWriteSet.put(getGlobalSnapshotId(), localWriteSet);
 
@@ -266,15 +236,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     }
 
     /**
-     * Getter of the databaseAccess.
-     * @return the database access object.
-     */
-    public IDatabaseAccess getDatabaseAccess()
-    {
-        return databaseAccess;
-    }
-
-    /**
      * Get a copy of the global writeSet.
      * @return a hashmap of all the operations with their snapshotId.
      */
@@ -288,7 +249,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     public void terminate()
     {
-        this.databaseAccess.terminate();
         this.replica.kill();
     }
 

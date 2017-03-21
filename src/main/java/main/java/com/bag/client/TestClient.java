@@ -46,7 +46,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     private long localTimestamp = -1;
 
     /**
-     *
+     * the if the local server process the client is communicating with.
      */
     private final int serverProcess;
 

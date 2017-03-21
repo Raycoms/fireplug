@@ -14,7 +14,6 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
-import org.apache.lucene.analysis.util.CharArrayMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
@@ -31,7 +30,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Name of the location of the global config.
      */
-    private static final String GLOBAL_CONFIG_LOCATION = "global";
+    private static final String GLOBAL_CONFIG_LOCATION = "global/config";
 
     /**
      * The wrapper class instance. Used to access the global cluster if possible.
@@ -53,12 +52,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final ServiceProxy proxy;
 
-    public GlobalClusterSlave(final int id, final String instance, @NotNull final ServerWrapper wrapper)
+    public GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper)
     {
-        super(id, instance, GLOBAL_CONFIG_LOCATION);
+        super(id, GLOBAL_CONFIG_LOCATION, wrapper);
         this.id = id;
         this.wrapper = wrapper;
-        this.proxy = new ServiceProxy(id , "global");
+        this.proxy = new ServiceProxy(id , GLOBAL_CONFIG_LOCATION);
     }
 
     //Every byte array is one request.
@@ -154,7 +153,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Output output = new Output(1024);
         output.writeString(Constants.COMMIT_RESPONSE);
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, getDatabaseAccess()))
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
             Log.getLogger().info("Found conflict, returning abort");
             output.writeString(Constants.ABORT);

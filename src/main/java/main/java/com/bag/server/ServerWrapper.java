@@ -1,5 +1,10 @@
 package main.java.com.bag.server;
 
+import main.java.com.bag.server.database.Neo4jDatabaseAccess;
+import main.java.com.bag.server.database.OrientDBDatabaseAccess;
+import main.java.com.bag.server.database.SparkseeDatabaseAccess;
+import main.java.com.bag.server.database.TitanDatabaseAccess;
+import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +34,7 @@ public class ServerWrapper
     private LocalClusterSlave  localCluster;
 
     /**
-     * The id of the server in the global cluster.
+     * The id of the server in the global cluster. Also the id of the local cluster (initially).
      */
     private final int globalServerId;
 
@@ -41,7 +46,13 @@ public class ServerWrapper
     /**
      * The id of the server in the local cluster.
      */
-    private final int localClusterId;
+    private final int localClusterSlaveId;
+
+
+    /**
+     * The database instance.
+     */
+    private IDatabaseAccess databaseAccess;
 
     /**
      * Creates a serverWrapper which contains the instances of the global and local clusters.
@@ -49,22 +60,62 @@ public class ServerWrapper
      * @param globalServerId the id of the server in the global cluster and local cluster.
      * @param instance  the instance of the server (Ex: Neo4j, OrientDB etc).
      * @param isPrimary checks if it is a primary.
-     * @param localClusterId the id of it in the local cluster.
+     * @param localClusterSlaveId the id of it in the local cluster.
      * @param initialLeaderId the id of its leader in the global cluster.
      */
-    public ServerWrapper(final int globalServerId, @NotNull final String instance, final boolean isPrimary, final int localClusterId, final int initialLeaderId)
+    public ServerWrapper(final int globalServerId, @NotNull final String instance, final boolean isPrimary, final int localClusterSlaveId, final int initialLeaderId)
     {
         this.globalServerId = globalServerId;
         this.instance = instance;
-        this.localClusterId = localClusterId;
-        localCluster = new LocalClusterSlave(localClusterId, instance, this);
+        this.localClusterSlaveId = localClusterSlaveId;
+
+        instantiateDBAccess(instance);
+
+        databaseAccess.start();
+
+        localCluster = new LocalClusterSlave(localClusterSlaveId, this, globalServerId);
         if(isPrimary)
         {
-            globalCluster = new GlobalClusterSlave(globalServerId, instance, this);
+            globalCluster = new GlobalClusterSlave(globalServerId, this);
             localCluster.setPrimary(true);
         }
 
         localCluster.setPrimaryGlobalClusterId(initialLeaderId);
+    }
+
+    /**
+     * Get an instance of the dataBaseAccess.
+     * @return the instance.
+     */
+    public synchronized IDatabaseAccess getDataBaseAccess()
+    {
+        return this.databaseAccess;
+    }
+
+    /**
+     * Instantiate the Database access classes depending on the String instance.
+     *
+     * @param instance the string describing which to use.
+     */
+    public void instantiateDBAccess(String instance)
+    {
+        switch (instance)
+        {
+            case Constants.NEO4J:
+                databaseAccess = new Neo4jDatabaseAccess(globalServerId);
+                break;
+            case Constants.TITAN:
+                databaseAccess = new TitanDatabaseAccess(globalServerId);
+                break;
+            case Constants.SPARKSEE:
+                databaseAccess = new SparkseeDatabaseAccess(globalServerId);
+                break;
+            case Constants.ORIENTDB:
+                databaseAccess = new OrientDBDatabaseAccess(globalServerId);
+                break;
+            default:
+                Log.getLogger().warn("Invalid databaseAccess");
+        }
     }
 
     /**
@@ -108,10 +159,10 @@ public class ServerWrapper
     public static void main(String [] args)
     {
         //todo all ids are globally unique.
-        int serverId;
+        final int serverId;
         final String instance;
         final boolean actsInGlobalCluster;
-        final int localClusterId;
+        final int localClusterSlaveId;
         final int idOfPrimary;
 
         if (args.length <= 3)
@@ -151,7 +202,7 @@ public class ServerWrapper
 
         try
         {
-            localClusterId = Integer.parseInt(args[2]);
+            localClusterSlaveId = Integer.parseInt(args[2]);
         }
         catch (NumberFormatException ne)
         {
@@ -177,7 +228,7 @@ public class ServerWrapper
         {
             actsInGlobalCluster = Boolean.valueOf(args[2]);
         }
-        @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterId, idOfPrimary);
+        @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary);
 
         final Scanner reader = new Scanner(System.in);  // Reading from System.in
         Log.getLogger().info("Write anything to the console to kill this process");
@@ -194,7 +245,7 @@ public class ServerWrapper
      */
     public void initNewGlobalClusterInstance()
     {
-        globalCluster = new GlobalClusterSlave(globalServerId, instance, this);
+        globalCluster = new GlobalClusterSlave(globalServerId, this);
     }
 
     /**
@@ -202,7 +253,7 @@ public class ServerWrapper
      */
     public void initNewLocalClusterInstance()
     {
-        localCluster = new LocalClusterSlave(localClusterId, instance, this);
+        localCluster = new LocalClusterSlave(localClusterSlaveId, this, globalServerId);
     }
 
     /**
@@ -230,8 +281,8 @@ public class ServerWrapper
      * Get the id of the local cluster.
      * @return the id of it.
      */
-    public int getLocalClusterId()
+    public int getLocalClusterSlaveId()
     {
-        return localClusterId;
+        return localClusterSlaveId;
     }
 }

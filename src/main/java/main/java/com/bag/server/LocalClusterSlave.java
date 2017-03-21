@@ -3,6 +3,7 @@ package main.java.com.bag.server;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
+import bftsmart.tom.core.messages.TOMMessageType;
 import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -30,11 +31,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Name of the location of the global config.
      */
-    private static final String GLOBAL_CONFIG_LOCATION = "global";
+    private static final String GLOBAL_CONFIG_LOCATION = "global%d/config";
     /**
      * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
      */
-    private static final String LOCAL_CONFIG_LOCATION = "local";
+    private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
 
     /**
      * The wrapper class instance. Used to access the global cluster if possible.
@@ -57,6 +58,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     private int primaryGlobalClusterId = -1;
 
     /**
+     * The id of the primary of this slave in the local cluster.
+     */
+    private int primaryId = -1;
+
+    /**
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
@@ -70,15 +76,15 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Public constructor used to create a local cluster slave.
      * @param id its unique id in the local cluster.
-     * @param instance its instance (Neo4j etc)
      * @param wrapper its ordering wrapper.
+     * @param localClusterId the id of the cluster (the id of the starting primary in the global cluster).
      */
-    public LocalClusterSlave(final int id, final String instance, @NotNull final ServerWrapper wrapper)
+    public LocalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final int localClusterId)
     {
-        super(id, instance, LOCAL_CONFIG_LOCATION + id);
+        super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper);
         this.id = id;
         this.wrapper = wrapper;
-        this.proxy = new ServiceProxy(id , LOCAL_CONFIG_LOCATION + id);
+        this.proxy = new ServiceProxy(id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
     }
 
     /**
@@ -87,6 +93,10 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void setPrimary(boolean isPrimary)
     {
+        if(isPrimary)
+        {
+            primaryId = id;
+        }
         this.isPrimary = isPrimary;
     }
 
@@ -133,7 +143,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 output = handleRelationshipRead(input, messageContext, kryo, output);
                 break;
             case Constants.GET_PRIMARY:
-                output = handleGetPrimaryMessage(messageContext, kryo, output);
+                output = handleGetPrimaryMessage(messageContext, output);
                 break;
             case Constants.COMMIT:
                 output = handleCommitMessage(input, messageContext, kryo, output);
@@ -147,11 +157,24 @@ public class LocalClusterSlave extends AbstractRecoverable
             case Constants.UPDATE_SLAVE:
                  output = handleSlaveUpdateMessage(input, output, kryo);
                  break;
+            case Constants.ASK_PRIMARY:
+                notifyAllSlavesAboutNewPrimary();
+                break;
             default:
                 Log.getLogger().warn("Incorrect operation sent unordered to the server");
                 output.close();
                 input.close();
                 return new byte[0];
+        }
+
+        //If primary changed ask new primary for his global cluster id.
+        if(messageContext.getLeader() != primaryId)
+        {
+            primaryId = messageContext.getLeader();
+            final Output localOutput = new Output(0, 512);
+            localOutput.writeString(Constants.ASK_PRIMARY);
+            proxy.sendMessageToTargets(output.getBuffer(), 0, new int[] {messageContext.getLeader()}, TOMMessageType.UNORDERED_REQUEST);
+            localOutput.close();
         }
 
         byte[] returnValue = output.toBytes();
@@ -252,7 +275,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         final Output output = new Output(0, 1000240);
         output.writeString(Constants.PRIMARY_NOTICE);
         output.writeInt(wrapper.getGlobalServerId());
-        primaryGlobalClusterId = id;
+        primaryGlobalClusterId = wrapper.getGlobalServerId();
 
         proxy.invokeUnordered(output.getBuffer());
 
@@ -265,7 +288,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         final Output output = new Output(0, 1000240);
         output.writeString(Constants.REGISTER_GLOBALLY_MESSAGE);
-        output.writeInt(wrapper.getLocalClusterId());
+        output.writeInt(wrapper.getLocalClusterSlaveId());
         output.writeInt(wrapper.getGlobalServerId());
         output.writeInt(primaryGlobalClusterId);
 
@@ -291,13 +314,12 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Handles a get primary message.
      * @param messageContext the message context.
-     * @param kryo  kryo object.
      * @param output write info to.
      * @return sends the primary to the people.
      */
-    private Output handleGetPrimaryMessage(final MessageContext messageContext, final Kryo kryo, final Output output)
+    private Output handleGetPrimaryMessage(final MessageContext messageContext, final Output output)
     {
-        kryo.writeClassAndObject(output, messageContext.getLeader());
+        output.writeInt(messageContext.getLeader());
         return output;
     }
 
@@ -331,12 +353,13 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         try
         {
-            returnList = new ArrayList<>(getDatabaseAccess().readObject(identifier, localSnapshotId));
+            returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
         }
         catch (OutDatedDataException e)
         {
             Log.getLogger().info("Transaction found conflict - terminating", e);
             terminate();
+            return output;
         }
 
         if (returnList != null)
@@ -403,7 +426,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Get info from databaseAccess");
         try
         {
-            returnList = new ArrayList<>((getDatabaseAccess()).readObject(identifier, localSnapshotId));
+            returnList = new ArrayList<>((wrapper.getDataBaseAccess()).readObject(identifier, localSnapshotId));
         }
         catch (OutDatedDataException e)
         {
@@ -450,7 +473,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if(lastKey > snapShotId)
         {
-            Log.getLogger().warn("Something went incredibly wrong. Transaction has been executed even with a missing one at local cluster: " + wrapper.getLocalClusterId());
+            Log.getLogger().warn("Something went incredibly wrong. Transaction has been executed even with a missing one at local cluster: " + wrapper.getLocalClusterSlaveId());
             return output;
         }
         else if(lastKey == snapShotId)
@@ -507,7 +530,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             if(!signatureMatches)
             {
-                Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterId());
+                Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
                 return output;
             }
         }
@@ -549,7 +572,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         while(result == null || result.length == 0)
         {
-            result = proxy.invokeOrdered(output.getBuffer());
+            result = proxy.invokeUnordered(output.getBuffer());
         }
 
         if(Constants.COMMIT.equals(decision))
