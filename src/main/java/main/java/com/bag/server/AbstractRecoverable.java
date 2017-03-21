@@ -1,8 +1,6 @@
 package main.java.com.bag.server;
 
-import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
-import bftsmart.tom.server.RequestVerifier;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.server.defaultservices.DefaultReplier;
 import com.esotericsoftware.kryo.Kryo;
@@ -10,7 +8,6 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
@@ -24,13 +21,9 @@ import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
-import main.java.com.bag.util.storage.TransactionStorage;
-import sun.net.www.protocol.https.DefaultHostnameVerifier;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Super class of local or global cluster.
@@ -48,12 +41,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     private IDatabaseAccess databaseAccess;
 
-    //todo maybe detect local transaction problems in the future.
-    /**
-     * Contains all local transactions being executed on the server at the very moment.
-     */
-    private HashMap<Integer, TransactionStorage> localTransactionList = new HashMap<>();
-
     /**
      * Global snapshot id, increases with every committed transaction.
      */
@@ -67,7 +54,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Write set of the nodes contains updates and deletes.
      */
-    private HashMap<Long, List<Operation>> globalWriteSet;
+    private TreeMap<Long, List<Operation>> globalWriteSet;
 
     private KryoFactory factory = () ->
     {
@@ -95,7 +82,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
 
-        globalWriteSet = new HashMap<>();
+        globalWriteSet = new TreeMap<>();
 
         instantiateDBAccess(instance);
 
@@ -161,6 +148,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         String instance = kryo.readObject(input, String.class);
         instantiateDBAccess(instance);
 
+        readSpecificData(input, kryo);
+
         this.replica = new ServiceReplica(id, this, this);
         this.replica.setReplyController(new DefaultReplier());
 
@@ -170,6 +159,20 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         input.close();
         pool.release(kryo);
     }
+
+    /**
+     * Read the specific data of a local or global cluster.
+     * @param input object to read from.
+     * @param kryo kryo object.
+     */
+    abstract void readSpecificData(final Input input, final Kryo kryo);
+
+    /**
+     * Write the specific data of a local or global cluster.
+     * @param output object to write to.
+     * @param kryo kryo object.
+     */
+    abstract void writeSpecificData(final Output output, final Kryo kryo);
 
     @Override
     public byte[] getSnapshot()
@@ -184,7 +187,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         if (globalWriteSet == null)
         {
-            globalWriteSet = new HashMap<>();
+            globalWriteSet = new TreeMap<>();
         }
         else
         {
@@ -219,266 +222,65 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, "none");
         }
 
+        writeSpecificData(output, kryo);
+
         byte[] bytes = output.toBytes();
         output.close();
         pool.release(kryo);
         return bytes;
     }
 
-    //Every byte array is one request.
-    @Override
-    public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
+    /**
+     * Execute the commit on the replica.
+     * @param localWriteSet the write set to execute.
+     */
+    public synchronized long executeCommit(final List<Operation> localWriteSet)
     {
-        for (int i = 0; i < bytes.length; ++i)
-        {
-            if (messageContexts != null && messageContexts[i] != null)
-            {
-                KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-                Kryo kryo = pool.borrow();
-                Input input = new Input(bytes[i]);
-
-                String type = kryo.readObject(input, String.class);
-
-                if (Constants.COMMIT_MESSAGE.equals(type))
-                {
-                    return executeCommit(kryo, input);
-                }
-            }
-        }
-        return new byte[0][];
-    }
-
-    public byte[][] executeCommit(Kryo kryo, Input input)
-    {
-        Long timeStamp = kryo.readObject(input, Long.class);
-
-        //Read the inputStream.
-        Object readsSetNodeX = kryo.readClassAndObject(input);
-        Object readsSetRelationshipX = kryo.readClassAndObject(input);
-        Object writeSetX = kryo.readClassAndObject(input);
-
-        //Create placeHolders.
-        ArrayList<NodeStorage> readSetNode;
-        ArrayList<RelationshipStorage> readsSetRelationship;
-        ArrayList<Operation> localWriteSet;
-
-        try
-        {
-            readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
-            readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
-
-            localWriteSet = (ArrayList<Operation>) writeSetX;
-        }
-        catch (Exception e)
-        {
-            Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
-            return new byte[0][];
-        }
-
-        input.close();
-        Output output = new Output(1024);
-        output.writeString(Constants.COMMIT_RESPONSE);
-
-        if (!ConflictHandler.checkForConflict(this.globalWriteSet, localWriteSet, readSetNode, readsSetRelationship, timeStamp, databaseAccess))
-        {
-            Log.getLogger().info("Found conflict, returning abort");
-            output.writeString(Constants.ABORT);
-            //Send abort to client and abort
-            byte[][] returnBytes = {output.toBytes()};
-            output.close();
-            return returnBytes;
-        }
-
-        globalSnapshotId += 1;
+        ++globalSnapshotId;
         //Execute the transaction.
         for (Operation op : localWriteSet)
         {
             op.apply(databaseAccess, globalSnapshotId);
         }
+        this.globalWriteSet.put(getGlobalSnapshotId(), localWriteSet);
 
-        //Store the write set.
-        this.globalWriteSet.put(globalSnapshotId, localWriteSet);
-        output.writeString(Constants.COMMIT);
-        byte[][] returnBytes = {output.toBytes()};
-        output.close();
-        Log.getLogger().info("No conflict found, returning commit");
-        return returnBytes;
-    }
-
-    @Override
-    public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
-    {
-        Log.getLogger().info("Received unordered message");
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
-        Input input = new Input(bytes);
-        String reason = kryo.readObject(input, String.class);
-
-        Output output = new Output(0, 1000240);
-
-        switch (reason)
-        {
-            case Constants.READ_MESSAGE:
-                output = handleNodeRead(input, messageContext, kryo, output);
-                break;
-            case Constants.RELATIONSHIP_READ_MESSAGE:
-                output = handleRelationshipRead(input, messageContext, kryo, output);
-                break;
-            default:
-                Log.getLogger().warn("Incorrect operation sent unordered to the server");
-                output.close();
-                input.close();
-                return new byte[0];
-        }
-
-        byte[] returnValue = output.toBytes();
-
-        Log.getLogger().info("Return it to client, size: " + returnValue.length);
-
-        output.close();
-        pool.release(kryo);
-
-        return returnValue;
+        return globalSnapshotId;
     }
 
     /**
-     * Handles the relationship read message and requests it to the database.
-     *
-     * @param input          get info from.
-     * @param messageContext additional context.
-     * @param kryo           kryo object.
-     * @param output         write info to.
-     * @return output object to return to client.
+     * Getter for the service replica.
+     * @return instance of the service replica
      */
-    private Output handleRelationshipRead(final Input input, final MessageContext messageContext, final Kryo kryo, final Output output)
+    public ServiceReplica getReplica()
     {
-        long localSnapshotId = kryo.readObject(input, Long.class);
-        RelationshipStorage identifier = (RelationshipStorage) kryo.readClassAndObject(input);
-        input.close();
-
-        Log.getLogger().info("With snapShot id: " + localSnapshotId);
-        if (localSnapshotId == -1)
-        {
-            TransactionStorage transaction = new TransactionStorage();
-            transaction.addReadSetRelationship(identifier);
-            localTransactionList.put(messageContext.getSender(), transaction);
-            localSnapshotId = globalSnapshotId;
-        }
-        ArrayList<Object> returnList = null;
-
-
-        Log.getLogger().info("Get info from databaseAccess");
-        try
-        {
-            returnList = new ArrayList<>((databaseAccess).readObject(identifier, localSnapshotId));
-        }
-        catch (OutDatedDataException e)
-        {
-            Log.getLogger().info("Transaction found conflict - terminating", e);
-            terminate();
-        }
-
-        kryo.writeObject(output, localSnapshotId);
-
-        if (returnList == null || returnList.isEmpty())
-        {
-            kryo.writeClassAndObject(output, new ArrayList<NodeStorage>());
-            kryo.writeClassAndObject(output, new ArrayList<RelationshipStorage>());
-            return output;
-        }
-        Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
-
-        ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
-        ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
-        for (Object obj : returnList)
-        {
-            if (obj instanceof NodeStorage)
-            {
-                nodeStorage.add((NodeStorage) obj);
-            }
-            else if (obj instanceof RelationshipStorage)
-            {
-                relationshipStorage.add((RelationshipStorage) obj);
-            }
-        }
-
-        //todo problem returning the relationship here!
-        kryo.writeClassAndObject(output, nodeStorage);
-        kryo.writeClassAndObject(output, relationshipStorage);
-
-        return output;
+        return replica;
     }
 
     /**
-     * Handles the node read message and requests it to the database.
-     *
-     * @param input          get info from.
-     * @param messageContext additional context.
-     * @param kryo           kryo object.
-     * @param output         write info to.
-     * @return output object to return to client.
+     * Getter for the global snapshotId.
+     * @return the snapshot id.
      */
-    private Output handleNodeRead(Input input, MessageContext messageContext, Kryo kryo, Output output)
+    public long getGlobalSnapshotId()
     {
-        long localSnapshotId = kryo.readObject(input, Long.class);
-        NodeStorage identifier = (NodeStorage) kryo.readClassAndObject(input);
-        input.close();
+        return globalSnapshotId;
+    }
 
-        Log.getLogger().info("With snapShot id: " + localSnapshotId);
-        if (localSnapshotId == -1)
-        {
-            TransactionStorage transaction = new TransactionStorage();
-            transaction.addReadSetNodes(identifier);
-            localTransactionList.put(messageContext.getSender(), transaction);
-            localSnapshotId = globalSnapshotId;
-        }
-        ArrayList<Object> returnList = null;
+    /**
+     * Getter of the databaseAccess.
+     * @return the database access object.
+     */
+    public IDatabaseAccess getDatabaseAccess()
+    {
+        return databaseAccess;
+    }
 
-
-        Log.getLogger().info("Get info from databaseAccess");
-        try
-        {
-            returnList = new ArrayList<>(databaseAccess.readObject(identifier, localSnapshotId));
-        }
-        catch (OutDatedDataException e)
-        {
-            Log.getLogger().info("Transaction found conflict - terminating", e);
-            terminate();
-        }
-
-        if (returnList != null)
-        {
-            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
-        }
-
-
-        kryo.writeObject(output, localSnapshotId);
-
-        if (returnList == null || returnList.isEmpty())
-        {
-            kryo.writeClassAndObject(output, new ArrayList<NodeStorage>());
-            kryo.writeClassAndObject(output, new ArrayList<RelationshipStorage>());
-            return output;
-        }
-
-        ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
-        ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
-        for (Object obj : returnList)
-        {
-            if (obj instanceof NodeStorage)
-            {
-                nodeStorage.add((NodeStorage) obj);
-            }
-            else if (obj instanceof RelationshipStorage)
-            {
-                relationshipStorage.add((RelationshipStorage) obj);
-            }
-        }
-
-        kryo.writeClassAndObject(output, nodeStorage);
-        kryo.writeClassAndObject(output, relationshipStorage);
-
-        return output;
+    /**
+     * Get a copy of the global writeSet.
+     * @return a hashmap of all the operations with their snapshotId.
+     */
+    public TreeMap<Long, List<Operation>> getGlobalWriteSet()
+    {
+        return new TreeMap<>(globalWriteSet);
     }
 
     /**
@@ -488,5 +290,14 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     {
         this.databaseAccess.terminate();
         this.replica.kill();
+    }
+
+    /**
+     * Get the kryoFactory of this recoverable.
+     * @return the factory.
+     */
+    public KryoFactory getFactory()
+    {
+        return factory;
     }
 }

@@ -2,200 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b25c77af-4557-4786-a808-ade860b1172d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/currentView" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/currentView" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/hosts.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/privatekey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/keys/publickey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/sparksee.cfg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/system.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/global/config/workloads/workloada" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/hosts.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/privatekey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey0" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1003" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1004" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1005" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1006" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1007" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1008" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1009" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1010" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1011" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1012" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1013" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1014" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1015" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1016" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1017" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1018" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1019" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey1020" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey5001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey5002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey6" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey6001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey6002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey7" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey7001" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey7002" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey8" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/keys/publickey9" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/sparksee.cfg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/system.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/local/config/workloads/workloada" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB1/schema/label/lucene/labelStore/1/_12o.cfe" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB1/schema/label/lucene/labelStore/1/_12o.cfs" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB1/schema/label/lucene/labelStore/1/_12o.si" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Neo4jDB1/schema/label/lucene/labelStore/1/segments_l" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.a" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.a" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.b" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.counts.db.b" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.nodestore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.propertystore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db.id" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.relationshipstore.db.id" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" afterPath="$PROJECT_DIR$/Neo4jDB1/neostore.transaction.db.0" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TitanDB/00000000.jdb" afterPath="$PROJECT_DIR$/TitanDB/00000000.jdb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/client/TestClient.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/main/RunTests.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/CreateOperation.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/CreateOperation.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/DeleteOperation.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/DeleteOperation.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/UpdateOperation.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/operations/UpdateOperation.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/TestServer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/Neo4jDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/OrientDBDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/OrientDBDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/SparkseeDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/SparkseeDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/server/database/TitanDatabaseAccess.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/storage/NodeStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/storage/NodeStorage.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/storage/RelationshipStorage.class" afterPath="$PROJECT_DIR$/build/classes/main/main/java/com/bag/util/storage/RelationshipStorage.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/SignatureStorage.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" afterPath="$PROJECT_DIR$/Neo4jDB1/logs/debug.log" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/system.config" afterPath="$PROJECT_DIR$/config/system.config" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/global/config/hosts.config" afterPath="$PROJECT_DIR$/global/config/hosts.config" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/local/config/hosts.config" afterPath="$PROJECT_DIR$/local/config/hosts.config" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/local/config/system.config" afterPath="$PROJECT_DIR$/local/config/system.config" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" afterPath="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
     </list>
     <ignored path="BAG - Byzantine fault-tolerant Architecture for Graph database.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -246,42 +64,44 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="OutDatedDataException.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/exceptions/OutDatedDataException.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="780">
-              <caret line="55" column="0" lean-forward="false" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="TestClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="705">
-              <caret line="68" column="51" lean-forward="false" selection-start-line="68" selection-start-column="51" selection-end-line="68" selection-end-column="51" />
+            <state relative-caret-position="4545">
+              <caret line="324" column="22" lean-forward="false" selection-start-line="324" selection-start-column="16" selection-end-line="324" selection-end-column="22" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ServiceProxy.class" pinned="false" current-in-tab="false">
-        <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/ServiceProxy.class">
+      <file leaf-file-name="Constants.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="41" column="11" lean-forward="false" selection-start-line="41" selection-start-column="11" selection-end-line="41" selection-end-column="11" />
+            <state relative-caret-position="285">
+              <caret line="19" column="48" lean-forward="false" selection-start-line="19" selection-start-column="48" selection-end-line="19" selection-end-column="48" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build.gradle">
+      <file leaf-file-name="ServerWrapper.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="22" column="26" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+            <state relative-caret-position="3150">
+              <caret line="230" column="28" lean-forward="false" selection-start-line="230" selection-start-column="28" selection-end-line="230" selection-end-column="28" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LocalClusterSlave.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="609">
+              <caret line="599" column="5" lean-forward="false" selection-start-line="599" selection-start-column="5" selection-end-line="599" selection-end-column="5" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -289,8 +109,8 @@
       <file leaf-file-name="AbstractRecoverable.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1035">
-              <caret line="99" column="38" lean-forward="false" selection-start-line="99" selection-start-column="38" selection-end-line="99" selection-end-column="38" />
+            <state relative-caret-position="1905">
+              <caret line="150" column="36" lean-forward="false" selection-start-line="150" selection-start-column="36" selection-end-line="150" selection-end-column="36" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -301,36 +121,23 @@
       <file leaf-file-name="GlobalClusterSlave.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="81" lean-forward="false" selection-start-line="11" selection-start-column="81" selection-end-line="11" selection-end-column="81" />
-              <folding>
-                <element signature="e#377#378#0" expanded="true" />
-                <element signature="e#426#427#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LocalClusterSlave.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="24" column="0" lean-forward="true" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-              <folding>
-                <element signature="e#354#355#0" expanded="true" />
-                <element signature="e#402#403#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ServerWrapper.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="124">
-              <caret line="63" column="43" lean-forward="false" selection-start-line="63" selection-start-column="43" selection-end-line="63" selection-end-column="43" />
+            <state relative-caret-position="405">
+              <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SignatureStorage.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/SignatureStorage.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="21" column="70" lean-forward="false" selection-start-line="21" selection-start-column="70" selection-end-line="21" selection-end-column="70" />
+              <folding>
+                <element signature="e#2128#2129#0" expanded="true" />
+                <element signature="e#2164#2165#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -348,6 +155,29 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>delete</find>
+      <find>handleNodeRead</find>
+      <find>invokeOrdered</find>
+      <find>sendMessageToTargets</find>
+      <find>noo</find>
+      <find>service</find>
+      <find>serviceProxy</find>
+      <find>rsaLoader</find>
+      <find>defaultKeys</find>
+      <find>appExecuteUnordered</find>
+      <find>respond</find>
+      <find>Map</find>
+      <find>sendMes</find>
+      <find>output</find>
+      <find>&quot;local&quot;</find>
+      <find>primaryGlobalClusterId</find>
+      <find>kryo</find>
+      <find>prop</find>
+      <find>COMMIT</find>
+      <find>GLOBAL_CONFIG_LOCATION</find>
+      <find>globalSnapshotId</find>
+      <find>signature</find>
+      <find>snapshot</find>
+      <find>proxy</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -684,10 +514,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/smartBFTTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/testClient.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/testServer.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/DatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/OrientDBDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TitanDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/Neo4jDatabaseAccess.java" />
@@ -699,7 +525,6 @@
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/ReadStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Log.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/HashCreator.java" />
-        <option value="$PROJECT_DIR$/config/system.config" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Interfaces/IDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/TransactionStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/RelationshipStorage.java" />
@@ -717,7 +542,6 @@
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/RelationshipStorage.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/operations/Operation.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeUtils.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
         <option value="$PROJECT_DIR$/config/sparksee.cfg" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/Neo4jDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java" />
@@ -730,11 +554,17 @@
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/TestServer.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/iServiceProxy.java" />
+        <option value="$PROJECT_DIR$/config/system.config" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java" />
+        <option value="$PROJECT_DIR$/local/config/system.config" />
+        <option value="$PROJECT_DIR$/local/config/hosts.config" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/SignatureStorage.java" />
+        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java" />
         <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java" />
-        <option value="$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java" />
       </list>
     </option>
   </component>
@@ -758,7 +588,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -805,14 +634,37 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="local" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="config" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="1.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BAG - Byzantine fault-tolerant Architecture for Graph database" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="global" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="config" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -822,6 +674,12 @@
     <property name="project.structure.side.proportion" value="0.2" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/java/com" />
+    </key>
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="main.java.com.bag.util.storage" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/local" />
       <recent name="$PROJECT_DIR$/global" />
@@ -829,11 +687,8 @@
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/Neo4jDB0" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/java/com" />
-    </key>
   </component>
-  <component name="RunManager" selected="Application.Server3">
+  <component name="RunManager" selected="Application.Server 4">
     <configuration default="false" name="BAG - Byzantine fault-tolerant Architecture for Graph database [buildDependents]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1096,7 +951,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="0 titan" />
+      <option name="PROGRAM_PARAMETERS" value="0 titan 0 0 true" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1111,7 +966,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="1 neo4j" />
+      <option name="PROGRAM_PARAMETERS" value="1 Neo4j 1 1 true" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1126,7 +981,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="2 orientdb" />
+      <option name="PROGRAM_PARAMETERS" value="2 orientdb 2 2 true" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1141,7 +996,22 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
       <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="3 sparksee" />
+      <option name="PROGRAM_PARAMETERS" value="3 sparksee 3 3 true" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="1.0_main" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="Server 4" type="Application" factoryName="Application">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="MAIN_CLASS_NAME" value="main.java.com.bag.server.ServerWrapper" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="4 Neo4j 2 1 true" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -1167,15 +1037,16 @@
       <envs />
       <method />
     </configuration>
-    <list size="8">
+    <list size="9">
       <item index="0" class="java.lang.String" itemvalue="Application.Server0" />
       <item index="1" class="java.lang.String" itemvalue="Application.Server1" />
       <item index="2" class="java.lang.String" itemvalue="Application.Server2" />
       <item index="3" class="java.lang.String" itemvalue="Application.Server3" />
-      <item index="4" class="java.lang.String" itemvalue="Application.Client" />
-      <item index="5" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [buildDependents]" />
-      <item index="6" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [clean]" />
-      <item index="7" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [buildNeeded]" />
+      <item index="4" class="java.lang.String" itemvalue="Application.Server 4" />
+      <item index="5" class="java.lang.String" itemvalue="Application.Client" />
+      <item index="6" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [buildDependents]" />
+      <item index="7" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [clean]" />
+      <item index="8" class="java.lang.String" itemvalue="Gradle.BAG - Byzantine fault-tolerant Architecture for Graph database [buildNeeded]" />
     </list>
     <recent_temporary>
       <list size="3">
@@ -1212,6 +1083,9 @@
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
   </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="b25c77af-4557-4786-a808-ade860b1172d" name="Default" comment="" />
@@ -1232,8 +1106,8 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-2" y="0" width="1924" height="1055" extended-state="0" />
-    <editor active="true" />
+    <frame x="-2" y="0" width="1924" height="1055" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="6" side_tool="false" content_ui="tabs" />
@@ -1241,7 +1115,7 @@
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24678111" sideWeight="0.5042644" order="8" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17167382" sideWeight="0.5042644" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24678111" sideWeight="0.3065032" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939914" sideWeight="0.4978678" order="9" side_tool="false" content_ui="tabs" />
@@ -1249,8 +1123,8 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27452025" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="SonarLint" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290461" sideWeight="0.4978678" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18923241" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="SonarLint" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27145922" sideWeight="0.4978678" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17803837" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1283,14 +1157,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java</url>
-          <line>274</line>
-          <properties />
-          <option name="timeStamp" value="150" />
-        </line-breakpoint>
-      </breakpoints>
       <option name="time" value="164" />
     </breakpoint-manager>
     <watches-manager>
@@ -1305,221 +1171,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/core/messages/TOMMessageType.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="14" column="29" lean-forward="false" selection-start-line="14" selection-start-column="29" selection-end-line="14" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/communication/client/netty/NettyClientServerCommunicationSystemClientSide.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="203">
-          <caret line="241" column="16" lean-forward="false" selection-start-line="241" selection-start-column="16" selection-end-line="241" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/TOMSender.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="101" column="19" lean-forward="false" selection-start-line="101" selection-start-column="16" selection-end-line="101" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config/system.config">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1005">
-          <caret line="67" column="16" lean-forward="false" selection-start-line="67" selection-start-column="16" selection-end-line="67" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/server/defaultservices/DefaultRecoverable.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="229">
-          <caret line="302" column="0" lean-forward="false" selection-start-line="302" selection-start-column="0" selection-end-line="302" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neo4jDB2/logs/debug.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neo4jDB1/logs/debug.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neo4jDB3/logs/debug.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.orientechnologies/orientdb-graphdb/2.2.11/a1903f89c39b13668ae6e728b680776d48049213/orientdb-graphdb-2.2.11-sources.jar!/com/tinkerpop/blueprints/impls/orient/OrientVertex.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="1106" column="47" lean-forward="false" selection-start-line="1106" selection-start-column="42" selection-end-line="1106" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.orientechnologies/orientdb-graphdb/2.2.11/a1903f89c39b13668ae6e728b680776d48049213/orientdb-graphdb-2.2.11-sources.jar!/com/tinkerpop/blueprints/impls/orient/OrientBaseGraph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="12525">
-          <caret line="904" column="56" lean-forward="false" selection-start-line="904" selection-start-column="51" selection-end-line="904" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/demo/counter/CounterServer.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="36" column="9" lean-forward="false" selection-start-line="30" selection-start-column="8" selection-end-line="36" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/JsonGenerator.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/interfaces/IDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="394">
-          <caret line="146" column="39" lean-forward="false" selection-start-line="146" selection-start-column="39" selection-end-line="146" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/ArangoDBDatabaseAccess.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/TransactionStorage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="12" column="13" lean-forward="false" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sparsity/sparkseejava/5.2.0/fcf7acac4b0789ea7f8720fec0b6f5269aada8/sparkseejava-5.2.0.jar!/com/sparsity/sparksee/gdb/Objects.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3153">
-          <caret line="16" column="13" lean-forward="false" selection-start-line="16" selection-start-column="13" selection-end-line="16" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sparsity/sparkseejava/5.2.0/fcf7acac4b0789ea7f8720fec0b6f5269aada8/sparkseejava-5.2.0.jar!/com/sparsity/sparksee/gdb/Graph.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="301">
-          <caret line="151" column="16" lean-forward="false" selection-start-line="151" selection-start-column="16" selection-end-line="151" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="16" column="69" lean-forward="false" selection-start-line="16" selection-start-column="69" selection-end-line="16" selection-end-column="69" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/SparkseeUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1815">
-          <caret line="125" column="65" lean-forward="false" selection-start-line="125" selection-start-column="65" selection-end-line="125" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.esotericsoftware/kryo/4.0.0/8a2ebf62fff29eb72426887b977f07b39d719ca1/kryo-4.0.0-sources.jar!/com/esotericsoftware/kryo/serializers/FieldSerializer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="504" column="0" lean-forward="false" selection-start-line="504" selection-start-column="0" selection-end-line="504" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/HashCreator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="40" column="25" lean-forward="false" selection-start-line="40" selection-start-column="25" selection-end-line="40" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/operations/CreateOperation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="780">
-          <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config/sparksee.cfg">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
-          <caret line="52" column="14" lean-forward="false" selection-start-line="52" selection-start-column="14" selection-end-line="52" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/operations/UpdateOperation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="636">
-          <caret line="60" column="7" lean-forward="false" selection-start-line="60" selection-start-column="7" selection-end-line="63" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/operations/DeleteOperation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="636">
-          <caret line="57" column="7" lean-forward="false" selection-start-line="57" selection-start-column="7" selection-end-line="60" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/RelationshipStorage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2985">
-          <caret line="223" column="5" lean-forward="false" selection-start-line="223" selection-start-column="5" selection-end-line="223" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/OrientDBDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="394">
-          <caret line="382" column="13" lean-forward="false" selection-start-line="382" selection-start-column="13" selection-end-line="382" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/database/TitanDatabaseAccess.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/NodeStorage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="619">
-          <caret line="84" column="5" lean-forward="false" selection-start-line="74" selection-start-column="3" selection-end-line="84" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/operations/Operation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="619">
-          <caret line="58" column="45" lean-forward="false" selection-start-line="58" selection-start-column="45" selection-end-line="58" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/ReadStorage.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -1531,9 +1182,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
           <caret line="421" column="30" lean-forward="false" selection-start-line="421" selection-start-column="24" selection-end-line="421" selection-end-column="30" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1541,15 +1189,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="619">
           <caret line="425" column="107" lean-forward="false" selection-start-line="425" selection-start-column="107" selection-end-line="425" selection-end-column="107" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/exceptions/OutDatedDataException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="780">
-          <caret line="55" column="0" lean-forward="false" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1571,7 +1210,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
           <caret line="22" column="26" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1593,7 +1231,105 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/reconfiguration/Reconfiguration.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ConflictHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="62" column="56" lean-forward="false" selection-start-line="62" selection-start-column="56" selection-end-line="62" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/exceptions/OutDatedDataException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="619">
+          <caret line="55" column="0" lean-forward="false" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/hosts.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="34" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/statemanagement/strategy/BaseStateManager.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="457">
+          <caret line="255" column="25" lean-forward="false" selection-start-line="255" selection-start-column="25" selection-end-line="255" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/statemanagement/strategy/durability/DurableStateManager.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="98" column="32" lean-forward="false" selection-start-line="98" selection-start-column="16" selection-end-line="98" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/demo/counter/CounterServer.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="66">
+          <caret line="18" column="19" lean-forward="false" selection-start-line="18" selection-start-column="19" selection-end-line="18" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/server/defaultservices/durability/DurabilityCoordinator.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="351">
+          <caret line="319" column="19" lean-forward="false" selection-start-line="319" selection-start-column="16" selection-end-line="319" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/server/defaultservices/DefaultRecoverable.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="51" column="33" lean-forward="false" selection-start-line="51" selection-start-column="21" selection-end-line="51" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/MessageContext.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="30" column="34" lean-forward="false" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/consensus/messages/ConsensusMessage.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="12" column="13" lean-forward="false" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/iServiceProxy.java" />
+    <entry file="file://$PROJECT_DIR$/config/system.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-315">
+          <caret line="61" column="38" lean-forward="false" selection-start-line="61" selection-start-column="38" selection-end-line="61" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/ServiceProxy.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="41" column="11" lean-forward="false" selection-start-line="41" selection-start-column="11" selection-end-line="41" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/keys/privatekey0">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="6" lean-forward="true" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -1604,74 +1340,198 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/ServiceProxy.class">
+    <entry file="file://$PROJECT_DIR$/global/config/keys/privatekey2">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="41" column="11" lean-forward="false" selection-start-line="41" selection-start-column="11" selection-end-line="41" selection-end-column="11" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/keys/privatekey3">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/keys/privatekey5">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/keys/privatekey">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/reconfiguration/util/Configuration.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="28" column="33" lean-forward="false" selection-start-line="28" selection-start-column="22" selection-end-line="28" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/reconfiguration/util/RSAKeyLoader.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="26" column="24" lean-forward="false" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/reconfiguration/util/TOMConfiguration.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="529">
+          <caret line="305" column="91" lean-forward="false" selection-start-line="305" selection-start-column="29" selection-end-line="305" selection-end-column="91" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/sun/security/rsa/RSASignature.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="301">
+          <caret line="119" column="21" lean-forward="false" selection-start-line="119" selection-start-column="21" selection-end-line="119" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/java/security/Signature.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="313">
+          <caret line="683" column="36" lean-forward="false" selection-start-line="683" selection-start-column="31" selection-end-line="683" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/tom/util/TOMUtil.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1335">
+          <caret line="105" column="44" lean-forward="false" selection-start-line="103" selection-start-column="12" selection-end-line="105" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/local/config/system.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="755">
+          <caret line="117" column="18" lean-forward="false" selection-start-line="117" selection-start-column="18" selection-end-line="117" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/NodeStorage.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="13" column="25" lean-forward="false" selection-start-line="13" selection-start-column="25" selection-end-line="13" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/currentView">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="33" lean-forward="false" selection-start-line="1" selection-start-column="33" selection-end-line="1" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/sparksee.cfg">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/local/config/hosts.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="38" column="18" lean-forward="false" selection-start-line="38" selection-start-column="18" selection-end-line="38" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/hosts.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="38" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/global/config/system.config">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="665">
+          <caret line="111" column="22" lean-forward="false" selection-start-line="111" selection-start-column="22" selection-end-line="111" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/main/RunTests.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-75">
+          <caret line="11" column="13" lean-forward="false" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/client/TestClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="705">
-          <caret line="68" column="51" lean-forward="false" selection-start-line="68" selection-start-column="51" selection-end-line="68" selection-end-column="51" />
+        <state relative-caret-position="4545">
+          <caret line="324" column="22" lean-forward="false" selection-start-line="324" selection-start-column="16" selection-end-line="324" selection-end-column="22" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3150">
+          <caret line="230" column="28" lean-forward="false" selection-start-line="230" selection-start-column="28" selection-end-line="230" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/Constants.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="48" lean-forward="false" selection-start-line="19" selection-start-column="48" selection-end-line="19" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/java/util/Map.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="18" column="17" lean-forward="false" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/AbstractRecoverable.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1035">
-          <caret line="99" column="38" lean-forward="false" selection-start-line="99" selection-start-column="38" selection-end-line="99" selection-end-column="38" />
+        <state relative-caret-position="1905">
+          <caret line="150" column="36" lean-forward="false" selection-start-line="150" selection-start-column="36" selection-end-line="150" selection-end-column="36" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/libs/BFT-SMaRt.jar!/bftsmart/reconfiguration/Reconfiguration.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config/hosts.config">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="35" column="4" lean-forward="false" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/GlobalClusterSlave.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="81" lean-forward="false" selection-start-line="11" selection-start-column="81" selection-end-line="11" selection-end-column="81" />
+        <state relative-caret-position="405">
+          <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
           <folding>
-            <element signature="e#377#378#0" expanded="true" />
-            <element signature="e#426#427#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/util/storage/SignatureStorage.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="21" column="70" lean-forward="false" selection-start-line="21" selection-start-column="70" selection-end-line="21" selection-end-column="70" />
+          <folding>
+            <element signature="e#2128#2129#0" expanded="true" />
+            <element signature="e#2164#2165#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/LocalClusterSlave.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="24" column="0" lean-forward="true" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-          <folding>
-            <element signature="e#354#355#0" expanded="true" />
-            <element signature="e#402#403#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/main/java/com/bag/server/ServerWrapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="124">
-          <caret line="63" column="43" lean-forward="false" selection-start-line="63" selection-start-column="43" selection-end-line="63" selection-end-column="43" />
+        <state relative-caret-position="609">
+          <caret line="599" column="5" lean-forward="false" selection-start-line="599" selection-start-column="5" selection-end-line="599" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

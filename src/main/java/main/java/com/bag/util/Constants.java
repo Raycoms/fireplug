@@ -19,6 +19,15 @@ public class Constants
     public static final String COMMIT                     = "commit";
     public static final String ABORT                      = "abort";
     public static final String TAG_HASH                   = "hash";
+    public static final String GET_PRIMARY                = "getPrimary";
+    public static final String PENDING                    = "pending";
+    public static final String SIGNATURE_MESSAGE          = "signatures";
+    public static final String REGISTER_GLOBALLY_MESSAGE  = "registering";
+    public static final String REGISTER_GLOBALLY_CHECK    = "registeringReply";
+    public static final String REGISTER_GLOBALLY_REPLY    = "registeringReply";
+    public static final String PRIMARY_NOTICE             = "primaryNotice";
+    public static final String UPDATE_SLAVE               = "updateSlave";
+
     /**
      * Used to hide the implicit default constructor.
      */

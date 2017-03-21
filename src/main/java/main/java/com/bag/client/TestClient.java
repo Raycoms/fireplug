@@ -66,7 +66,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
     public TestClient(final int processId, final int serverId)
     {
-        //todo  move config home to global position
         super(processId, "local");
         secureMode = true;
         this.serverProcess = serverId;
@@ -132,6 +131,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     private void handleUpdateRequest(Object identifier, Object value)
     {
+        //todo edit create request if equal.
         if(identifier instanceof NodeStorage && value instanceof NodeStorage)
         {
             writeSet.add(new UpdateOperation<>((NodeStorage) identifier,(NodeStorage) value));
@@ -168,6 +168,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     private void handleDeleteRequest(Object identifier)
     {
+        //todo we can delete creates here.
         if(identifier instanceof NodeStorage)
         {
             writeSet.add(new DeleteOperation<>((NodeStorage) identifier));
@@ -213,6 +214,10 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         if(reply.getReqType() == TOMMessageType.UNORDERED_REQUEST)
         {
             processReadReturn(reply.getContent());
+        }
+        else if(reply.getReqType() == TOMMessageType.REPLY)
+        {
+            processCommitReturn(reply.getContent());
         }
         super.replyReceived(reply);
     }
@@ -275,28 +280,9 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         input.close();
         pool.release(kryo);
     }
-    
-    /**
-     * Commit reaches the server, if secure commit send to all, else only send to one
-     */
-    public void commit()
+
+    private void processCommitReturn(final byte[] result)
     {
-        Log.getLogger().info("Starting commit");
-        byte[] result;
-        boolean readOnly = isReadOnly();
-
-        byte[] bytes = serializeAll();
-        if(readOnly && !secureMode)
-        {
-            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully commited", localTimestamp));
-            resetSets();
-            return;
-        }
-        else
-        {
-           result = invokeOrdered(bytes);
-        }
-
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
@@ -331,6 +317,52 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
         input.close();
         pool.release(kryo);
+    }
+
+    /**
+     * Commit reaches the server, if secure commit send to all, else only send to one
+     */
+    public void commit()
+    {
+        Log.getLogger().info("Starting commit");
+        boolean readOnly = isReadOnly();
+
+        final int primaryId = getPrimary();
+
+        if(primaryId == -1)
+        {
+            return;
+        }
+
+        byte[] bytes = serializeAll();
+        if(readOnly && !secureMode)
+        {
+            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully commited", localTimestamp));
+            resetSets();
+        }
+        else
+        {
+            sendMessageToTargets(bytes , 0, new int[] {primaryId}, TOMMessageType.UNORDERED_REQUEST);
+        }
+    }
+
+    /**
+     * Serializes the data and returns it in byte format.
+     * @return the data in byte format.
+     */
+    private byte[] serialize(@NotNull String request)
+    {
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+
+        Output output = new Output(0, 256);
+
+        kryo.writeObject(output, request);
+
+        byte[] bytes = output.toBytes();
+        output.close();
+        pool.release(kryo);
+        return bytes;
     }
 
     /**
@@ -409,4 +441,25 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         return writeSet.isEmpty();
     }
 
+    private int getPrimary()
+    {
+        byte[] response = invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
+
+        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        Kryo kryo = pool.borrow();
+
+        if(response == null)
+        {
+            Log.getLogger().warn("Server returned null, something went incredibly wrong there");
+            return -1;
+        }
+        Input input = new Input(response);
+
+        final int primaryId = input.readInt();
+
+        pool.release(kryo);
+        input.close();
+
+        return primaryId;
+    }
 }
