@@ -105,7 +105,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     /**
      * write requests. (Only reach database on commit)
      */
-    public void write(Object identifier, Object value)
+    public void write(final Object identifier, final Object value)
     {
         if(identifier == null && value == null)
         {
