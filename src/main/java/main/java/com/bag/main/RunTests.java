@@ -31,8 +31,6 @@ public class RunTests
             localClusterId  = Integer.parseInt(args[1]);
         }
 
-
-
         try (TestClient client1 = new TestClient(1, serverPartner, localClusterId))
         {
             Map<String, Object> carol = new HashMap<>();
@@ -44,12 +42,12 @@ public class RunTests
             ray.put("Name", "Ray");
             ray.put("Surname", "Neiheiser");
             ray.put("Age", 25);
+
+
             client1.read(new NodeStorage("JustToGetAValidSnapshotId"));
+            client1.write(new NodeStorage("Person", carol), new NodeStorage("Person", ray));
+            client1.read(new NodeStorage("Person", carol));
 
-
-            //client1.read(new NodeStorage("Person", carol));
-
-            //client1.write(new NodeStorage("Person", find), new NodeStorage("Person", find2));
 
             //Relationship read
             //client1.read(new RelationshipStorage("Loves", new NodeStorage("Person"), new NodeStorage("Person")));

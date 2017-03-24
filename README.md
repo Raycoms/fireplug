@@ -14,3 +14,7 @@ idInGlobal  instance  idInLocal idOfPrimaryInGlobal  isPrimary
 
 4           Neo4j       1           1                   false
 5           Neo4j       2           1                   false
+
+
+
+Client: 1 1

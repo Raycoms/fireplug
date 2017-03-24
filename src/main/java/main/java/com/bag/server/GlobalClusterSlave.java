@@ -93,12 +93,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
     @Override
     void readSpecificData(final Input input, final Kryo kryo)
     {
-        final int length = input.readInt();
+        final int length = kryo.readObject(input, Integer.class);
         for(int i = 0; i < length; i++)
         {
             try
             {
-                signatureStorageMap.put(input.readLong(), (SignatureStorage) kryo.readClassAndObject(input));
+                signatureStorageMap.put(kryo.readObject(input, Long.class), kryo.readObject(input, SignatureStorage.class));
             }
             catch (ClassCastException ex)
             {
@@ -110,11 +110,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     @Override
     void writeSpecificData(final Output output, final Kryo kryo)
     {
-        output.writeInt(signatureStorageMap.size());
+        kryo.writeObject(output, signatureStorageMap.size());
         for(Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
         {
-            output.writeLong(entrySet.getKey());
-            kryo.writeClassAndObject(output, entrySet.getValue());
+            kryo.writeObject(output, entrySet.getKey());
+            kryo.writeObject(output, entrySet.getValue());
         }
     }
 
@@ -127,9 +127,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private byte[][] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
         //Read the inputStream.
-        Object readsSetNodeX = kryo.readClassAndObject(input);
-        Object readsSetRelationshipX = kryo.readClassAndObject(input);
-        Object writeSetX = kryo.readClassAndObject(input);
+        final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
+        final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
+        final List writeSetX = kryo.readObject(input, ArrayList.class);
 
         //Create placeHolders.
         ArrayList<NodeStorage> readSetNode;
@@ -140,7 +140,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
             readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
-
             localWriteSet = (ArrayList<Operation>) writeSetX;
         }
         catch (Exception e)
@@ -151,14 +150,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         input.close();
         Output output = new Output(1024);
-        output.writeString(Constants.COMMIT_RESPONSE);
+        kryo.writeObject(output, Constants.COMMIT_RESPONSE);
 
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
             Log.getLogger().info("Found conflict, returning abort");
-            output.writeString(Constants.ABORT);
+            kryo.writeObject(output, Constants.ABORT);
             //Send abort to client and abort
-            byte[][] returnBytes = {output.toBytes()};
+            byte[][] returnBytes = {output.getBuffer()};
             output.close();
 
             signCommitWithDecisionAndDistribute(localWriteSet, Constants.ABORT, -1, kryo);
@@ -168,8 +167,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final long snapShotId = super.executeCommit(localWriteSet);
         signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, snapShotId, kryo);
 
-        output.writeString(Constants.COMMIT);
-        byte[][] returnBytes = {output.toBytes()};
+        kryo.writeObject(output, Constants.COMMIT);
+        byte[][] returnBytes = {output.getBuffer()};
         output.close();
         Log.getLogger().info("No conflict found, returning commit");
 
@@ -183,17 +182,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
         Output output = new Output(0, 100240);
 
-        output.writeString(Constants.SIGNATURE_MESSAGE);
-        output.writeString(decision);
+        kryo.writeObject(output, Constants.SIGNATURE_MESSAGE);
+        kryo.writeObject(output, decision);
+
         //Write the timeStamp to the server
-        output.writeLong(snapShotId);
-        kryo.writeClassAndObject(output, localWriteSet);
+        kryo.writeObject(output, snapShotId);
+
+        kryo.writeObject(output, localWriteSet);
 
         byte[] bytes;
 
         try
         {
-            bytes = TOMUtil.signMessage(rsaLoader.loadPrivateKey(), output.toBytes());
+            bytes = TOMUtil.signMessage(rsaLoader.loadPrivateKey(), output.getBuffer());
         }
         catch (Exception e)
         {
@@ -205,8 +206,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         signatureStorage.addSignatures(id, bytes);
         signatureStorageMap.put(snapShotId, signatureStorage);
 
-        output.writeInt(bytes.length);
-        output.writeBytes(bytes);
+        kryo.writeObject(output, bytes.length);
+        kryo.writeObject(output, bytes);
 
         proxy.invokeUnordered(output.getBuffer());
     }
@@ -214,21 +215,21 @@ public class GlobalClusterSlave extends AbstractRecoverable
     @Override
     public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
     {
-        Log.getLogger().info("Received unordered message");
+        Log.getLogger().info("Received unordered message at global replica");
         KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
         Kryo kryo = pool.borrow();
         Input input = new Input(bytes);
 
-        final String messageType = input.readString();
+        final String messageType = kryo.readObject(input, String.class);;
         switch(messageType)
         {
             case Constants.SIGNATURE_MESSAGE:
                 handleSignatureMessage(input, messageContext, kryo);
                 break;
             case Constants.REGISTER_GLOBALLY_MESSAGE:
-                return handleRegisteringSlave(input);
+                return handleRegisteringSlave(input, kryo);
             case Constants.REGISTER_GLOBALLY_CHECK:
-                return handleGlobalRegistryCheck(input);
+                return handleGlobalRegistryCheck(input, kryo);
             default:
                 Log.getLogger().warn("Incorrect operation sent unordered to the server");
                 break;
@@ -239,17 +240,25 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return new byte[0];
     }
 
-    private byte[] handleGlobalRegistryCheck(final Input input)
+    /**
+     * Handle the check for the global registering of a slave.
+     * @param input the incoming message.
+     * @param kryo the kryo instance.
+     * @return the reply
+     */
+    private byte[] handleGlobalRegistryCheck(final Input input, final Kryo kryo)
     {
         final Output output = new Output(512);
-        output.writeString(Constants.REGISTER_GLOBALLY_CHECK);
+        kryo.writeObject(output, Constants.REGISTER_GLOBALLY_CHECK);
+
         boolean decision = false;
-        if(!wrapper.getLocalCLuster().isPrimary() || wrapper.getLocalCLuster().askIfIsPrimary(input.readInt(), input.readInt()))
+        if(!wrapper.getLocalCLuster().isPrimary() || wrapper.getLocalCLuster().askIfIsPrimary(kryo.readObject(input, Integer.class), kryo.readObject(input, Integer.class), kryo))
         {
             decision = true;
         }
 
-        output.writeBoolean(decision);
+        kryo.writeObject(output, decision);
+
         final byte[] result = output.getBuffer();
         output.close();
         input.close();
@@ -260,30 +269,33 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * This message comes from the local cluster.
      * Will respond true if it can register.
      * Message which handles slaves registering at the global cluster.
+     * @param kryo the kryo instance.
      * @param input the message.
+     * @return the message in bytes.
      */
-    private byte[] handleRegisteringSlave(final Input input)
+    private byte[] handleRegisteringSlave(final Input input, final Kryo kryo)
     {
-        final int localClusterID = input.readInt();
-        final int newPrimary = input.readInt();
-        final int oldPrimary = input.readInt();
+        final int localClusterID = kryo.readObject(input, Integer.class);;
+        final int newPrimary = kryo.readObject(input, Integer.class);;
+        final int oldPrimary = kryo.readObject(input, Integer.class);;
 
         final ServiceProxy localProxy = new ServiceProxy(oldPrimary, "local" + localClusterID);
 
         final Output output = new Output(512);
-        output.writeString(Constants.REGISTER_GLOBALLY_CHECK);
-        output.writeInt(newPrimary);
+
+        kryo.writeObject(output, Constants.REGISTER_GLOBALLY_CHECK);
+        kryo.writeObject(output, newPrimary);
 
         byte[] result = localProxy.invokeUnordered(output.getBuffer());
 
 
         final Output nextOutput = new Output(512);
-        nextOutput.writeString(Constants.REGISTER_GLOBALLY_REPLY);
+        kryo.writeObject(output, Constants.REGISTER_GLOBALLY_REPLY);
 
         final Input answer = new Input(result);
         if(Constants.REGISTER_GLOBALLY_REPLY.equals(answer.readString()))
         {
-            nextOutput.writeBoolean(answer.readBoolean());
+            kryo.writeObject(nextOutput, answer.readBoolean());
         }
 
         final byte[] returnBuffer = nextOutput.getBuffer();
@@ -305,9 +317,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private void handleSignatureMessage(final Input input, final MessageContext messageContext, final Kryo kryo)
     {
-        final String decision = input.readString();
-        final Long snapShotId = input.readLong();
-        final Object writeSet = kryo.readClassAndObject(input);
+        final String decision = kryo.readObject(input, String.class);;
+        final Long snapShotId = kryo.readObject(input, Long.class);;
+        final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<Operation> localWriteSet;
 
         try
@@ -327,7 +339,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 + " and a writeSet of the length of: " + localWriteSet.size());
 
 
-        final int signatureLength = input.readInt();
+        final int signatureLength = kryo.readObject(input, Integer.class);;
         final byte[] signature = input.readBytes(signatureLength);
 
 

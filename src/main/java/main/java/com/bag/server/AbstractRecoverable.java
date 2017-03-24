@@ -165,7 +165,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             for (Map.Entry<Long, List<Operation>> writeSet : globalWriteSet.entrySet())
             {
                 kryo.writeObject(output, writeSet.getKey());
-                kryo.writeClassAndObject(output, writeSet.getValue());
+                kryo.writeObject(output, writeSet.getValue());
             }
         }
 
@@ -194,7 +194,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         writeSpecificData(output, kryo);
 
-        byte[] bytes = output.toBytes();
+        byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
         return bytes;

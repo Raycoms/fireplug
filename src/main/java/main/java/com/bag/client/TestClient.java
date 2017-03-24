@@ -19,7 +19,9 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -216,40 +218,60 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     @Override
     public void replyReceived(final TOMMessage reply)
     {
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
+
         Log.getLogger().info("reply");
         if(reply.getReqType() == TOMMessageType.UNORDERED_REQUEST)
         {
-            processReadReturn(reply.getContent());
+            final Input input = new Input(reply.getContent());
+
+            switch(kryo.readObject(input, String.class))
+            {
+                case Constants.READ_MESSAGE:
+                    processReadReturn(input);
+                    break;
+                case Constants.GET_PRIMARY:
+                    //Ignore!
+                    break;
+                default:
+                    Log.getLogger().info("Unexpected message type!");
+                    break;
+            }
+            input.close();
         }
         else if(reply.getReqType() == TOMMessageType.REPLY)
         {
             processCommitReturn(reply.getContent());
+        }
+        else
+        {
+            Log.getLogger().info("Receiving other request!");
         }
         super.replyReceived(reply);
     }
 
     /**
      * Processes the return of a read request. Filling the readsets.
-     * @param value the received bytes.
+     * @param input the received bytes in an input..
      */
-    private void processReadReturn(byte[] value)
+    private void processReadReturn(final Input input)
     {
-        if(value == null)
+        if(input == null)
         {
             Log.getLogger().warn("TimeOut, Didn't receive an answer from the server!");
             return;
         }
 
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
 
-        Input input = new Input(value);
         this.localTimestamp = kryo.readObject(input, Long.class);
 
-        Object nodes = kryo.readClassAndObject(input);
-        Object relationships = kryo.readClassAndObject(input);
+        List nodes = kryo.readObject(input, ArrayList.class);
+        List relationships = kryo.readObject(input, ArrayList.class);
 
-        if(nodes instanceof ArrayList && !((ArrayList) nodes).isEmpty() && ((ArrayList) nodes).get(0) instanceof NodeStorage)
+        if(nodes != null && !nodes.isEmpty() && nodes.get(0) instanceof NodeStorage)
         {
             for (NodeStorage storage : (ArrayList<NodeStorage>) nodes)
             {
@@ -266,7 +288,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             }
         }
 
-        if(relationships instanceof ArrayList && !((ArrayList) relationships).isEmpty() && ((ArrayList) relationships).get(0) instanceof RelationshipStorage)
+        if(relationships != null && !relationships.isEmpty() && relationships.get(0) instanceof RelationshipStorage)
         {
             for (RelationshipStorage storage : (ArrayList<RelationshipStorage>)relationships)
             {
@@ -289,17 +311,17 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
     private void processCommitReturn(final byte[] result)
     {
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
 
         if(result == null)
         {
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");
             return;
         }
-        Input input = new Input(result);
 
-        String type = input.readString();
+        final Input input = new Input(result);
+        final String type = kryo.readObject(input, String.class);
 
         if(!Constants.COMMIT_RESPONSE.equals(type))
         {
@@ -308,7 +330,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             return;
         }
 
-        String decision = input.readString();
+        final String decision = kryo.readObject(input, String.class);
 
         if(Constants.COMMIT.equals(decision))
         {
@@ -330,20 +352,25 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     public void commit()
     {
-        Log.getLogger().info("Starting commit");
-        boolean readOnly = isReadOnly();
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
 
-        final int primaryId = getPrimary();
+        Log.getLogger().info("Starting commit");
+        final boolean readOnly = isReadOnly();
+
+        final int primaryId = getPrimary(kryo);
 
         if(primaryId == -1)
         {
             return;
         }
 
+        Log.getLogger().info("Commiting to primary replica: " + primaryId);
+
         byte[] bytes = serializeAll();
         if(readOnly && !secureMode)
         {
-            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully commited", localTimestamp));
+            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
             resetSets();
         }
         else
@@ -362,10 +389,9 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Kryo kryo = pool.borrow();
 
         Output output = new Output(0, 256);
-
         kryo.writeObject(output, request);
 
-        byte[] bytes = output.toBytes();
+        byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
         return bytes;
@@ -375,25 +401,25 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      * Serializes the data and returns it in byte format.
      * @return the data in byte format.
      */
-    private byte[] serialize(@NotNull String reason, long localTimestamp, Object...args)
+    private byte[] serialize(@NotNull String reason, long localTimestamp, final Object...args)
     {
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
 
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
-        Output output = new Output(0, 10024);
-
+        final Output output = new Output(0, 10024);
         kryo.writeObject(output, reason);
         kryo.writeObject(output, localTimestamp);
-        for(Object identifier: args)
+
+        for(final Object identifier: args)
         {
             if(identifier instanceof NodeStorage || identifier instanceof RelationshipStorage)
             {
-                kryo.writeClassAndObject(output, identifier);
+                kryo.writeObject(output, identifier);
             }
         }
 
-        byte[] bytes = output.toBytes();
+        byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
         return bytes;
@@ -405,24 +431,24 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     private byte[] serializeAll()
     {
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
 
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
-        Output output = new Output(0, 100240);
+        final Output output = new Output(0, 100240);
 
         kryo.writeObject(output, Constants.COMMIT_MESSAGE);
         //Write the timeStamp to the server
         kryo.writeObject(output, localTimestamp);
 
         //Write the readSet.
-        kryo.writeClassAndObject(output, readsSetNode);
-        kryo.writeClassAndObject(output, readsSetRelationship);
+        kryo.writeObject(output, readsSetNode);
+        kryo.writeObject(output, readsSetRelationship);
 
         //Write the writeSet.
-        kryo.writeClassAndObject(output, writeSet);
+        kryo.writeObject(output, writeSet);
 
-        byte[] bytes = output.toBytes();
+        byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
         return bytes;
@@ -447,23 +473,23 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         return writeSet.isEmpty();
     }
 
-    private int getPrimary()
+    /**
+     * Get the primary of the cluster.
+     * @param kryo the kryo instance.
+     * @return the primary id.
+     */
+    private int getPrimary(final Kryo kryo)
     {
         byte[] response = invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
-
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
-
         if(response == null)
         {
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");
             return -1;
         }
-        Input input = new Input(response);
 
-        final int primaryId = input.readInt();
+        final Input input = new Input(response);
+        final int primaryId = kryo.readObject(input, Integer.class);
 
-        pool.release(kryo);
         input.close();
 
         return primaryId;
