@@ -1,14 +1,18 @@
 package main.java.com.bag.main;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import main.java.com.bag.client.TestClient;
+import main.java.com.bag.evaluations.ClientThreads;
+import main.java.com.bag.server.database.Neo4jDatabaseAccess;
+import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.*;
 
 /**
@@ -16,11 +20,6 @@ import java.util.*;
  */
 public class RunTests
 {
-    /**
-     * Location of the testGraph.
-     */
-    private static final String GRAPH_LOCATION = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/src/testGraphs/social-a-graph.txt";
-
     /**
      * Hide the implicit constructor to evit instantiation of this class.
      */
@@ -39,113 +38,63 @@ public class RunTests
         int numOfClientSimulators = 3;
         int shareOfClient = 1;
 
-        if (args.length > 4)
+        String serverIp = "127.0.0.1";
+        int serverPort = 80;
+
+        boolean usesBag = true;
+
+        if (args.length >= 1)
         {
-            serverPartner = Integer.parseInt(args[0]);
-            localClusterId = Integer.parseInt(args[1]);
-            numOfLocalCLients = Integer.parseInt(args[2]);
-            numOfClientSimulators = Integer.parseInt(args[3]);
-            shareOfClient = Integer.parseInt(args[4]);
+            usesBag = Boolean.valueOf(args[0]);
         }
 
+        if (args.length > 4)
+        {
+            if (usesBag)
+            {
+                serverPartner = Integer.parseInt(args[1]);
+                localClusterId = Integer.parseInt(args[2]);
+            }
+            else
+            {
+                serverIp = args[0];
+                serverPort = Integer.parseInt(args[1]);
+            }
+            numOfLocalCLients = Integer.parseInt(args[3]);
+            numOfClientSimulators = Integer.parseInt(args[4]);
+            shareOfClient = Integer.parseInt(args[5]);
+        }
 
+        if(usesBag)
+        {
             for (int i = 1; i <= numOfLocalCLients; i++)
             {
                 try (TestClient client = new TestClient(i, serverPartner, localClusterId))
                 {
-                    MassiveNodeInsertThread runnable = new MassiveNodeInsertThread(client, numOfClientSimulators * numOfLocalCLients, shareOfClient * i, 10, 100000);
+                    ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(client, numOfClientSimulators * numOfLocalCLients,
+                            shareOfClient * i, 10, 100000);
                     runnable.run();
                 }
             }
-    }
-
-    static class MassiveNodeInsertThread implements Runnable
-    {
-        private final TestClient client;
-        private final int startAt;
-        private final int stopAt;
-        private final int commitAfter;
-
-        public MassiveNodeInsertThread(@NotNull final TestClient client, final int share, final int start, final int commitAfter, final int size)
-        {
-            this.client = client;
-            startAt = start * (size/share) + 1;
-            stopAt = startAt + (size/share) - 1;
-            this.commitAfter = commitAfter;
         }
-
-        @Override
-        public void run()
+        else
         {
-            int written = 0;
-            for (int i = startAt; i <= stopAt; i++)
+            try
+                    (
+                            final Socket echoSocket = new Socket(serverIp, serverPort);
+                            final DataOutputStream out = new DataOutputStream(echoSocket.getOutputStream());
+                    )
             {
-                written++;
-                client.write(null, new NodeStorage(Integer.toString(i)));
-                if(written >= commitAfter)
+                for (int i = 1; i <= numOfLocalCLients; i++)
                 {
-                    client.commit();
+                    ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(out, numOfClientSimulators * numOfLocalCLients,
+                            shareOfClient * i, 10, 100000);
+                    runnable.run();
                 }
             }
-        }
-    }
-
-    static class MassiveRelationShipInsertThread implements Runnable
-    {
-        private final TestClient client;
-        private final int commitAfter;
-        private final int share;
-        private final int start;
-
-        public MassiveRelationShipInsertThread(@NotNull final TestClient client, final int share, final int start, final int commitAfter)
-        {
-            this.client = client;
-            this.share = share;
-            this.start = start;
-            this.commitAfter = commitAfter;
-        }
-
-        @Override
-        public void run()
-        {
-            try(FileReader fr = new FileReader(GRAPH_LOCATION); BufferedReader br = new BufferedReader(fr);)
+            catch (IOException ex)
             {
-                final long size = br.lines().count();
-                final long totalShare = size / share;
-                final long startAt = start * totalShare + 1;
-                br.skip(startAt - 1);
-
-                int readLines = 0;
-                int writtenLines = 0;
-                String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null)
-                {
-                    final String[] ids = sCurrentLine.split(" ");
-
-                    if(ids.length < 3)
-                    {
-                        continue;
-                    }
-
-                    readLines++;
-                    writtenLines++;
-                    client.write(null, new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2])));
-                    if(readLines >= totalShare)
-                    {
-                        client.commit();
-                        break;
-                    }
-
-                    if(writtenLines >= commitAfter)
-                    {
-                        client.commit();
-                    }
-                    Log.getLogger().info(sCurrentLine);
-                }
-            }
-            catch (IOException e)
-            {
-                Log.getLogger().warn("Error reading file", e);
+                Log.getLogger().warn("IOException while reading socket", ex);
             }
         }
     }
