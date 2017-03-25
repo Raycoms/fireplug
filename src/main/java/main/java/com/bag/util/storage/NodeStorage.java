@@ -72,7 +72,7 @@ public class NodeStorage implements Serializable
      * Sets or adds new properties.
      * @param properties a property map.
      */
-    public void setProperties(@NotNull final HashMap<String, Object> properties)
+    public void setProperties(@NotNull final Map<String, Object> properties)
     {
         if(this.properties == null)
         {

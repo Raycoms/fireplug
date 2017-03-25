@@ -42,8 +42,8 @@ public class RelationshipStorage implements Serializable
 
     public RelationshipStorage()
     {
-        startNode = null;
-        endNode = null;
+        startNode = new NodeStorage();
+        endNode = new NodeStorage();
         id = "";
     }
 
@@ -64,19 +64,6 @@ public class RelationshipStorage implements Serializable
     /**
      * Simple nodeStorage constructor.
      *
-     * @param id        string identifier of the node.
-     * @param type      type of the node.
-     * @param startNode node the relationship starts.
-     * @param endNode   node the relationship ends.
-     */
-    public RelationshipStorage(@NotNull String id, @Nullable String type, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
-    {
-        this(id, startNode, endNode);
-    }
-
-    /**
-     * Simple nodeStorage constructor.
-     *
      * @param id         string identifier of the node.
      * @param properties properties of the node.
      * @param startNode  node the relationship starts.
@@ -89,25 +76,11 @@ public class RelationshipStorage implements Serializable
     }
 
     /**
-     * Simple nodeStorage constructor.
-     *
-     * @param id         string identifier of the node.
-     * @param type       type of the node.
-     * @param properties properties of the node.
-     * @param startNode  node the relationship starts.
-     * @param endNode    node the relationship ends.
-     */
-    public RelationshipStorage(@NotNull String id, @Nullable String type, @Nullable HashMap properties, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
-    {
-        this(id, startNode, endNode);
-        this.properties = properties;
-    }
-
-    /**
      * Getter of the id.
      *
      * @return string description of the node.
      */
+    @NotNull
     public String getId()
     {
         return this.id;
@@ -129,7 +102,7 @@ public class RelationshipStorage implements Serializable
      *
      * @param properties a property map.
      */
-    public void setProperties(@NotNull final HashMap<String, Object> properties)
+    public void setProperties(@NotNull final Map<String, Object> properties)
     {
         if (this.properties == null)
         {
