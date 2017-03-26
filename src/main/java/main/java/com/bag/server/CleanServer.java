@@ -5,11 +5,14 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.evaluations.ClientThreads;
+import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
+import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
@@ -45,7 +48,7 @@ public class CleanServer
      */
     public static void main(String[] args)
     {
-        if(args.length < 1)
+        if(args.length < 3)
         {
             return;
         }
@@ -53,17 +56,49 @@ public class CleanServer
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
+
         final int serverPort = Integer.parseInt(args[0]);
+        final String address = args[1];
+        final String tempInstance = args[2];
+
+        final String instance;
+
+        if (tempInstance.toLowerCase().contains("titan"))
+        {
+            instance = Constants.TITAN;
+        }
+        else if (tempInstance.toLowerCase().contains("orientdb"))
+        {
+            instance = Constants.ORIENTDB;
+        }
+        else if (tempInstance.toLowerCase().contains("sparksee"))
+        {
+            instance = Constants.SPARKSEE;
+        }
+        else
+        {
+            instance = Constants.NEO4J;
+        }
+
+        final IDatabaseAccess access = ServerWrapper.instantiateDBAccess(instance, 0);
+
+        if(access == null)
+        {
+            return;
+        }
+        access.start();
+
+        int executedOperations = 0;
         try
                 (
-                        final Socket socket = new Socket("", serverPort);
-                        final DataInputStream in = new DataInputStream(socket.getInputStream());
+                        final ServerSocket socket = new ServerSocket( serverPort);
+                        Socket clientSocket = socket.accept();
+                        final DataInputStream in = new DataInputStream(clientSocket.getInputStream());
                         BufferedReader console = new BufferedReader(new InputStreamReader(System.in))
                 )
         {
             while (! "quit".equals(console.readLine()))
             {
-
                 final Input input = new Input(in);
                 if(input.getBuffer().length == 0)
                 {
@@ -72,19 +107,26 @@ public class CleanServer
 
                 List returnValue = kryo.readObject(input, ArrayList.class);
 
-                if(!returnValue.isEmpty() && returnValue.get(0) instanceof Operation)
+                for(Object obj: returnValue)
                 {
-                    Neo4jDatabaseAccess access = new Neo4jDatabaseAccess(0);
-                    final List<Operation> operations = returnValue;
-                    for (Operation op : operations)
+                    if (obj instanceof Operation)
                     {
-                        op.apply(access, 0);
+                        ((Operation) obj).apply(access, 0);
+                        executedOperations++;
+                    }
+                    else if(obj instanceof NodeStorage)
+                    {
+                        try
+                        {
+                            access.readObject((NodeStorage) obj, 0);
+                            executedOperations++;
+                        }
+                        catch (OutDatedDataException e)
+                        {
+                            Log.getLogger().info("Unable to retrieve data at clean server with instance: " + instance, e);
+                        }
                     }
                 }
-                //todo else it is a read and we should handle the read.
-                //todo we will mix reads and operations maybe and run it through a for loop here?
-
-                //todo might do the statistical read here
             }
         }
         catch (IOException ex)
@@ -92,7 +134,7 @@ public class CleanServer
             Log.getLogger().warn("IOException while reading socket", ex);
         }
 
-
-
+        Log.getLogger().info("Executed operations: " + executedOperations);
+        access.terminate();
     }
 }

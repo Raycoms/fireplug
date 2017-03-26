@@ -57,8 +57,8 @@ public class RunTests
             }
             else
             {
-                serverIp = args[0];
-                serverPort = Integer.parseInt(args[1]);
+                serverIp = args[1];
+                serverPort = Integer.parseInt(args[2]);
             }
             numOfLocalCLients = Integer.parseInt(args[3]);
             numOfClientSimulators = Integer.parseInt(args[4]);

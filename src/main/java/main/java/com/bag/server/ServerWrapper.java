@@ -69,7 +69,7 @@ public class ServerWrapper
         this.instance = instance;
         this.localClusterSlaveId = localClusterSlaveId;
 
-        instantiateDBAccess(instance);
+        databaseAccess = instantiateDBAccess(instance, globalServerId);
 
         databaseAccess.start();
 
@@ -98,26 +98,25 @@ public class ServerWrapper
      * Instantiate the Database access classes depending on the String instance.
      *
      * @param instance the string describing which to use.
+     * @return the databaseAccess for the instance.
      */
-    public void instantiateDBAccess(String instance)
+    @Nullable
+    public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId)
     {
         switch (instance)
         {
             case Constants.NEO4J:
-                databaseAccess = new Neo4jDatabaseAccess(globalServerId);
-                break;
+                return new Neo4jDatabaseAccess(globalServerId);
             case Constants.TITAN:
-                databaseAccess = new TitanDatabaseAccess(globalServerId);
-                break;
+                return new TitanDatabaseAccess(globalServerId);
             case Constants.SPARKSEE:
-                databaseAccess = new SparkseeDatabaseAccess(globalServerId);
-                break;
+                return  new SparkseeDatabaseAccess(globalServerId);
             case Constants.ORIENTDB:
-                databaseAccess = new OrientDBDatabaseAccess(globalServerId);
-                break;
+                return new OrientDBDatabaseAccess(globalServerId);
             default:
                 Log.getLogger().warn("Invalid databaseAccess");
         }
+        return null;
     }
 
     /**

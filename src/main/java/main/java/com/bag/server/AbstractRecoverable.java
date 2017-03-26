@@ -116,7 +116,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         this.id = kryo.readObject(input, Integer.class);
         String instance = kryo.readObject(input, String.class);
-        wrapper.instantiateDBAccess(instance);
+        wrapper.instantiateDBAccess(instance, wrapper.getGlobalServerId());
 
         readSpecificData(input, kryo);
 
