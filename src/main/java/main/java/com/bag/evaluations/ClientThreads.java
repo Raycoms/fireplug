@@ -7,6 +7,7 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
+import main.java.com.bag.operations.Operation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -80,6 +81,7 @@ public class ClientThreads
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
+            List<Operation> createNodeOperationList = new ArrayList<>();
 
             int written = 0;
             for (int i = startAt; i <= stopAt; i++)
@@ -87,24 +89,21 @@ public class ClientThreads
                 written++;
                 if(client == null)
                 {
-                    List<NodeStorage> nodeStorages = new ArrayList<>();
-                    nodeStorages.add(new NodeStorage(Integer.toString(i)));
+
+                    createNodeOperationList.add(new CreateOperation<>(new NodeStorage(Integer.toString(i))));
 
                     if (written >= commitAfter || i == stopAt)
                     {
                         try(final Output output = new Output(0, 10024))
                         {
-                            for(NodeStorage nodeStorage : nodeStorages)
-                            {
-                                kryo.writeObject(output, nodeStorage);
-                            }
+                            kryo.writeObject(output, createNodeOperationList);
                             out.write(output.getBuffer());
                         }
                         catch (IOException e)
                         {
-                            Log.getLogger().warn("Exception while writing to the server.", e);
+                            Log.getLogger().warn("Exception while writing node create operations to the server.", e);
                         }
-                        nodeStorages = new ArrayList<>();
+                        createNodeOperationList = new ArrayList<>();
                     }
                 }
                 else
@@ -164,12 +163,15 @@ public class ClientThreads
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
+            List<CreateOperation<RelationshipStorage>> createRelationshipOperations = new ArrayList<>();
 
             try(FileReader fr = new FileReader(GRAPH_LOCATION); BufferedReader br = new BufferedReader(fr);)
             {
                 final long size = br.lines().count();
                 final long totalShare = size / share;
                 final long startAt = start * totalShare + 1;
+
+                //skip to the required amount
                 br.skip(startAt - 1);
 
                 int readLines = 0;
@@ -189,17 +191,14 @@ public class ClientThreads
 
                     if(client == null)
                     {
-                        List<RelationshipStorage> relationshipStorages = new ArrayList<>();
-                        relationshipStorages.add(new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2])));
+                        createRelationshipOperations.add(new CreateOperation<>(new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2]))));
 
                         if (readLines >= totalShare)
                         {
                             try (final Output output = new Output(0, 10024))
                             {
-                                for (RelationshipStorage relationshipStorage : relationshipStorages)
-                                {
-                                    kryo.writeObject(output, relationshipStorage);
-                                }
+
+                                kryo.writeObject(output, createRelationshipOperations);
                                 out.write(output.getBuffer());
                             }
                             catch (IOException e)
@@ -213,17 +212,15 @@ public class ClientThreads
                         {
                             try (final Output output = new Output(0, 10024))
                             {
-                                for (RelationshipStorage relationshipStorage : relationshipStorages)
-                                {
-                                    kryo.writeObject(output, relationshipStorage);
-                                }
+
+                                kryo.writeObject(output, createRelationshipOperations);
                                 out.write(output.getBuffer());
                             }
                             catch (IOException e)
                             {
                                 Log.getLogger().warn("Exception while writing to the server.", e);
                             }
-                            relationshipStorages = new ArrayList<>();
+                            createRelationshipOperations = new ArrayList<>();
                         }
                     }
                     else

@@ -81,8 +81,8 @@ public class RunTests
         {
             try
                     (
-                            final Socket echoSocket = new Socket(serverIp, serverPort);
-                            final DataOutputStream out = new DataOutputStream(echoSocket.getOutputStream());
+                            final Socket socket = new Socket(serverIp, serverPort);
+                            final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                     )
             {
                 for (int i = 1; i <= numOfLocalCLients; i++)
