@@ -1,12 +1,8 @@
 package main.java.com.bag.main;
 
- import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.evaluations.ClientThreads;
-import main.java.com.bag.util.Log;
+ import main.java.com.bag.evaluations.NettyThread;
 import main.java.com.bag.util.storage.NodeStorage;
 
 import java.util.*;
@@ -14,12 +10,12 @@ import java.util.*;
 /**
  * Main class which runs the tests
  */
-public class RunTests extends ChannelInboundHandlerAdapter
+public class RunTests
 {
     /**
      * Hide the implicit constructor to evit instantiation of this class.
      */
-    private RunTests()
+    public RunTests()
     {
         /*
          * Intentionally left empty.
@@ -75,43 +71,9 @@ public class RunTests extends ChannelInboundHandlerAdapter
         }
         else
         {
-            EventLoopGroup workerGroup = new NioEventLoopGroup();
-
-            try
-            {
-                final Bootstrap bootstrap = new Bootstrap();
-                bootstrap.group(workerGroup); // (2)
-                bootstrap.channel(NioSocketChannel.class); // (3)
-                bootstrap.option(ChannelOption.SO_KEEPALIVE, true); // (4)
-                bootstrap.handler(new ChannelInitializer<io.netty.channel.socket.SocketChannel>()
-                {
-                    @Override
-                    protected void initChannel(final io.netty.channel.socket.SocketChannel ch) throws Exception
-                    {
-                        ch.pipeline().addLast(new RunTests());
-                    }
-                });
-
-                // Start the client.
-                ChannelFuture f = bootstrap.connect(serverIp, serverPort).sync(); // (5)
-
-                // Wait until the connection is closed.
-                f.channel().closeFuture().sync();
-            }
-            catch (InterruptedException e)
-            {
-                Log.getLogger().info("Problem with netty on client side", e);
-                Thread.currentThread().interrupt();
-            }
-            finally
-            {
-                workerGroup.shutdownGracefully();
-            }
-
-
             for (int i = 1; i <= numOfLocalCLients; i++)
             {
-                ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(out, numOfClientSimulators * numOfLocalCLients,
+                ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(new NettyThread(serverIp, serverPort), numOfClientSimulators * numOfLocalCLients,
                         shareOfClient * i, 10, 100000);
                 runnable.run();
             }
@@ -151,6 +113,7 @@ public class RunTests extends ChannelInboundHandlerAdapter
         //Create relationship
         //client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", carol),  new NodeStorage("Person", ray)));
         //client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", ray),  new NodeStorage("Person", carol)));
+
 
         for (int i = 0; i < 1000; i++)
         {

@@ -37,8 +37,8 @@ public class ClientThreads
 
     public static class MassiveNodeInsertThread implements Runnable
     {
-        private TestClient client = null;
-        private DataOutputStream out = null;
+        private TestClient  client = null;
+        private NettyThread out    = null;
 
         private final int        startAt;
         private final int        stopAt;
@@ -66,12 +66,13 @@ public class ClientThreads
             this.commitAfter = commitAfter;
         }
 
-        public MassiveNodeInsertThread(final DataOutputStream out, final int share, final int start, final int commitAfter, final int size)
+        public MassiveNodeInsertThread(final NettyThread out, final int share, final int start, final int commitAfter, final int size)
         {
             this.out = out;
             startAt = start * (size/share) + 1;
             stopAt = startAt + (size/share) - 1;
             this.commitAfter = commitAfter;
+            out.run();
         }
 
         @Override
@@ -94,12 +95,7 @@ public class ClientThreads
                         try(final Output output = new Output(0, 10024))
                         {
                             kryo.writeObject(output, createNodeOperationList);
-                            out.write(output.getBuffer());
-                            out.flush();
-                        }
-                        catch (IOException e)
-                        {
-                            Log.getLogger().warn("Exception while writing node create operations to the server.", e);
+                            out.sendMessage(output.getBuffer());
                         }
                         createNodeOperationList = new ArrayList<>();
                     }
@@ -120,7 +116,7 @@ public class ClientThreads
     public static class MassiveRelationShipInsertThread implements Runnable
     {
         private TestClient client = null;
-        private DataOutputStream out = null;
+        private NettyThread out    = null;
 
         private final int commitAfter;
         private final int share;
@@ -148,12 +144,13 @@ public class ClientThreads
             this.commitAfter = commitAfter;
         }
 
-        public MassiveRelationShipInsertThread(final DataOutputStream out, final int share, final int start, final int commitAfter)
+        public MassiveRelationShipInsertThread(final NettyThread out, final int share, final int start, final int commitAfter)
         {
             this.out = out;
             this.share = share;
             this.start = start;
             this.commitAfter = commitAfter;
+            out.run();
         }
 
         @Override
@@ -196,12 +193,7 @@ public class ClientThreads
                             try (final Output output = new Output(0, 10024))
                             {
                                 kryo.writeObject(output, createRelationshipOperations);
-                                out.write(output.getBuffer());
-                                out.flush();
-                            }
-                            catch (IOException e)
-                            {
-                                Log.getLogger().warn("Exception while writing to the server.", e);
+                                out.sendMessage(output.getBuffer());
                             }
                             break;
                         }
@@ -210,14 +202,8 @@ public class ClientThreads
                         {
                             try (final Output output = new Output(0, 10024))
                             {
-
                                 kryo.writeObject(output, createRelationshipOperations);
-                                out.write(output.getBuffer());
-                                out.flush();
-                            }
-                            catch (IOException e)
-                            {
-                                Log.getLogger().warn("Exception while writing to the server.", e);
+                                kryo.writeObject(output, createRelationshipOperations);
                             }
                             createRelationshipOperations = new ArrayList<>();
                         }
