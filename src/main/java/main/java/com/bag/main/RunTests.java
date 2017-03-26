@@ -1,24 +1,20 @@
 package main.java.com.bag.main;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+ import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.evaluations.ClientThreads;
-import main.java.com.bag.server.database.Neo4jDatabaseAccess;
-import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
-import main.java.com.bag.util.storage.RelationshipStorage;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.*;
 
 /**
  * Main class which runs the tests
  */
-public class RunTests
+public class RunTests extends ChannelInboundHandlerAdapter
 {
     /**
      * Hide the implicit constructor to evit instantiation of this class.
@@ -79,22 +75,45 @@ public class RunTests
         }
         else
         {
+            EventLoopGroup workerGroup = new NioEventLoopGroup();
+
             try
-                    (
-                            final Socket socket = new Socket(serverIp, serverPort);
-                            final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                    )
             {
-                for (int i = 1; i <= numOfLocalCLients; i++)
+                final Bootstrap bootstrap = new Bootstrap();
+                bootstrap.group(workerGroup); // (2)
+                bootstrap.channel(NioSocketChannel.class); // (3)
+                bootstrap.option(ChannelOption.SO_KEEPALIVE, true); // (4)
+                bootstrap.handler(new ChannelInitializer<io.netty.channel.socket.SocketChannel>()
                 {
-                    ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(out, numOfClientSimulators * numOfLocalCLients,
-                            shareOfClient * i, 10, 100000);
-                    runnable.run();
-                }
+                    @Override
+                    protected void initChannel(final io.netty.channel.socket.SocketChannel ch) throws Exception
+                    {
+                        ch.pipeline().addLast(new RunTests());
+                    }
+                });
+
+                // Start the client.
+                ChannelFuture f = bootstrap.connect(serverIp, serverPort).sync(); // (5)
+
+                // Wait until the connection is closed.
+                f.channel().closeFuture().sync();
             }
-            catch (IOException ex)
+            catch (InterruptedException e)
             {
-                Log.getLogger().warn("IOException while reading socket", ex);
+                Log.getLogger().info("Problem with netty on client side", e);
+                Thread.currentThread().interrupt();
+            }
+            finally
+            {
+                workerGroup.shutdownGracefully();
+            }
+
+
+            for (int i = 1; i <= numOfLocalCLients; i++)
+            {
+                ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(out, numOfClientSimulators * numOfLocalCLients,
+                        shareOfClient * i, 10, 100000);
+                runnable.run();
             }
         }
     }

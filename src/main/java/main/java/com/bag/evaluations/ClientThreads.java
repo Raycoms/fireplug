@@ -16,9 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Class containing the threads to simulate concurrent clients.
@@ -89,7 +87,6 @@ public class ClientThreads
                 written++;
                 if(client == null)
                 {
-
                     createNodeOperationList.add(new CreateOperation<>(new NodeStorage(Integer.toString(i))));
 
                     if (written >= commitAfter || i == stopAt)
@@ -98,6 +95,7 @@ public class ClientThreads
                         {
                             kryo.writeObject(output, createNodeOperationList);
                             out.write(output.getBuffer());
+                            out.flush();
                         }
                         catch (IOException e)
                         {
@@ -197,9 +195,9 @@ public class ClientThreads
                         {
                             try (final Output output = new Output(0, 10024))
                             {
-
                                 kryo.writeObject(output, createRelationshipOperations);
                                 out.write(output.getBuffer());
+                                out.flush();
                             }
                             catch (IOException e)
                             {
@@ -215,6 +213,7 @@ public class ClientThreads
 
                                 kryo.writeObject(output, createRelationshipOperations);
                                 out.write(output.getBuffer());
+                                out.flush();
                             }
                             catch (IOException e)
                             {
