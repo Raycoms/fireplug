@@ -8,8 +8,12 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import io.netty.channel.udt.UdtChannel;
+import io.netty.channel.udt.nio.NioUdtProvider;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
@@ -23,6 +27,7 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Server used to communicate with graph databases directly without the use of BAG.
@@ -60,6 +65,7 @@ public class CleanServer extends ChannelInboundHandlerAdapter
 
     /**
      * Create an instance of this server.
+     *
      * @param instance the instance of the db.
      */
     private CleanServer(final String instance)
@@ -83,6 +89,7 @@ public class CleanServer extends ChannelInboundHandlerAdapter
 
     /**
      * Get the number of executions.
+     *
      * @return the number.
      */
     private int getNumberOfExecutions()
@@ -91,29 +98,39 @@ public class CleanServer extends ChannelInboundHandlerAdapter
     }
 
     @Override
+    public void channelReadComplete(ChannelHandlerContext ctx)
+    {
+        ctx.flush();
+    }
+
+    @Override
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause)
+    {
+        cause.printStackTrace();
+        ctx.close();
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
     {
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
-        // Discard the received data silently.
-        ((ByteBuf) msg).release(); // (3)
-
         final Input input = new Input(((ByteBuf) msg).array());
 
         List returnValue = kryo.readObject(input, ArrayList.class);
         Log.getLogger().info("Received message!");
-        for(Object obj: returnValue)
+        for (Object obj : returnValue)
         {
             if (obj instanceof Operation)
             {
                 ((Operation) obj).apply(access, 0);
                 numberOfExecutions++;
             }
-            else if(obj instanceof NodeStorage)
+            else if (obj instanceof NodeStorage)
             {
                 try
                 {
-                    access.readObject(obj,0);
+                    access.readObject(obj, 0);
                     numberOfExecutions++;
                 }
                 catch (OutDatedDataException e)
@@ -122,12 +139,13 @@ public class CleanServer extends ChannelInboundHandlerAdapter
                 }
             }
         }
-
+        ctx.write(msg);
         ((ByteBuf) msg).release();
     }
 
     /**
      * Main method to start the clean server.
+     *
      * @param args the arguments to start it with.
      */
     public static void main(String[] args)
@@ -159,51 +177,45 @@ public class CleanServer extends ChannelInboundHandlerAdapter
             instance = Constants.NEO4J;
         }
 
-       
+        final ThreadFactory acceptFactory = new DefaultThreadFactory("accept");
+        final ThreadFactory connectFactory = new DefaultThreadFactory("connect");
+        final NioEventLoopGroup acceptGroup = new NioEventLoopGroup(1, acceptFactory, NioUdtProvider.BYTE_PROVIDER);
+        final NioEventLoopGroup connectGroup = new NioEventLoopGroup(1, connectFactory, NioUdtProvider.BYTE_PROVIDER);
 
-        final CleanServer server = new CleanServer(instance);
-
-
-        final EventLoopGroup bossGroup = new NioEventLoopGroup();
-        final EventLoopGroup workerGroup = new NioEventLoopGroup();
+        // Configure the server.
         try
         {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer()
+            final ServerBootstrap boot = new ServerBootstrap();
+            boot.group(acceptGroup, connectGroup)
+                    .channelFactory(NioUdtProvider.BYTE_ACCEPTOR)
+                    .option(ChannelOption.SO_BACKLOG, 10)
+                    .handler(new LoggingHandler(LogLevel.INFO))
+                    .childHandler(new ChannelInitializer<UdtChannel>()
                     {
                         @Override
-                        protected void initChannel(final Channel ch) throws Exception
+                        public void initChannel(final UdtChannel ch)
+                                throws Exception
                         {
-                            ch.pipeline().addLast(server);
+                            ch.pipeline().addLast(
+                                    new LoggingHandler(LogLevel.INFO),
+                                    new CleanServer(instance));
                         }
-                    })
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
-
-            // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind(serverPort).sync(); // (7)
-
+                    });
+            // Start the server.
+            final ChannelFuture future = boot.bind(serverPort).sync();
             // Wait until the server socket is closed.
-            // In this example, this does not happen, but you can do that to gracefully
-            // shut down your server.
-            f.channel().closeFuture().sync();
+            future.channel().closeFuture().sync();
         }
         catch (InterruptedException e)
         {
-            Log.getLogger().info("Problem with execution of netty.", e);
             Thread.currentThread().interrupt();
+            Log.getLogger().info("Netty server got interrupted", e);
         }
         finally
         {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
+            // Shut down all event loops to terminate all threads.
+            acceptGroup.shutdownGracefully();
+            connectGroup.shutdownGracefully();
         }
-
-        server.terminate();
-
-        Log.getLogger().info("Executed operations: " + server.getNumberOfExecutions());
-
     }
 }

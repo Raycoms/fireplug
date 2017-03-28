@@ -203,7 +203,7 @@ public class ClientThreads
                             try (final Output output = new Output(0, 10024))
                             {
                                 kryo.writeObject(output, createRelationshipOperations);
-                                kryo.writeObject(output, createRelationshipOperations);
+                                out.sendMessage(output.getBuffer());
                             }
                             createRelationshipOperations = new ArrayList<>();
                         }
