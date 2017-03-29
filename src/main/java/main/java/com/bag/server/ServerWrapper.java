@@ -70,19 +70,24 @@ public class ServerWrapper
         this.localClusterSlaveId = localClusterSlaveId;
 
         databaseAccess = instantiateDBAccess(instance, globalServerId);
-
         databaseAccess.start();
 
-
-        localCluster = new LocalClusterSlave(localClusterSlaveId, this, isPrimary ? globalServerId : initialLeaderId);
+        if(localClusterSlaveId != -1)
+        {
+            localCluster = new LocalClusterSlave(localClusterSlaveId, this, isPrimary ? globalServerId : initialLeaderId);
+            localCluster.setPrimaryGlobalClusterId(initialLeaderId);
+        }
 
         if(isPrimary)
         {
+            Log.getLogger().info("Turn on global cluster.");
             globalCluster = new GlobalClusterSlave(globalServerId, this);
-            localCluster.setPrimary(true);
+            if(localClusterSlaveId != -1)
+            {
+                localCluster.setPrimary(true);
+            }
         }
 
-        localCluster.setPrimaryGlobalClusterId(initialLeaderId);
     }
 
     /**
@@ -227,7 +232,7 @@ public class ServerWrapper
         }
         else
         {
-            actsInGlobalCluster = Boolean.valueOf(args[2]);
+            actsInGlobalCluster = Boolean.valueOf(args[4]);
         }
         @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary);
 

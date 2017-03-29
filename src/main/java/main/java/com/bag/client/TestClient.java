@@ -4,7 +4,6 @@ import bftsmart.communication.client.ReplyReceiver;
 import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
-import bftsmart.tom.util.Extractor;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -19,9 +18,7 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
-import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -36,9 +33,15 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     private boolean secureMode = false;
 
     /**
-     * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
+     * The place the local config file is. This + the cluster id will contain the concrete cluster config location.
      */
     private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
+
+    /**
+     * The place the global config files is.
+     */
+    private static final String GLOBAL_CONFIG_LOCATION = "global/config";
+
 
     /**
      * Sets to log reads, updates, deletes and node creations.
@@ -54,9 +57,14 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     private long localTimestamp = -1;
 
     /**
-     * the if the local server process the client is communicating with.
+     * The id of the local server process the client is communicating with.
      */
     private final int serverProcess;
+
+    /**
+     * Id of the local cluster.
+     */
+    private final int localClusterId;
 
     /**
      * Create a threadsafe version of kryo.
@@ -74,23 +82,10 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
     public TestClient(final int processId, final int serverId, final int localClusterId)
     {
-        super(processId, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         secureMode = true;
         this.serverProcess = serverId;
-        initClient();
-    }
-
-    public TestClient(final int processId, final String configHome)
-    {
-        super(processId, configHome);
-        serverProcess = 0;
-        initClient();
-    }
-
-    public TestClient(final int processId, final String configHome, final Comparator<byte[]> replyComparator, final Extractor replyExtractor)
-    {
-        super(processId, configHome, replyComparator, replyExtractor);
-        serverProcess = 0;
+        this.localClusterId = localClusterId;
         initClient();
     }
 
@@ -358,6 +353,12 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
         Log.getLogger().info("Starting commit");
         final boolean readOnly = isReadOnly();
+        byte[] bytes = serializeAll();
+
+        if(localClusterId == -1)
+        {
+            invokeOrdered(bytes);
+        }
 
         final int primaryId = getPrimary(kryo);
 
@@ -369,7 +370,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
         Log.getLogger().info("Committing to primary replica: " + primaryId);
 
-        byte[] bytes = serializeAll();
         if(readOnly && !secureMode)
         {
             Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));

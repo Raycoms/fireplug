@@ -110,11 +110,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
     @Override
     void writeSpecificData(final Output output, final Kryo kryo)
     {
-        kryo.writeObject(output, signatureStorageMap.size());
-        for(Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
+        if(signatureStorageMap != null)
         {
-            kryo.writeObject(output, entrySet.getKey());
-            kryo.writeObject(output, entrySet.getValue());
+            kryo.writeObject(output, signatureStorageMap.size());
+            for (Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
+            {
+                kryo.writeObject(output, entrySet.getKey());
+                kryo.writeObject(output, entrySet.getValue());
+            }
         }
     }
 
