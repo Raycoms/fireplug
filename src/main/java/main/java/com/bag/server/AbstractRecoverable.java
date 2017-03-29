@@ -1,5 +1,6 @@
 package main.java.com.bag.server;
 
+import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.server.defaultservices.DefaultReplier;
@@ -8,6 +9,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
@@ -18,8 +20,12 @@ import main.java.com.bag.server.database.SparkseeDatabaseAccess;
 import main.java.com.bag.server.database.TitanDatabaseAccess;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import main.java.com.bag.util.storage.TransactionStorage;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -198,6 +204,146 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         output.close();
         pool.release(kryo);
         return bytes;
+    }
+
+    /**
+     * Handles the node read message and requests it to the database.
+     *
+     * @param input          get info from.
+     * @param messageContext additional context.
+     * @param kryo           kryo object.
+     * @param output         write info to.
+     * @return output object to return to client.
+     */
+    public Output handleNodeRead(Input input, MessageContext messageContext, Kryo kryo, Output output)
+    {
+        long localSnapshotId = kryo.readObject(input, Long.class);
+        NodeStorage identifier = kryo.readObject(input, NodeStorage.class);
+        input.close();
+
+        Log.getLogger().info("With snapShot id: " + localSnapshotId);
+        if (localSnapshotId == -1)
+        {
+            TransactionStorage transaction = new TransactionStorage();
+            transaction.addReadSetNodes(identifier);
+            //localTransactionList.put(messageContext.getSender(), transaction);
+            localSnapshotId = getGlobalSnapshotId();
+        }
+        ArrayList<Object> returnList = null;
+
+        Log.getLogger().info("Get info from databaseAccess");
+
+        try
+        {
+            returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
+        }
+        catch (OutDatedDataException e)
+        {
+            Log.getLogger().info("Transaction found conflict - terminating", e);
+            terminate();
+            return output;
+        }
+
+        if (returnList != null)
+        {
+            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
+        }
+
+        kryo.writeObject(output, localSnapshotId);
+
+        if (returnList == null || returnList.isEmpty())
+        {
+            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            kryo.writeObject(output, new ArrayList<RelationshipStorage>());
+            return output;
+        }
+
+        ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
+        ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
+        for (Object obj : returnList)
+        {
+            if (obj instanceof NodeStorage)
+            {
+                nodeStorage.add((NodeStorage) obj);
+            }
+            else if (obj instanceof RelationshipStorage)
+            {
+                relationshipStorage.add((RelationshipStorage) obj);
+            }
+        }
+
+        kryo.writeObject(output, nodeStorage);
+        kryo.writeObject(output, relationshipStorage);
+
+        return output;
+    }
+
+    /**
+     * Handles the relationship read message and requests it to the database.
+     *
+     * @param input          get info from.
+     * @param messageContext additional context.
+     * @param kryo           kryo object.
+     * @param output         write info to.
+     * @return output object to return to client.
+     */
+    public Output handleRelationshipRead(final Input input, final MessageContext messageContext, final Kryo kryo, final Output output)
+    {
+        long localSnapshotId = kryo.readObject(input, Long.class);
+        RelationshipStorage identifier = kryo.readObject(input, RelationshipStorage.class);
+        input.close();
+
+        Log.getLogger().info("With snapShot id: " + localSnapshotId);
+        if (localSnapshotId == -1)
+        {
+            TransactionStorage transaction = new TransactionStorage();
+            transaction.addReadSetRelationship(identifier);
+            //localTransactionList.put(messageContext.getSender(), transaction);
+            localSnapshotId = getGlobalSnapshotId();
+        }
+        ArrayList<Object> returnList = null;
+
+
+        Log.getLogger().info("Get info from databaseAccess");
+        try
+        {
+            returnList = new ArrayList<>((wrapper.getDataBaseAccess()).readObject(identifier, localSnapshotId));
+        }
+        catch (OutDatedDataException e)
+        {
+            Log.getLogger().info("Transaction found conflict - terminating", e);
+            terminate();
+        }
+
+        kryo.writeObject(output, localSnapshotId);
+
+        if (returnList == null || returnList.isEmpty())
+        {
+            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            kryo.writeObject(output, new ArrayList<RelationshipStorage>());
+            return output;
+        }
+        Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
+
+        ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
+        ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
+        for (Object obj : returnList)
+        {
+            if (obj instanceof NodeStorage)
+            {
+                nodeStorage.add((NodeStorage) obj);
+            }
+            else if (obj instanceof RelationshipStorage)
+            {
+                relationshipStorage.add((RelationshipStorage) obj);
+            }
+        }
+
+        //todo problem returning the relationship here!
+        kryo.writeObject(output, nodeStorage);
+        kryo.writeObject(output, relationshipStorage);
+
+        return output;
     }
 
     /**

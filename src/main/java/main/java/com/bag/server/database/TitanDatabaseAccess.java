@@ -14,13 +14,11 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
-import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Class created to handle access to the titan database.
@@ -45,9 +43,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         config.set("storage.backend", "berkeleyje");
         config.set("storage.directory", DIRECTORY);
-
         graph = config.open();
     }
+
 
     /**
      * Creates a transaction which will get a list of nodes.

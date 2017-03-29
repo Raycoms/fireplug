@@ -220,7 +220,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         if(reply.getReqType() == TOMMessageType.UNORDERED_REQUEST)
         {
             final Input input = new Input(reply.getContent());
-
             switch(kryo.readObject(input, String.class))
             {
                 case Constants.READ_MESSAGE:
@@ -358,6 +357,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         if(localClusterId == -1)
         {
             invokeOrdered(bytes);
+            return;
         }
 
         final int primaryId = getPrimary(kryo);

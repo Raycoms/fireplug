@@ -63,15 +63,11 @@ public class RunTests
         {
             for (int i = 1; i <= numOfLocalCLients; i++)
             {
-
-                try (final TestClient client = new TestClient(i, serverPartner, localClusterId))
-                {
-                    final ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(client, numOfClientSimulators * numOfLocalCLients,
+                final ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(new TestClient(i, serverPartner, localClusterId), numOfClientSimulators * numOfLocalCLients,
                             shareOfClient * i, 10, 100000);
-                    Thread t = new Thread(runnable);
-                    threads.add(t);
-                    t.start();
-                }
+                Thread t = new Thread(runnable);
+                threads.add(t);
+                t.start();
             }
         }
         else

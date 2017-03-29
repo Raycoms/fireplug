@@ -60,6 +60,7 @@ public class ClientThreads
 
         public MassiveNodeInsertThread(@NotNull final TestClient client, final int share, final int start, final int commitAfter, final int size)
         {
+            client.read(new NodeStorage("EmptyRead"));
             this.client = client;
             startAt = start * (size/share) + 1;
             stopAt = startAt + (size/share) - 1;

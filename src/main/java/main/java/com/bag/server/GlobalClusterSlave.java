@@ -83,7 +83,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     {
                         continue;
                     }
-                    return executeCommit(kryo, input, timeStamp);
+                    return executeCommit(kryo, input, timeStamp, i);
                 }
             }
         }
@@ -127,7 +127,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param input the input.
      * @return the response.
      */
-    private byte[][] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
+    private byte[][] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final int i)
     {
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -223,24 +223,44 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Kryo kryo = pool.borrow();
         Input input = new Input(bytes);
 
-        final String messageType = kryo.readObject(input, String.class);;
+        final String messageType = kryo.readObject(input, String.class);
+        Output output = new Output(0, 100240);
+
         switch(messageType)
         {
+            case Constants.READ_MESSAGE:
+                Log.getLogger().info("Received Node read message");
+                kryo.writeObject(output, Constants.READ_MESSAGE);
+                output = handleNodeRead(input, messageContext, kryo, output);
+                break;
+            case Constants.RELATIONSHIP_READ_MESSAGE:
+                Log.getLogger().info("Received Relationship read message");
+                kryo.writeObject(output, Constants.READ_MESSAGE);
+                output = handleRelationshipRead(input, messageContext, kryo, output);
+                break;
             case Constants.SIGNATURE_MESSAGE:
                 handleSignatureMessage(input, messageContext, kryo);
                 break;
             case Constants.REGISTER_GLOBALLY_MESSAGE:
+                output.close();
                 return handleRegisteringSlave(input, kryo);
             case Constants.REGISTER_GLOBALLY_CHECK:
+                output.close();
                 return handleGlobalRegistryCheck(input, kryo);
             default:
                 Log.getLogger().warn("Incorrect operation sent unordered to the server");
                 break;
         }
 
+        byte[] returnValue = output.getBuffer();
+
+        Log.getLogger().info("Return it to client, size: " + returnValue.length);
+
         input.close();
+        output.close();
         pool.release(kryo);
-        return new byte[0];
+
+        return returnValue;
     }
 
     /**
