@@ -57,15 +57,20 @@ public class RunTests
             shareOfClient = Integer.parseInt(args[5]);
         }
 
+        final List<Thread> threads = new ArrayList<>();
+
         if(usesBag)
         {
             for (int i = 1; i <= numOfLocalCLients; i++)
             {
-                try (TestClient client = new TestClient(i, serverPartner, localClusterId))
+
+                try (final TestClient client = new TestClient(i, serverPartner, localClusterId))
                 {
-                    ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(client, numOfClientSimulators * numOfLocalCLients,
+                    final ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(client, numOfClientSimulators * numOfLocalCLients,
                             shareOfClient * i, 10, 100000);
-                    runnable.run();
+                    Thread t = new Thread(runnable);
+                    threads.add(t);
+                    t.start();
                 }
             }
         }
@@ -73,9 +78,23 @@ public class RunTests
         {
             for (int i = 1; i <= numOfLocalCLients; i++)
             {
-                ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(new NettyThread(serverIp, serverPort), numOfClientSimulators * numOfLocalCLients,
+                final ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(new NettyThread(serverIp, serverPort), numOfClientSimulators * numOfLocalCLients,
                         shareOfClient * i, 10, 100000);
-                runnable.run();
+                Thread t = new Thread(runnable);
+                threads.add(t);
+                t.start();
+            }
+        }
+
+        for(Thread thread: threads)
+        {
+            try
+            {
+                thread.join();
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
             }
         }
     }

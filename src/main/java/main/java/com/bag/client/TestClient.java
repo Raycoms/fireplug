@@ -31,7 +31,7 @@ import java.util.*;
 public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable, AutoCloseable
 {
     /**
-     * Should the transaction run in secure mode?
+     * Should the transaction runNetty in secure mode?
      */
     private boolean secureMode = false;
 
@@ -232,7 +232,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
                     processReadReturn(input);
                     break;
                 case Constants.GET_PRIMARY:
-                    //Ignore!
+                    super.replyReceived(reply);
                     break;
                 default:
                     Log.getLogger().info("Unexpected message type!");
@@ -242,6 +242,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         }
         else if(reply.getReqType() == TOMMessageType.REPLY)
         {
+            Log.getLogger().info("Commit return");
             processCommitReturn(reply.getContent());
         }
         else
@@ -362,10 +363,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
         if(primaryId == -1)
         {
+            Log.getLogger().warn("Wrong primaryId!!!");
             return;
         }
 
-        Log.getLogger().info("Commiting to primary replica: " + primaryId);
+        Log.getLogger().info("Committing to primary replica: " + primaryId);
 
         byte[] bytes = serializeAll();
         if(readOnly && !secureMode)
@@ -488,7 +490,10 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         }
 
         final Input input = new Input(response);
+        kryo.readObject(input, String.class);
         final int primaryId = kryo.readObject(input, Integer.class);
+
+        Log.getLogger().info("Received id: " + primaryId);
 
         input.close();
 

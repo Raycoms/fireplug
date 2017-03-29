@@ -72,7 +72,7 @@ public class ClientThreads
             startAt = start * (size/share) + 1;
             stopAt = startAt + (size/share) - 1;
             this.commitAfter = commitAfter;
-            out.run();
+            out.runNetty();
         }
 
         @Override
@@ -150,7 +150,7 @@ public class ClientThreads
             this.share = share;
             this.start = start;
             this.commitAfter = commitAfter;
-            out.run();
+            out.runNetty();
         }
 
         @Override

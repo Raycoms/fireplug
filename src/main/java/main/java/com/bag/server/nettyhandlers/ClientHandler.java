@@ -13,8 +13,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf>
 {
-
     private final ByteBuf message;
+    private ChannelHandlerContext ctx;
 
     public ClientHandler()
     {
@@ -28,21 +28,34 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     @Override
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception
+    {
+        this.ctx = ctx;
+    }
+
+    //Handle response.
+    @Override
     public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg)
     {
         ctx.write(msg);
     }
 
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx)
+    /**
+     * Send the message.
+     * @param bytes the bytes to send.
+     */
+    public void sendMessage(byte[] bytes)
     {
-        ctx.flush();
-    }
-
-    @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause)
-    {
-        cause.printStackTrace();
-        ctx.close();
+        try
+        {
+            message.retain();
+            message.resetWriterIndex();
+            message.writeBytes(bytes);
+            this.ctx.writeAndFlush(message).sync();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

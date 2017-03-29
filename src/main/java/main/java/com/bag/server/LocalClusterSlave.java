@@ -258,10 +258,13 @@ public class LocalClusterSlave extends AbstractRecoverable
     @NotNull
     private Output handleCommitMessage(final Input input, final MessageContext messageContext, final Kryo kryo, final Output output)
     {
+        kryo.writeObject(output, Constants.COMMIT);
+        //todo messageContext.getLeader() returning -1 ?
         if (messageContext.getLeader() == id)
         {
             if(!isPrimary || wrapper.getGlobalCluster() == null)
             {
+                Log.getLogger().info("Is primary but wasn't marked as one.");
                 isPrimary = true;
                 if(!requestRegistering(proxy, kryo))
                 {
@@ -347,7 +350,14 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     private Output handleGetPrimaryMessage(final MessageContext messageContext, final Output output, final Kryo kryo)
     {
-        kryo.writeObject(output, messageContext.getLeader());
+        if(isPrimary())
+        {
+            kryo.writeObject(output, id);
+        }
+        if(isPrimary())
+        {
+            kryo.writeObject(output, primaryId);
+        }
         return output;
     }
 

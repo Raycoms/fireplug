@@ -32,7 +32,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Server used to communicate with graph databases directly without the use of BAG.
  */
-public class CleanServer extends ChannelInboundHandlerAdapter
+public class CleanServer extends SimpleChannelInboundHandler<ByteBuf>
 {
     /**
      * Create a threadsafe version of kryo.
@@ -54,11 +54,6 @@ public class CleanServer extends ChannelInboundHandlerAdapter
     private final IDatabaseAccess access;
 
     /**
-     * The instance of the database access.
-     */
-    private final String instance;
-
-    /**
      * Amount of succesful executions.
      */
     private int numberOfExecutions = 0;
@@ -66,17 +61,11 @@ public class CleanServer extends ChannelInboundHandlerAdapter
     /**
      * Create an instance of this server.
      *
-     * @param instance the instance of the db.
+     * @param access the instance of the db.
      */
-    private CleanServer(final String instance)
+    private CleanServer(final IDatabaseAccess access)
     {
-        this.instance = instance;
-        access = ServerWrapper.instantiateDBAccess(instance, 0);
-        if (access == null)
-        {
-            throw new UnsupportedOperationException("Wrong instance for this server");
-        }
-        access.start();
+        this.access = access;
     }
 
     /**
@@ -111,13 +100,16 @@ public class CleanServer extends ChannelInboundHandlerAdapter
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg)
+    public void channelRead0(final ChannelHandlerContext ctx, final ByteBuf msg)
     {
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
-        final Input input = new Input(((ByteBuf) msg).array());
 
-        List returnValue = kryo.readObject(input, ArrayList.class);
+        byte[] bytes = new byte[msg.readableBytes()];
+        msg.readBytes(bytes);
+        final Input input = new Input(bytes);
+
+        final List returnValue = kryo.readObject(input, ArrayList.class);
         Log.getLogger().info("Received message!");
         for (Object obj : returnValue)
         {
@@ -135,12 +127,10 @@ public class CleanServer extends ChannelInboundHandlerAdapter
                 }
                 catch (OutDatedDataException e)
                 {
-                    Log.getLogger().info("Unable to retrieve data at clean server with instance: " + instance, e);
+                    Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
                 }
             }
         }
-        ctx.write(msg);
-        ((ByteBuf) msg).release();
     }
 
     /**
@@ -177,6 +167,13 @@ public class CleanServer extends ChannelInboundHandlerAdapter
             instance = Constants.NEO4J;
         }
 
+        final IDatabaseAccess access = ServerWrapper.instantiateDBAccess(instance, 0);
+        if (access == null)
+        {
+            throw new UnsupportedOperationException("Wrong instance for this server");
+        }
+        access.start();
+
         final ThreadFactory acceptFactory = new DefaultThreadFactory("accept");
         final ThreadFactory connectFactory = new DefaultThreadFactory("connect");
         final NioEventLoopGroup acceptGroup = new NioEventLoopGroup(1, acceptFactory, NioUdtProvider.BYTE_PROVIDER);
@@ -198,7 +195,7 @@ public class CleanServer extends ChannelInboundHandlerAdapter
                         {
                             ch.pipeline().addLast(
                                     new LoggingHandler(LogLevel.INFO),
-                                    new CleanServer(instance));
+                                    new CleanServer(access));
                         }
                     });
             // Start the server.

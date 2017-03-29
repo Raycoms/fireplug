@@ -3,26 +3,25 @@ package main.java.com.bag.evaluations;
 import io.netty.bootstrap.*;
 import io.netty.channel.*;
 import io.netty.channel.nio.*;
-import io.netty.channel.socket.nio.*;
 import io.netty.channel.udt.UdtChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import main.java.com.bag.server.nettyhandlers.ClientHandler;
-import main.java.com.bag.util.Log;
 
 import java.util.concurrent.ThreadFactory;
 
 /**
  * Netty thread for client communication.
  */
-public class NettyThread extends ChannelInboundHandlerAdapter implements Runnable
+public class NettyThread
 {
-    private static Channel       activeComChannel;
     private        String        host;
     private        int           hostPort;
     private final EventLoopGroup connectGroup;
+
+    private ClientHandler handler;
 
     public NettyThread(String host, int hostPort)
     {
@@ -34,35 +33,29 @@ public class NettyThread extends ChannelInboundHandlerAdapter implements Runnabl
         this.hostPort = hostPort;
     }
 
-    public NettyThread()
-    {
-        final ThreadFactory connectFactory = new DefaultThreadFactory("connect");
-        connectGroup = new NioEventLoopGroup(1,
-                connectFactory, NioUdtProvider.BYTE_PROVIDER);
-    }
-
     /**
      * Send a message to the server.
      * @param message the byte array to send.
      */
     public synchronized void sendMessage(byte[] message)
     {
-        if (activeComChannel == null)
-        {
-            activeComChannel = new NioSocketChannel();
-            connectGroup.register(activeComChannel);
-            Log.getLogger().info("Sending message: " + message.length);
-        }
-
-        activeComChannel.writeAndFlush(message);
+        handler.sendMessage(message);
     }
 
-    @Override
-    public void run()
+    /**
+     * Shut down netty.
+     */
+    public void shutDown()
+    {
+        connectGroup.shutdownGracefully();
+    }
+
+    public void runNetty()
     {
         try
         {
             final Bootstrap boot = new Bootstrap();
+            handler = new ClientHandler();
             boot.group(connectGroup)
                     .channelFactory(NioUdtProvider.BYTE_CONNECTOR)
                     .handler(new ChannelInitializer<UdtChannel>()
@@ -73,22 +66,15 @@ public class NettyThread extends ChannelInboundHandlerAdapter implements Runnabl
                         {
                             ch.pipeline().addLast(
                                     new LoggingHandler(LogLevel.INFO),
-                                    new ClientHandler());
+                                    handler);
                         }
                     });
             // Start the client.
-            final ChannelFuture f = boot.connect(host, hostPort).sync();
-            // Wait until the connection is closed.
-            f.channel().closeFuture().sync();
+            boot.connect(host, hostPort).sync();
         }
         catch (InterruptedException e)
         {
             e.printStackTrace();
-        }
-        finally
-        {
-            // Shut down the event loop to terminate all threads.
-            connectGroup.shutdownGracefully();
         }
     }
 }
