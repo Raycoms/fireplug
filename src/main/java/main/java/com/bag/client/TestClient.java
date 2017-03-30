@@ -234,14 +234,14 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             }
             input.close();
         }
-        else if(reply.getReqType() == TOMMessageType.REPLY || reply.getReqType() == TOMMessageType.UNORDERED_REQUEST)
+        else if(reply.getReqType() == TOMMessageType.REPLY || reply.getReqType() == TOMMessageType.ORDERED_REQUEST)
         {
             Log.getLogger().info("Commit return");
             processCommitReturn(reply.getContent());
         }
         else
         {
-            Log.getLogger().info("Receiving other type of request.");
+            Log.getLogger().info("Receiving other type of request." + reply.getReqType().name());
 
         }
         super.replyReceived(reply);
