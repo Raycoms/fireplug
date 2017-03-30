@@ -60,7 +60,6 @@ public class ClientThreads
 
         public MassiveNodeInsertThread(@NotNull final TestClient client, final int share, final int start, final int commitAfter, final int size)
         {
-            client.read(new NodeStorage("EmptyRead"));
             this.client = client;
             startAt = start * (size/share) + 1;
             stopAt = startAt + (size/share) - 1;
@@ -95,6 +94,7 @@ public class ClientThreads
                     {
                         try(final Output output = new Output(0, 10024))
                         {
+                            written = 0;
                             kryo.writeObject(output, createNodeOperationList);
                             out.sendMessage(output.getBuffer());
                         }
@@ -103,9 +103,14 @@ public class ClientThreads
                 }
                 else
                 {
+                    if(written == 1)
+                    {
+                        client.read(new NodeStorage("GetAValidSnapShotId"));
+                    }
                     client.write(null, new NodeStorage(Integer.toString(i)));
                     if (written >= commitAfter || i == stopAt)
                     {
+                        written = 0;
                         client.commit();
                     }
                 }
@@ -203,6 +208,7 @@ public class ClientThreads
                         {
                             try (final Output output = new Output(0, 10024))
                             {
+                                writtenLines = 0;
                                 kryo.writeObject(output, createRelationshipOperations);
                                 out.sendMessage(output.getBuffer());
                             }
@@ -211,6 +217,10 @@ public class ClientThreads
                     }
                     else
                     {
+                        if(writtenLines == 0)
+                        {
+                            client.read(new NodeStorage("GetAValidSnapShotId"));
+                        }
                         client.write(null, new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2])));
                         if (readLines >= totalShare)
                         {
@@ -220,6 +230,7 @@ public class ClientThreads
 
                         if (writtenLines >= commitAfter)
                         {
+                            writtenLines = 0;
                             client.commit();
                         }
                     }

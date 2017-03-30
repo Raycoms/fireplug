@@ -9,16 +9,12 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.operations.Operation;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
-import main.java.com.bag.util.storage.NodeStorage;
-import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import main.java.com.bag.util.storage.TransactionStorage;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Str;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -62,6 +62,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     private final int serverProcess;
 
     /**
+     * Lock object to let the thread wait for a read return.
+     */
+    private Object lock = new Object();
+
+    /**
      * Id of the local cluster.
      */
     private final int localClusterId;
@@ -204,6 +209,24 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
                 Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
             }
         }
+
+        if(identifiers.length != 0)
+        {
+            synchronized (lock)
+            {
+                try
+                {
+                    lock.wait();
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                    /*
+                     * Intentionally left empty.
+                     */
+                }
+            }
+        }
     }
 
     /**
@@ -301,6 +324,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             }
         }
 
+        synchronized (lock)
+        {
+            lock.notify();
+        }
+
         input.close();
         pool.release(kryo);
     }
@@ -315,6 +343,8 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");
             return;
         }
+
+        localTimestamp = -1;
 
         final Input input = new Input(result);
         final String type = kryo.readObject(input, String.class);
@@ -357,6 +387,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
         if(localClusterId == -1)
         {
+            Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
             invokeOrdered(bytes);
             return;
         }

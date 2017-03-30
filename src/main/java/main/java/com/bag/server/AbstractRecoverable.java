@@ -231,7 +231,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
         ArrayList<Object> returnList = null;
 
-        Log.getLogger().info("Get info from databaseAccess");
+        Log.getLogger().info("Get info from databaseAccess to snapShotId " + localSnapshotId);
 
         try
         {

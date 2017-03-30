@@ -16,6 +16,10 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +37,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private static final String GLOBAL_CONFIG_LOCATION = "global/config";
 
     /**
+     * Used to convert nano time to seconds.
+     */
+    private static final double NANOTIMEDIVIDER = 1000000000.0;
+
+    /**
      * The wrapper class instance. Used to access the global cluster if possible.
      */
     private final ServerWrapper wrapper;
@@ -48,9 +57,30 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final Map<Long, SignatureStorage> signatureStorageMap = new TreeMap<>();
 
     /**
+     * Amount of data sent since last reset.
+     */
+    private int throughput;
+
+    /**
+     * Amount of aborts since last reset.
+     */
+    private int aborts;
+
+    /**
+     * Amount of commits since last reset.
+     */
+    private int committedTransactions;
+
+    /**
+     * Time of last commit.
+     */
+    private double lastCommit;
+
+    /**
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
+
 
     public GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper)
     {
@@ -58,6 +88,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         this.id = id;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(id , GLOBAL_CONFIG_LOCATION);
+        throughput = 0;
+        aborts = 0;
+        committedTransactions = 0;
+        lastCommit = System.nanoTime()/NANOTIMEDIVIDER;
     }
 
     //Every byte array is one request.
@@ -155,9 +189,24 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Output output = new Output(1024);
         kryo.writeObject(output, Constants.COMMIT_RESPONSE);
 
+        boolean printResult = false;
+        if(System.nanoTime()/NANOTIMEDIVIDER - lastCommit >= 30)
+        {
+            lastCommit = System.nanoTime()/NANOTIMEDIVIDER;
+            printResult = true;
+        }
+
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
-            Log.getLogger().info("Found conflict, returning abort");
+            aborts+=1;
+
+            if(printResult)
+            {
+                writeToFile(aborts, committedTransactions, throughput, lastCommit);
+            }
+
+            Log.getLogger().info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: " + localWriteSet.size()
+            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
             //Send abort to client and abort
             byte[][] returnBytes = {output.getBuffer()};
@@ -170,6 +219,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        throughput+=localWriteSet.size();
+        committedTransactions+=1;
+
+        if(printResult)
+        {
+            writeToFile(aborts, committedTransactions, throughput, lastCommit);
+        }
+
         final long snapShotId = super.executeCommit(localWriteSet);
         if(wrapper.getLocalCLuster() != null)
         {
@@ -179,9 +236,44 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.COMMIT);
         byte[][] returnBytes = {output.getBuffer()};
         output.close();
-        Log.getLogger().info("No conflict found, returning commit");
+        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId());
 
         return returnBytes;
+    }
+
+    private void writeToFile(final int aborts, final int commits, final int throughput, final double time)
+    {
+        File file = new File("/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/config/results.txt");
+        if (!file.exists())
+        {
+            try
+            {
+                if(file.createNewFile())
+                {
+                    Log.getLogger().info("Created new file for logging!");
+                }
+            }
+            catch (IOException e)
+            {
+                Log.getLogger().info("Problem during creation of logging file.", e);
+            }
+        }
+
+        try(FileOutputStream fop = new FileOutputStream(file))
+        {
+            fop.write((time + ", ").getBytes());
+            fop.write((aborts + ", ").getBytes());
+            fop.write((commits + ", ").getBytes());
+            fop.write((String.valueOf(throughput)).getBytes());
+            fop.write("\n".getBytes());
+
+            fop.flush();
+            fop.close();
+        }
+        catch (IOException e)
+        {
+            Log.getLogger().info("Problem while writing to file!", e);
+        }
     }
 
     private void signCommitWithDecisionAndDistribute(final List<Operation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo)
@@ -414,9 +506,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-
         signatureStorage = signatureStorageMap.get(snapShotId);
-
 
         if(!decision.equals(signatureStorage.getDecision()))
         {
