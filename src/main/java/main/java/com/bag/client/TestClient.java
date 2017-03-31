@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Closeable;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Class handling the client.
@@ -64,7 +66,12 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     /**
      * Lock object to let the thread wait for a read return.
      */
-    private Object lock = new Object();
+    private BlockingQueue<Object> readQueue = new LinkedBlockingQueue<>();
+
+    /**
+     * The last object in read queue.
+     */
+    public static final Object FINISHED_READING = new Object();
 
     /**
      * Id of the local cluster.
@@ -102,6 +109,15 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         readsSetNode = new ArrayList<>();
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
+    }
+
+    /**
+     * Get the blocking queue.
+     * @return the queue.
+     */
+    public BlockingQueue<Object> getReadQueue()
+    {
+        return readQueue;
     }
 
     /**
@@ -209,24 +225,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
                 Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
             }
         }
-
-        if(identifiers.length != 0)
-        {
-            synchronized (lock)
-            {
-                try
-                {
-                    lock.wait();
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                    /*
-                     * Intentionally left empty.
-                     */
-                }
-            }
-        }
     }
 
     /**
@@ -304,6 +302,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
                     Log.getLogger().warn("Couldn't add hash for node", e);
                 }
                 readsSetNode.add(tempStorage);
+                readQueue.add(tempStorage);
             }
         }
 
@@ -321,14 +320,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
                     Log.getLogger().warn("Couldn't add hash for relationship", e);
                 }
                 readsSetRelationship.add(tempStorage);
+                readQueue.add(tempStorage);
             }
         }
 
-        synchronized (lock)
-        {
-            lock.notify();
-        }
-
+        readQueue.add(FINISHED_READING);
         input.close();
         pool.release(kryo);
     }

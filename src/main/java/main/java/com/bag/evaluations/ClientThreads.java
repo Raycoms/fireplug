@@ -106,6 +106,16 @@ public class ClientThreads
                     if(written == 1)
                     {
                         client.read(new NodeStorage("GetAValidSnapShotId"));
+                        try
+                        {
+                            client.getReadQueue().take();
+                        }
+                        catch (InterruptedException e)
+                        {
+                            /*
+                             * Empty on purpose.
+                             */
+                        }
                     }
                     client.write(null, new NodeStorage(Integer.toString(i)));
                     if (written >= commitAfter || i == stopAt)
@@ -220,6 +230,16 @@ public class ClientThreads
                         if(writtenLines == 0)
                         {
                             client.read(new NodeStorage("GetAValidSnapShotId"));
+                            try
+                            {
+                                client.getReadQueue().take();
+                            }
+                            catch (InterruptedException e)
+                            {
+                            /*
+                             * Empty on purpose.
+                             */
+                            }
                         }
                         client.write(null, new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2])));
                         if (readLines >= totalShare)
