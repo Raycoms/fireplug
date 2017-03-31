@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class Neo4jDatabaseAccess implements IDatabaseAccess
 {
-    private static final String BASE_PATH    = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/Neo4jDB";
+    private static final String BASE_PATH    = System.getProperty("user.home") + "/Neo4jDB";
 
     /**
      * The graphDB object.
