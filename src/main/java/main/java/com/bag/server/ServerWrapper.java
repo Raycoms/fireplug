@@ -7,6 +7,7 @@ import main.java.com.bag.server.database.TitanDatabaseAccess;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
+import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -226,14 +227,24 @@ public class ServerWrapper
             return;
         }
 
-        if (args.length == 4)
+        if (args.length <= 4)
         {
             actsInGlobalCluster = false;
         }
         else
         {
-            actsInGlobalCluster = Boolean.valueOf(args[4]);
+            actsInGlobalCluster = Boolean.parseBoolean(args[4]);
         }
+
+        if(args.length>=6)
+        {
+            boolean useLogging = Boolean.parseBoolean(args[5]);
+            if(!useLogging)
+            {
+                Log.getLogger().setLevel(Level.OFF);
+            }
+        }
+
         @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary);
 
         final Scanner reader = new Scanner(System.in);  // Reading from System.in

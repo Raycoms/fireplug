@@ -3,7 +3,9 @@ package main.java.com.bag.main;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.evaluations.ClientThreads;
  import main.java.com.bag.evaluations.NettyThread;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
+import org.apache.log4j.Level;
 
 import java.util.*;
 
@@ -55,6 +57,15 @@ public class RunTests
             numOfLocalCLients = Integer.parseInt(args[3]);
             numOfClientSimulators = Integer.parseInt(args[4]);
             shareOfClient = Integer.parseInt(args[5]);
+
+            if(args.length>=7)
+            {
+                boolean useLogging = Boolean.parseBoolean(args[6]);
+                if(!useLogging)
+                {
+                    Log.getLogger().setLevel(Level.OFF);
+                }
+            }
         }
 
         final List<Thread> threads = new ArrayList<>();

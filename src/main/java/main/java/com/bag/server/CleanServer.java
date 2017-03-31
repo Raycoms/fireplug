@@ -24,6 +24,7 @@ import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import org.apache.log4j.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,6 +166,15 @@ public class CleanServer extends SimpleChannelInboundHandler<ByteBuf>
         else
         {
             instance = Constants.NEO4J;
+        }
+
+        if(args.length>=4)
+        {
+            boolean useLogging = Boolean.parseBoolean(args[3]);
+            if(!useLogging)
+            {
+                Log.getLogger().setLevel(Level.OFF);
+            }
         }
 
         final IDatabaseAccess access = ServerWrapper.instantiateDBAccess(instance, 0);
