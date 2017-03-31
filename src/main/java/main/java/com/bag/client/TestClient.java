@@ -182,6 +182,8 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         }
         else if(value instanceof RelationshipStorage)
         {
+            readsSetNode.add(((RelationshipStorage) value).getStartNode());
+            readsSetNode.add(((RelationshipStorage) value).getEndNode());
             writeSet.add(new CreateOperation<>((RelationshipStorage) value));
         }
     }
