@@ -263,9 +263,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final PrintWriter out = new PrintWriter(bw))
         {
             out.println(time + ", ");
-            out.println(aborts + ", ");
-            out.println(commits + ", ");
-            out.println(String.valueOf(throughput));
+            out.print(aborts + ", ");
+            out.print(commits + ", ");
+            out.print(String.valueOf(throughput));
             out.println();
         }
         catch (IOException e)

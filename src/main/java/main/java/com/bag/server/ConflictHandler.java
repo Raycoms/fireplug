@@ -4,6 +4,7 @@ import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
@@ -56,11 +57,16 @@ public class ConflictHandler
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
-        return !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetNode))
-                && !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetRelationship))
-                && !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id))
-                .retainAll(localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
-                        .collect(Collectors.toList())));
+        final boolean writeSetNodeWithRead = readSetNode.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetNode));
+        final boolean writeSetRSWithRead = readSetRelationship.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetRelationship));
+
+        final List<Operation> tempList = localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
+                .collect(Collectors.toList());
+
+        final boolean writeWithWrite = tempList.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id))
+                .retainAll(tempList));
+
+        return writeSetNodeWithRead && writeSetRSWithRead && writeWithWrite;
     }
 
     /**
