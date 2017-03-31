@@ -220,6 +220,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: " + localWriteSet.size()
             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, getGlobalSnapshotId());
+
             //Send abort to client and abort
             byte[][] returnBytes = {output.getBuffer()};
             output.close();
@@ -249,6 +251,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         kryo.writeObject(output, Constants.COMMIT);
+        kryo.writeObject(output, getGlobalSnapshotId());
+
         byte[][] returnBytes = {output.getBuffer()};
         output.close();
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
@@ -394,9 +398,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private byte[] handleRegisteringSlave(final Input input, final Kryo kryo)
     {
-        final int localClusterID = kryo.readObject(input, Integer.class);;
-        final int newPrimary = kryo.readObject(input, Integer.class);;
-        final int oldPrimary = kryo.readObject(input, Integer.class);;
+        final int localClusterID = kryo.readObject(input, Integer.class);
+        final int newPrimary = kryo.readObject(input, Integer.class);
+        final int oldPrimary = kryo.readObject(input, Integer.class);
 
         final ServiceProxy localProxy = new ServiceProxy(oldPrimary, "local" + localClusterID);
 

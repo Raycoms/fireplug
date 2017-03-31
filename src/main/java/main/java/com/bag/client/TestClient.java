@@ -340,7 +340,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             return;
         }
 
-        localTimestamp = -1;
 
         final Input input = new Input(result);
         final String type = kryo.readObject(input, String.class);
@@ -353,6 +352,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         }
 
         final String decision = kryo.readObject(input, String.class);
+        localTimestamp = kryo.readObject(input, Long.class);
 
         if(Constants.COMMIT.equals(decision))
         {
