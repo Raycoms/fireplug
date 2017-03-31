@@ -16,10 +16,7 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +89,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
         aborts = 0;
         committedTransactions = 0;
         lastCommit = System.nanoTime()/NANOTIMEDIVIDER;
+
+        try(final FileWriter file = new FileWriter("/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/config/results"+id+".txt", true);
+            final BufferedWriter bw = new BufferedWriter(file);
+            final PrintWriter out = new PrintWriter(bw))
+        {
+            out.println();
+            out.println("Starting new experiment: ");
+            out.println();
+        }
+        catch (IOException e)
+        {
+            Log.getLogger().info("Problem while writing to file!", e);
+        }
     }
 
     //Every byte array is one request.
@@ -112,15 +122,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     final Long timeStamp = kryo.readObject(input, Long.class);
 
-                    //Check if we have the transaction id already in the writeSet. If so no need to do this here!
+                    /*//Check if we have the transaction id already in the writeSet. If so no need to do this here!
                     if(getGlobalWriteSet().containsKey(timeStamp))
                     {
+                        Log.getLogger().info("Already committed that timestamp!");
                         continue;
-                    }
+                    }*/
                     return executeCommit(kryo, input, timeStamp, i);
                 }
             }
         }
+        Log.getLogger().info("Return empty bytes.");
         return new byte[0][];
     }
 
@@ -225,6 +237,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if(printResult)
         {
             writeToFile(aborts, committedTransactions, throughput, lastCommit);
+            aborts = 0;
+            committedTransactions = 0;
+            throughput = 0;
         }
 
         final long snapShotId = super.executeCommit(localWriteSet);
@@ -236,39 +251,22 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.COMMIT);
         byte[][] returnBytes = {output.getBuffer()};
         output.close();
-        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId());
+        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
         return returnBytes;
     }
 
     private void writeToFile(final int aborts, final int commits, final int throughput, final double time)
     {
-        File file = new File("/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/config/results.txt");
-        if (!file.exists())
+        try(final FileWriter file = new FileWriter("/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/config/results"+id+".txt", true);
+            final BufferedWriter bw = new BufferedWriter(file);
+            final PrintWriter out = new PrintWriter(bw))
         {
-            try
-            {
-                if(file.createNewFile())
-                {
-                    Log.getLogger().info("Created new file for logging!");
-                }
-            }
-            catch (IOException e)
-            {
-                Log.getLogger().info("Problem during creation of logging file.", e);
-            }
-        }
-
-        try(FileOutputStream fop = new FileOutputStream(file))
-        {
-            fop.write((time + ", ").getBytes());
-            fop.write((aborts + ", ").getBytes());
-            fop.write((commits + ", ").getBytes());
-            fop.write((String.valueOf(throughput)).getBytes());
-            fop.write("\n".getBytes());
-
-            fop.flush();
-            fop.close();
+            out.println(time + ", ");
+            out.println(aborts + ", ");
+            out.println(commits + ", ");
+            out.println(String.valueOf(throughput));
+            out.println();
         }
         catch (IOException e)
         {

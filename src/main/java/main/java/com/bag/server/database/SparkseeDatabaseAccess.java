@@ -415,6 +415,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             sess.close();
         }
 
+        Log.getLogger().warn("Successfully executed create node transaction in server:  " + id);
         return true;
     }
 
@@ -433,6 +434,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
 
         sess.close();
+        Log.getLogger().warn("Successfully executed delete node transaction in server:  " + id);
         return true;
     }
 
@@ -499,6 +501,9 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 graph.setAttribute(relationship, attributeTypeIdSnapshotId, SparkseeUtils.getValue(snapshotId));
             }
         }
+
+        Log.getLogger().warn("Successfully executed update relationship transaction in server:  " + id);
+
 
         startObjs.close();
         endObjs.close();
@@ -569,6 +574,8 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 }
             }
         }
+
+        Log.getLogger().warn("Successfully executed create relationship transaction in server:  " + id);
 
         sess.close();
         endObjs.close();

@@ -6,6 +6,7 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
@@ -272,12 +273,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         OrientGraph graph = factory.getTx();
         try
         {
-            String vertexClass = "class:" + storage.getId();
-            Vertex vertex = graph.addVertex(vertexClass);
-            for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
-            {
-                vertex.setProperty(entry.getKey(), entry.getValue());
-            }
+            final Vertex vertex = graph.addVertex(storage.getId(), storage.getProperties());
             vertex.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(storage));
             vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
 
