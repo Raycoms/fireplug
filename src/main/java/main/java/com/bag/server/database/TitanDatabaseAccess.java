@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class TitanDatabaseAccess implements IDatabaseAccess
 {
-    private static final String DIRECTORY ="/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/TitanDB";
+    private static final String DIRECTORY = System.getProperty("user.home") + "/TitanDB";
 
     private TitanGraph graph;
 

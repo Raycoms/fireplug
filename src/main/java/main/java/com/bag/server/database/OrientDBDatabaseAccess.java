@@ -27,7 +27,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     /**
      * The base path of the database.
      */
-    private static final String BASE_PATH = "PLOCAL:../home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/OrientDB";
+    private static final String BASE_PATH = System.getProperty("user.home") + "/OrientDB";
 
     /**
      * The id of the server.
