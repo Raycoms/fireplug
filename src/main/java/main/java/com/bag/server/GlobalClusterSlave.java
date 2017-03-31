@@ -262,7 +262,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     private void writeToFile(final int aborts, final int commits, final int throughput, final double time)
     {
-        try(final FileWriter file = new FileWriter("/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/config/results"+id+".txt", true);
+        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
             final BufferedWriter bw = new BufferedWriter(file);
             final PrintWriter out = new PrintWriter(bw))
         {
