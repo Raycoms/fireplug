@@ -57,14 +57,14 @@ public class ConflictHandler
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
-        final boolean writeSetNodeWithRead = readSetNode.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetNode));
-        final boolean writeSetRSWithRead = readSetRelationship.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).retainAll(readSetRelationship));
+        final boolean writeSetNodeWithRead = readSetNode.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).removeAll(readSetNode));
+        final boolean writeSetRSWithRead = readSetRelationship.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).removeAll(readSetRelationship));
 
         final List<Operation> tempList = localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
                 .collect(Collectors.toList());
 
         final boolean writeWithWrite = tempList.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id))
-                .retainAll(tempList));
+                .removeAll(tempList));
 
         return writeSetNodeWithRead && writeSetRSWithRead && writeWithWrite;
     }
