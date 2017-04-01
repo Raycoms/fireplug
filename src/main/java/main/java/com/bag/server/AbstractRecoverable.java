@@ -122,7 +122,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         this.id = kryo.readObject(input, Integer.class);
         String instance = kryo.readObject(input, String.class);
-        wrapper.instantiateDBAccess(instance, wrapper.getGlobalServerId());
+        wrapper.setDataBaseAccess(wrapper.instantiateDBAccess(instance, wrapper.getGlobalServerId()));
 
         readSpecificData(input, kryo);
 
@@ -131,6 +131,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
+        kryo.register(CreateOperation.class, 250);
+        kryo.register(DeleteOperation.class, 300);
+        kryo.register(UpdateOperation.class, 350);
 
         input.close();
         pool.release(kryo);
@@ -157,7 +160,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         Kryo kryo = pool.borrow();
 
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
-        Output output = new Output(0, 100240);
+        Output output = new Output(0, 200240);
 
         kryo.writeObject(output, globalSnapshotId);
 
@@ -385,7 +388,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Get a copy of the global writeSet.
      * @return a hashmap of all the operations with their snapshotId.
      */
-    public TreeMap<Long, List<Operation>> getGlobalWriteSet()
+    public Map<Long, List<Operation>> getGlobalWriteSet()
     {
         return new TreeMap<>(globalWriteSet);
     }

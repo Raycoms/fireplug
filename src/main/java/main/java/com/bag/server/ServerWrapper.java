@@ -302,4 +302,14 @@ public class ServerWrapper
     {
         return localClusterSlaveId;
     }
+
+    /**
+     * Set the database access for this server.
+     * Likely after an unexpected shutdown.
+     * @param dataBaseAccess the access to set.
+     */
+    public void setDataBaseAccess(final IDatabaseAccess dataBaseAccess)
+    {
+        this.databaseAccess = dataBaseAccess;
+    }
 }
