@@ -130,9 +130,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }*/
                     return executeCommit(kryo, input, timeStamp, i);
                 }
+                else
+                {
+                    System.out.println("Return empty bytes for message type: " + type);
+                }
+            }
+            else
+            {
+                System.out.println("Received message with empty context!");
             }
         }
-        Log.getLogger().info("Return empty bytes.");
         return new byte[0][];
     }
 
