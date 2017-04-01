@@ -21,24 +21,24 @@ import java.util.List;
 /**
  * Class containing the threads to simulate concurrent clients.
  */
-public class ClientThreads
+public class ClientWorkLoads
 {
     /**
      * Location of the testGraph.
      */
     private static final String GRAPH_LOCATION = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/src/testGraphs/social-a-graph.txt";
 
-    private ClientThreads()
+    private ClientWorkLoads()
     {
         /*
          * Intentionally left empty.
          */
     }
 
-    public static class MassiveNodeInsertThread implements Runnable
+    public static class MassiveNodeInsertThread
     {
         private TestClient  client = null;
-        private NettyThread out    = null;
+        private NettyClient out    = null;
 
         private final int        startAt;
         private final int        stopAt;
@@ -66,7 +66,7 @@ public class ClientThreads
             this.commitAfter = commitAfter;
         }
 
-        public MassiveNodeInsertThread(final NettyThread out, final int share, final int start, final int commitAfter, final int size)
+        public MassiveNodeInsertThread(final NettyClient out, final int share, final int start, final int commitAfter, final int size)
         {
             this.out = out;
             startAt = start * (size/share) + 1;
@@ -75,7 +75,6 @@ public class ClientThreads
             out.runNetty();
         }
 
-        @Override
         public void run()
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
@@ -115,10 +114,10 @@ public class ClientThreads
         }
     }
 
-    public static class MassiveRelationShipInsertThread implements Runnable
+    public static class MassiveRelationShipInsertThread
     {
-        private TestClient client = null;
-        private NettyThread out    = null;
+        private TestClient  client = null;
+        private NettyClient out    = null;
 
         private final int commitAfter;
         private final int share;
@@ -146,7 +145,7 @@ public class ClientThreads
             this.commitAfter = commitAfter;
         }
 
-        public MassiveRelationShipInsertThread(final NettyThread out, final int share, final int start, final int commitAfter)
+        public MassiveRelationShipInsertThread(final NettyClient out, final int share, final int start, final int commitAfter)
         {
             this.out = out;
             this.share = share;
@@ -155,7 +154,6 @@ public class ClientThreads
             out.runNetty();
         }
 
-        @Override
         public void run()
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();

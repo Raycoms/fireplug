@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Netty thread for client communication.
  */
-public class NettyThread
+public class NettyClient
 {
     private        String        host;
     private        int           hostPort;
@@ -23,7 +23,7 @@ public class NettyThread
 
     private ClientHandler handler;
 
-    public NettyThread(String host, int hostPort)
+    public NettyClient(String host, int hostPort)
     {
         final ThreadFactory connectFactory = new DefaultThreadFactory("connect");
         connectGroup = new NioEventLoopGroup(1,

@@ -1,8 +1,8 @@
 package main.java.com.bag.main;
 
 import main.java.com.bag.client.TestClient;
-import main.java.com.bag.evaluations.ClientThreads;
- import main.java.com.bag.evaluations.NettyThread;
+import main.java.com.bag.evaluations.ClientWorkLoads;
+ import main.java.com.bag.evaluations.NettyClient;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import org.apache.log4j.Level;
@@ -28,7 +28,7 @@ public class RunTests
     {
         int localClusterId = 0;
         int serverPartner = 0;
-        int numOfLocalCLients = 10;
+        int numOfLocalClients = 10;
         int numOfClientSimulators = 3;
         int shareOfClient = 1;
 
@@ -54,7 +54,7 @@ public class RunTests
                 serverIp = args[1];
                 serverPort = Integer.parseInt(args[2]);
             }
-            numOfLocalCLients = Integer.parseInt(args[3]);
+            numOfLocalClients = Integer.parseInt(args[3]);
             numOfClientSimulators = Integer.parseInt(args[4]);
             shareOfClient = Integer.parseInt(args[5]);
 
@@ -68,41 +68,19 @@ public class RunTests
             }
         }
 
-        final List<Thread> threads = new ArrayList<>();
-
         if(usesBag)
         {
-            for (int i = 1; i <= numOfLocalCLients; i++)
-            {
-                final ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(new TestClient(i, serverPartner, localClusterId), numOfClientSimulators * numOfLocalCLients,
-                            shareOfClient * i, 10, 100000);
-                Thread t = new Thread(runnable);
-                threads.add(t);
-                t.start();
-            }
+            final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
+                    new ClientWorkLoads.MassiveNodeInsertThread(new TestClient(localClusterId, serverPartner, localClusterId), numOfClientSimulators * numOfLocalClients,
+                            shareOfClient * numOfLocalClients, 10, 100000);
+            clientWorkLoad.run();
         }
         else
         {
-            for (int i = 1; i <= numOfLocalCLients; i++)
-            {
-                final ClientThreads.MassiveNodeInsertThread runnable = new ClientThreads.MassiveNodeInsertThread(new NettyThread(serverIp, serverPort), numOfClientSimulators * numOfLocalCLients,
-                        shareOfClient * i, 10, 100000);
-                Thread t = new Thread(runnable);
-                threads.add(t);
-                t.start();
-            }
-        }
-
-        for(Thread thread: threads)
-        {
-            try
-            {
-                thread.join();
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
+            final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
+                    new ClientWorkLoads.MassiveNodeInsertThread(new NettyClient(serverIp, serverPort), numOfClientSimulators * numOfLocalClients,
+                            shareOfClient * numOfLocalClients, 10, 100000);
+            clientWorkLoad.run();
         }
     }
 
@@ -139,7 +117,6 @@ public class RunTests
         //Create relationship
         //client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", carol),  new NodeStorage("Person", ray)));
         //client1.write(null, new RelationshipStorage("Loves", new NodeStorage("Person", ray),  new NodeStorage("Person", carol)));
-
 
         for (int i = 0; i < 1000; i++)
         {
