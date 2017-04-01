@@ -34,11 +34,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private static final String GLOBAL_CONFIG_LOCATION = "global/config";
 
     /**
-     * Used to convert nano time to seconds.
-     */
-    private static final double NANOTIMEDIVIDER = 1000000000.0;
-
-    /**
      * The wrapper class instance. Used to access the global cluster if possible.
      */
     private final ServerWrapper wrapper;
@@ -88,7 +83,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         throughput = 0;
         aborts = 0;
         committedTransactions = 0;
-        lastCommit = System.nanoTime()/NANOTIMEDIVIDER;
+        lastCommit = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
 
         try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
             final BufferedWriter bw = new BufferedWriter(file);
@@ -212,9 +207,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.COMMIT_RESPONSE);
 
         boolean printResult = false;
-        if(System.nanoTime()/NANOTIMEDIVIDER - lastCommit >= 30)
+        if(System.nanoTime()/Constants.NANO_TIME_DIVIDER - lastCommit >= 30)
         {
-            lastCommit = System.nanoTime()/NANOTIMEDIVIDER;
+            lastCommit = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
             printResult = true;
         }
 

@@ -2,6 +2,7 @@ package main.java.com.bag.server;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import io.netty.bootstrap.ServerBootstrap;
@@ -26,6 +27,10 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.apache.log4j.Level;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -55,18 +60,40 @@ public class CleanServer extends SimpleChannelInboundHandler<ByteBuf>
     private final IDatabaseAccess access;
 
     /**
-     * Amount of succesful executions.
+     * Amount of data sent since last reset.
      */
-    private int numberOfExecutions = 0;
+    private int throughput;
+
+    /**
+     * Amount of aborts since last reset.
+     */
+    private int aborts;
+
+    /**
+     * Amount of commits since last reset.
+     */
+    private int committedTransactions;
+
+    /**
+     * Time of last commit.
+     */
+    private double lastCommit;
+
+    /**
+     * Id of the server.
+     */
+    private final int id;
 
     /**
      * Create an instance of this server.
      *
      * @param access the instance of the db.
      */
-    private CleanServer(final IDatabaseAccess access)
+    private CleanServer(final IDatabaseAccess access, final int id)
     {
         this.access = access;
+        this.id = id;
+        lastCommit = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
     }
 
     /**
@@ -75,16 +102,6 @@ public class CleanServer extends SimpleChannelInboundHandler<ByteBuf>
     private void terminate()
     {
         access.terminate();
-    }
-
-    /**
-     * Get the number of executions.
-     *
-     * @return the number.
-     */
-    private int getNumberOfExecutions()
-    {
-        return numberOfExecutions;
     }
 
     @Override
@@ -96,7 +113,7 @@ public class CleanServer extends SimpleChannelInboundHandler<ByteBuf>
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause)
     {
-        cause.printStackTrace();
+        Log.getLogger().warn("Exception caused in transfer", cause);
         ctx.close();
     }
 
@@ -110,27 +127,57 @@ public class CleanServer extends SimpleChannelInboundHandler<ByteBuf>
         msg.readBytes(bytes);
         final Input input = new Input(bytes);
 
+        if(System.nanoTime()/Constants.NANO_TIME_DIVIDER - lastCommit >= 30)
+        {
+            lastCommit = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
+            writeToFile(aborts, committedTransactions, throughput, lastCommit);
+            aborts = 0;
+            committedTransactions = 0;
+            throughput = 0;
+        }
+
         final List returnValue = kryo.readObject(input, ArrayList.class);
         Log.getLogger().info("Received message!");
+        committedTransactions++;
         for (Object obj : returnValue)
         {
             if (obj instanceof Operation)
             {
                 ((Operation) obj).apply(access, 0);
-                numberOfExecutions++;
+                throughput++;
             }
-            else if (obj instanceof NodeStorage)
+            else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
             {
-                try
+                try(final Output output = new Output(0, 100024))
                 {
-                    access.readObject(obj, 0);
-                    numberOfExecutions++;
+                    kryo.writeObject(output, access.readObject(obj, 0));
+                    ctx.writeAndFlush(output.getBuffer());
+                    throughput++;
                 }
                 catch (OutDatedDataException e)
                 {
                     Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
+                    aborts++;
                 }
             }
+        }
+    }
+
+    private void writeToFile(final int aborts, final int commits, final int throughput, final double time)
+    {
+        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
+            final BufferedWriter bw = new BufferedWriter(file);
+            final PrintWriter out = new PrintWriter(bw))
+        {
+            out.println(time + ", ");
+            out.print(aborts + ", ");
+            out.print(commits + ", ");
+            out.print(String.valueOf(throughput));
+            out.println();
+        }
+        catch (IOException e)
+        {
+            Log.getLogger().info("Problem while writing to file!", e);
         }
     }
 
@@ -147,6 +194,7 @@ public class CleanServer extends SimpleChannelInboundHandler<ByteBuf>
         }
 
         final int serverPort = Integer.parseInt(args[0]);
+        final int id = Integer.parseInt(args[1]);
         final String tempInstance = args[2];
 
         final String instance;
@@ -205,7 +253,7 @@ public class CleanServer extends SimpleChannelInboundHandler<ByteBuf>
                         {
                             ch.pipeline().addLast(
                                     new LoggingHandler(LogLevel.INFO),
-                                    new CleanServer(access));
+                                    new CleanServer(access, id));
                         }
                     });
             // Start the server.

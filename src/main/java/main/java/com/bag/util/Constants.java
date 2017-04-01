@@ -29,6 +29,11 @@ public class Constants
     public static final String UPDATE_SLAVE              = "updateSlave";
     public static final String ASK_PRIMARY               = "askPrimary";
 
+    /**
+     * Used to convert nano time to seconds.
+     */
+    public static final double NANO_TIME_DIVIDER = 1000000000.0;
+
     public static final String[] RELATIONSHIP_TYPES_LIST = {"hasInterest",
             "hasModerator",
             "hasMember",

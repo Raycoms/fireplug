@@ -357,20 +357,23 @@ public class ClientWorkLoads
                     if(isRead)
                     {
                         final Output output = new Output(0, 10024);
+                        List<Object> list = new ArrayList<>();
+
                         if(readNodeStorage != null)
                         {
-                            kryo.writeObject(output, readNodeStorage);
+                            list.add(readNodeStorage);
                         }
                         else
                         {
-                            kryo.writeObject(output, readRelationship);
+                            list.add(readRelationship);
                         }
+                        kryo.writeObject(output, list);
                         out.sendMessage(output.getBuffer());
-
-                        //todo read on neo4j here!
-                        //todo have to use netty for that.
                     }
-                    operations.add(operation);
+                    else
+                    {
+                        operations.add(operation);
+                    }
                     if (i%10 == 0)
                     {
                         final Output output = new Output(0, 10024);
