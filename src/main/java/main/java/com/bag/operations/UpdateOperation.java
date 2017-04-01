@@ -43,6 +43,24 @@ public class UpdateOperation<S extends Serializable> implements Operation, Seria
         }
     }
 
+    /**
+     * Get the Storage object.
+     * @return it.
+     */
+    public Object getKey()
+    {
+        return key;
+    }
+
+    /**
+     * Get the Storage object.
+     * @return it.
+     */
+    public Object getValue()
+    {
+        return value;
+    }
+
     @Override
     public int hashCode()
     {

@@ -41,6 +41,15 @@ public class CreateOperation<S extends Serializable> implements Operation, Seria
         }
     }
 
+    /**
+     * Get the Storage object.
+     * @return it.
+     */
+    public Object getObject()
+    {
+        return storage;
+    }
+
     @Override
     public int hashCode()
     {

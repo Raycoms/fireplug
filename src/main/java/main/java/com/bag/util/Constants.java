@@ -29,15 +29,40 @@ public class Constants
     public static final String UPDATE_SLAVE              = "updateSlave";
     public static final String ASK_PRIMARY               = "askPrimary";
 
+    public static final String[] RELATIONSHIP_TYPES_LIST = {"hasInterest",
+            "hasModerator",
+            "hasMember",
+            "studyAt",
+            "worksAt",
+            "isLocatedIn",
+            "isPartOf",
+            "likes",
+            "hasCreator",
+            "containerOf",
+            "hasTag",
+            "hasType",
+            "isSubclassOf",
+            "replyOf",
+            "creationDate",
+            "name",
+            "gender",
+            "birthday",
+            "email",
+            "speaks",
+            "browserUsed",
+            "locationIP",
+            "content",
+            "language",
+            "imageFile", "length"};
+
+
     /**
      * Used to hide the implicit default constructor.
      */
     private Constants()
     {
-        /**
+        /*
          * Intentionally left empty.
          */
     }
-
-    public class TAG_HASH {}
 }

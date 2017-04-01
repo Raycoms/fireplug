@@ -121,13 +121,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
                     final Long timeStamp = kryo.readObject(input, Long.class);
-
-                    /*//Check if we have the transaction id already in the writeSet. If so no need to do this here!
-                    if(getGlobalWriteSet().containsKey(timeStamp))
-                    {
-                        Log.getLogger().info("Already committed that timestamp!");
-                        continue;
-                    }*/
                     return executeCommit(kryo, input, timeStamp, i);
                 }
                 else
@@ -140,7 +133,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().error("Received message with empty context!");
             }
         }
-        return new byte[0][];
+
+        final Output output = new Output(0,128);
+        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+        final Kryo kryo = pool.borrow();
+        kryo.writeObject(output, Constants.ABORT);
+        byte[] temp = output.getBuffer();
+        output.close();
+        pool.release(kryo);
+        aborts++;
+
+        return new byte[][] {temp};
     }
 
     @Override
@@ -205,7 +208,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         input.close();
-        Output output = new Output(1024);
+        Output output = new Output(128);
         kryo.writeObject(output, Constants.COMMIT_RESPONSE);
 
         boolean printResult = false;
