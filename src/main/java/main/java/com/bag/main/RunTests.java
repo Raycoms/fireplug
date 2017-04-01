@@ -71,7 +71,7 @@ public class RunTests
         if(usesBag)
         {
             final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
-                    new ClientWorkLoads.MassiveNodeInsertThread(new TestClient(localClusterId, serverPartner, localClusterId), numOfClientSimulators * numOfLocalClients,
+                    new ClientWorkLoads.MassiveNodeInsertThread(new TestClient(shareOfClient, serverPartner, localClusterId), numOfClientSimulators * numOfLocalClients,
                             shareOfClient * numOfLocalClients, 10, 100000);
             clientWorkLoad.run();
         }
