@@ -241,7 +241,7 @@ public class ServerWrapper
             boolean useLogging = Boolean.parseBoolean(args[5]);
             if(!useLogging)
             {
-                Log.getLogger().setLevel(Level.OFF);
+                Log.getLogger().setLevel(Level.WARN);
             }
         }
 

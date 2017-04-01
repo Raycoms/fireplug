@@ -132,12 +132,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }
                 else
                 {
-                    System.out.println("Return empty bytes for message type: " + type);
+                    Log.getLogger().error("Return empty bytes for message type: " + type);
                 }
             }
             else
             {
-                System.out.println("Received message with empty context!");
+                Log.getLogger().error("Received message with empty context!");
             }
         }
         return new byte[0][];

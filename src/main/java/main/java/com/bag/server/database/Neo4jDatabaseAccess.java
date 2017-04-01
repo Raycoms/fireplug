@@ -364,7 +364,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
             return false;
         }
-        Log.getLogger().warn("Executed update node transaction in server:  " + id);
+        Log.getLogger().info("Executed update node transaction in server:  " + id);
         return true;
     }
 
@@ -390,7 +390,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
             return false;
         }
-        Log.getLogger().warn("Executed create node transaction in server:  " + id);
+        Log.getLogger().info("Executed create node transaction in server:  " + id);
         return true;
     }
 
@@ -407,7 +407,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
             return false;
         }
-        Log.getLogger().warn("Executed delete node transaction in server:  " + id);
+        Log.getLogger().info("Executed delete node transaction in server:  " + id);
         return true;
     }
 
@@ -454,7 +454,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
         }
-        Log.getLogger().warn("Executed update relationship transaction in server:  " + id);
+        Log.getLogger().info("Executed update relationship transaction in server:  " + id);
         return true;
     }
 
@@ -487,7 +487,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
             return false;
         }
-        Log.getLogger().warn("Executed create relationship transaction in server:  " + id);
+        Log.getLogger().info("Executed create relationship transaction in server:  " + id);
 
         return true;
     }
@@ -514,7 +514,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
             return false;
         }
-        Log.getLogger().warn("Executed delete relationship transaction in server:  " + id);
+        Log.getLogger().info("Executed delete relationship transaction in server:  " + id);
         return true;
     }
 

@@ -68,7 +68,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         else
         {
-            Log.getLogger().warn("Can't read data on object: " + identifier.getClass().toString());
+            Log.getLogger().info("Can't read data on object: " + identifier.getClass().toString());
             return Collections.emptyList();
         }
 
@@ -277,7 +277,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch(NoSuchAlgorithmException e)
         {
-            Log.getLogger().warn("Failed at generating hash in server " + id, e);
+            Log.getLogger().info("Failed at generating hash in server " + id, e);
         }
         finally
         {
@@ -320,7 +320,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
-        Log.getLogger().warn("Successfully executed update node transaction in server:  " + id);
+        Log.getLogger().info("Successfully executed update node transaction in server:  " + id);
 
         return true;
     }
@@ -349,7 +349,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
-        Log.getLogger().warn("Successfully executed create node transaction in server:  " + id);
+        Log.getLogger().info("Successfully executed create node transaction in server:  " + id);
         return true;
     }
 
@@ -377,7 +377,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
-        Log.getLogger().warn("Successfully executed delete node transaction in server:  " + id);
+        Log.getLogger().info("Successfully executed delete node transaction in server:  " + id);
         return true;
     }
 
@@ -431,7 +431,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
-        Log.getLogger().warn("Successfully executed update relationship transaction in server:  " + id);
+        Log.getLogger().info("Successfully executed update relationship transaction in server:  " + id);
         return true;
     }
 
@@ -472,7 +472,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
-        Log.getLogger().warn("Successfully executed create relationship transaction in server:  " + id);
+        Log.getLogger().info("Successfully executed create relationship transaction in server:  " + id);
         return true;
     }
 
@@ -512,7 +512,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         {
             graph.tx().commit();
         }
-        Log.getLogger().warn("Successfully executed delete relationship transaction in server:  " + id);
+        Log.getLogger().info("Successfully executed delete relationship transaction in server:  " + id);
         return true;
     }
 

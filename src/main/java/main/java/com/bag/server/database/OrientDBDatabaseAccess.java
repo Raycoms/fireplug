@@ -288,7 +288,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         {
             graph.shutdown();
         }
-        Log.getLogger().warn("Successfully executed create node transaction in server:  " + id);
+        Log.getLogger().info("Successfully executed create node transaction in server:  " + id);
 
         return true;
     }
@@ -388,7 +388,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         {
             graph.shutdown();
         }
-        Log.getLogger().warn("Successfully executed create relationship transaction in server:  " + id);
+        Log.getLogger().info("Successfully executed create relationship transaction in server:  " + id);
         return true;
     }
 
