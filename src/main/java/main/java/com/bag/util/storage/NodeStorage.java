@@ -50,7 +50,8 @@ public class NodeStorage implements Serializable
     {
         this.id = "Node";
         this.properties = properties;
-        this.properties.put("idx", id);
+        if (!properties.containsKey("idx"))
+            this.properties.put("idx", id);
     }
 
     /**
@@ -144,6 +145,25 @@ public class NodeStorage implements Serializable
         {
             properties.remove(key);
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(id);
+        if (properties != null) {
+            sb.append("[");
+            for(Map.Entry<String, Object> item : properties.entrySet()) {
+                sb.append(item.getKey());
+                sb.append("=");
+                sb.append(item.getValue());
+                sb.append(",");
+            }
+            sb.deleteCharAt(sb.length()-1);
+            sb.append("]");
+        }
+
+        return sb.toString();
     }
 
     /**
