@@ -35,6 +35,8 @@ public class RunTests
         String serverIp = "127.0.0.1";
         int serverPort = 80;
 
+        int test = 0;
+
         boolean usesBag = true;
 
         if (args.length >= 1)
@@ -66,21 +68,62 @@ public class RunTests
                     Log.getLogger().setLevel(Level.OFF);
                 }
             }
+
+            if(args.length >= 8)
+            {
+                //Allowed values 1,2,3.
+                test = Integer.parseInt(args[7]);
+            }
         }
 
-        if(usesBag)
+        if(test == 1)
         {
-            final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
-                    new ClientWorkLoads.MassiveNodeInsertThread(new TestClient(shareOfClient, serverPartner, localClusterId), numOfClientSimulators * numOfLocalClients,
-                            shareOfClient * numOfLocalClients, 10, 100000);
-            clientWorkLoad.run();
+            if (usesBag)
+            {
+                final ClientWorkLoads.MassiveRelationShipInsertThread clientWorkLoad =
+                        new ClientWorkLoads.MassiveRelationShipInsertThread(new TestClient(shareOfClient, serverPartner, localClusterId), numOfClientSimulators * numOfLocalClients,
+                                shareOfClient * numOfLocalClients, 10);
+                clientWorkLoad.run();
+            }
+            else
+            {
+                final ClientWorkLoads.MassiveRelationShipInsertThread clientWorkLoad =
+                        new ClientWorkLoads.MassiveRelationShipInsertThread(new NettyClient(serverIp, serverPort), numOfClientSimulators * numOfLocalClients,
+                                shareOfClient * numOfLocalClients, 10);
+                clientWorkLoad.run();
+            }
+        }
+        else if(test == 2)
+        {
+            if (usesBag)
+            {
+                final ClientWorkLoads.RealisticOperation clientWorkLoad =
+                        new ClientWorkLoads.RealisticOperation(new TestClient(shareOfClient, serverPartner, localClusterId), 10);
+                clientWorkLoad.run();
+            }
+            else
+            {
+                final ClientWorkLoads.RealisticOperation clientWorkLoad =
+                        new ClientWorkLoads.RealisticOperation(new NettyClient(serverIp, serverPort), 10);
+                clientWorkLoad.run();
+            }
         }
         else
         {
-            final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
-                    new ClientWorkLoads.MassiveNodeInsertThread(new NettyClient(serverIp, serverPort), numOfClientSimulators * numOfLocalClients,
-                            shareOfClient * numOfLocalClients, 10, 100000);
-            clientWorkLoad.run();
+            if (usesBag)
+            {
+                final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
+                        new ClientWorkLoads.MassiveNodeInsertThread(new TestClient(shareOfClient, serverPartner, localClusterId), numOfClientSimulators * numOfLocalClients,
+                                shareOfClient * numOfLocalClients, 10, 100000);
+                clientWorkLoad.run();
+            }
+            else
+            {
+                final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
+                        new ClientWorkLoads.MassiveNodeInsertThread(new NettyClient(serverIp, serverPort), numOfClientSimulators * numOfLocalClients,
+                                shareOfClient * numOfLocalClients, 10, 100000);
+                clientWorkLoad.run();
+            }
         }
     }
 

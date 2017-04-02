@@ -240,7 +240,7 @@ public class ClientWorkLoads
         }
     }
 
-    public static class MixedReadWrite
+    public static class RealisticOperation
     {
         private TestClient  client = null;
         private NettyClient out    = null;
@@ -261,13 +261,13 @@ public class ClientWorkLoads
             return kryo;
         };
 
-        public MixedReadWrite(@NotNull final TestClient client, final int commitAfter)
+        public RealisticOperation(@NotNull final TestClient client, final int commitAfter)
         {
             this.client = client;
             this.commitAfter = commitAfter;
         }
 
-        public MixedReadWrite(final NettyClient out, final int commitAfter)
+        public RealisticOperation(final NettyClient out, final int commitAfter)
         {
             this.out = out;
             this.commitAfter = commitAfter;
