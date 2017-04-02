@@ -17,6 +17,7 @@ import main.java.com.bag.util.*;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Str;
 
 import java.io.Closeable;
 import java.security.NoSuchAlgorithmException;
@@ -32,7 +33,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
     /**
      * Should the transaction runNetty in secure mode?
      */
-    private boolean secureMode = false;
+    private boolean secureMode = true;
 
     /**
      * The place the local config file is. This + the cluster id will contain the concrete cluster config location.
@@ -249,6 +250,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
                     processReadReturn(input);
                     break;
                 case Constants.GET_PRIMARY:
+                case Constants.COMMIT_RESPONSE:
                     super.replyReceived(reply);
                     break;
                 default:
@@ -382,6 +384,35 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
         Log.getLogger().info("Starting commit");
         final boolean readOnly = isReadOnly();
         byte[] bytes = serializeAll();
+
+        //todo if isReadonly invoke unordered and wait for response. If abort then send ordered only.
+
+        if(readOnly)
+        {
+            Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
+            byte[] answer = invokeUnordered(bytes);
+
+            final Input input = new Input(answer);
+
+            final String messageType = kryo.readObject(input, String.class);
+
+            if(!Constants.COMMIT_RESPONSE.equals(messageType))
+            {
+                Log.getLogger().warn("Incorrect response type to client from server!" + getProcessId());
+                return;
+            }
+
+            final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
+
+            if(commit)
+            {
+                localTimestamp = kryo.readObject(input, Long.class);
+                Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+                return;
+            }
+
+            Log.getLogger().info(String.format("Read-only Transaction with local transaction id: %d resend to the server", localTimestamp));
+        }
 
         if(localClusterId == -1)
         {

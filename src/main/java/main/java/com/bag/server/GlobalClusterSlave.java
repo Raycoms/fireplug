@@ -116,7 +116,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
                     final Long timeStamp = kryo.readObject(input, Long.class);
-                    return executeCommit(kryo, input, timeStamp, i);
+                    return executeCommit(kryo, input, timeStamp);
                 }
                 else
                 {
@@ -178,7 +178,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param input the input.
      * @return the response.
      */
-    private byte[][] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final int i)
+    private byte[][] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -249,7 +249,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
             throughput = 0;
         }
 
-        final long snapShotId = super.executeCommit(localWriteSet);
+        final long snapShotId;
+        if(!localWriteSet.isEmpty())
+        {
+             snapShotId = super.executeCommit(localWriteSet);
+        }
+        else
+        {
+            snapShotId = getGlobalSnapshotId();
+        }
+
         if(wrapper.getLocalCLuster() != null)
         {
             signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, snapShotId, kryo);
@@ -352,6 +361,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             case Constants.REGISTER_GLOBALLY_CHECK:
                 output.close();
                 return handleGlobalRegistryCheck(input, kryo);
+            case Constants.COMMIT:
+                output.close();
+                return handleReadOnlyCommit(input, kryo, output);
             default:
                 Log.getLogger().warn("Incorrect operation sent unordered to the server");
                 break;
@@ -366,6 +378,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         pool.release(kryo);
 
         return returnValue;
+    }
+
+    private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo, final Output output)
+    {
+        final Long timeStamp = kryo.readObject(input, Long.class);
+        return executeCommit(kryo, input, timeStamp)[0];
     }
 
     /**
