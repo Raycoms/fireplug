@@ -38,9 +38,9 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         String location = System.getProperty("user.home") + "/HelloSparksee.gdb";
         try
         {
-            db = sparksee.open(location, false);
+            db = sparksee.restore(location, "HelloSparksee");
         }
-        catch (FileNotFoundException e)
+        catch (Exception e)
         {
             try
             {
@@ -306,7 +306,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
      * @param storage the storage of the node.
      * @return Objects which match the attributes.
      */
-    private Objects findNode(Graph graph, NodeStorage storage)
+    private Objects findNode(final Graph graph, final NodeStorage storage)
     {
         Objects objects = null;
 
@@ -322,6 +322,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
             if (objects == null || objects.isEmpty())
             {
+                if(objects != null)
+                {
+                    objects.close();
+                }
                 objects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
             }
             else
@@ -522,7 +526,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         final Session sess = db.newSession();
         final Graph graph = sess.getGraph();
         final Objects startObjs = findNode(graph, storage.getStartNode());
-        final Objects endObjs = findNode(graph, storage.getStartNode());
+        final Objects endObjs = findNode(graph, storage.getEndNode());
 
         if(startObjs == null || endObjs == null)
         {
@@ -544,7 +548,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         while(startIt.hasNext())
         {
             long startNode = startIt.next();
-            while(endIt.hasNext())
+            while (endIt.hasNext())
             {
                 final long endNode = endIt.next();
 
@@ -553,40 +557,39 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 {
                     edgeType = graph.newEdgeType(storage.getId(), true, false);
                 }
+
                 final long relationship = graph.findOrCreateEdge(edgeType, startNode, endNode);
-                for(final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+                for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
                 {
-                    graph.setAttribute(relationship, SparkseeUtils.createOrFindAttributeType(entry.getKey(), entry.getValue(), Type.GlobalType, graph), SparkseeUtils.getValue(entry.getValue()));
-
-                    int snapshotAttributeId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_SNAPSHOT_ID, snapshotId, Type.GlobalType, graph);
-                    graph.setAttribute(relationship, snapshotAttributeId, SparkseeUtils.getValue(snapshotId));
-
-                    try
-                    {
-                        int hashAttributeId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_HASH, " ", Type.GlobalType, graph);
-                        graph.setAttribute(relationship, hashAttributeId, SparkseeUtils.getValue(HashCreator.sha1FromRelationship(storage)));
-                    }
-                    catch (NoSuchAlgorithmException e)
-                    {
-                        Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
-                        return false;
-                    }
-                    finally
-                    {
-                        endObjs.close();
-                        startObjs.close();
-                        startIt.close();
-                        endIt.close();
-                        sess.close();
-                    }
+                    graph.setAttribute(relationship,
+                            SparkseeUtils.createOrFindAttributeType(entry.getKey(), entry.getValue(), Type.GlobalType, graph),
+                            SparkseeUtils.getValue(entry.getValue()));
                 }
+
+                int snapshotAttributeId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_SNAPSHOT_ID, snapshotId, Type.GlobalType, graph);
+                graph.setAttribute(relationship, snapshotAttributeId, SparkseeUtils.getValue(snapshotId));
+
+                try
+                {
+                    int hashAttributeId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_HASH, " ", Type.GlobalType, graph);
+                    graph.setAttribute(relationship, hashAttributeId, SparkseeUtils.getValue(HashCreator.sha1FromRelationship(storage)));
+                }
+                catch (NoSuchAlgorithmException e)
+                {
+                    Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
+                    endObjs.close();
+                    startObjs.close();
+                    startIt.close();
+                    endIt.close();
+                    sess.close();
+                    return false;
+                }
+                Log.getLogger().warn("Successfully executed create relationship transaction in server:  " + id);
             }
         }
 
-        Log.getLogger().info("Successfully executed create relationship transaction in server:  " + id);
-
-        endObjs.close();
         startObjs.close();
+        endObjs.close();
         startIt.close();
         endIt.close();
         sess.close();

@@ -26,7 +26,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     /**
      * The base path of the database.
      */
-    private static final String BASE_PATH = "PLOCAL:.." + System.getProperty("user.home") + "/OrientDB";
+    private static final String BASE_PATH = "PLOCAL:" + System.getProperty("user.home") + "/OrientDB";
 
     /**
      * The id of the server.
@@ -83,9 +83,9 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             start();
         }
 
-        ArrayList<Object> returnStorage =  new ArrayList<>();
+        final ArrayList<Object> returnStorage =  new ArrayList<>();
 
-        OrientGraph graph = factory.getTx();
+        final OrientGraph graph = factory.getTx();
         try
         {
             //If nodeStorage is null, we're obviously trying to read relationships.
@@ -93,16 +93,16 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             {
                 final String relationshipId = "class:" + relationshipStorage.getId();
 
-                Iterable<Vertex> startNodes = getVertexList(relationshipStorage.getStartNode(), graph);
-                Iterable<Vertex> endNodes = getVertexList(relationshipStorage.getEndNode(), graph);
+                final Iterable<Vertex> startNodes = getVertexList(relationshipStorage.getStartNode(), graph);
+                final Iterable<Vertex> endNodes = getVertexList(relationshipStorage.getEndNode(), graph);
 
-                List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
-                        .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
-                        .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.IN).equals(vertex)))
+                final List<Edge> list = StreamSupport.stream(endNodes.spliterator(), false)
+                        .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.IN, relationshipId).spliterator(), false))
+                        .filter(edge -> StreamSupport.stream(startNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
                         .collect(Collectors.toList());
-                for(Edge edge: list)
+                for(final Edge edge: list)
                 {
-                    RelationshipStorage tempStorage = getRelationshipStorageFromEdge(edge, snapshotId);
+                    final RelationshipStorage tempStorage = getRelationshipStorageFromEdge(edge, snapshotId);
                     returnStorage.add(tempStorage);
                 }
             }
@@ -110,7 +110,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             {
                 for (final Vertex tempVertex : getVertexList(nodeStorage, graph))
                 {
-                    NodeStorage tempStorage = getNodeStorageFromVertex(tempVertex);
+                    final NodeStorage tempStorage = getNodeStorageFromVertex(tempVertex);
                     if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                     {
                         final Object localSId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
@@ -159,7 +159,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      */
     private NodeStorage getNodeStorageFromVertex(Vertex tempVertex)
     {
-        final NodeStorage temp = new NodeStorage(tempVertex.getProperty("id"));
+        final NodeStorage temp = new NodeStorage(tempVertex.getProperty("idx"));
         for (final String key : tempVertex.getPropertyKeys())
         {
             temp.addProperty(key, tempVertex.getProperty(key));
