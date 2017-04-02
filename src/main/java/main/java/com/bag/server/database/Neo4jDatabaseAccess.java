@@ -261,7 +261,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
         if (!nodeStorage.getId().isEmpty())
         {
-            builder.append(String.format(":%s", nodeStorage.getId()));
+            builder.append(String.format(":'%s'", nodeStorage.getId()));
         }
 
         if(!nodeStorage.getProperties().isEmpty())
