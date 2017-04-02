@@ -38,7 +38,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * String used to match key value pairs.
      */
     private static final String KEY_VALUE_PAIR = "%s: {%s}";
-    private static final String KEY_VALUE_PAIR_STRING = "%s: '%s'";
 
     private static final String MATCH = "MATCH ";
 
@@ -258,10 +257,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     private String buildNodeString(NodeStorage nodeStorage, String n)
     {
         StringBuilder builder = new StringBuilder("(n").append(n);
-
         if (!nodeStorage.getId().isEmpty())
         {
-            builder.append(String.format(":'%s'", nodeStorage.getId()));
+            builder.append(String.format(":%s", nodeStorage.getId()));
         }
 
         if(!nodeStorage.getProperties().isEmpty())
@@ -297,7 +295,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
         Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
 
-        Result result = graphDb.execute(builder, properties);
+        final Result result = graphDb.execute(builder, properties);
 
         //Assuming we only get one node in return.
         if (result.hasNext())
@@ -331,9 +329,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Set<String> keys = new HashSet<>();
-            keys.addAll(key.getProperties().keySet());
-            keys.addAll(value.getProperties().keySet());
             graphDb.beginTx();
 
             Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n");
@@ -567,14 +562,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      */
     private static void registerShutdownHook( final GraphDatabaseService graphDb )
     {
-        Runtime.getRuntime().addShutdownHook( new Thread()
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {
-            @Override
-            public void run()
-            {
-                Log.getLogger().info("Shutting down Neo4j.");
-                graphDb.shutdown();
-            }
-        } );
+            Log.getLogger().info("Shutting down Neo4j.");
+            graphDb.shutdown();
+        }));
     }
 }

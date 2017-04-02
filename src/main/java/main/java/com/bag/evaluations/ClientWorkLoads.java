@@ -19,6 +19,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 /**
  * Class containing the threads to simulate concurrent clients.
@@ -28,7 +29,7 @@ public class ClientWorkLoads
     /**
      * Location of the testGraph.
      */
-    private static final String GRAPH_LOCATION = "/home/ray/IdeaProjects/BAG - Byzantine fault-tolerant Architecture for Graph database/src/testGraphs/social-a-graph.txt";
+    private static final String GRAPH_LOCATION = System.getProperty("user.home") + "/testGraphs/social-a-graph.txt";
 
     private ClientWorkLoads()
     {
@@ -162,20 +163,24 @@ public class ClientWorkLoads
             final Kryo kryo = pool.borrow();
             List<CreateOperation<RelationshipStorage>> createRelationshipOperations = new ArrayList<>();
 
-            try(FileReader fr = new FileReader(GRAPH_LOCATION); BufferedReader br = new BufferedReader(fr);)
+            try(FileReader fr = new FileReader(GRAPH_LOCATION); Scanner scan = new Scanner(fr);)
             {
-                final long size = br.lines().count();
+                /*final long size = scan.l
                 final long totalShare = size / share;
-                final long startAt = start * totalShare + 1;
+                final long startAt = (start -1) * totalShare + 1;
 
                 //skip to the required amount
-                br.skip(startAt - 1);
+                if(startAt > 1)
+                {
+                    scan.skip(startAt - 1 + "");
+                }*/
 
                 int readLines = 0;
                 int writtenLines = 0;
                 String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null)
+                while (scan.hasNext())
                 {
+                    sCurrentLine = scan.nextLine();
                     final String[] ids = sCurrentLine.split(" ");
 
                     if(ids.length != 3)
@@ -190,7 +195,7 @@ public class ClientWorkLoads
                     {
                         createRelationshipOperations.add(new CreateOperation<>(new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2]))));
 
-                        if (readLines >= totalShare)
+                        /*if (readLines >= totalShare)
                         {
                             try (final Output output = new Output(0, 10024))
                             {
@@ -198,7 +203,7 @@ public class ClientWorkLoads
                                 out.sendMessage(output.getBuffer());
                             }
                             break;
-                        }
+                        }*/
 
                         if (writtenLines >= commitAfter)
                         {
@@ -214,11 +219,11 @@ public class ClientWorkLoads
                     else
                     {
                         client.write(null, new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2])));
-                        if (readLines >= totalShare)
+                        /*if (readLines >= totalShare)
                         {
                             client.commit();
                             break;
-                        }
+                        }*/
 
                         if (writtenLines >= commitAfter)
                         {

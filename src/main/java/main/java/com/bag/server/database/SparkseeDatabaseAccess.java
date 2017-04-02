@@ -78,11 +78,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         if (nodeStorage == null)
         {
-            NodeStorage startNode = relationshipStorage.getStartNode();
-            NodeStorage endNode = relationshipStorage.getEndNode();
+            final NodeStorage startNode = relationshipStorage.getStartNode();
+            final NodeStorage endNode = relationshipStorage.getEndNode();
 
-            Objects objsStart = findNode(graph, startNode);
-            Objects objsEnd = findNode(graph, endNode);
+            final Objects objsStart = findNode(graph, startNode);
+            final Objects objsEnd = findNode(graph, endNode);
 
             if (objsStart == null || objsEnd == null || objsStart.isEmpty() || objsEnd.isEmpty())
             {
@@ -98,8 +98,8 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 return Collections.emptyList();
             }
 
-            ObjectsIterator itStart = objsStart.iterator();
-            ObjectsIterator itEnd = objsEnd.iterator();
+            final ObjectsIterator itStart = objsStart.iterator();
+            final ObjectsIterator itEnd = objsEnd.iterator();
             //todo if no type given, then what?
             //Sparkee, can't search for node or relationship without it's type set!
             int relationshipTypeId = graph.findType(relationshipStorage.getId());
@@ -306,7 +306,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             objs = graph.select(nodeTypeId);
         }
 
-        for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+        for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
         {
             int attributeId = graph.findAttribute(Type.getGlobalType(), entry.getKey());
 
@@ -577,11 +577,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
         Log.getLogger().info("Successfully executed create relationship transaction in server:  " + id);
 
-        sess.close();
         endObjs.close();
         startObjs.close();
         startIt.close();
         endIt.close();
+        sess.close();
         return true;
     }
 

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 /**
@@ -36,7 +36,9 @@ public class NodeStorage implements Serializable
      */
     public NodeStorage(@NotNull String id)
     {
-        this.id = id;
+        this.id = "Node";
+        this.properties = new TreeMap<>();
+        this.properties.put("idx", id);
     }
 
     /**
@@ -44,15 +46,18 @@ public class NodeStorage implements Serializable
      * @param id string identifier of the node.
      * @param properties properties of the node.
      */
-    public NodeStorage(@NotNull String id, @Nullable Map properties)
+    public NodeStorage(@NotNull String id, @NotNull Map<String, Object> properties)
     {
-        this.id = id;
+        this.id = "Node";
         this.properties = properties;
+        this.properties.put("idx", id);
     }
+
     /**
      * Getter of the id.
      * @return string description of the node.
      */
+    @NotNull
     public String getId()
     {
         return this.id;
@@ -65,7 +70,7 @@ public class NodeStorage implements Serializable
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? Collections.emptyMap() : new HashMap<>(properties);
+        return properties == null ? Collections.emptyMap() : new TreeMap<>(properties);
     }
 
     /**
@@ -93,7 +98,7 @@ public class NodeStorage implements Serializable
     {
         if(this.properties == null)
         {
-            this.properties = new HashMap<>();
+            this.properties = new TreeMap<>();
         }
         this.properties.put(description, value);
     }

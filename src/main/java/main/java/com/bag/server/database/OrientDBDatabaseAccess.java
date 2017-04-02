@@ -6,7 +6,6 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
@@ -27,7 +26,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     /**
      * The base path of the database.
      */
-    private static final String BASE_PATH = System.getProperty("user.home") + "/OrientDB";
+    private static final String BASE_PATH = "PLOCAL:.." + System.getProperty("user.home") + "/OrientDB";
 
     /**
      * The id of the server.
@@ -114,7 +113,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                     NodeStorage tempStorage = getNodeStorageFromVertex(tempVertex);
                     if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                     {
-                        Object localSId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        final Object localSId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                         OutDatedDataException.checkSnapshotId(localSId, snapshotId);
                         tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
 
@@ -160,8 +159,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      */
     private NodeStorage getNodeStorageFromVertex(Vertex tempVertex)
     {
-        NodeStorage temp = new NodeStorage(tempVertex.getProperty("@class"));
-        for (String key : tempVertex.getPropertyKeys())
+        final NodeStorage temp = new NodeStorage(tempVertex.getProperty("id"));
+        for (final String key : tempVertex.getPropertyKeys())
         {
             temp.addProperty(key, tempVertex.getProperty(key));
         }
@@ -176,8 +175,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      */
     private Iterable<Vertex> getVertexList(final NodeStorage nodeStorage, final OrientGraph graph)
     {
-        String[] propertyKeys   = nodeStorage.getProperties().keySet().toArray(new String[0]);
-        Object[] propertyValues = nodeStorage.getProperties().values().toArray();
+        final String[] propertyKeys   = nodeStorage.getProperties().keySet().toArray(new String[0]);
+        final Object[] propertyValues = nodeStorage.getProperties().values().toArray();
 
         try
         {
@@ -213,7 +212,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             start();
         }
 
-        OrientGraph graph = factory.getTx();
+        final OrientGraph graph = factory.getTx();
         try
         {
             //Assuming we only get one node in return.
@@ -237,14 +236,14 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
     {
-        OrientGraph graph = factory.getTx();
+        final OrientGraph graph = factory.getTx();
         try
         {
-            Iterable<Vertex> result = getVertexList(key, graph);
+            final Iterable<Vertex> result = getVertexList(key, graph);
 
-            for (Vertex vertex : result)
+            for (final Vertex vertex : result)
             {
-                for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
+                for (final Map.Entry<String, Object> entry : value.getProperties().entrySet())
                 {
                     vertex.setProperty(entry.getKey(), entry.getValue());
                 }
@@ -270,13 +269,16 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyCreate(final NodeStorage storage, final long snapshotId)
     {
-        OrientGraph graph = factory.getTx();
+        final OrientGraph graph = factory.getTx();
         try
         {
+            if(graph.getVertexType(storage.getId()) == null)
+            {
+                graph.createVertexType(storage.getId());
+            }
             final Vertex vertex = graph.addVertex(storage.getId(), storage.getProperties());
             vertex.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(storage));
             vertex.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
-
             graph.commit();
         }
         catch (Exception e)
@@ -289,14 +291,13 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             graph.shutdown();
         }
         Log.getLogger().info("Successfully executed create node transaction in server:  " + id);
-
         return true;
     }
 
     @Override
     public boolean applyDelete(final NodeStorage storage, final long snapshotId)
     {
-        OrientGraph graph = factory.getTx();
+        final OrientGraph graph = factory.getTx();
         try
         {
             for (final Vertex vertex : getVertexList(storage, graph))
@@ -324,16 +325,16 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         {
             final String relationshipId = "class:" + key.getId();
 
-            Iterable<Vertex> startNodes = getVertexList(key.getStartNode(), graph);
-            Iterable<Vertex> endNodes = getVertexList(key.getEndNode(), graph);
+            final Iterable<Vertex> startNodes = getVertexList(key.getStartNode(), graph);
+            final Iterable<Vertex> endNodes = getVertexList(key.getEndNode(), graph);
 
-            List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
+            final List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
                     .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
                     .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.IN).equals(vertex)))
                     .collect(Collectors.toList());
-            for (Edge edge : list)
+            for (final Edge edge : list)
             {
-                for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
+                for (final Map.Entry<String, Object> entry : value.getProperties().entrySet())
                 {
                     edge.setProperty(entry.getKey(), entry.getValue());
                 }
@@ -359,8 +360,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         OrientGraph graph = factory.getTx();
         try
         {
-            Iterable<Vertex> startNodes = this.getVertexList(storage.getStartNode(), graph);
-            Iterable<Vertex> endNodes = this.getVertexList(storage.getEndNode(), graph);
+            final Iterable<Vertex> startNodes = this.getVertexList(storage.getStartNode(), graph);
+            final Iterable<Vertex> endNodes = this.getVertexList(storage.getEndNode(), graph);
 
             for (Vertex startNode : startNodes)
             {
@@ -438,14 +439,14 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         {
             final String relationshipId = "class:" + relationshipStorage.getId();
 
-            Iterable<Vertex> startNodes = getVertexList(relationshipStorage.getStartNode(), graph);
-            Iterable<Vertex> endNodes = getVertexList(relationshipStorage.getEndNode(), graph);
+            final Iterable<Vertex> startNodes = getVertexList(relationshipStorage.getStartNode(), graph);
+            final Iterable<Vertex> endNodes = getVertexList(relationshipStorage.getEndNode(), graph);
 
-            List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
+            final List<Edge> list = StreamSupport.stream(startNodes.spliterator(), false)
                     .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.OUT, relationshipId).spliterator(), false))
                     .filter(edge -> StreamSupport.stream(endNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.IN).equals(vertex)))
                     .collect(Collectors.toList());
-            for (Edge edge : list)
+            for (final Edge edge : list)
             {
                 return HashCreator.sha1FromRelationship(relationshipStorage).equals(edge.getProperty(Constants.TAG_HASH));
             }
