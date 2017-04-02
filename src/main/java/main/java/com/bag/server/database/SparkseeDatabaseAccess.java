@@ -33,13 +33,22 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         SparkseeProperties.load("config/sparksee.cfg");
         SparkseeConfig cfg = new SparkseeConfig();
         sparksee = new Sparksee(cfg);
+
+
         try
         {
-            db = sparksee.create("HelloSparksee.gdb", "HelloSparksee");
+            db = sparksee.open("HelloSparksee.gdb", false);
         }
         catch (FileNotFoundException e)
         {
-            Log.getLogger().warn("Couldn't start sparksee", e);
+            try
+            {
+                db = sparksee.create("HelloSparksee.gdb", "HelloSparksee");
+            }
+            catch (FileNotFoundException e1)
+            {
+                Log.getLogger().error("Unable to create an instance of Sparksee!");
+            }
         }
     }
 
@@ -255,10 +264,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean compareNode(final NodeStorage storage)
     {
-        Session sess = db.newSession();
-        Graph graph = sess.getGraph();
+        final Session sess = db.newSession();
+        final Graph graph = sess.getGraph();
 
-        Objects objs = findNode(graph, storage);
+        final Objects objs = findNode(graph, storage);
 
         if (objs == null || objs.isEmpty())
         {
@@ -270,11 +279,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             return false;
         }
 
-        ObjectsIterator it = objs.iterator();
+        final ObjectsIterator it = objs.iterator();
 
         try
         {
-            long oId = it.next();
+            final long oId = it.next();
             return HashCreator.sha1FromNode(storage).equals(graph.getAttribute(oId, graph.findAttribute(Type.getGlobalType(), "hash")).getString());
         }
         catch (NoSuchAlgorithmException e)
@@ -298,34 +307,28 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
      */
     private Objects findNode(Graph graph, NodeStorage storage)
     {
-        Objects objs = null;
+        Objects objects = null;
 
         if(!storage.getId().isEmpty())
         {
             int nodeTypeId = SparkseeUtils.createOrFindNodeType(storage, graph);
-            objs = graph.select(nodeTypeId);
+            objects = graph.select(nodeTypeId);
         }
 
         for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
         {
-            int attributeId = graph.findAttribute(Type.getGlobalType(), entry.getKey());
+            final int attributeId = graph.findAttribute(Type.GlobalType, entry.getKey());
 
-            if (objs == null)
+            if (objects == null || objects.isEmpty())
             {
-                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
+                objects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
             }
             else
             {
-                objs = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objs);
-            }
-
-            if (objs.isEmpty())
-            {
-                objs.close();
-                return null;
+                objects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objects);
             }
         }
-        return objs;
+        return objects;
     }
 
     @Override
@@ -388,16 +391,15 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         Graph graph = sess.getGraph();
 
         int nodeTypeId = SparkseeUtils.createOrFindNodeType(storage, graph);
-
         long nodeId = graph.newNode(nodeTypeId);
 
-        for(Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+        for(final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
         {
-            int attributeId = SparkseeUtils.createOrFindAttributeType(entry.getKey(), entry.getValue(), Type.GlobalType, graph);
+            final int attributeId = SparkseeUtils.createOrFindAttributeType(entry.getKey(), entry.getValue(), Type.GlobalType, graph);
             graph.setAttribute(nodeId, attributeId, SparkseeUtils.getValue(entry.getValue()));
         }
 
-        int snapshotAttributeId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_SNAPSHOT_ID, snapshotId, Type.GlobalType, graph);
+        final int snapshotAttributeId = SparkseeUtils.createOrFindAttributeType(Constants.TAG_SNAPSHOT_ID, snapshotId, Type.GlobalType, graph);
         graph.setAttribute(nodeId, snapshotAttributeId, SparkseeUtils.getValue(snapshotId));
 
         try
@@ -516,10 +518,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
     {
-        Session sess = db.newSession();
-        Graph graph = sess.getGraph();
-        Objects startObjs = findNode(graph, storage.getStartNode());
-        Objects endObjs = findNode(graph, storage.getStartNode());
+        final Session sess = db.newSession();
+        final Graph graph = sess.getGraph();
+        final Objects startObjs = findNode(graph, storage.getStartNode());
+        final Objects endObjs = findNode(graph, storage.getStartNode());
 
         if(startObjs == null || endObjs == null)
         {
@@ -535,18 +537,18 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             return false;
         }
 
-        ObjectsIterator startIt = startObjs.iterator();
-        ObjectsIterator endIt = endObjs.iterator();
+        final ObjectsIterator startIt = startObjs.iterator();
+        final ObjectsIterator endIt = endObjs.iterator();
 
         while(startIt.hasNext())
         {
             long startNode = startIt.next();
             while(endIt.hasNext())
             {
-                long endNode = endIt.next();
+                final long endNode = endIt.next();
 
-                long relationship = graph.findOrCreateEdge(graph.findType(storage.getId()), startNode, endNode);
-                for(Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+                final long relationship = graph.findOrCreateEdge(graph.findType(storage.getId()), startNode, endNode);
+                for(final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
                 {
                     graph.setAttribute(relationship, SparkseeUtils.createOrFindAttributeType(entry.getKey(), entry.getValue(), Type.GlobalType, graph), SparkseeUtils.getValue(entry.getValue()));
 
@@ -565,11 +567,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                     }
                     finally
                     {
-                        sess.close();
                         endObjs.close();
                         startObjs.close();
                         startIt.close();
                         endIt.close();
+                        sess.close();
                     }
                 }
             }
@@ -588,10 +590,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyDelete(final RelationshipStorage storage, final long snapshotId)
     {
-        Session sess = db.newSession();
-        Graph graph = sess.getGraph();
-        Objects startObjs = findNode(graph, storage.getStartNode());
-        Objects endObjs = findNode(graph, storage.getStartNode());
+        final Session sess = db.newSession();
+        final Graph graph = sess.getGraph();
+        final Objects startObjs = findNode(graph, storage.getStartNode());
+        final Objects endObjs = findNode(graph, storage.getStartNode());
 
         if(startObjs == null || endObjs == null)
         {
@@ -607,8 +609,8 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             return false;
         }
 
-        ObjectsIterator startIt = startObjs.iterator();
-        ObjectsIterator endIt = endObjs.iterator();
+        final ObjectsIterator startIt = startObjs.iterator();
+        final ObjectsIterator endIt = endObjs.iterator();
 
         while(startIt.hasNext())
         {

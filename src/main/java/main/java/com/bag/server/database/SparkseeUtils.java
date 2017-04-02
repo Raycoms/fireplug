@@ -1,6 +1,7 @@
 package main.java.com.bag.server.database;
 
 import com.sparsity.sparksee.gdb.*;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 
 import static com.sparsity.sparksee.gdb.DataType.*;
