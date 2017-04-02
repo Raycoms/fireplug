@@ -35,15 +35,16 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         sparksee = new Sparksee(cfg);
 
 
+        String location = System.getProperty("user.home") + "/HelloSparksee.gdb";
         try
         {
-            db = sparksee.open("HelloSparksee.gdb", false);
+            db = sparksee.open(location, false);
         }
         catch (FileNotFoundException e)
         {
             try
             {
-                db = sparksee.create("HelloSparksee.gdb", "HelloSparksee");
+                db = sparksee.create(location, "HelloSparksee");
             }
             catch (FileNotFoundException e1)
             {
@@ -547,7 +548,12 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             {
                 final long endNode = endIt.next();
 
-                final long relationship = graph.findOrCreateEdge(graph.findType(storage.getId()), startNode, endNode);
+                int edgeType = graph.findType(storage.getId());
+                if (Type.InvalidType == edgeType)
+                {
+                    edgeType = graph.newEdgeType(storage.getId(), true, false);
+                }
+                final long relationship = graph.findOrCreateEdge(edgeType, startNode, endNode);
                 for(final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
                 {
                     graph.setAttribute(relationship, SparkseeUtils.createOrFindAttributeType(entry.getKey(), entry.getValue(), Type.GlobalType, graph), SparkseeUtils.getValue(entry.getValue()));

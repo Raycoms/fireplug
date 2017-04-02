@@ -1,13 +1,17 @@
 package main.java.com.bag.server.database;
 
+import com.thinkaurelius.titan.core.PropertyKey;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanVertex;
+import com.thinkaurelius.titan.core.schema.TitanManagement;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -39,11 +43,19 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
+        //Logger.getLogger(com.thinkaurelius.titan.graphdb.transaction.StandardTitanTx.class).setLevel(Level.OFF);
         TitanFactory.Builder config = TitanFactory.build();
 
         config.set("storage.backend", "berkeleyje");
         config.set("storage.directory", DIRECTORY);
         graph = config.open();
+        TitanManagement mg = graph.openManagement();
+        PropertyKey idxKey = mg.getPropertyKey("idx");
+        if (idxKey == null) {
+            idxKey = mg.makePropertyKey("idx").dataType(String.class).make();
+            mg.buildIndex("byIdx", Vertex.class).addKey(idxKey).buildCompositeIndex();
+        }
+        mg.commit();
     }
 
 

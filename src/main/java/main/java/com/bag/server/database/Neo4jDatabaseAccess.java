@@ -58,6 +58,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath).newGraphDatabase();
         registerShutdownHook( graphDb );
+        try(Transaction tx = graphDb.beginTx()) {
+            graphDb.execute("CREATE INDEX ON :Node(idx)");
+            tx.success();
+        }
     }
 
     @Override

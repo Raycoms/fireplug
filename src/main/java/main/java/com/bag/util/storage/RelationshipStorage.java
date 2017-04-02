@@ -1,6 +1,7 @@
 package main.java.com.bag.util.storage;
 
 import main.java.com.bag.util.Log;
+import org.apache.commons.collections.KeyValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -182,6 +183,38 @@ public class RelationshipStorage implements Serializable
         return 31 * (31 * (31 * (31 * getId().hashCode()
                 + getProperties().hashCode())
                 + getStartNode().hashCode()) + getEndNode().hashCode());
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        if (startNode != null)
+            sb.append(startNode.toString());
+        else
+            sb.append("null");
+        sb.append(") <-- ");
+        sb.append(id);
+        if (properties != null) {
+            sb.append("[");
+            for (Map.Entry<String, Object> item : properties.entrySet()) {
+                sb.append(item.getKey());
+                sb.append("=");
+                sb.append(item.getValue());
+                sb.append(",");
+            }
+            sb.deleteCharAt(sb.length()-1);
+            sb.append("] --> (");
+        }
+        else
+            sb.append(" --> (");
+        if (endNode != null)
+            sb.append(endNode.toString());
+        else
+            sb.append("null");
+        sb.append(")");
+        return sb.toString();
     }
 
     /**
