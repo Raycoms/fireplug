@@ -357,20 +357,25 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
     {
-        OrientGraph graph = factory.getTx();
+        if(factory.getNoTx().getEdgeType(storage.getId()) == null)
+        {
+            factory.getNoTx().createEdgeType(storage.getId());
+        }
+
+        final OrientGraph graph = factory.getTx();
         try
         {
             final Iterable<Vertex> startNodes = this.getVertexList(storage.getStartNode(), graph);
             final Iterable<Vertex> endNodes = this.getVertexList(storage.getEndNode(), graph);
 
-            for (Vertex startNode : startNodes)
+            for (final Vertex startNode : startNodes)
             {
-                for (Vertex endNode : endNodes)
+                for (final Vertex endNode : endNodes)
                 {
-                    String edgeClass = "class:" + storage.getId();
-                    Edge edge = startNode.addEdge(edgeClass, endNode);
+                    final String edgeClass = "class:" + storage.getId();
+                    final Edge edge = startNode.addEdge(edgeClass, endNode);
 
-                    for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+                    for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
                     {
                         edge.setProperty(entry.getKey(), entry.getValue());
                     }
