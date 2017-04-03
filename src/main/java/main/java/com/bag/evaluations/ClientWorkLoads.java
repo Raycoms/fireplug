@@ -31,6 +31,11 @@ public class ClientWorkLoads
      */
     private static final String GRAPH_LOCATION = System.getProperty("user.home") + "/testGraphs/social-a-graph.txt";
 
+    /**
+     * Random seed for all random functions. To guarantee reproducibility.
+     */
+    private static final int RANDOM_SEED = 493934998;
+
     private ClientWorkLoads()
     {
         /*
@@ -47,10 +52,11 @@ public class ClientWorkLoads
         private final int        stopAt;
         private final int        commitAfter;
 
+
         /**
          * Create a threadsafe version of kryo.
          */
-        public KryoFactory factory = () ->
+        private KryoFactory factory = () ->
         {
             Kryo kryo = new Kryo();
             kryo.register(NodeStorage.class, 100);
@@ -161,25 +167,32 @@ public class ClientWorkLoads
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
-            List<CreateOperation<RelationshipStorage>> createRelationshipOperations = new ArrayList<>();
+            final List<CreateOperation<RelationshipStorage>> createRelationshipOperations = new ArrayList<>();
 
             try(FileReader fr = new FileReader(GRAPH_LOCATION); Scanner scan = new Scanner(fr);)
             {
-                /*final long size = scan.l
+                final long size = 239736;
                 final long totalShare = size / share;
                 final long startAt = (start -1) * totalShare + 1;
-
-                //skip to the required amount
-                if(startAt > 1)
-                {
-                    scan.skip(startAt - 1 + "");
-                }*/
 
                 int readLines = 0;
                 int writtenLines = 0;
                 String sCurrentLine;
+
                 while (scan.hasNext())
                 {
+                    if(readLines < startAt)
+                    {
+                        readLines++;
+                        continue;
+                    }
+                    readLines++;
+
+                    if(readLines > totalShare)
+                    {
+                        return;
+                    }
+
                     sCurrentLine = scan.nextLine();
                     final String[] ids = sCurrentLine.split(" ");
 
@@ -188,9 +201,7 @@ public class ClientWorkLoads
                         continue;
                     }
 
-                    readLines++;
                     writtenLines++;
-
                     if(client == null)
                     {
                         createRelationshipOperations.add(new CreateOperation<>(new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2]))));
@@ -213,7 +224,7 @@ public class ClientWorkLoads
                                 kryo.writeObject(output, createRelationshipOperations);
                                 out.sendMessage(output.getBuffer());
                             }
-                            createRelationshipOperations = new ArrayList<>();
+                            createRelationshipOperations.clear();
                         }
                     }
                     else
@@ -279,6 +290,20 @@ public class ClientWorkLoads
             out.runNetty();
         }
 
+        // Implementing Fisher–Yates shuffle
+        static void shuffleArray(byte[] ar)
+        {
+            final Random rnd = new Random(RANDOM_SEED);
+            for (int i = ar.length - 1; i > 0; i--)
+            {
+                int index = rnd.nextInt(i + 1);
+                // Simple swap
+                byte a = ar[index];
+                ar[index] = ar[i];
+                ar[i] = a;
+            }
+        }
+
         public void run()
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
@@ -287,10 +312,25 @@ public class ClientWorkLoads
             final int maxNodeId = 100000;
             final int maxRelationShipId = Constants.RELATIONSHIP_TYPES_LIST.length;
 
-            final Random random = new Random();
-            for(int i = 1; i < 100000; i++)
+            byte[] bytes = new byte[1000000];
+
+            final double percentageOfWrites = 0.02;
+            for(int i = 0; i < bytes.length; i++)
             {
-                boolean isRead = (random.nextDouble() * 100) > 0.2;
+                if(i <= (percentageOfWrites * bytes.length))
+                {
+                    bytes[i] = 1;
+                    continue;
+                }
+                bytes[i] = 0;
+            }
+
+            shuffleArray(bytes);
+
+            final Random random = new Random(RANDOM_SEED);
+            for(int i = 1; i < bytes.length; i++)
+            {
+                boolean isRead = bytes[i] == 0;
                 RelationshipStorage readRelationship = null;
                 NodeStorage readNodeStorage = null;
                 Operation operation = null;
@@ -402,7 +442,9 @@ public class ClientWorkLoads
                             }
                             catch (InterruptedException e)
                             {
-                                e.printStackTrace();
+                                /*
+                                 * Intentionally left empty.
+                                 */
                             }
                         }
 
@@ -415,13 +457,14 @@ public class ClientWorkLoads
                             }
                             catch (InterruptedException e)
                             {
-                                e.printStackTrace();
+                                /*
+                                 * Intentionally left empty.
+                                 */
                             }
                         }
                     }
                     else
                     {
-
                         if (operation instanceof DeleteOperation)
                         {
                             client.write(((DeleteOperation) operation).getObject(), null);

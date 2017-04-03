@@ -27,7 +27,7 @@ public class NodeStorage implements Serializable
 
     public NodeStorage()
     {
-        id = "";
+        id = "Node";
     }
 
     /**

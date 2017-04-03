@@ -97,16 +97,13 @@ public class DatabaseLoader
                 RelationshipStorage rel = new RelationshipStorage(fields[1], nodeOrigin, nodeDest);
                 dbAccess.applyCreate(rel, 1);
 
-                /*nodeOrigin = createNode(fields[0]);
-                nodeDest = createNode(fields[2]);
-                rel = new RelationshipStorage(fields[1], nodeOrigin, nodeDest);
                 List<Object> lst = dbAccess.readObject(rel, 1);
                 for (Object l : lst)
-                    System.out.printf("%s\n", l.toString());
+                    System.out.printf("%s%n", l.toString());
 
                 lst = dbAccess.readObject(nodeDest, 1);
                 for (Object l : lst)
-                    System.out.printf("%s\n", l.toString());*/
+                    System.out.printf("%s%n", l.toString());
 
                 relOperations += 1;
                 count += 1;
@@ -184,12 +181,12 @@ public class DatabaseLoader
 
         Log.getLogger().setLevel(Level.WARN);
 
-        IDatabaseAccess access = instantiateDBAccess(databaseId, 0);
+        final IDatabaseAccess access = instantiateDBAccess(databaseId, 0);
         System.out.printf("Starting %s database%n", databaseId);
         access.start();
         System.out.printf("Loading...");
 
-        DatabaseLoader loader = new DatabaseLoader(access, "/home/daniel/ray/thesis/src/testGraphs/social-a-graph.txt", idAsLabel);
+        final DatabaseLoader loader = new DatabaseLoader(access, System.getProperty("user.home") + "/testGraphs/social-a-graph.txt", idAsLabel);
         try
         {
             loader.loadGraph();
