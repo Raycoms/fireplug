@@ -175,19 +175,19 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
      * @param edgeId the edgeId.
      * @return the relationshipStorage.
      */
-    private RelationshipStorage getRelationshipFromRelationshipId(Graph graph, long edgeId)
+    private RelationshipStorage getRelationshipFromRelationshipId(final Graph graph, final long edgeId)
     {
-        Iterator<Integer> attributes = graph.getAttributes(edgeId).iterator();
-        Map<String, Object> localProperties = new HashMap<>();
+        final Iterator<Integer> attributes = graph.getAttributes(edgeId).iterator();
+        final Map<String, Object> localProperties = new HashMap<>();
         while (attributes.hasNext())
         {
-            String attributeKey = graph.getAttributeText(edgeId, attributes.next()).toString();
-            Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(edgeId, attributes.next()));
+            final String attributeKey = graph.getAttribute(attributes.next()).getName();
+            final Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(edgeId, attributes.next()));
             localProperties.put(attributeKey, attributeValue);
         }
 
-        NodeStorage tempStartNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getTail());
-        NodeStorage tempEndNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getTail());
+        final NodeStorage tempStartNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getTail());
+        final NodeStorage tempEndNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getTail());
 
         return new RelationshipStorage(graph.getType(graph.getObjectType(edgeId)).getName(), localProperties, tempStartNode, tempEndNode);
     }
@@ -198,14 +198,14 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
      * @param nodeId the nodeId.
      * @return the nodeStorage.
      */
-    private NodeStorage getNodeFromNodeId(Graph graph, long nodeId)
+    private NodeStorage getNodeFromNodeId(final Graph graph, final long nodeId)
     {
-        AttributeListIterator attributes = graph.getAttributes(nodeId).iterator();
-        Map<String, Object> localProperties = new HashMap<>();
+        final AttributeListIterator attributes = graph.getAttributes(nodeId).iterator();
+        final Map<String, Object> localProperties = new HashMap<>();
         while (attributes.hasNext())
         {
-            String attributeKey = graph.getAttributeText(nodeId, attributes.next()).toString();
-            Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(nodeId, attributes.next()));
+            final String attributeKey = graph.getAttribute(attributes.next()).getName();
+            final Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(nodeId, attributes.next()));
             localProperties.put(attributeKey, attributeValue);
         }
 
@@ -330,7 +330,9 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             }
             else
             {
-                objects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objects);
+                final Objects tempObjects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objects);
+                objects.close();
+                objects = tempObjects;
             }
         }
         return objects;
@@ -632,10 +634,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             }
         }
 
-        startIt.close();
-        endIt.close();
         startObjs.close();
         endObjs.close();
+        startIt.close();
+        endIt.close();
         sess.close();
         return true;
     }
