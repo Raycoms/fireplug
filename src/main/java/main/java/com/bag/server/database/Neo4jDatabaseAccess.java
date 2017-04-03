@@ -334,19 +334,18 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         try
         {
             graphDb.beginTx();
-            final Map<String, Object> properties = transFormToPropertyMap(key.getProperties(), "");
-            final Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n", properties);
+            final Map<String, Object> tempProperties = transFormToPropertyMap(key.getProperties(), "");
+            final Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n", tempProperties);
 
             while (result.hasNext())
             {
-                Map<String, Object> resultValue = result.next();
+                final Map<String, Object> resultValue = result.next();
 
-                for (Map.Entry<String, Object> entry : resultValue.entrySet())
+                for (final Map.Entry<String, Object> entry : resultValue.entrySet())
                 {
                     if (entry.getValue() instanceof NodeProxy)
                     {
-                        NodeProxy proxy = (NodeProxy) entry.getValue();
-
+                        final NodeProxy proxy = (NodeProxy) entry.getValue();
                         for (Map.Entry<String, Object> properties : value.getProperties().entrySet())
                         {
                             proxy.setProperty(properties.getKey(), properties.getValue());
