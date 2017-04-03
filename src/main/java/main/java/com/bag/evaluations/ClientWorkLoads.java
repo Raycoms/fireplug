@@ -261,6 +261,7 @@ public class ClientWorkLoads
         private TestClient  client = null;
         private NettyClient out    = null;
 
+        private final int seed;
         private final int commitAfter;
 
         /**
@@ -277,16 +278,18 @@ public class ClientWorkLoads
             return kryo;
         };
 
-        public RealisticOperation(@NotNull final TestClient client, final int commitAfter)
+        public RealisticOperation(@NotNull final TestClient client, final int commitAfter, int seed)
         {
             this.client = client;
             this.commitAfter = commitAfter;
+            this.seed = seed;
         }
 
-        public RealisticOperation(final NettyClient out, final int commitAfter)
+        public RealisticOperation(final NettyClient out, final int commitAfter, int seed)
         {
             this.out = out;
             this.commitAfter = commitAfter;
+            this.seed = seed;
             out.runNetty();
         }
 
@@ -328,7 +331,7 @@ public class ClientWorkLoads
 
             shuffleArray(bytes);
 
-            final Random random = new Random(RANDOM_SEED);
+            final Random random = new Random(RANDOM_SEED + seed);
             for(int i = 1; i < bytes.length; i++)
             {
                 boolean isRead = bytes[i] == 0;
@@ -421,7 +424,7 @@ public class ClientWorkLoads
                     {
                         operations.add(operation);
                     }
-                    if (i%10 == 0)
+                    if (i%commitAfter == 0)
                     {
                         final Output output = new Output(0, 10024);
                         kryo.writeObject(output, operations);
@@ -480,7 +483,7 @@ public class ClientWorkLoads
                         }
                     }
 
-                    if (i%10 == 0)
+                    if (i%commitAfter == 0)
                     {
                         client.commit();
                     }
