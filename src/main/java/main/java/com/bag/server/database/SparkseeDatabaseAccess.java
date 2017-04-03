@@ -31,24 +31,34 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     public void start()
     {
         SparkseeProperties.load("config/sparksee.cfg");
-        SparkseeConfig cfg = new SparkseeConfig();
+        final SparkseeConfig cfg = new SparkseeConfig();
         sparksee = new Sparksee(cfg);
 
 
-        String location = System.getProperty("user.home") + "/HelloSparksee.gdb";
+        final String location = System.getProperty("user.home") + "/HelloSparksee.gdb";
+
         try
         {
             db = sparksee.restore(location, "HelloSparksee");
         }
         catch (Exception e)
         {
+            Log.getLogger().warn("Unable to restore Sparksee.");
             try
             {
-                db = sparksee.create(location, "HelloSparksee");
+                db = sparksee.open(location, false);
             }
-            catch (FileNotFoundException e1)
+            catch (Exception e1)
             {
-                Log.getLogger().error("Unable to create an instance of Sparksee!");
+                Log.getLogger().warn("Unable to open Sparksee.");
+                try
+                {
+                    db = sparksee.create(location, "HelloSparksee");
+                }
+                catch (Exception e2)
+                {
+                    Log.getLogger().error("Unable to create an instance of Sparksee!");
+                }
             }
         }
     }
@@ -116,17 +126,17 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
             while (itStart.hasNext())
             {
-                long localStartNodeId = itStart.next();
+                final long localStartNodeId = itStart.next();
                 while (itEnd.hasNext())
                 {
-                    long localEndNodeId = itEnd.next();
+                    final long localEndNodeId = itEnd.next();
 
-                    long edgeId = graph.findEdge(relationshipTypeId, localStartNodeId, localEndNodeId);
-                    RelationshipStorage storage = getRelationshipFromRelationshipId(graph, edgeId);
+                    final long edgeId = graph.findEdge(relationshipTypeId, localStartNodeId, localEndNodeId);
+                    final RelationshipStorage storage = getRelationshipFromRelationshipId(graph, edgeId);
 
                     if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                     {
-                        Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        final Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                         OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
                         storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
                     }
@@ -181,8 +191,9 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         final Map<String, Object> localProperties = new HashMap<>();
         while (attributes.hasNext())
         {
-            final String attributeKey = graph.getAttribute(attributes.next()).getName();
-            final Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(edgeId, attributes.next()));
+            final int attributeId = attributes.next();
+            final String attributeKey = graph.getAttribute(attributeId).getName();
+            final Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(edgeId, attributeId));
             localProperties.put(attributeKey, attributeValue);
         }
 
@@ -204,8 +215,9 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         final Map<String, Object> localProperties = new HashMap<>();
         while (attributes.hasNext())
         {
-            final String attributeKey = graph.getAttribute(attributes.next()).getName();
-            final Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(nodeId, attributes.next()));
+            final int attributeId = attributes.next();
+            final String attributeKey = graph.getAttribute(attributeId).getName();
+            final Object attributeValue = SparkseeUtils.getObjectFromValue(graph.getAttribute(nodeId, attributeId));
             localProperties.put(attributeKey, attributeValue);
         }
 
@@ -586,7 +598,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                     sess.close();
                     return false;
                 }
-                Log.getLogger().warn("Successfully executed create relationship transaction in server:  " + id);
+                Log.getLogger().info("Successfully executed create relationship transaction in server:  " + id);
             }
         }
 

@@ -291,16 +291,17 @@ public class ClientWorkLoads
         }
 
         // Implementing Fisher–Yates shuffle
-        static void shuffleArray(byte[] ar)
+        private static void shuffleArray(byte[] array)
         {
-            final Random rnd = new Random(RANDOM_SEED);
-            for (int i = ar.length - 1; i > 0; i--)
+            int index;
+            byte temp;
+            Random random = new Random();
+            for (int i = array.length - 1; i > 0; i--)
             {
-                int index = rnd.nextInt(i + 1);
-                // Simple swap
-                byte a = ar[index];
-                ar[index] = ar[i];
-                ar[i] = a;
+                index = random.nextInt(i + 1);
+                temp = array[index];
+                array[index] = array[i];
+                array[i] = temp;
             }
         }
 
