@@ -275,6 +275,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             if(graph.getVertexType(storage.getId()) == null)
             {
                 graph.createVertexType(storage.getId());
+                graph.createKeyIndex("idx", Vertex.class);
             }
             final Vertex vertex = graph.addVertex("class:" + storage.getId(), storage.getProperties());
             vertex.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(storage));

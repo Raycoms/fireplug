@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Loads databases with file stream.
@@ -96,7 +97,10 @@ public class DatabaseLoader
                 RelationshipStorage rel = new RelationshipStorage(fields[1], nodeOrigin, nodeDest);
                 dbAccess.applyCreate(rel, 1);
 
-                /*List<Object> lst = dbAccess.readObject(rel, 1);
+                /*nodeOrigin = createNode(fields[0]);
+                nodeDest = createNode(fields[2]);
+                rel = new RelationshipStorage(fields[1], nodeOrigin, nodeDest);
+                List<Object> lst = dbAccess.readObject(rel, 1);
                 for (Object l : lst)
                     System.out.printf("%s\n", l.toString());
 
