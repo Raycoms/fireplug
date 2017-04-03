@@ -290,7 +290,7 @@ public class ClientWorkLoads
             final Random random = new Random();
             for(int i = 1; i < 100000; i++)
             {
-                boolean isRead = (random.nextDouble() * 100 + 1) > 0.2;
+                boolean isRead = (random.nextDouble() * 100) > 0.2;
                 RelationshipStorage readRelationship = null;
                 NodeStorage readNodeStorage = null;
                 Operation operation = null;
@@ -322,6 +322,7 @@ public class ClientWorkLoads
                 }
                 else
                 {
+                    Log.getLogger().warn("IS WRITE");
                     double randomNum = random.nextDouble() * 100 + 1;
                     if (randomNum <= 52.5)
                     {

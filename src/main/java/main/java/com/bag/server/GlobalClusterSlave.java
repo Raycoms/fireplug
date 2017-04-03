@@ -238,7 +238,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        throughput+=localWriteSet.size();
+        throughput+=localWriteSet.size() + readSetNode.size() + readsSetRelationship.size();
         committedTransactions+=1;
 
         if(printResult)
