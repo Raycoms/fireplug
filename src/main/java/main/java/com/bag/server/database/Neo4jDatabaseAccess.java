@@ -270,11 +270,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         {
             builder.append(" {");
 
-            Iterator<Map.Entry<String, Object>> iterator = nodeStorage.getProperties().entrySet().iterator();
+            final Iterator<Map.Entry<String, Object>> iterator = nodeStorage.getProperties().entrySet().iterator();
 
             while (iterator.hasNext())
             {
-                Map.Entry<String, Object> currentProperty = iterator.next();
+                final Map.Entry<String, Object> currentProperty = iterator.next();
                 builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getKey().toUpperCase() + n));
 
                 if (iterator.hasNext())
@@ -334,19 +334,18 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         try
         {
             graphDb.beginTx();
-
-            Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n");
+            final Map<String, Object> tempProperties = transFormToPropertyMap(key.getProperties(), "");
+            final Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n", tempProperties);
 
             while (result.hasNext())
             {
-                Map<String, Object> resultValue = result.next();
+                final Map<String, Object> resultValue = result.next();
 
-                for (Map.Entry<String, Object> entry : resultValue.entrySet())
+                for (final Map.Entry<String, Object> entry : resultValue.entrySet())
                 {
                     if (entry.getValue() instanceof NodeProxy)
                     {
-                        NodeProxy proxy = (NodeProxy) entry.getValue();
-
+                        final NodeProxy proxy = (NodeProxy) entry.getValue();
                         for (Map.Entry<String, Object> properties : value.getProperties().entrySet())
                         {
                             proxy.setProperty(properties.getKey(), properties.getValue());
@@ -398,8 +397,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
+            final Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
+
             final String cypher = MATCH + buildNodeString(storage, "") + " DETACH DELETE n";
-            graphDb.execute(cypher);
+            graphDb.execute(cypher, properties);
         }
         catch (Exception e)
         {
@@ -416,13 +417,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         try
         {
             //Transform relationship params.
-            Map<String, Object> propertyMap = transFormToPropertyMap(key.getProperties(), "");
+            final Map<String, Object> propertyMap = transFormToPropertyMap(key.getProperties(), "");
 
             //Adds also params of start and end node.
             propertyMap.putAll(transFormToPropertyMap(key.getStartNode().getProperties(), "1"));
             propertyMap.putAll(transFormToPropertyMap(key.getEndNode().getProperties(), "2"));
 
-            Result result = graphDb.execute(MATCH + buildRelationshipString(key) + " RETURN r", propertyMap);
+            final Result result = graphDb.execute(MATCH + buildRelationshipString(key) + " RETURN r", propertyMap);
             while (result.hasNext())
             {
                 Map<String, Object> relValue = result.next();
@@ -520,7 +521,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean compareRelationship(final RelationshipStorage relationshipStorage)
     {
-
         final String builder = MATCH + buildRelationshipString(relationshipStorage) + " RETURN r";
 
         //Contains params of relationshipStorage.

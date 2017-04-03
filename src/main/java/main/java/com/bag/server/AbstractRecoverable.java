@@ -57,6 +57,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     private TreeMap<Long, List<Operation>> globalWriteSet;
 
     /**
+     * Object to lock global write set.
+     */
+    private final Object lock = new Object();
+
+    /**
      * The wrapper class instance. Used to access the global cluster if possible.
      */
     private final ServerWrapper wrapper;
@@ -115,7 +120,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 Object object = kryo.readClassAndObject(input);
                 if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof Operation)
                 {
-                    globalWriteSet.put(snapshotId, (List<Operation>) object);
+                    synchronized (lock)
+                    {
+                        globalWriteSet.put(snapshotId, (List<Operation>) object);
+                    }
                 }
             }
         }
@@ -164,17 +172,20 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, globalSnapshotId);
 
-        if (globalWriteSet == null)
+        synchronized (lock)
         {
-            globalWriteSet = new TreeMap<>();
-        }
-        else
-        {
-            kryo.writeObject(output, globalWriteSet.size());
-            for (Map.Entry<Long, List<Operation>> writeSet : globalWriteSet.entrySet())
+            if (globalWriteSet == null)
             {
-                kryo.writeObject(output, writeSet.getKey());
-                kryo.writeObject(output, writeSet.getValue());
+                globalWriteSet = new TreeMap<>();
+            }
+            else
+            {
+                kryo.writeObject(output, globalWriteSet.size());
+                for (Map.Entry<Long, List<Operation>> writeSet : globalWriteSet.entrySet())
+                {
+                    kryo.writeObject(output, writeSet.getKey());
+                    kryo.writeObject(output, writeSet.getValue());
+                }
             }
         }
 
@@ -361,8 +372,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
         }
-        this.globalWriteSet.put(getGlobalSnapshotId(), localWriteSet);
-
+        synchronized (lock)
+        {
+            this.globalWriteSet.put(getGlobalSnapshotId(), localWriteSet);
+        }
         return globalSnapshotId;
     }
 
@@ -390,7 +403,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     public Map<Long, List<Operation>> getGlobalWriteSet()
     {
-        return new TreeMap<>(globalWriteSet);
+        synchronized (lock)
+        {
+            return new TreeMap<>(globalWriteSet);
+        }
     }
 
     /**

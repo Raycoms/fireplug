@@ -17,7 +17,6 @@ import main.java.com.bag.util.*;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Str;
 
 import java.io.Closeable;
 import java.security.NoSuchAlgorithmException;
@@ -78,6 +77,11 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      * Id of the local cluster.
      */
     private final int localClusterId;
+
+    /**
+     * Checks if its the first read of the client.
+     */
+    private boolean firstRead = true;
 
     /**
      * Create a threadsafe version of kryo.
@@ -210,24 +214,27 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      * ReadRequests.(Directly read database) send the request to the db.
      * @param identifiers list of objects which should be read, may be NodeStorage or RelationshipStorage
      */
-    public void read(Object...identifiers)
+    public void read(final Object...identifiers)
     {
-        for(Object identifier: identifiers)
+        long timeStampToSend = firstRead ? -1 : localTimestamp;
+
+        for(final Object identifier: identifiers)
         {
             if (identifier instanceof NodeStorage)
             {
                 //this sends the message straight to server 0 not to the others.
-                sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, localTimestamp, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
+                sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
             }
             else if (identifier instanceof RelationshipStorage)
             {
-                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, localTimestamp, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
+                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
             }
             else
             {
                 Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
             }
         }
+        firstRead = false;
     }
 
     /**
@@ -306,7 +313,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
                     Log.getLogger().warn("Couldn't add hash for node", e);
                 }
                 readsSetNode.add(tempStorage);
-                readQueue.add(tempStorage);
             }
         }
 
@@ -324,7 +330,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
                     Log.getLogger().warn("Couldn't add hash for relationship", e);
                 }
                 readsSetRelationship.add(tempStorage);
-                readQueue.add(tempStorage);
             }
         }
 
@@ -343,7 +348,6 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");
             return;
         }
-
 
         final Input input = new Input(result);
         final String type = kryo.readObject(input, String.class);
@@ -378,6 +382,8 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
      */
     public void commit()
     {
+        firstRead = true;
+
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 

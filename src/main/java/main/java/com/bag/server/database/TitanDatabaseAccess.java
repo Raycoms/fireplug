@@ -511,8 +511,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
             if (tempOutput != null && (tempOutput.has(Constants.TAG_SNAPSHOT_ID) == null || (tempOutput = tempOutput.has(Constants.TAG_SNAPSHOT_ID, P.lte(snapshotId))) != null))
             {
-
-                tempOutput.remove();
+                tempOutput.drop();
             }
         }
         catch (Exception e)

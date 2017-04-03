@@ -98,13 +98,13 @@ public class RunTests
             if (usesBag)
             {
                 final ClientWorkLoads.RealisticOperation clientWorkLoad =
-                        new ClientWorkLoads.RealisticOperation(new TestClient(shareOfClient, serverPartner, localClusterId), 10);
+                        new ClientWorkLoads.RealisticOperation(new TestClient(shareOfClient, serverPartner, localClusterId), 10, shareOfClient);
                 clientWorkLoad.run();
             }
             else
             {
                 final ClientWorkLoads.RealisticOperation clientWorkLoad =
-                        new ClientWorkLoads.RealisticOperation(new NettyClient(serverIp, serverPort), 10);
+                        new ClientWorkLoads.RealisticOperation(new NettyClient(serverIp, serverPort), 10, shareOfClient);
                 clientWorkLoad.run();
             }
         }
