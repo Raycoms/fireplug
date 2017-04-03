@@ -270,12 +270,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         {
             builder.append(" {");
 
-            Iterator<Map.Entry<String, Object>> iterator = nodeStorage.getProperties().entrySet().iterator();
+            final Iterator<Map.Entry<String, Object>> iterator = nodeStorage.getProperties().entrySet().iterator();
 
             while (iterator.hasNext())
             {
-                Map.Entry<String, Object> currentProperty = iterator.next();
-                builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getKey().toUpperCase() + n));
+                final Map.Entry<String, Object> currentProperty = iterator.next();
+                builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getValue().toString() + n));
 
                 if (iterator.hasNext())
                 {

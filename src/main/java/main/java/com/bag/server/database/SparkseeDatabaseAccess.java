@@ -227,13 +227,13 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean compareRelationship(final RelationshipStorage storage)
     {
-        Session sess = db.newSession();
-        Graph graph = sess.getGraph();
-        NodeStorage startNode = storage.getStartNode();
-        NodeStorage endNode = storage.getEndNode();
+        final Session sess = db.newSession();
+        final Graph graph = sess.getGraph();
+        final NodeStorage startNode = storage.getStartNode();
+        final NodeStorage endNode = storage.getEndNode();
 
-        Objects objsStart = findNode(graph, startNode);
-        Objects objsEnd = findNode(graph, endNode);
+        final Objects objsStart = findNode(graph, startNode);
+        final Objects objsEnd = findNode(graph, endNode);
 
         if (objsStart == null || objsStart.isEmpty() || objsEnd == null || objsEnd.isEmpty())
         {
@@ -249,10 +249,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             return false;
         }
 
-        ObjectsIterator itStart = objsStart.iterator();
-        ObjectsIterator itEnd = objsEnd.iterator();
+        final ObjectsIterator itStart = objsStart.iterator();
+        final ObjectsIterator itEnd = objsEnd.iterator();
 
-        int relationshipTypeId = graph.findType(storage.getId());
+        final int relationshipTypeId = graph.findType(storage.getId());
 
         try
         {
@@ -265,11 +265,12 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            sess.close();
-            itStart.close();
-            itEnd.close();
             objsStart.close();
             objsEnd.close();
+            itStart.close();
+            itEnd.close();
+            sess.close();
+
         }
         return false;
     }
@@ -305,8 +306,8 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            it.close();
             objs.close();
+            it.close();
             sess.close();
         }
         return false;
