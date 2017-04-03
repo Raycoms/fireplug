@@ -334,8 +334,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         try
         {
             graphDb.beginTx();
-
-            Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n");
+            final Map<String, Object> properties = transFormToPropertyMap(key.getProperties(), "");
+            final Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n", properties);
 
             while (result.hasNext())
             {
