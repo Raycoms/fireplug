@@ -16,7 +16,6 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,26 +48,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final Map<Long, SignatureStorage> signatureStorageMap = new TreeMap<>();
 
     /**
-     * Amount of data sent since last reset.
-     */
-    private int throughput;
-
-    /**
-     * Amount of aborts since last reset.
-     */
-    private int aborts;
-
-    /**
-     * Amount of commits since last reset.
-     */
-    private int committedTransactions;
-
-    /**
-     * Time of last commit.
-     */
-    private double lastCommit;
-
-    /**
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
@@ -80,29 +59,24 @@ public class GlobalClusterSlave extends AbstractRecoverable
         this.id = id;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(id , GLOBAL_CONFIG_LOCATION);
-        throughput = 0;
-        aborts = 0;
-        committedTransactions = 0;
-        lastCommit = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
+    }
 
-        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
-            final BufferedWriter bw = new BufferedWriter(file);
-            final PrintWriter out = new PrintWriter(bw))
-        {
-            out.println();
-            out.println("Starting new experiment: ");
-            out.println();
-        }
-        catch (IOException e)
-        {
-            Log.getLogger().info("Problem while writing to file!", e);
-        }
+    private byte[] makeEmptyAbortResult() {
+        final Output output = new Output(0,128);
+        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+        final Kryo kryo = pool.borrow();
+        kryo.writeObject(output, Constants.ABORT);
+        byte[] temp = output.getBuffer();
+        output.close();
+        pool.release(kryo);
+        return temp;
     }
 
     //Every byte array is one request.
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
+        byte[][] allResults = new byte[bytes.length][];
         for (int i = 0; i < bytes.length; ++i)
         {
             if (messageContexts != null && messageContexts[i] != null)
@@ -116,29 +90,26 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
                     final Long timeStamp = kryo.readObject(input, Long.class);
-                    return executeCommit(kryo, input, timeStamp);
+                    byte[] result = executeCommit(kryo, input, timeStamp);
+                    pool.release(kryo);
+                    allResults[i] = result;
                 }
                 else
                 {
                     Log.getLogger().error("Return empty bytes for message type: " + type);
+                    allResults[i] = makeEmptyAbortResult();
+                    updateCounts(0, 0,0,1);
                 }
             }
             else
             {
                 Log.getLogger().error("Received message with empty context!");
+                allResults[i] = makeEmptyAbortResult();
+                updateCounts(0, 0,0,1);
             }
         }
 
-        final Output output = new Output(0,128);
-        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-        final Kryo kryo = pool.borrow();
-        kryo.writeObject(output, Constants.ABORT);
-        byte[] temp = output.getBuffer();
-        output.close();
-        pool.release(kryo);
-        aborts++;
-
-        return new byte[][] {temp};
+        return allResults;
     }
 
     @Override
@@ -178,7 +149,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param input the input.
      * @return the response.
      */
-    private byte[][] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
+    private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -190,6 +161,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         ArrayList<RelationshipStorage> readsSetRelationship;
         ArrayList<Operation> localWriteSet;
 
+        input.close();
+        Output output = new Output(128);
+        kryo.writeObject(output, Constants.COMMIT_RESPONSE);
+
+
         try
         {
             readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
@@ -199,28 +175,18 @@ public class GlobalClusterSlave extends AbstractRecoverable
         catch (Exception e)
         {
             Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
-            return new byte[0][];
-        }
+            kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, getGlobalSnapshotId());
 
-        input.close();
-        Output output = new Output(128);
-        kryo.writeObject(output, Constants.COMMIT_RESPONSE);
-
-        boolean printResult = false;
-        if(System.nanoTime()/Constants.NANO_TIME_DIVIDER - lastCommit >= 30)
-        {
-            lastCommit = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
-            printResult = true;
+            //Send abort to client and abort
+            byte[] returnBytes = output.getBuffer();
+            output.close();
+            return returnBytes;
         }
 
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
-            aborts+=1;
-
-            if(printResult)
-            {
-                writeToFile(aborts, committedTransactions, throughput, lastCommit);
-            }
+            updateCounts(0, 0, 0, 1);
 
             Log.getLogger().info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: " + localWriteSet.size()
             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
@@ -228,7 +194,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, getGlobalSnapshotId());
 
             //Send abort to client and abort
-            byte[][] returnBytes = {output.getBuffer()};
+            byte[] returnBytes = output.getBuffer();
             output.close();
 
             if(wrapper.getLocalCLuster() != null)
@@ -236,17 +202,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.ABORT, -1, kryo);
             }
             return returnBytes;
-        }
-
-        throughput+=localWriteSet.size() + readSetNode.size() + readsSetRelationship.size();
-        committedTransactions+=1;
-
-        if(printResult)
-        {
-            writeToFile(aborts, committedTransactions, throughput, lastCommit);
-            aborts = 0;
-            committedTransactions = 0;
-            throughput = 0;
         }
 
         final long snapShotId;
@@ -257,6 +212,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         else
         {
             snapShotId = getGlobalSnapshotId();
+            updateCounts(0, 0, 1, 0);
         }
 
         if(wrapper.getLocalCLuster() != null)
@@ -267,29 +223,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        byte[][] returnBytes = {output.getBuffer()};
+        byte[] returnBytes = output.getBuffer();
         output.close();
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
         return returnBytes;
-    }
-
-    private void writeToFile(final int aborts, final int commits, final int throughput, final double time)
-    {
-        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
-            final BufferedWriter bw = new BufferedWriter(file);
-            final PrintWriter out = new PrintWriter(bw))
-        {
-            out.println(time + ", ");
-            out.print(aborts + ", ");
-            out.print(commits + ", ");
-            out.print(String.valueOf(throughput));
-            out.println();
-        }
-        catch (IOException e)
-        {
-            Log.getLogger().info("Problem while writing to file!", e);
-        }
     }
 
     private void signCommitWithDecisionAndDistribute(final List<Operation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo)
@@ -346,24 +284,34 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Received Node read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleNodeRead(input, messageContext, kryo, output);
+                updateCounts(0, 1,0,0);
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
                 Log.getLogger().info("Received Relationship read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleRelationshipRead(input, messageContext, kryo, output);
+                updateCounts(0, 1,0,0);
                 break;
             case Constants.SIGNATURE_MESSAGE:
+                Log.getLogger().info("Received signature message");
                 handleSignatureMessage(input, messageContext, kryo);
                 break;
             case Constants.REGISTER_GLOBALLY_MESSAGE:
+                Log.getLogger().info("Received register globally message");
                 output.close();
                 return handleRegisteringSlave(input, kryo);
             case Constants.REGISTER_GLOBALLY_CHECK:
+                Log.getLogger().info("Received globally check message");
                 output.close();
                 return handleGlobalRegistryCheck(input, kryo);
             case Constants.COMMIT:
+                Log.getLogger().info("Received commit message");
                 output.close();
-                return handleReadOnlyCommit(input, kryo, output);
+                byte[] result = handleReadOnlyCommit(input, kryo);
+                input.close();
+                pool.release(kryo);
+                Log.getLogger().info("Return it to client, size: " + result.length);
+                return result;
             default:
                 Log.getLogger().warn("Incorrect operation sent unordered to the server");
                 break;
@@ -380,10 +328,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnValue;
     }
 
-    private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo, final Output output)
+    private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
     {
         final Long timeStamp = kryo.readObject(input, Long.class);
-        return executeCommit(kryo, input, timeStamp)[0];
+        return executeCommit(kryo, input, timeStamp);
     }
 
     /**

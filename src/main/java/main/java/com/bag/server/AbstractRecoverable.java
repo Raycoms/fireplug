@@ -25,10 +25,15 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.TransactionStorage;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Super class of local or global cluster.
@@ -62,9 +67,44 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     private final Object lock = new Object();
 
     /**
+     * Object to lock on commits.
+     */
+    private final Object commitLock = new Object();
+
+    /**
      * The wrapper class instance. Used to access the global cluster if possible.
      */
     private final ServerWrapper wrapper;
+
+    /**
+     * Amount of aborts since last reset.
+     */
+    private AtomicInteger abortedTransactions = new AtomicInteger(0);
+
+    /**
+     * Amount of commits since last reset.
+     */
+    private AtomicInteger committedTransactions = new AtomicInteger(0);
+
+    /**
+     * Time of last commit.
+     */
+    private double lastCommit;
+
+    /**
+     * Reads performed during the last measurement
+     */
+    private AtomicInteger readsPerformed = new AtomicInteger(0);
+
+    /**
+     * Writes performed during the last measurement
+     */
+    private AtomicInteger writesPerformed = new AtomicInteger(0);
+
+    /**
+     * Lock used to synchronize writes to the results file.
+     */
+    private Object resultsFileLock = new Object();
 
     private KryoFactory factory = () ->
     {
@@ -94,6 +134,69 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         pool.release(kryo);
 
         globalWriteSet = new TreeMap<>();
+
+        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
+            final BufferedWriter bw = new BufferedWriter(file);
+            final PrintWriter out = new PrintWriter(bw))
+        {
+            out.println();
+            out.println("Starting new experiment: ");
+            out.println();
+            out.print("time;");
+            out.print("aborts;");
+            out.print("commits;");
+            out.print("reads;");
+            out.print("writes;");
+            out.print("throughput");
+            out.println();
+        }
+        catch (IOException e)
+        {
+            Log.getLogger().info("Problem while writing to file!", e);
+        }
+        lastCommit = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
+    }
+
+    public void updateCounts(int writes, int reads, int commits, int aborts) {
+        if (writes > 0)
+            writesPerformed.addAndGet(writes);
+        if (reads > 0)
+            readsPerformed.addAndGet(reads);
+        if (commits > 0)
+            committedTransactions.addAndGet(commits);
+        if (aborts > 0)
+            abortedTransactions.addAndGet(aborts);
+
+        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 60.0) {
+            synchronized (resultsFileLock) {
+                double elapsed = ((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER);
+                if (elapsed >= 60.0) {
+                    lastCommit = System.nanoTime();
+
+                    try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
+                        final BufferedWriter bw = new BufferedWriter(file);
+                        final PrintWriter out = new PrintWriter(bw))
+                    {
+                        out.print(elapsed + ";");
+                        out.print(abortedTransactions.get() + ";");
+                        out.print(committedTransactions.get() + ";");
+                        out.print(readsPerformed.get() + ";");
+                        out.print(writesPerformed.get() + ";");
+                        out.print(readsPerformed.get() + writesPerformed.get() + ";");
+                        out.println();
+
+                        abortedTransactions = new AtomicInteger(0);
+                        committedTransactions = new AtomicInteger(0);
+                        readsPerformed = new AtomicInteger(0);
+                        writesPerformed = new AtomicInteger(0);
+                    }
+                    catch (IOException e)
+                    {
+                        Log.getLogger().info("Problem while writing to file!", e);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -364,19 +467,25 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Execute the commit on the replica.
      * @param localWriteSet the write set to execute.
      */
-    public synchronized long executeCommit(final List<Operation> localWriteSet)
+    public long executeCommit(final List<Operation> localWriteSet)
     {
-        ++globalSnapshotId;
-        //Execute the transaction.
-        for (Operation op : localWriteSet)
+        long currentSnapshot;
+        synchronized (commitLock)
         {
-            op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
+            ++globalSnapshotId;
+            currentSnapshot = globalSnapshotId;
+            //Execute the transaction.
+            for (Operation op : localWriteSet) {
+                op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
+                updateCounts(1, 0, 0, 0);
+            }
         }
         synchronized (lock)
         {
-            this.globalWriteSet.put(getGlobalSnapshotId(), localWriteSet);
+            this.globalWriteSet.put(currentSnapshot, localWriteSet);
         }
-        return globalSnapshotId;
+        updateCounts(0, 0, 1, 0);
+        return currentSnapshot;
     }
 
     /**

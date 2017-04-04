@@ -1,10 +1,9 @@
 package main.java.com.bag.main;
 
-import jdk.nashorn.internal.ir.RuntimeNode;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by daniel on 02/04/17.
@@ -41,6 +40,7 @@ public class MultipleClientRunner {
 
     public void runClients(int initialClient, int finalClient, int totalClients) {
         try {
+            Random rnd = new Random();
             System.out.printf("Starting...\n");
             List<Process> procs = new ArrayList<Process>();
             for (int i = initialClient; i <= finalClient; i++) {
@@ -57,6 +57,7 @@ public class MultipleClientRunner {
                 OutputPrinter printer = new MultipleClientRunner.OutputPrinter("Client " + i, proc.getInputStream());
                 printer.start();
                 procs.add(proc);
+                Thread.sleep(rnd.nextInt(200));
             }
 
             for (Process p : procs)
