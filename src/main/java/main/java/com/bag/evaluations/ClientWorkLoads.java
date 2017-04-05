@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import main.java.com.bag.client.BAGClient;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
@@ -258,8 +259,7 @@ public class ClientWorkLoads
 
     public static class RealisticOperation
     {
-        private TestClient  client = null;
-        private NettyClient out    = null;
+        private BAGClient client = null;
 
         private final int seed;
         private final int commitAfter;
@@ -284,19 +284,11 @@ public class ClientWorkLoads
             return kryo;
         };
 
-        public RealisticOperation(@NotNull final TestClient client, final int commitAfter, int seed)
+        public RealisticOperation(@NotNull final BAGClient client, final int commitAfter, int seed)
         {
             this.client = client;
             this.commitAfter = commitAfter;
             this.seed = seed;
-        }
-
-        public RealisticOperation(final NettyClient out, final int commitAfter, int seed)
-        {
-            this.out = out;
-            this.commitAfter = commitAfter;
-            this.seed = seed;
-            out.runNetty();
         }
 
         private List<GraphRelation> loadGraphRelations() throws IOException {
@@ -391,8 +383,7 @@ public class ClientWorkLoads
             long nanos = System.nanoTime();
             long totalNanos = nanos;
 
-            for(int i = 1; i < bytes.length; i++)
-            {
+            for(int i = 1; i < bytes.length; i++) {
                 GraphRelation currentNode = loadedRelations.get(relIndex);
                 relIndex += 1;
                 if (relIndex >= loadedRelations.size())
@@ -403,172 +394,104 @@ public class ClientWorkLoads
                 NodeStorage readNodeStorage = null;
                 Operation operation = null;
 
-                if(isRead)
-                {
+                if (isRead) {
                     double randomNum = random.nextDouble() * 100 + 1;
-                    if (randomNum <= 15.7)
-                    {
+                    if (randomNum <= 15.7) {
                         readRelationship = new RelationshipStorage(
                                 currentNode.relationName,
                                 new NodeStorage(currentNode.origin),
                                 new NodeStorage(currentNode.destination));
                         //get relationship
                         readRelations += 1;
-                    }
-                    else if (randomNum <= 15.7 + 55.4)
-                    {
+                    } else if (randomNum <= 15.7 + 55.4) {
                         readRelationship = new RelationshipStorage(
                                 currentNode.relationName,
                                 new NodeStorage(currentNode.origin),
                                 new NodeStorage());
                         //get all relationships of a particular node
                         readRelations += 1;
-                    }
-                    else
-                    {
+                    } else {
                         readNodeStorage = new NodeStorage(currentNode.origin);
                         //get node
                         readNodes += 1;
                     }
-                }
-                else
-                {
+                } else {
                     Log.getLogger().warn("IS WRITE");
                     double randomNum = random.nextDouble() * 100 + 1;
-                    if (randomNum <= 52.5)
-                    {
+                    if (randomNum <= 52.5) {
                         operation = new CreateOperation<>(new RelationshipStorage(
                                 Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
                         //add relationship
                         createRelations += 1;
-                    }
-                    else if (randomNum <= 52.5 + 9.2)
-                    {
+                    } else if (randomNum <= 52.5 + 9.2) {
                         operation = new DeleteOperation<>(new RelationshipStorage(
                                 Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
                         //delete relationship
                         deleteRelations += 1;
-                    }
-                    else if(randomNum <= 52.5 + 9.2 + 16.5)
-                    {
+                    } else if (randomNum <= 52.5 + 9.2 + 16.5) {
                         operation = new CreateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //add node
                         createNodes += 1;
-                    }
-                    else if(randomNum <= 52.5 + 9.2 + 16.5 + 20.7)
-                    {
+                    } else if (randomNum <= 52.5 + 9.2 + 16.5 + 20.7) {
                         operation = new UpdateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //update node
                         updateNodes += 1;
-                    }
-                    else
-                    {
+                    } else {
                         operation = new DeleteOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //delete node
                         deleteNodes += 1;
                     }
                 }
 
-                if (client == null)
-                {
-                    if(isRead)
-                    {
-                        final Output output = new Output(0, 10024);
-                        List<Object> list = new ArrayList<>();
+                if (isRead) {
+                    if (readNodeStorage != null) {
+                        client.read(readNodeStorage);
+                        try {
+                            while (client.getReadQueue().take() != TestClient.FINISHED_READING) ;
+                        } catch (InterruptedException e) {
+                                /*
+                                 * Intentionally left empty.
+                                 */
+                        }
+                    }
 
-                        if(readNodeStorage != null)
-                        {
-                            list.add(readNodeStorage);
+                    if (readRelationship != null) {
+                        client.read(readRelationship);
+                        try {
+                            while (client.getReadQueue().take() != TestClient.FINISHED_READING) ;
+                        } catch (InterruptedException e) {
+                                /*
+                                 * Intentionally left empty.
+                                 */
                         }
-                        else
-                        {
-                            list.add(readRelationship);
-                        }
-                        kryo.writeObject(output, list);
-                        out.sendMessage(output.getBuffer());
                     }
-                    else
-                    {
-                        operations.add(operation);
-                    }
-                    if (i%commitAfter == 0)
-                    {
-                        final Output output = new Output(0, 10024);
-                        kryo.writeObject(output, operations);
-                        out.sendMessage(output.getBuffer());
-                        operations.clear();
-                        output.close();
+                } else {
+                    if (operation instanceof DeleteOperation) {
+                        client.write(((DeleteOperation) operation).getObject(), null);
+                    } else if (operation instanceof UpdateOperation) {
+                        client.write(((UpdateOperation) operation).getKey(), ((UpdateOperation) operation).getValue());
+                    } else if (operation instanceof CreateOperation) {
+                        client.write(null, ((CreateOperation) operation).getObject());
                     }
                 }
-                else
-                {
-                    if(isRead)
-                    {
-                        if(readNodeStorage != null)
-                        {
-                            client.read(readNodeStorage);
-                            try
-                            {
-                                while (client.getReadQueue().take() != client.FINISHED_READING);
-                            }
-                            catch (InterruptedException e)
-                            {
-                                /*
-                                 * Intentionally left empty.
-                                 */
-                            }
-                        }
 
-                        if(readRelationship != null)
-                        {
-                            client.read(readRelationship);
-                            try
-                            {
-                                while (client.getReadQueue().take() != client.FINISHED_READING);
-                            }
-                            catch (InterruptedException e)
-                            {
-                                /*
-                                 * Intentionally left empty.
-                                 */
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (operation instanceof DeleteOperation)
-                        {
-                            client.write(((DeleteOperation) operation).getObject(), null);
-                        }
-                        else if (operation instanceof UpdateOperation)
-                        {
-                            client.write(((UpdateOperation) operation).getKey(), ((UpdateOperation) operation).getValue());
-                        }
-                        else if(operation instanceof CreateOperation)
-                        {
-                            client.write(null, ((CreateOperation) operation).getObject());
-                        }
-                    }
+                if (i % commitAfter == 0) {
+                    client.commit();
+                    commits += 1;
+                }
 
-                    if (i%commitAfter == 0)
-                    {
-                        client.commit();
-                        commits += 1;
-                    }
-
-                    if (i%1000 == 0) {
-                        double dif = (System.nanoTime() - nanos) / 1000000000.0;
-                        System.out.println(String.format("Elapsed: %.3f s\nreadNodes: %d\nreadRelations: %d\n"+
-                            "createNodes: %d\ncreateRelations: %d\nupdateNodes: %d\nupdateRelations: %d\n"+
-                            "deleteNodes: %d\ndeleteRelations: %d\ncommits: %d\n\n", dif, readNodes, readRelations,
-                                createNodes,createRelations,updateNodes,updateRelations,deleteNodes,deleteRelations,commits));
-                        nanos = System.nanoTime();
-                    }
+                if (i % 1000 == 0) {
+                    double dif = (System.nanoTime() - nanos) / 1000000000.0;
+                    System.out.println(String.format("Elapsed: %.3f s\nreadNodes: %d\nreadRelations: %d\n" +
+                                    "createNodes: %d\ncreateRelations: %d\nupdateNodes: %d\nupdateRelations: %d\n" +
+                                    "deleteNodes: %d\ndeleteRelations: %d\ncommits: %d\n\n", dif, readNodes, readRelations,
+                            createNodes, createRelations, updateNodes, updateRelations, deleteNodes, deleteRelations, commits));
+                    nanos = System.nanoTime();
                 }
             }
 

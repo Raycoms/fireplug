@@ -112,7 +112,7 @@ public class ServerWrapper
         switch (instance)
         {
             case Constants.NEO4J:
-                return new Neo4jDatabaseAccess(globalServerId);
+                return new Neo4jDatabaseAccess(globalServerId, null);
             case Constants.TITAN:
                 return new TitanDatabaseAccess(globalServerId);
             case Constants.SPARKSEE:

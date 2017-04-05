@@ -27,7 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Class handling the client.
  */
-public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable, AutoCloseable
+public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver, Closeable, AutoCloseable
 {
     /**
      * Should the transaction runNetty in secure mode?
@@ -394,7 +394,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
 
         //todo if isReadonly invoke unordered and wait for response. If abort then send ordered only.
 
-        /*if(readOnly)
+        if(readOnly)
         {
             Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
             byte[] answer = invokeUnordered(bytes);
@@ -419,7 +419,7 @@ public class TestClient extends ServiceProxy implements ReplyReceiver, Closeable
             }
 
             Log.getLogger().info(String.format("Read-only Transaction with local transaction id: %d resend to the server", localTimestamp));
-        }*/
+        }
 
         if(localClusterId == -1)
         {

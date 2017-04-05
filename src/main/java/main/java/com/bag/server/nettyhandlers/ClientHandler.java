@@ -1,10 +1,25 @@
 package main.java.com.bag.server.nettyhandlers;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import com.esotericsoftware.kryo.pool.KryoPool;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import main.java.com.bag.client.TestClient;
+import main.java.com.bag.operations.CreateOperation;
+import main.java.com.bag.operations.DeleteOperation;
+import main.java.com.bag.operations.UpdateOperation;
+import main.java.com.bag.util.Constants;
+import main.java.com.bag.util.storage.NodeStorage;
+import main.java.com.bag.util.storage.RelationshipStorage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -14,9 +29,21 @@ import java.util.concurrent.LinkedBlockingQueue;
  * 27   * the server on activation.
  * 28
  */
-public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf>
+public class ClientHandler extends SimpleChannelInboundHandler<BAGMessage>
 {
-    private final ByteBuf message;
+    private static KryoFactory factory = () ->
+    {
+        Kryo kryo = new Kryo();
+        kryo.register(NodeStorage.class, 100);
+        kryo.register(RelationshipStorage.class, 200);
+        kryo.register(CreateOperation.class, 250);
+        kryo.register(DeleteOperation.class, 300);
+        kryo.register(UpdateOperation.class, 350);
+        return kryo;
+    };
+
+
+    private ByteBufAllocator allocator;
     private ChannelHandlerContext ctx;
 
     /**
@@ -32,12 +59,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf>
     public ClientHandler()
     {
         super(false);
-
-        message = Unpooled.buffer(256);
-        for (int i = 0; i < message.capacity(); i++)
-        {
-            message.writeByte((byte) i);
-        }
+        allocator = PooledByteBufAllocator.DEFAULT;
     }
 
 
@@ -58,9 +80,21 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf>
 
     //Handle response.
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg)
+    public void channelRead0(ChannelHandlerContext ctx, BAGMessage msg)
     {
-        readQueue.add(FINISHED_READING);
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
+        final Input input = new Input(msg.buffer);
+        final List returnValue = kryo.readObject(input, ArrayList.class);
+        input.close();
+        pool.release(kryo);
+
+        for (Object item : returnValue) {
+            if (item instanceof DeleteOperation)
+                readQueue.add(TestClient.FINISHED_READING);
+            else
+                readQueue.add(item);
+        }
     }
 
     /**
@@ -71,19 +105,10 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf>
     {
         try
         {
-            message.retain();
-            message.resetWriterIndex();
-            message.writeBytes(bytes);
+            BAGMessage message = new BAGMessage();
+            message.buffer = bytes;
+            message.size = bytes.length;
             this.ctx.writeAndFlush(message).sync();
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-
-        try
-        {
-            readQueue.take();
         }
         catch (InterruptedException e)
         {

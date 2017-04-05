@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * Loads databases with file stream.
@@ -152,7 +151,7 @@ public class DatabaseLoader
         switch (instance)
         {
             case Constants.NEO4J:
-                return new Neo4jDatabaseAccess(globalServerId);
+                return new Neo4jDatabaseAccess(globalServerId, null);
             case Constants.TITAN:
                 return new TitanDatabaseAccess(globalServerId);
             case Constants.SPARKSEE:
@@ -161,7 +160,7 @@ public class DatabaseLoader
                 return new OrientDBDatabaseAccess(globalServerId);
             default:
                 Log.getLogger().warn("Invalid databaseAccess - default to Neo4j.");
-                return new Neo4jDatabaseAccess(globalServerId);
+                return new Neo4jDatabaseAccess(globalServerId, null);
         }
     }
 

@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 
 public class Log
 {
-    private static final String BAG_DESC = "BAG";
+    public static final String BAG_DESC = "BAG";
     /**
      * Program logger
      */

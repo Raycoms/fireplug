@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Super class of local or global cluster.
@@ -76,35 +75,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     private final ServerWrapper wrapper;
 
-    /**
-     * Amount of aborts since last reset.
-     */
-    private AtomicInteger abortedTransactions = new AtomicInteger(0);
-
-    /**
-     * Amount of commits since last reset.
-     */
-    private AtomicInteger committedTransactions = new AtomicInteger(0);
-
-    /**
-     * Time of last commit.
-     */
-    private double lastCommit;
-
-    /**
-     * Reads performed during the last measurement
-     */
-    private AtomicInteger readsPerformed = new AtomicInteger(0);
-
-    /**
-     * Writes performed during the last measurement
-     */
-    private AtomicInteger writesPerformed = new AtomicInteger(0);
-
-    /**
-     * Lock used to synchronize writes to the results file.
-     */
-    private Object resultsFileLock = new Object();
+    private ServerInstrumentation instrumentation;
 
     private KryoFactory factory = () ->
     {
@@ -122,6 +93,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     {
         this.id = id;
         this.wrapper = wrapper;
+        this.instrumentation = new ServerInstrumentation(id);
         globalSnapshotId = 1;
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
@@ -154,49 +126,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             Log.getLogger().info("Problem while writing to file!", e);
         }
-        lastCommit = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
     }
 
     public void updateCounts(int writes, int reads, int commits, int aborts) {
-        if (writes > 0)
-            writesPerformed.addAndGet(writes);
-        if (reads > 0)
-            readsPerformed.addAndGet(reads);
-        if (commits > 0)
-            committedTransactions.addAndGet(commits);
-        if (aborts > 0)
-            abortedTransactions.addAndGet(aborts);
-
-        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 60.0) {
-            synchronized (resultsFileLock) {
-                double elapsed = ((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER);
-                if (elapsed >= 60.0) {
-                    lastCommit = System.nanoTime();
-
-                    try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
-                        final BufferedWriter bw = new BufferedWriter(file);
-                        final PrintWriter out = new PrintWriter(bw))
-                    {
-                        out.print(elapsed + ";");
-                        out.print(abortedTransactions.get() + ";");
-                        out.print(committedTransactions.get() + ";");
-                        out.print(readsPerformed.get() + ";");
-                        out.print(writesPerformed.get() + ";");
-                        out.print(readsPerformed.get() + writesPerformed.get() + ";");
-                        out.println();
-
-                        abortedTransactions = new AtomicInteger(0);
-                        committedTransactions = new AtomicInteger(0);
-                        readsPerformed = new AtomicInteger(0);
-                        writesPerformed = new AtomicInteger(0);
-                    }
-                    catch (IOException e)
-                    {
-                        Log.getLogger().info("Problem while writing to file!", e);
-                    }
-                }
-            }
-        }
+        instrumentation.updateCounts(writes, reads, commits, aborts);
     }
 
     @Override
@@ -391,6 +324,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, nodeStorage);
         kryo.writeObject(output, relationshipStorage);
+        updateCounts(0, nodeStorage.size() + relationshipStorage.size(), 0, 0);
 
         return output;
     }
@@ -459,6 +393,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         //todo problem returning the relationship here!
         kryo.writeObject(output, nodeStorage);
         kryo.writeObject(output, relationshipStorage);
+        updateCounts(0, nodeStorage.size() + relationshipStorage.size(), 0, 0);
 
         return output;
     }

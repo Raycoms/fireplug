@@ -6,9 +6,13 @@ import main.java.com.bag.util.*;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.cluster.ClusterSettings;
 import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
+import org.neo4j.kernel.ha.HaSettings;
 import org.neo4j.kernel.impl.core.NodeProxy;
 import org.neo4j.kernel.impl.core.RelationshipProxy;
 
@@ -35,6 +39,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     private final int id;
 
     /**
+     * If we're running a direct access client, has Neo4j's database address
+     */
+    private String haAddresses;
+
+    /**
      * String used to match key value pairs.
      */
     private static final String KEY_VALUE_PAIR = "%s: {%s}";
@@ -45,22 +54,40 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * Public constructor.
      * @param id, id of the server.
      */
-    public Neo4jDatabaseAccess(int id)
-    {
+    public Neo4jDatabaseAccess(int id, String haAddresses) {
         this.id = id;
+        this.haAddresses = haAddresses;
     }
 
     @Override
     public void start()
     {
         File dbPath = new File(BASE_PATH + id);
-        Log.getLogger().info("Starting neo4j database service on " + id);
+        Log.getLogger().warn("Starting neo4j database service on " + id);
 
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath).newGraphDatabase();
-        registerShutdownHook( graphDb );
-        try(Transaction tx = graphDb.beginTx()) {
-            graphDb.execute("CREATE INDEX ON :Node(idx)");
-            tx.success();
+        if (haAddresses == null) {
+            graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath).newGraphDatabase();
+            registerShutdownHook(graphDb);
+            try (Transaction tx = graphDb.beginTx()) {
+                graphDb.execute("CREATE INDEX ON :Node(idx)");
+                tx.success();
+            }
+        }
+        else {
+            GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath);
+            String[] addresses = haAddresses.split(";");
+            List<String> initialHosts = new ArrayList<String>();
+            List<String> servers = new ArrayList<String>();
+            for (int i = 0; i < addresses.length; i++) {
+                initialHosts.add(String.format("%s:500%d", addresses[i], (i + 1)));
+                servers.add(String.format("%s:600%d", addresses[i], (i + 1)));
+            }
+            builder.setConfig(ClusterSettings.server_id, Integer.toString(id + 1));
+            builder.setConfig(ClusterSettings.initial_hosts, String.join(",", initialHosts));
+            builder.setConfig(HaSettings.ha_server, servers.get(0));
+            builder.setConfig(ClusterSettings.cluster_server, initialHosts.get(id));
+            graphDb = builder.newGraphDatabase();
+            Log.getLogger().warn("HA neo4j database started " + id);
         }
     }
 
