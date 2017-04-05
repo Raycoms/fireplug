@@ -264,6 +264,12 @@ public class ClientWorkLoads
         private final int seed;
         private final int commitAfter;
 
+        public class GraphRelation {
+            public String origin;
+            public String destination;
+            public String relationName;
+        }
+
         /**
          * Create a threadsafe version of kryo.
          */
@@ -293,6 +299,37 @@ public class ClientWorkLoads
             out.runNetty();
         }
 
+        private List<GraphRelation> loadGraphRelations() throws IOException {
+            String graphLocation = System.getProperty("user.home") + "/thesis/src/testGraphs/social-a-graph.txt";
+            Random rnd = new Random();
+            int linesToLoad = 500;
+            int upperBound = 239736 - 500;
+            List<GraphRelation> list = new ArrayList<GraphRelation>();
+            try (FileReader fr = new FileReader(graphLocation); BufferedReader br = new BufferedReader(fr);)
+            {
+                int start = rnd.nextInt(upperBound);
+                int count = 0;
+                String line;
+                while ((line = br.readLine()) != null) {
+                    count += 1;
+                    if (count < start)
+                        continue;
+
+                    if (count > (start + linesToLoad))
+                        break;
+
+                    String[] fields = line.split(" ");
+                    GraphRelation item = new GraphRelation();
+                    item.origin = fields[0];
+                    item.relationName = fields[1];
+                    item.destination = fields[2];
+                    list.add(item);
+                }
+            }
+
+            return list;
+        }
+
         // Implementing Fisher–Yates shuffle
         private static void shuffleArray(byte[] array)
         {
@@ -316,6 +353,24 @@ public class ClientWorkLoads
             final int maxNodeId = 100000;
             final int maxRelationShipId = Constants.RELATIONSHIP_TYPES_LIST.length;
 
+            int relIndex = 0;
+            int readNodes = 0;
+            int readRelations = 0;
+            int createNodes = 0;
+            int createRelations = 0;
+            int updateNodes = 0;
+            int updateRelations = 0;
+            int deleteNodes = 0;
+            int deleteRelations = 0;
+            int commits = 0;
+            List<GraphRelation> loadedRelations;
+            try {
+                loadedRelations = loadGraphRelations();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+
             byte[] bytes = new byte[1000000];
 
             final double percentageOfWrites = 0.02;
@@ -332,8 +387,17 @@ public class ClientWorkLoads
             shuffleArray(bytes);
 
             final Random random = new Random(RANDOM_SEED + seed);
+
+            long nanos = System.nanoTime();
+            long totalNanos = nanos;
+
             for(int i = 1; i < bytes.length; i++)
             {
+                GraphRelation currentNode = loadedRelations.get(relIndex);
+                relIndex += 1;
+                if (relIndex >= loadedRelations.size())
+                    relIndex = 0;
+
                 boolean isRead = bytes[i] == 0;
                 RelationshipStorage readRelationship = null;
                 NodeStorage readNodeStorage = null;
@@ -345,23 +409,26 @@ public class ClientWorkLoads
                     if (randomNum <= 15.7)
                     {
                         readRelationship = new RelationshipStorage(
-                                Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
+                                currentNode.relationName,
+                                new NodeStorage(currentNode.origin),
+                                new NodeStorage(currentNode.destination));
                         //get relationship
+                        readRelations += 1;
                     }
                     else if (randomNum <= 15.7 + 55.4)
                     {
                         readRelationship = new RelationshipStorage(
-                                Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
+                                currentNode.relationName,
+                                new NodeStorage(currentNode.origin),
                                 new NodeStorage());
                         //get all relationships of a particular node
+                        readRelations += 1;
                     }
                     else
                     {
-                        readNodeStorage = new NodeStorage(String.valueOf(random.nextInt(maxNodeId)));
+                        readNodeStorage = new NodeStorage(currentNode.origin);
                         //get node
+                        readNodes += 1;
                     }
                 }
                 else
@@ -375,6 +442,7 @@ public class ClientWorkLoads
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
                         //add relationship
+                        createRelations += 1;
                     }
                     else if (randomNum <= 52.5 + 9.2)
                     {
@@ -383,22 +451,26 @@ public class ClientWorkLoads
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
                         //delete relationship
+                        deleteRelations += 1;
                     }
                     else if(randomNum <= 52.5 + 9.2 + 16.5)
                     {
                         operation = new CreateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //add node
+                        createNodes += 1;
                     }
                     else if(randomNum <= 52.5 + 9.2 + 16.5 + 20.7)
                     {
                         operation = new UpdateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //update node
+                        updateNodes += 1;
                     }
                     else
                     {
                         operation = new DeleteOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //delete node
+                        deleteNodes += 1;
                     }
                 }
 
@@ -442,7 +514,7 @@ public class ClientWorkLoads
                             client.read(readNodeStorage);
                             try
                             {
-                                client.getReadQueue().take();
+                                while (client.getReadQueue().take() != client.FINISHED_READING);
                             }
                             catch (InterruptedException e)
                             {
@@ -457,7 +529,7 @@ public class ClientWorkLoads
                             client.read(readRelationship);
                             try
                             {
-                                client.getReadQueue().take();
+                                while (client.getReadQueue().take() != client.FINISHED_READING);
                             }
                             catch (InterruptedException e)
                             {
@@ -477,19 +549,34 @@ public class ClientWorkLoads
                         {
                             client.write(((UpdateOperation) operation).getKey(), ((UpdateOperation) operation).getValue());
                         }
-                        else if(operation instanceof DeleteOperation)
+                        else if(operation instanceof CreateOperation)
                         {
-                            client.write(null, ((DeleteOperation) operation).getObject());
+                            client.write(null, ((CreateOperation) operation).getObject());
                         }
                     }
 
                     if (i%commitAfter == 0)
                     {
                         client.commit();
+                        commits += 1;
+                    }
+
+                    if (i%1000 == 0) {
+                        double dif = (System.nanoTime() - nanos) / 1000000000.0;
+                        System.out.println(String.format("Elapsed: %.3f s\nreadNodes: %d\nreadRelations: %d\n"+
+                            "createNodes: %d\ncreateRelations: %d\nupdateNodes: %d\nupdateRelations: %d\n"+
+                            "deleteNodes: %d\ndeleteRelations: %d\ncommits: %d\n\n", dif, readNodes, readRelations,
+                                createNodes,createRelations,updateNodes,updateRelations,deleteNodes,deleteRelations,commits));
+                        nanos = System.nanoTime();
                     }
                 }
             }
+
+            double dif = (System.nanoTime() - totalNanos) / 1000000000.0;
+            System.out.println(String.format("Total Elapsed: %.3f s\nreadNodes: %d\nreadRelations: %d\n"+
+                            "createNodes: %d\ncreateRelations: %d\nupdateNodes: %d\nupdateRelations: %d\n"+
+                            "deleteNodes: %d\ndeleteRelations: %d\ncommits: %d\n\n", dif, readNodes, readRelations,
+                    createNodes,createRelations,updateNodes,updateRelations,deleteNodes,deleteRelations,commits));
         }
     }
-
 }
