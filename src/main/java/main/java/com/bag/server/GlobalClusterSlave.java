@@ -276,7 +276,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Input input = new Input(bytes);
 
         final String messageType = kryo.readObject(input, String.class);
-        Output output = new Output(0, 100240);
+        Output output = new Output(0, 204800);
 
         switch(messageType)
         {
