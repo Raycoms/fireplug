@@ -162,7 +162,6 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
 
         try (final Output output = new Output(0, 1024 * 100)) {
             kryo.writeObject(output, readObjects);
-            kryo.writeObject(output, new DeleteOperation<NodeStorage>());
             BAGMessage message = new BAGMessage();
             message.buffer = output.getBuffer();
             message.size = message.buffer.length;
