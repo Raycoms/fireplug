@@ -56,16 +56,48 @@ public class ConflictHandler
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
-        final boolean writeSetNodeWithRead = readSetNode.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).removeAll(readSetNode));
-        final boolean writeSetRSWithRead = readSetRelationship.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id)).removeAll(readSetRelationship));
+
+        List<Operation> pastWrites = null;
+
+        boolean commit = true;
+        if(!readSetNode.isEmpty())
+        {
+            pastWrites = writeSet.entrySet().stream().filter(id -> id.getKey() > snapshotId).filter(entry -> entry.getKey() > snapshotId).map(Map.Entry::getValue).flatMap(List::stream).collect(Collectors.toList());
+
+            commit = readSetNode.isEmpty() || pastWrites.stream().noneMatch(id -> new ArrayList<>(writeSet.get(id)).removeAll(readSetNode));
+        }
+
+        if(!commit)
+        {
+            return false;
+        }
+
+        if(!readSetRelationship.isEmpty())
+        {
+            if(pastWrites == null)
+            {
+                pastWrites = writeSet.entrySet().stream().filter(id -> id.getKey() > snapshotId).filter(entry -> entry.getKey() > snapshotId).map(Map.Entry::getValue).flatMap(List::stream).collect(Collectors.toList());            }
+            commit = readSetRelationship.isEmpty() || pastWrites.stream().noneMatch(id -> new ArrayList<>(writeSet.get(id)).removeAll(readSetRelationship));
+        }
+
+        if(!commit)
+        {
+
+            return false;
+        }
 
         final List<Operation> tempList = localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
                 .collect(Collectors.toList());
 
-        final boolean writeWithWrite = tempList.isEmpty() || !writeSet.keySet().stream().filter(id -> id > snapshotId).anyMatch(id -> new ArrayList<>(writeSet.get(id))
-                .removeAll(tempList));
-
-        return writeSetNodeWithRead && writeSetRSWithRead && writeWithWrite;
+        if(!tempList.isEmpty())
+        {
+            if (pastWrites == null)
+            {
+                pastWrites = writeSet.entrySet().stream().filter(id -> id.getKey() > snapshotId).filter(entry -> entry.getKey() > snapshotId).map(Map.Entry::getValue).flatMap(List::stream).collect(Collectors.toList());            }
+            commit = tempList.isEmpty() || pastWrites.stream().noneMatch(id -> new ArrayList<>(writeSet.get(id))
+                    .removeAll(tempList));
+        }
+        return commit;
     }
 
     /**
