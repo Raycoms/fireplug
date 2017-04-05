@@ -15,8 +15,10 @@ import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.util.Constants;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import org.apache.log4j.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,10 +92,15 @@ public class ClientHandler extends SimpleChannelInboundHandler<BAGMessage>
         pool.release(kryo);
 
         for (Object item : returnValue) {
-            if (item instanceof DeleteOperation)
+            if (item instanceof DeleteOperation) {
+                Log.getLogger().info("Finished Reading");
                 readQueue.add(TestClient.FINISHED_READING);
-            else
+            }
+            else {
+                if (Log.getLogger().getLevel() == Level.INFO)
+                    Log.getLogger().info("Received: " + item.toString());
                 readQueue.add(item);
+            }
         }
     }
 

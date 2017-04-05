@@ -188,6 +188,9 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         final int serverPort = Integer.parseInt(args[0]);
         final int id = Integer.parseInt(args[1]);
         final String tempInstance = args[2];
+        String haAddresses = null;
+        if (args.length > 3)
+            haAddresses = args[3];
 
         IDatabaseAccess access;
 
@@ -205,7 +208,8 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         }
         else
         {
-            access = new Neo4jDatabaseAccess(id, args[3]);
+
+            access = new Neo4jDatabaseAccess(id, haAddresses);
         }
 
         if(args.length>=4)

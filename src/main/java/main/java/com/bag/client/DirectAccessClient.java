@@ -23,6 +23,7 @@ import main.java.com.bag.server.nettyhandlers.ClientHandler;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import org.apache.log4j.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -210,8 +211,10 @@ public class DirectAccessClient implements BAGClient {
         final Output output = new Output(0, 10240);
         kryo.writeObject(output, list);
 
-        for (Object item : list)
-            Log.getLogger().info(item.toString());
+        if (Log.getLogger().getLevel() == Level.INFO) {
+            for (Object item : list)
+                Log.getLogger().info("Reading: " + item.toString());
+        }
 
         handler.sendMessage(output.getBuffer());
         output.close();
@@ -224,13 +227,24 @@ public class DirectAccessClient implements BAGClient {
         final Output output = new Output(0, 10240);
         kryo.writeObject(output, writeSet);
 
-        for (Object item : writeSet)
-            Log.getLogger().info(item.toString());
+
+        if (Log.getLogger().getLevel() == Level.INFO) {
+            for (Object item : writeSet)
+                Log.getLogger().info("Commiting: " + item.toString());
+
+            if (writeSet.size() == 0)
+                Log.getLogger().info("Commiting empty writeSet");
+        }
 
         handler.sendMessage(output.getBuffer());
         output.close();
         kryoPool.release(kryo);
         writeSet.clear();
+        try {
+            while (getReadQueue().take() != TestClient.FINISHED_READING);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }

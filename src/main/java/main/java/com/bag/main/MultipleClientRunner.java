@@ -38,11 +38,15 @@ public class MultipleClientRunner {
 
     }
 
-    public void runClients(String option, int initialClient, int finalClient, int totalClients, String address) {
+    public void runClients(String option, int initialClient, int finalClient, int totalClients, String addresses) {
         try {
             Random rnd = new Random();
             System.out.printf("Starting...\n");
             List<Process> procs = new ArrayList<Process>();
+            String[] directAddresses = new String[0];
+            if (addresses != null)
+                directAddresses = addresses.split(",");
+
             for (int i = initialClient; i <= finalClient; i++) {
                 int serverPartner = i % 3;
                 String cmd;
@@ -51,8 +55,10 @@ public class MultipleClientRunner {
                             serverPartner, totalClients, i);
                 }
                 else if (option.equals("direct")) {
-                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests false %s 8855 1 1 %d false 2",
-                            address, i);
+                    serverPartner = i % directAddresses.length;
+                    String[] address = directAddresses[serverPartner].split(":");
+                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests false %s %s 1 1 %d false 2",
+                            address[0], address[1], i);
                 }
                 else {
                     System.out.println("Invalid option " + option);
