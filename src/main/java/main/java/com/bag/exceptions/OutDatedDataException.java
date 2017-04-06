@@ -5,6 +5,8 @@ package main.java.com.bag.exceptions;
  */
 public class OutDatedDataException extends Exception
 {
+    public final static int IGNORE_SNAPSHOT = -666;
+
     /**
      * Standard Constructor.
      */
@@ -51,7 +53,7 @@ public class OutDatedDataException extends Exception
             tempSnapshotId = (long) input;
         }
 
-        if(tempSnapshotId > snapshotId)
+        if(tempSnapshotId > snapshotId && snapshotId != IGNORE_SNAPSHOT)
         {
             throw new OutDatedDataException("Requested node or relationship has been updated by the database since the start of this transaction");
         }

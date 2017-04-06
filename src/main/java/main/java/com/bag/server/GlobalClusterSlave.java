@@ -276,7 +276,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Input input = new Input(bytes);
 
         final String messageType = kryo.readObject(input, String.class);
-        Output output = new Output(0, 100240);
+        Output output = new Output(0, 204800);
 
         switch(messageType)
         {
@@ -284,13 +284,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Received Node read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleNodeRead(input, messageContext, kryo, output);
-                updateCounts(0, 1,0,0);
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
                 Log.getLogger().info("Received Relationship read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleRelationshipRead(input, messageContext, kryo, output);
-                updateCounts(0, 1,0,0);
                 break;
             case Constants.SIGNATURE_MESSAGE:
                 Log.getLogger().info("Received signature message");

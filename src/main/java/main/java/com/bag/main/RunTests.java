@@ -1,8 +1,9 @@
 package main.java.com.bag.main;
 
+import main.java.com.bag.client.DirectAccessClient;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.evaluations.ClientWorkLoads;
- import main.java.com.bag.evaluations.NettyClient;
+import main.java.com.bag.evaluations.NettyClient;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import org.apache.log4j.Level;
@@ -104,7 +105,7 @@ public class RunTests
             else
             {
                 final ClientWorkLoads.RealisticOperation clientWorkLoad =
-                        new ClientWorkLoads.RealisticOperation(new NettyClient(serverIp, serverPort), 10, shareOfClient);
+                        new ClientWorkLoads.RealisticOperation(new DirectAccessClient(serverIp, serverPort), 10, shareOfClient);
                 clientWorkLoad.run();
             }
         }

@@ -38,15 +38,32 @@ public class MultipleClientRunner {
 
     }
 
-    public void runClients(int initialClient, int finalClient, int totalClients) {
+    public void runClients(String option, int initialClient, int finalClient, int totalClients, String addresses) {
         try {
             Random rnd = new Random();
             System.out.printf("Starting...\n");
             List<Process> procs = new ArrayList<Process>();
+            String[] directAddresses = new String[0];
+            if (addresses != null)
+                directAddresses = addresses.split(",");
+
             for (int i = initialClient; i <= finalClient; i++) {
                 int serverPartner = i % 3;
-                String cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests true %d -1 1 %d %d false 2",
-                        serverPartner, totalClients, i);
+                String cmd;
+                if (option.equals("bag")) {
+                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests true %d -1 1 %d %d false 2",
+                            serverPartner, totalClients, i);
+                }
+                else if (option.equals("direct")) {
+                    serverPartner = i % directAddresses.length;
+                    String[] address = directAddresses[serverPartner].split(":");
+                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests false %s %s 1 1 %d false 2",
+                            address[0], address[1], i);
+                }
+                else {
+                    System.out.println("Invalid option " + option);
+                    return;
+                }
                 System.out.printf("Running Command: %s\n", cmd);
                 /*ProcessBuilder pb = new ProcessBuilder("/bin/sh", "-e", cmd);
                 pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
@@ -71,11 +88,15 @@ public class MultipleClientRunner {
     }
 
     public static void main(String[] args) {
-        int initialClient = Integer.parseInt(args[0]);
-        int finalClient = Integer.parseInt(args[1]);
-        int totalClients = Integer.parseInt(args[2]);
+        String opt = args[0];
+        String address = null;
+        int initialClient = Integer.parseInt(args[1]);
+        int finalClient = Integer.parseInt(args[2]);
+        int totalClients = Integer.parseInt(args[3]);
+        if (args.length > 4)
+            address = args[4];
 
         MultipleClientRunner runner = new MultipleClientRunner();
-        runner.runClients(initialClient, finalClient, totalClients);
+        runner.runClients(opt, initialClient, finalClient, totalClients, address);
     }
 }
