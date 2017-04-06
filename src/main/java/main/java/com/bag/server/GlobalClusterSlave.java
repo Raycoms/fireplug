@@ -59,6 +59,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         this.id = id;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(id , GLOBAL_CONFIG_LOCATION);
+        Log.getLogger().info("Turned on global cluster with id:" + id);
     }
 
     private byte[] makeEmptyAbortResult() {

@@ -4,6 +4,7 @@ import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.server.database.OrientDBDatabaseAccess;
 import main.java.com.bag.server.database.SparkseeDatabaseAccess;
 import main.java.com.bag.server.database.TitanDatabaseAccess;
+import main.java.com.bag.server.database.EmptyDatabaseAccess;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
@@ -73,22 +74,24 @@ public class ServerWrapper
         databaseAccess = instantiateDBAccess(instance, globalServerId);
         databaseAccess.start();
 
+
+        if(isPrimary)
+        {
+            Log.getLogger().info("Turn on global cluster with id: " + globalServerId);
+            globalCluster = new GlobalClusterSlave(globalServerId, this);
+        }
+
         if(localClusterSlaveId != -1)
         {
+            Log.getLogger().info("Start local cluster slave with id: "  + localClusterSlaveId);
             localCluster = new LocalClusterSlave(localClusterSlaveId, this, isPrimary ? globalServerId : initialLeaderId);
             localCluster.setPrimaryGlobalClusterId(initialLeaderId);
         }
 
-        if(isPrimary)
+        if(isPrimary && localClusterSlaveId != -1)
         {
-            Log.getLogger().info("Turn on global cluster.");
-            globalCluster = new GlobalClusterSlave(globalServerId, this);
-            if(localClusterSlaveId != -1)
-            {
-                localCluster.setPrimary(true);
-            }
+            localCluster.setPrimary(true);
         }
-
     }
 
     /**
@@ -106,7 +109,7 @@ public class ServerWrapper
      * @param instance the string describing which to use.
      * @return the databaseAccess for the instance.
      */
-    @Nullable
+    @NotNull
     public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId)
     {
         switch (instance)
@@ -120,9 +123,9 @@ public class ServerWrapper
             case Constants.ORIENTDB:
                 return new OrientDBDatabaseAccess(globalServerId);
             default:
-                Log.getLogger().warn("Invalid databaseAccess");
+                Log.getLogger().warn("Empty databaseAccess");
+                return new EmptyDatabaseAccess();
         }
-        return null;
     }
 
     /**
@@ -202,9 +205,13 @@ public class ServerWrapper
         {
             instance = Constants.SPARKSEE;
         }
-        else
+        else if(tempInstance.toLowerCase().contains("neo4j"))
         {
             instance = Constants.NEO4J;
+        }
+        else
+        {
+            instance = "none";
         }
 
         try

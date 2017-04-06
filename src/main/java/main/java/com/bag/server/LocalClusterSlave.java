@@ -84,6 +84,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         this.id = id;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        Log.getLogger().info("Turned on local cluster with id: " + id);
     }
 
     /**

@@ -8,7 +8,6 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -40,10 +39,9 @@ public class ConflictHandler
             List<RelationshipStorage> readSetRelationship,
             long snapshotId, IDatabaseAccess access)
     {
-        return true;
         //Commented out during first experiments because implementation is buggy
         //TODO check this, is throwing ClassCastException...
-        //return isUpToDate(globalWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
+        return isUpToDate(globalWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
     /**
@@ -67,7 +65,7 @@ public class ConflictHandler
         {
             pastWrites = writeSet.entrySet().stream().filter(id -> id.getKey() > snapshotId).filter(entry -> entry.getKey() > snapshotId).map(Map.Entry::getValue).flatMap(List::stream).collect(Collectors.toList());
 
-            commit = readSetNode.isEmpty() || pastWrites.stream().noneMatch(id -> new ArrayList<>(writeSet.get(id)).removeAll(readSetNode));
+            commit = readSetNode.isEmpty() || !pastWrites.removeAll(readSetNode);
         }
 
         if(!commit)
@@ -80,12 +78,11 @@ public class ConflictHandler
             if(pastWrites == null)
             {
                 pastWrites = writeSet.entrySet().stream().filter(id -> id.getKey() > snapshotId).filter(entry -> entry.getKey() > snapshotId).map(Map.Entry::getValue).flatMap(List::stream).collect(Collectors.toList());            }
-            commit = readSetRelationship.isEmpty() || pastWrites.stream().noneMatch(id -> new ArrayList<>(writeSet.get(id)).removeAll(readSetRelationship));
+            commit = readSetRelationship.isEmpty() || !pastWrites.removeAll(readSetRelationship);
         }
 
         if(!commit)
         {
-
             return false;
         }
 
@@ -97,8 +94,7 @@ public class ConflictHandler
             if (pastWrites == null)
             {
                 pastWrites = writeSet.entrySet().stream().filter(id -> id.getKey() > snapshotId).filter(entry -> entry.getKey() > snapshotId).map(Map.Entry::getValue).flatMap(List::stream).collect(Collectors.toList());            }
-            commit = tempList.isEmpty() || pastWrites.stream().noneMatch(id -> new ArrayList<>(writeSet.get(id))
-                    .removeAll(tempList));
+            commit = tempList.isEmpty() || !pastWrites.removeAll(tempList);
         }
         return commit;
     }
