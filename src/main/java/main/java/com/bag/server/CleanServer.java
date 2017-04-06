@@ -87,7 +87,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         this.id = id;
         this.instrumentation = instrumentation;
 
-        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/resultsd"+id+".txt", true);
+        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
             final BufferedWriter bw = new BufferedWriter(file);
             final PrintWriter out = new PrintWriter(bw))
         {
