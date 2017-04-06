@@ -192,6 +192,8 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         if (args.length > 3)
             haAddresses = args[3];
 
+        ServerInstrumentation instrumentation = new ServerInstrumentation(id);
+
         IDatabaseAccess access;
 
         if (tempInstance.toLowerCase().contains("titan"))
@@ -232,7 +234,6 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         try
         {
             final ServerBootstrap boot = new ServerBootstrap();
-            ServerInstrumentation instrumentation = new ServerInstrumentation(id);
             boot.group(acceptGroup, connectGroup)
                     .channelFactory(NioUdtProvider.BYTE_ACCEPTOR)
                     .option(ChannelOption.SO_BACKLOG, 10)
