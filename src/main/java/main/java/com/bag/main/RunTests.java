@@ -1,5 +1,6 @@
 package main.java.com.bag.main;
 
+import main.java.com.bag.client.BAGClient;
 import main.java.com.bag.client.DirectAccessClient;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.evaluations.ClientWorkLoads;
@@ -7,6 +8,7 @@ import main.java.com.bag.evaluations.NettyClient;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 
 import java.util.*;
 
@@ -29,103 +31,49 @@ public class RunTests
     {
         int localClusterId = 0;
         int serverPartner = 0;
-        int numOfLocalClients = 10;
-        int numOfClientSimulators = 3;
         int shareOfClient = 1;
+        boolean lowLevelLogging = false;
+        double percOfWrites = 0.02;
 
         String serverIp = "127.0.0.1";
         int serverPort = 80;
 
-        int test = 0;
-
         boolean usesBag = true;
 
-        if (args.length >= 1)
-        {
-            usesBag = Boolean.valueOf(args[0]);
+        if (args.length < 5) {
+            System.out.println("Usage:\n"+
+                "To use BAG: RunTests true serverPartner localClusterId shareOfClient percOfWrites [lowLevelLogging]\n"+
+                "To use direct access: RunTests false serverAddress serverPort shareOfClient percOfWrites [lowLevelLoggin]\n");
+            return;
         }
 
-        if (args.length > 4)
+        usesBag = Boolean.valueOf(args[0]);
+        if (usesBag)
         {
-            if (usesBag)
-            {
-                serverPartner = Integer.parseInt(args[1]);
-                localClusterId = Integer.parseInt(args[2]);
-            }
-            else
-            {
-                serverIp = args[1];
-                serverPort = Integer.parseInt(args[2]);
-            }
-            numOfLocalClients = Integer.parseInt(args[3]);
-            numOfClientSimulators = Integer.parseInt(args[4]);
-            shareOfClient = Integer.parseInt(args[5]);
-
-            if(args.length>=7)
-            {
-                boolean useLogging = Boolean.parseBoolean(args[6]);
-                if(!useLogging)
-                {
-                    Log.getLogger().setLevel(Level.OFF);
-                }
-            }
-
-            if(args.length >= 8)
-            {
-                //Allowed values 1,2,3.
-                test = Integer.parseInt(args[7]);
-            }
-        }
-
-        if(test == 1)
+            serverPartner = Integer.parseInt(args[1]);
+            localClusterId = Integer.parseInt(args[2]);
+        } else
         {
-            if (usesBag)
-            {
-                final ClientWorkLoads.MassiveRelationShipInsertThread clientWorkLoad =
-                        new ClientWorkLoads.MassiveRelationShipInsertThread(new TestClient(shareOfClient, serverPartner, localClusterId), numOfClientSimulators * numOfLocalClients,
-                                shareOfClient * numOfLocalClients, 10);
-                clientWorkLoad.run();
-            }
-            else
-            {
-                final ClientWorkLoads.MassiveRelationShipInsertThread clientWorkLoad =
-                        new ClientWorkLoads.MassiveRelationShipInsertThread(new NettyClient(serverIp, serverPort), numOfClientSimulators * numOfLocalClients,
-                                shareOfClient * numOfLocalClients, 10);
-                clientWorkLoad.run();
-            }
+            serverIp = args[1];
+            serverPort = Integer.parseInt(args[2]);
         }
-        else if(test == 2)
-        {
-            if (usesBag)
-            {
-                final ClientWorkLoads.RealisticOperation clientWorkLoad =
-                        new ClientWorkLoads.RealisticOperation(new TestClient(shareOfClient, serverPartner, localClusterId), 10, shareOfClient);
-                clientWorkLoad.run();
-            }
-            else
-            {
-                final ClientWorkLoads.RealisticOperation clientWorkLoad =
-                        new ClientWorkLoads.RealisticOperation(new DirectAccessClient(serverIp, serverPort), 10, shareOfClient);
-                clientWorkLoad.run();
-            }
-        }
+        shareOfClient = Integer.parseInt(args[3]);
+        percOfWrites = Double.parseDouble(args[4]);
+        if (args.length > 5)
+            lowLevelLogging = Boolean.parseBoolean(args[5]);
+
+        if (!lowLevelLogging)
+            LogManager.getRootLogger().setLevel(Level.WARN);
+
+        BAGClient client;
+        if (usesBag)
+            client = new TestClient(shareOfClient, serverPartner, localClusterId);
         else
-        {
-            if (usesBag)
-            {
-                final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
-                        new ClientWorkLoads.MassiveNodeInsertThread(new TestClient(shareOfClient, serverPartner, localClusterId), numOfClientSimulators * numOfLocalClients,
-                                shareOfClient * numOfLocalClients, 10, 100000);
-                clientWorkLoad.run();
-            }
-            else
-            {
-                final ClientWorkLoads.MassiveNodeInsertThread clientWorkLoad =
-                        new ClientWorkLoads.MassiveNodeInsertThread(new NettyClient(serverIp, serverPort), numOfClientSimulators * numOfLocalClients,
-                                shareOfClient * numOfLocalClients, 10, 100000);
-                clientWorkLoad.run();
-            }
-        }
+            client = new DirectAccessClient(serverIp, serverPort);
+
+        final ClientWorkLoads.RealisticOperation clientWorkLoad =
+                new ClientWorkLoads.RealisticOperation(client, 10, shareOfClient, percOfWrites);
+        clientWorkLoad.run();
     }
 
     private static void testOld(TestClient client1)

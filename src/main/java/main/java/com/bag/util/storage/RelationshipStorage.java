@@ -95,7 +95,7 @@ public class RelationshipStorage implements Serializable
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? Collections.emptyMap() : new HashMap<>(properties);
+        return properties == null ? new HashMap<>() : new HashMap<>(properties);
     }
 
     /**

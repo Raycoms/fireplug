@@ -268,6 +268,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
         proxy.invokeUnordered(output.getBuffer());
     }
 
+    private Output makeEmptyReadResponse(String message, Kryo kryo)
+    {
+        Output output = new Output(0, 10240);
+        kryo.writeObject(output, message);
+        kryo.writeObject(output, new ArrayList<NodeStorage>());
+        kryo.writeObject(output, new ArrayList<RelationshipStorage>());
+        return output;
+    }
+
     @Override
     public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
     {
@@ -283,13 +292,29 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             case Constants.READ_MESSAGE:
                 Log.getLogger().info("Received Node read message");
-                kryo.writeObject(output, Constants.READ_MESSAGE);
-                output = handleNodeRead(input, messageContext, kryo, output);
+                try
+                {
+                    kryo.writeObject(output, Constants.READ_MESSAGE);
+                    output = handleNodeRead(input, messageContext, kryo, output);
+                }
+                catch (Throwable t)
+                {
+                    Log.getLogger().error("Error on " + Constants.READ_MESSAGE + ", returning empty read", t);
+                    output = makeEmptyReadResponse(Constants.READ_MESSAGE, kryo);
+                }
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
                 Log.getLogger().info("Received Relationship read message");
-                kryo.writeObject(output, Constants.READ_MESSAGE);
-                output = handleRelationshipRead(input, messageContext, kryo, output);
+                try
+                {
+                    kryo.writeObject(output, Constants.READ_MESSAGE);
+                    output = handleRelationshipRead(input, messageContext, kryo, output);
+                }
+                catch (Throwable t)
+                {
+                    Log.getLogger().error("Error on " + Constants.RELATIONSHIP_READ_MESSAGE + ", returning empty read", t);
+                    output = makeEmptyReadResponse(Constants.RELATIONSHIP_READ_MESSAGE, kryo);
+                }
                 break;
             case Constants.SIGNATURE_MESSAGE:
                 Log.getLogger().info("Received signature message");
