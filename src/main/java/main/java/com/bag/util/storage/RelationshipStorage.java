@@ -1,14 +1,13 @@
 package main.java.com.bag.util.storage;
 
 import main.java.com.bag.util.Log;
-import org.apache.commons.collections.KeyValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
+import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,7 +94,7 @@ public class RelationshipStorage implements Serializable
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? new HashMap<>() : new HashMap<>(properties);
+        return properties == null ? new TreeMap<>() : new TreeMap<>(properties);
     }
 
     /**

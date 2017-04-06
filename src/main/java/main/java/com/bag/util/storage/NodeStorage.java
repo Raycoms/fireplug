@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.TreeMap;
 import java.util.Map;
 
@@ -71,7 +70,7 @@ public class NodeStorage implements Serializable
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? Collections.emptyMap() : new TreeMap<>(properties);
+        return properties == null ? new TreeMap<>() : new TreeMap<>(properties);
     }
 
     /**
