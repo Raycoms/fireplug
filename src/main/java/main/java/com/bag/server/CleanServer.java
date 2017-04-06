@@ -147,7 +147,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 try {
                     List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT);
                     readObjects.addAll(read);
-                    instrumentation.updateCounts(0, read.size(), 0, 0);
+                    instrumentation.updateCounts(0, 1, 0, 0);
                 } catch (OutDatedDataException e) {
                     Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
                     instrumentation.updateCounts(0, 0, 0, 1);

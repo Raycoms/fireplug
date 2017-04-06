@@ -271,6 +271,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         NodeStorage identifier = kryo.readObject(input, NodeStorage.class);
         input.close();
 
+        updateCounts(0, 1, 0, 0);
+
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
         if (localSnapshotId == -1)
         {
@@ -324,7 +326,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, nodeStorage);
         kryo.writeObject(output, relationshipStorage);
-        updateCounts(0, nodeStorage.size() + relationshipStorage.size(), 0, 0);
 
         return output;
     }
@@ -343,6 +344,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         long localSnapshotId = kryo.readObject(input, Long.class);
         RelationshipStorage identifier = kryo.readObject(input, RelationshipStorage.class);
         input.close();
+
+        updateCounts(0, 1, 0, 0);
 
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
         if (localSnapshotId == -1)
@@ -393,7 +396,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         //todo problem returning the relationship here!
         kryo.writeObject(output, nodeStorage);
         kryo.writeObject(output, relationshipStorage);
-        updateCounts(0, nodeStorage.size() + relationshipStorage.size(), 0, 0);
 
         return output;
     }
