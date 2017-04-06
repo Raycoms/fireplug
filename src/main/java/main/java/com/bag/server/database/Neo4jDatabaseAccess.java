@@ -88,6 +88,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             builder.setConfig(ClusterSettings.cluster_server, initialHosts.get(id));
             graphDb = builder.newGraphDatabase();
             Log.getLogger().warn("HA neo4j database started " + id);
+
+            if (id > 0) {
+                new Timer().scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println("Ping...");
+                    };
+                } ,0,60000);
+            }
         }
     }
 
