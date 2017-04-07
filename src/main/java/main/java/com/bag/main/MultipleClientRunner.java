@@ -50,6 +50,8 @@ public class MultipleClientRunner
     {
         try
         {
+    public void runClients(String option, int initialClient, int finalClient, double percOfWrites, String addresses) {
+        try {
             Random rnd = new Random();
             System.out.printf("Starting...\n");
             List<Process> procs = new ArrayList<Process>();
@@ -63,17 +65,16 @@ public class MultipleClientRunner
             {
                 int serverPartner = i % amountsOfServers;
                 String cmd;
-                if (option.equals("bag"))
-                {
-                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests true %d -1 1 %d %d false 2",
-                            serverPartner, totalClients, i);
+                if (option.equals("bag")) {
+                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests true %d -1 %d %s",
+                            serverPartner, i, String.valueOf(percOfWrites).replace(',','.'));
                 }
                 else if (option.equals("direct"))
                 {
                     serverPartner = i % directAddresses.length;
                     String[] address = directAddresses[serverPartner].split(":");
-                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests false %s %s 1 1 %d false 2",
-                            address[0], address[1], i);
+                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests false %s %s %d %s",
+                            address[0], address[1], i, String.valueOf(percOfWrites).replace(',','.'));
                 }
                 else
                 {
@@ -112,14 +113,11 @@ public class MultipleClientRunner
         String address = null;
         int initialClient = Integer.parseInt(args[1]);
         int finalClient = Integer.parseInt(args[2]);
-        int totalClients = Integer.parseInt(args[3]);
-        int amountOfServers = Integer.parseInt(args[4]);
-        if (args.length > 5)
-        {
-            address = args[5];
-        }
+        double percOfWrites = Double.parseDouble(args[3]);
+        if (args.length > 4)
+            address = args[4];
 
         MultipleClientRunner runner = new MultipleClientRunner();
-        runner.runClients(opt, initialClient, finalClient, totalClients, amountOfServers, address);
+        runner.runClients(opt, initialClient, finalClient, percOfWrites, address);
     }
 }
