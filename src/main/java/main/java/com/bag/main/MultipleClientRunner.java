@@ -41,17 +41,29 @@ public class MultipleClientRunner
         }
     }
 
+    /**
+     * Standard constructor.
+     */
     public MultipleClientRunner()
     {
-
+        /*
+         * Intentionally lef empty.
+         */
     }
 
-    public void runClients(final String option, final int initialClient, final int finalClient, final int totalClients, final int amountsOfServers, final String addresses)
+    /**
+     * Run defined number of clients.
+     * @param option (if bag or direct)
+     * @param initialClient first client id
+     * @param finalClient last client id
+     * @param percOfWrites percentage of writes
+     * @param amountsOfServers amount of servers to contact
+     * @param addresses addresses of servers to contact.
+     */
+    private void runClients(final String option, final int initialClient, final int finalClient, final double percOfWrites, final int amountsOfServers, final String addresses)
     {
         try
         {
-    public void runClients(String option, int initialClient, int finalClient, double percOfWrites, String addresses) {
-        try {
             Random rnd = new Random();
             System.out.printf("Starting...\n");
             List<Process> procs = new ArrayList<Process>();
@@ -65,16 +77,17 @@ public class MultipleClientRunner
             {
                 int serverPartner = i % amountsOfServers;
                 String cmd;
-                if (option.equals("bag")) {
+                if (option.equals("bag"))
+                {
                     cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests true %d -1 %d %s",
-                            serverPartner, i, String.valueOf(percOfWrites).replace(',','.'));
+                            serverPartner, i, String.valueOf(percOfWrites).replace(',', '.'));
                 }
                 else if (option.equals("direct"))
                 {
                     serverPartner = i % directAddresses.length;
                     String[] address = directAddresses[serverPartner].split(":");
                     cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests false %s %s %d %s",
-                            address[0], address[1], i, String.valueOf(percOfWrites).replace(',','.'));
+                            address[0], address[1], i, String.valueOf(percOfWrites).replace(',', '.'));
                 }
                 else
                 {
@@ -114,10 +127,13 @@ public class MultipleClientRunner
         int initialClient = Integer.parseInt(args[1]);
         int finalClient = Integer.parseInt(args[2]);
         double percOfWrites = Double.parseDouble(args[3]);
-        if (args.length > 4)
-            address = args[4];
+        int amountOfServers = Integer.parseInt(args[4]);
+        if (args.length > 5)
+        {
+            address = args[5];
+        }
 
         MultipleClientRunner runner = new MultipleClientRunner();
-        runner.runClients(opt, initialClient, finalClient, percOfWrites, address);
+        runner.runClients(opt, initialClient, finalClient, percOfWrites, amountOfServers, address);
     }
 }
