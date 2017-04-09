@@ -84,6 +84,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private boolean firstRead = true;
 
     /**
+     * The proxy to use during communication with the globalCluster.
+     */
+    private ServiceProxy globalProxy;
+
+    /**
      * Create a threadsafe version of kryo.
      */
     private KryoFactory factory = () ->
@@ -100,6 +105,12 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     public TestClient(final int processId, final int serverId, final int localClusterId)
     {
         super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+
+        if(localClusterId == -1)
+        {
+            globalProxy = new ServiceProxy(getProcessId(), "global/config");
+        }
+
         secureMode = true;
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
@@ -406,7 +417,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         Log.getLogger().info("Starting commit");
         final boolean readOnly = isReadOnly();
 
-        if(readOnly && !secureMode)
+        if (readOnly && !secureMode)
         {
             Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
@@ -414,53 +425,51 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        try(final ServiceProxy globalProxy = new ServiceProxy(getProcessId(), "global/config"))
+        final byte[] bytes = serializeAll();
+
+        if (readOnly)
         {
-            final byte[] bytes = serializeAll();
+            Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
+            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : globalProxy.invokeUnordered(bytes);
 
-            if (readOnly)
+            final Input input = new Input(answer);
+
+            final String messageType = kryo.readObject(input, String.class);
+
+            if (!Constants.COMMIT_RESPONSE.equals(messageType))
             {
-                Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
-                final byte[] answer = globalProxy.invokeUnordered(bytes);
-
-                final Input input = new Input(answer);
-
-                final String messageType = kryo.readObject(input, String.class);
-
-                if (!Constants.COMMIT_RESPONSE.equals(messageType))
-                {
-                    Log.getLogger().warn("Incorrect response type to client from server!" + getProcessId());
-                    resetSets();
-                    firstRead = true;
-                    return;
-                }
-
-                final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
-
-                if (commit)
-                {
-                    localTimestamp = kryo.readObject(input, Long.class);
-                    resetSets();
-                    firstRead = true;
-                    Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
-                    return;
-                }
-
-                Log.getLogger().info(String.format("Read-only Transaction with local transaction id: %d resend to the server", localTimestamp));
+                Log.getLogger().warn("Incorrect response type to client from server!" + getProcessId());
+                resetSets();
+                firstRead = true;
+                return;
             }
 
-            if (localClusterId == -1)
+            final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
+
+            if (commit)
             {
-                Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
-                invokeOrdered(bytes);
+                localTimestamp = kryo.readObject(input, Long.class);
+                resetSets();
+                firstRead = true;
+                Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+                return;
             }
-            else
-            {
-                Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
-                processCommitReturn(globalProxy.invokeOrdered(bytes));
-            }
+
+            Log.getLogger().info(String.format("Read-only Transaction with local transaction id: %d resend to the server", localTimestamp));
+        }
+
+        if (localClusterId == -1)
+        {
+            Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
+            invokeOrdered(bytes);
+        }
+        else
+        {
+            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
     }
+
 
     /**
      * Serializes the data and returns it in byte format.
