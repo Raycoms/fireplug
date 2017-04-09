@@ -298,8 +298,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        this.localTimestamp = kryo.readObject(input, Long.class);
         final String result = kryo.readObject(input, String.class);
+        this.localTimestamp = kryo.readObject(input, Long.class);
 
         if(Constants.ABORT.equals(result))
         {
@@ -309,6 +309,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             readQueue.add(FINISHED_READING);
             return;
         }
+
 
         final List nodes = kryo.readObject(input, ArrayList.class);
         final List relationships = kryo.readObject(input, ArrayList.class);

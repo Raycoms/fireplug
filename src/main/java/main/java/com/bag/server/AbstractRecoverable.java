@@ -289,6 +289,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         catch (OutDatedDataException e)
         {
             kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, localSnapshotId);
+
             Log.getLogger().warn("Transaction found conflict", e);
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
@@ -365,6 +367,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         catch (OutDatedDataException e)
         {
             kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, localSnapshotId);
+
             Log.getLogger().warn("Transaction found conflict", e);
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
