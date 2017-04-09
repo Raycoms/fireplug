@@ -409,6 +409,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         if(readOnly && !secureMode)
         {
             Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+            firstRead = true;
             resetSets();
             return;
         }
@@ -429,6 +430,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 if (!Constants.COMMIT_RESPONSE.equals(messageType))
                 {
                     Log.getLogger().warn("Incorrect response type to client from server!" + getProcessId());
+                    resetSets();
+                    firstRead = true;
                     return;
                 }
 
@@ -438,6 +441,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 {
                     localTimestamp = kryo.readObject(input, Long.class);
                     resetSets();
+                    firstRead = true;
                     Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                     return;
                 }
