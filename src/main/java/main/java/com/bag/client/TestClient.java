@@ -437,6 +437,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 if (commit)
                 {
                     localTimestamp = kryo.readObject(input, Long.class);
+                    resetSets();
                     Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                     return;
                 }
