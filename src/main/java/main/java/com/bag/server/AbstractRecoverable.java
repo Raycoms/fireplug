@@ -288,17 +288,20 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
         catch (OutDatedDataException e)
         {
-            Log.getLogger().info("Transaction found conflict - terminating", e);
-            terminate();
+            kryo.writeObject(output, Constants.ABORT);
+            Log.getLogger().warn("Transaction found conflict", e);
+            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            kryo.writeObject(output, new ArrayList<RelationshipStorage>());
             return output;
         }
+
+        kryo.writeObject(output, Constants.CONTINUE);
+        kryo.writeObject(output, localSnapshotId);
 
         if (returnList != null)
         {
             Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
-
-        kryo.writeObject(output, localSnapshotId);
 
         if (returnList == null || returnList.isEmpty())
         {
@@ -361,10 +364,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
         catch (OutDatedDataException e)
         {
-            Log.getLogger().info("Transaction found conflict - terminating", e);
-            terminate();
+            kryo.writeObject(output, Constants.ABORT);
+            Log.getLogger().warn("Transaction found conflict", e);
+            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            kryo.writeObject(output, new ArrayList<RelationshipStorage>());
         }
-
+        kryo.writeObject(output, Constants.CONTINUE);
         kryo.writeObject(output, localSnapshotId);
 
         if (returnList == null || returnList.isEmpty())

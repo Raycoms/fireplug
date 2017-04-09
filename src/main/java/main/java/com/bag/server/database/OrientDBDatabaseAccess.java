@@ -59,6 +59,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
+    @Override
     public List<Object> readObject(@NotNull Object identifier, long snapshotId) throws OutDatedDataException
     {
         NodeStorage nodeStorage = null;

@@ -299,9 +299,19 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final Kryo kryo = pool.borrow();
 
         this.localTimestamp = kryo.readObject(input, Long.class);
+        final String result = kryo.readObject(input, String.class);
 
-        List nodes = kryo.readObject(input, ArrayList.class);
-        List relationships = kryo.readObject(input, ArrayList.class);
+        if(Constants.ABORT.equals(result))
+        {
+            input.close();
+            pool.release(kryo);
+            resetSets();
+            readQueue.add(FINISHED_READING);
+            return;
+        }
+
+        final List nodes = kryo.readObject(input, ArrayList.class);
+        final List relationships = kryo.readObject(input, ArrayList.class);
 
         if(nodes != null && !nodes.isEmpty() && nodes.get(0) instanceof NodeStorage)
         {
