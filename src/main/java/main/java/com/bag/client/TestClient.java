@@ -84,6 +84,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private boolean firstRead = true;
 
     /**
+     * The proxy to use during communication with the globalCluster.
+     */
+    private ServiceProxy globalProxy;
+
+    /**
      * Create a threadsafe version of kryo.
      */
     private KryoFactory factory = () ->
@@ -100,6 +105,12 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     public TestClient(final int processId, final int serverId, final int localClusterId)
     {
         super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+
+        if(localClusterId == -1)
+        {
+            globalProxy = new ServiceProxy(getProcessId(), "global/config");
+        }
+
         secureMode = true;
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
@@ -121,6 +132,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      * Get the blocking queue.
      * @return the queue.
      */
+    @Override
     public BlockingQueue<Object> getReadQueue()
     {
         return readQueue;
@@ -129,6 +141,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     /**
      * write requests. (Only reach database on commit)
      */
+    @Override
     public void write(final Object identifier, final Object value)
     {
         if(identifier == null && value == null)
@@ -215,6 +228,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      * ReadRequests.(Directly read database) send the request to the db.
      * @param identifiers list of objects which should be read, may be NodeStorage or RelationshipStorage
      */
+    @Override
     public void read(final Object...identifiers)
     {
         long timeStampToSend = firstRead ? -1 : localTimestamp;
@@ -295,10 +309,21 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
+        final String result = kryo.readObject(input, String.class);
         this.localTimestamp = kryo.readObject(input, Long.class);
 
-        List nodes = kryo.readObject(input, ArrayList.class);
-        List relationships = kryo.readObject(input, ArrayList.class);
+        if(Constants.ABORT.equals(result))
+        {
+            input.close();
+            pool.release(kryo);
+            resetSets();
+            readQueue.add(FINISHED_READING);
+            return;
+        }
+
+
+        final List nodes = kryo.readObject(input, ArrayList.class);
+        final List relationships = kryo.readObject(input, ArrayList.class);
 
         if(nodes != null && !nodes.isEmpty() && nodes.get(0) instanceof NodeStorage)
         {
@@ -381,6 +406,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     /**
      * Commit reaches the server, if secure commit send to all, else only send to one
      */
+    @Override
     public void commit()
     {
         firstRead = true;
@@ -390,30 +416,41 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         Log.getLogger().info("Starting commit");
         final boolean readOnly = isReadOnly();
-        byte[] bytes = serializeAll();
 
-        //todo if isReadonly invoke unordered and wait for response. If abort then send ordered only.
+        if (readOnly && !secureMode)
+        {
+            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+            firstRead = true;
+            resetSets();
+            return;
+        }
 
-        if(readOnly)
+        final byte[] bytes = serializeAll();
+
+        if (readOnly)
         {
             Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
-            byte[] answer = invokeUnordered(bytes);
+            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : globalProxy.invokeUnordered(bytes);
 
             final Input input = new Input(answer);
 
             final String messageType = kryo.readObject(input, String.class);
 
-            if(!Constants.COMMIT_RESPONSE.equals(messageType))
+            if (!Constants.COMMIT_RESPONSE.equals(messageType))
             {
                 Log.getLogger().warn("Incorrect response type to client from server!" + getProcessId());
+                resetSets();
+                firstRead = true;
                 return;
             }
 
             final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
 
-            if(commit)
+            if (commit)
             {
                 localTimestamp = kryo.readObject(input, Long.class);
+                resetSets();
+                firstRead = true;
                 Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                 return;
             }
@@ -421,33 +458,18 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             Log.getLogger().info(String.format("Read-only Transaction with local transaction id: %d resend to the server", localTimestamp));
         }
 
-        if(localClusterId == -1)
+        if (localClusterId == -1)
         {
-            Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
             invokeOrdered(bytes);
-            return;
-        }
-
-        final int primaryId = getPrimary(kryo);
-
-        if(primaryId == -1)
-        {
-            Log.getLogger().warn("Wrong primaryId!!!");
-            return;
-        }
-
-        Log.getLogger().info("Committing to primary replica: " + primaryId);
-
-        if(readOnly && !secureMode)
-        {
-            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
-            resetSets();
         }
         else
         {
-            sendMessageToTargets(bytes , 0, new int[] {primaryId}, TOMMessageType.UNORDERED_REQUEST);
+            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
     }
+
 
     /**
      * Serializes the data and returns it in byte format.
@@ -476,8 +498,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        //Todo probably will need a bigger buffer in the future. size depending on the set size?
-        final Output output = new Output(0, 10024);
+        final Output output = new Output(0, 100024);
         kryo.writeObject(output, reason);
         kryo.writeObject(output, localTimestamp);
 
@@ -504,8 +525,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        //Todo probably will need a bigger buffer in the future. size depending on the set size?
-        final Output output = new Output(0, 100240);
+        final Output output = new Output(0, 100024);
 
         kryo.writeObject(output, Constants.COMMIT_MESSAGE);
         //Write the timeStamp to the server

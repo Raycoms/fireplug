@@ -144,5 +144,5 @@ public interface IDatabaseAccess
      * @param localSnapshotId snapshotId.
      * @return list of objects.
      */
-    List<Object>  readObject(Object identifier, long localSnapshotId) throws OutDatedDataException;
+    List<Object> readObject(Object identifier, long localSnapshotId) throws OutDatedDataException;
 }

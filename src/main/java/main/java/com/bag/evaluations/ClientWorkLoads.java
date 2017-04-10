@@ -409,8 +409,8 @@ public class ClientWorkLoads
                     {
                         readRelationship = new RelationshipStorage(
                                 currentNode.relationName,
-                                new NodeStorage(currentNode.origin),
-                                new NodeStorage());
+                                new NodeStorage(),
+                                new NodeStorage(currentNode.destination));
                         //get all relationships of a particular node
                         readRelations += 1;
                     } else

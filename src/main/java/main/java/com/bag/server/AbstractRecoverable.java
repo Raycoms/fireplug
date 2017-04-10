@@ -288,17 +288,22 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
         catch (OutDatedDataException e)
         {
-            Log.getLogger().info("Transaction found conflict - terminating", e);
-            terminate();
+            kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, localSnapshotId);
+
+            Log.getLogger().warn("Transaction found conflict", e);
+            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            kryo.writeObject(output, new ArrayList<RelationshipStorage>());
             return output;
         }
+
+        kryo.writeObject(output, Constants.CONTINUE);
+        kryo.writeObject(output, localSnapshotId);
 
         if (returnList != null)
         {
             Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
-
-        kryo.writeObject(output, localSnapshotId);
 
         if (returnList == null || returnList.isEmpty())
         {
@@ -331,12 +336,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Handles the relationship read message and requests it to the database.
      *
      * @param input          get info from.
-     * @param messageContext additional context.
      * @param kryo           kryo object.
      * @param output         write info to.
      * @return output object to return to client.
      */
-    public Output handleRelationshipRead(final Input input, final MessageContext messageContext, final Kryo kryo, final Output output)
+    public Output handleRelationshipRead(final Input input, final Kryo kryo, final Output output)
     {
         long localSnapshotId = kryo.readObject(input, Long.class);
         RelationshipStorage identifier = kryo.readObject(input, RelationshipStorage.class);
@@ -362,10 +366,14 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
         catch (OutDatedDataException e)
         {
-            Log.getLogger().info("Transaction found conflict - terminating", e);
-            terminate();
-        }
+            kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, localSnapshotId);
 
+            Log.getLogger().warn("Transaction found conflict", e);
+            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            kryo.writeObject(output, new ArrayList<RelationshipStorage>());
+        }
+        kryo.writeObject(output, Constants.CONTINUE);
         kryo.writeObject(output, localSnapshotId);
 
         if (returnList == null || returnList.isEmpty())
@@ -376,8 +384,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
         Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
 
-        ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
-        ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
+        final ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
+        final ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
         for (Object obj : returnList)
         {
             if (obj instanceof NodeStorage)

@@ -59,6 +59,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
+    @Override
     public List<Object> readObject(@NotNull Object identifier, long snapshotId) throws OutDatedDataException
     {
         NodeStorage nodeStorage = null;
@@ -92,14 +93,23 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             if(nodeStorage == null)
             {
                 final String relationshipId = "class:" + relationshipStorage.getId();
-
-                final Iterable<Vertex> startNodes = getVertexList(relationshipStorage.getStartNode(), graph);
                 final Iterable<Vertex> endNodes = getVertexList(relationshipStorage.getEndNode(), graph);
 
-                final List<Edge> list = StreamSupport.stream(endNodes.spliterator(), false)
-                        .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.IN, relationshipId).spliterator(), false))
-                        .filter(edge -> StreamSupport.stream(startNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
-                        .collect(Collectors.toList());
+                final List<Edge> list;
+                if(relationshipStorage.getStartNode().getProperties().isEmpty())
+                {
+                    list = StreamSupport.stream(endNodes.spliterator(), false)
+                            .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.IN, relationshipId).spliterator(), false))
+                            .collect(Collectors.toList());
+                }
+                else
+                {
+                    final Iterable<Vertex> startNodes = getVertexList(relationshipStorage.getStartNode(), graph);
+                    list = StreamSupport.stream(endNodes.spliterator(), false)
+                            .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.IN, relationshipId).spliterator(), false))
+                            .filter(edge -> StreamSupport.stream(startNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
+                            .collect(Collectors.toList());
+                }
                 for(final Edge edge: list)
                 {
                     final RelationshipStorage tempStorage = getRelationshipStorageFromEdge(edge, snapshotId);

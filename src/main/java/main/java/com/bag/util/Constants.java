@@ -28,6 +28,7 @@ public class Constants
     public static final String PRIMARY_NOTICE            = "primaryNotice";
     public static final String UPDATE_SLAVE              = "updateSlave";
     public static final String ASK_PRIMARY               = "askPrimary";
+    public static final String CONTINUE                  = "continue";
 
     /**
      * Used to convert nano time to seconds.
@@ -59,7 +60,6 @@ public class Constants
             "content",
             "language",
             "imageFile", "length"};
-
 
     /**
      * Used to hide the implicit default constructor.

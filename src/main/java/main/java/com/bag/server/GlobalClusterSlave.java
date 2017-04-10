@@ -286,7 +286,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Input input = new Input(bytes);
 
         final String messageType = kryo.readObject(input, String.class);
-        Output output = new Output(0, 204800);
+        Output output = new Output(1, 404800);
 
         switch(messageType)
         {
@@ -308,7 +308,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 try
                 {
                     kryo.writeObject(output, Constants.READ_MESSAGE);
-                    output = handleRelationshipRead(input, messageContext, kryo, output);
+                    output = handleRelationshipRead(input, kryo, output);
                 }
                 catch (Throwable t)
                 {
@@ -323,10 +323,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
             case Constants.REGISTER_GLOBALLY_MESSAGE:
                 Log.getLogger().info("Received register globally message");
                 output.close();
+                input.close();
+                pool.release(kryo);
                 return handleRegisteringSlave(input, kryo);
             case Constants.REGISTER_GLOBALLY_CHECK:
                 Log.getLogger().info("Received globally check message");
                 output.close();
+                input.close();
+                pool.release(kryo);
                 return handleGlobalRegistryCheck(input, kryo);
             case Constants.COMMIT:
                 Log.getLogger().info("Received commit message");
