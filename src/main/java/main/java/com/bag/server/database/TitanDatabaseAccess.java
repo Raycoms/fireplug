@@ -5,6 +5,7 @@ import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanVertex;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
+import main.java.com.bag.client.DirectAccessClient;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
@@ -21,6 +22,7 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -29,7 +31,7 @@ import java.util.*;
  */
 public class TitanDatabaseAccess implements IDatabaseAccess
 {
-    private static final String DIRECTORY = System.getProperty("user.home") + "/TitanDB";
+    private static final String DIRECTORY = System.getProperty("user.home") + File.separator + "TitanDB";
 
     private TitanGraph graph;
 
@@ -43,11 +45,11 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        //Logger.getLogger(com.thinkaurelius.titan.graphdb.transaction.StandardTitanTx.class).setLevel(Level.OFF);
+        Logger.getLogger(com.thinkaurelius.titan.graphdb.transaction.StandardTitanTx.class).setLevel(Level.ERROR);
         TitanFactory.Builder config = TitanFactory.build();
 
         config.set("storage.backend", "berkeleyje");
-        config.set("storage.directory", DIRECTORY);
+        config.set("storage.directory", DIRECTORY + this.id);
         graph = config.open();
         TitanManagement mg = graph.openManagement();
         PropertyKey idxKey = mg.getPropertyKey("idx");
@@ -240,7 +242,8 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         RelationshipStorage tempStorage = new RelationshipStorage(edge.label(), getNodeStorageFromVertex(edge.outVertex()), getNodeStorageFromVertex(edge.inVertex()));
         for(String s: edge.keys())
         {
-            tempStorage.addProperty(s, edge.property(s));
+            if (edge.property(s).isPresent())
+                tempStorage.addProperty(s, edge.property(s).value());
         }
         return tempStorage;
     }
@@ -417,13 +420,19 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
             while (startNode.hasNext())
             {
+                Vertex startVertex = startNode.next();
                 while (endNode.hasNext())
                 {
-                    Iterator<Edge> edges = startNode.next().edges(Direction.OUT, key.getId());
+                    Vertex endVertex = endNode.next();
+
+                    Iterator<Edge> edges = startVertex.edges(Direction.BOTH, key.getId());
 
                     while (edges.hasNext())
                     {
                         Edge edge = edges.next();
+                        if (!edge.outVertex().equals(endVertex) && !edge.inVertex().equals(endVertex))
+                            continue;
+
                         for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
                         {
                             edge.property(entry.getKey(), entry.getValue());
@@ -436,7 +445,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
         }
         finally
