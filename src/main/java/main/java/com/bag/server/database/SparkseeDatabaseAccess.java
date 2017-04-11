@@ -81,9 +81,6 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public List<Object> readObject(final Object identifier, final long localSnapshotId) throws OutDatedDataException
     {
-        Session sess = db.newSession();
-        Graph graph = sess.getGraph();
-
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage = null;
 
@@ -98,9 +95,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         else
         {
             Log.getLogger().warn("Can't read data on object: " + identifier.getClass().toString());
-            sess.close();
             return Collections.emptyList();
         }
+
+        Session sess = db.newSession();
+        Graph graph = sess.getGraph();
 
         ArrayList<Object> returnStorage = new ArrayList<>();
 
@@ -200,6 +199,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
 
         sess.close();
+
         return returnStorage;
     }
 
@@ -322,6 +322,22 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         return false;
     }
 
+
+    private List<String> reorderKeysToPutIdxFirst(Map<String, Object> map)
+    {
+        List<String> keys = new ArrayList<>(map.keySet());
+        if (keys.size() <= 0)
+            return keys;
+
+        if (keys.get(0).equals("idx"))
+            return keys;
+
+        int idx = keys.indexOf("idx");
+        keys.remove(idx);
+        keys.add(0, "idx");
+        return  keys;
+    }
+
     /**
      * Return a Objects array matching the nodeType and properties.
      * @param graph the graph.
@@ -332,31 +348,48 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     {
         Objects objects = null;
 
-        if(!storage.getId().isEmpty())
+        if (storage.getProperties().size() > 0) {
+            final List<String> keys = reorderKeysToPutIdxFirst(storage.getProperties());
+            for (final String key : keys)
+            {
+                final int attributeId = graph.findAttribute(Type.GlobalType, key);
+
+                if (objects == null || objects.isEmpty())
+                {
+                    if(objects != null)
+                    {
+                        objects.close();
+                    }
+                    objects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(storage.getProperties().get(key)));
+                }
+                else
+                {
+                    final Objects tempObjects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(storage.getProperties().get(key)), objects);
+                    objects.close();
+                    objects = tempObjects;
+                }
+            }
+        }
+        else
         {
             int nodeTypeId = SparkseeUtils.createOrFindNodeType(storage, graph);
             objects = graph.select(nodeTypeId);
         }
 
-        for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+        //TODO need to filter Objects by nodeTypeId...
+        /*if(!storage.getId().isEmpty())
         {
-            final int attributeId = graph.findAttribute(Type.GlobalType, entry.getKey());
+            int nodeTypeId = SparkseeUtils.createOrFindNodeType(storage, graph);
+            Instrumentation.s("graph.select(nodeTypeId)");
+            ObjectsIterator it = objects.iterator();
+            while (it.hasNext())
+            {
+                it.next()
+            }
 
-            if (objects == null || objects.isEmpty())
-            {
-                if(objects != null)
-                {
-                    objects.close();
-                }
-                objects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()));
-            }
-            else
-            {
-                final Objects tempObjects = graph.select(attributeId, Condition.Equal, SparkseeUtils.getValue(entry.getValue()), objects);
-                objects.close();
-                objects = tempObjects;
-            }
-        }
+            Instrumentation.f("graph.select(nodeTypeId)");
+        }*/
+
         return objects;
     }
 
