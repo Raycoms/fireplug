@@ -117,7 +117,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
 
                 for (long localEndNodeId : objsEnd)
                 {
-                    final Objects connected = graph.neighbors(localEndNodeId, relationshipTypeId, EdgesDirection.Ingoing);
+                    final Objects connected = graph.explode(localEndNodeId, relationshipTypeId, EdgesDirection.Ingoing);
 
                     if (connected.isEmpty())
                     {
