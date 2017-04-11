@@ -50,6 +50,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
+        Log.getLogger().warn("Starting OrientDB database service on " + id);
+
         factory = new OrientGraphFactory(BASE_PATH).setupPool(1,10);
     }
 

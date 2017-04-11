@@ -30,6 +30,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
+        Log.getLogger().warn("Starting Sparksee database service on " + id);
         SparkseeProperties.load("config/sparksee.cfg");
         final SparkseeConfig cfg = new SparkseeConfig();
         sparksee = new Sparksee(cfg);
