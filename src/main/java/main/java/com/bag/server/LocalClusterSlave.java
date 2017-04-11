@@ -424,7 +424,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         boolean signatureMatches;
         for(Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
         {
-            final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
+            final RSAKeyLoader rsaLoader = new RSAKeyLoader(1000 + entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
             try
             {
                 signatureMatches = TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue());
@@ -467,6 +467,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         final Input input = new Input(storage.getMessage());
         kryo.readObject(input, String.class);
+        //todo this is crashing again?
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
