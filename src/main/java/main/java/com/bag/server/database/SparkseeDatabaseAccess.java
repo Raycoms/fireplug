@@ -221,7 +221,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             localProperties.put(attributeKey, attributeValue);
         }
 
-        final NodeStorage tempStartNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getTail());
+        final NodeStorage tempStartNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getHead());
         final NodeStorage tempEndNode = getNodeFromNodeId(graph, graph.getEdgeData(edgeId).getTail());
 
         return new RelationshipStorage(graph.getType(graph.getObjectType(edgeId)).getName(), localProperties, tempStartNode, tempEndNode);

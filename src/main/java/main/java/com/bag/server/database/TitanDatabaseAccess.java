@@ -5,7 +5,6 @@ import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanVertex;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
-import main.java.com.bag.client.DirectAccessClient;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
@@ -131,10 +130,19 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         ArrayList<Edge> relationshipList =  new ArrayList<>();
         //g.V(1).bothE().where(otherV().hasId(2)).hasLabel('knows').has('weight',gt(0.0))
 
-        ArrayList<Vertex> nodeStartList =  getVertexList(relationshipStorage.getStartNode(), g, snapshotId);
         ArrayList<Vertex> nodeEndList =  getVertexList(relationshipStorage.getEndNode(), g, snapshotId);
 
-        GraphTraversal<Vertex, Edge> tempOutput =  graph.traversal().V(nodeStartList.toArray()).bothE().filter(__.otherV().is(P.within(nodeEndList.toArray())));
+        GraphTraversal<Vertex, Edge> tempOutput;
+        if(relationshipStorage.getStartNode().getProperties().isEmpty())
+        {
+            tempOutput = graph.traversal().V(nodeEndList.toArray()).bothE();
+        }
+        else
+        {
+            ArrayList<Vertex> nodeStartList = getVertexList(relationshipStorage.getStartNode(), g, snapshotId);
+
+            tempOutput = graph.traversal().V(nodeStartList.toArray()).bothE().filter(__.otherV().is(P.within(nodeEndList.toArray())));
+        }
 
         for (Map.Entry<String, Object> entry : relationshipStorage.getProperties().entrySet())
         {
