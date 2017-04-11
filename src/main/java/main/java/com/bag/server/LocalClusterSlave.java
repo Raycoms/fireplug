@@ -29,7 +29,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Name of the location of the global config.
      */
-    private static final String GLOBAL_CONFIG_LOCATION = "global%d/config";
+    private static final String GLOBAL_CONFIG_LOCATION = "global/config";
 
     /**
      * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
@@ -83,7 +83,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper);
         this.id = id;
         this.wrapper = wrapper;
-        this.proxy = new ServiceProxy(id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        this.proxy = new ServiceProxy(1000 + id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
     }
 
@@ -179,19 +179,19 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         //If primary changed ask new primary for his global cluster id.
-        if(messageContext.getLeader() != primaryId)
+        if(messageContext.getLeader() != -1 && messageContext.getLeader() != primaryId)
         {
             Log.getLogger().info("Seemed like primary changed, checking on that! at slave: " + id);
             primaryId = messageContext.getLeader();
             final Output localOutput = new Output(0, 512);
             kryo.writeObject(output, Constants.ASK_PRIMARY);
-            proxy.sendMessageToTargets(output.getBuffer(), 0, new int[] {messageContext.getLeader()}, TOMMessageType.UNORDERED_REQUEST);
+            proxy.sendMessageToTargets(localOutput.getBuffer(), 0, new int[] {messageContext.getLeader()}, TOMMessageType.UNORDERED_REQUEST);
             localOutput.close();
         }
 
         byte[] returnValue = output.getBuffer();
 
-        Log.getLogger().info("Return it to client, size: " + returnValue.length);
+        Log.getLogger().info("Return it to sender, size: " + returnValue.length);
 
         input.close();
         output.close();
@@ -309,7 +309,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     private boolean requestRegistering(final ServiceProxy proxy, final Kryo kryo)
     {
-        final ServiceProxy globalProxy = new ServiceProxy(id , "global" + id);
+        final ServiceProxy globalProxy = new ServiceProxy(1000 + id , "global" + id);
 
         final Output output = new Output(0, 100240);
         kryo.writeObject(output, Constants.REGISTER_GLOBALLY_MESSAGE);
@@ -360,6 +360,12 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     private Output handleSlaveUpdateMessage(final Input input, final Output output, final Kryo kryo)
     {
+        //Not required. Is primary already dealt with it.
+        if(wrapper.getGlobalCluster() != null)
+        {
+            return output;
+        }
+
         final String decision = kryo.readObject(input, String.class);
         final long snapShotId = kryo.readObject(input, Long.class);
         final long lastKey = getGlobalSnapshotId();
@@ -390,10 +396,16 @@ public class LocalClusterSlave extends AbstractRecoverable
             return output;
         }
 
-        Input messageInput = new Input(storage.getMessage());
+        if(storage.getMessage() == null || storage.getMessage().length == 0)
+        {
+            Log.getLogger().error("ARGH storage is EMPTY!!!! ARGH");
+        }
+        final Input messageInput = new Input(storage.getMessage());
 
-        kryo.readObject(input, String.class);
-        kryo.readObject(input, Long.class);
+        kryo.readObject(messageInput, String.class);
+        kryo.readObject(messageInput, String.class);
+
+        kryo.readObject(messageInput, Long.class);
         final List writeSet = kryo.readObject(messageInput, ArrayList.class);
         final ArrayList<Operation> localWriteSet;
 
@@ -454,6 +466,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         final Kryo kryo = pool.borrow();
 
         final Input input = new Input(storage.getMessage());
+        kryo.readObject(input, String.class);
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
@@ -465,12 +478,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, snapShotId);
         kryo.writeObject(output, storage);
 
-        byte[] result = null;
-
-        while(result == null || result.length == 0)
-        {
-            result = proxy.invokeUnordered(output.getBuffer());
-        }
+        byte[] result = proxy.invokeUnordered(output.getBuffer());
 
         if(Constants.COMMIT.equals(decision))
         {

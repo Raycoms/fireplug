@@ -108,7 +108,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if(localClusterId != -1)
         {
-            globalProxy = new ServiceProxy(getProcessId(), "global/config");
+            globalProxy = new ServiceProxy(1000 + getProcessId(), "global/config");
         }
 
         secureMode = true;

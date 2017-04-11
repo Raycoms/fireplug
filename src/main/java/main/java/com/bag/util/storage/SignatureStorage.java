@@ -14,7 +14,7 @@ public class SignatureStorage implements Serializable
     /**
      * The message which has been signed with the signatures.
      */
-    private final byte[] message;
+    private byte[] message;
 
     /**
      * The stored signatures.
@@ -24,12 +24,22 @@ public class SignatureStorage implements Serializable
     /**
      * The required amount to prove consistency.
      */
-    private final int requiredSignatures;
+    private int requiredSignatures;
 
     /**
      * The decision of the message.
      */
-    private final String decision;
+    private String decision;
+
+    /**
+     * Standard constructor for kryo.
+     */
+    public SignatureStorage()
+    {
+        /*
+         * Standard constructor empty on purpose.
+         */
+    }
 
     /**
      * Public constructor to create the storage.
