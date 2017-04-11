@@ -233,6 +233,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     private void signCommitWithDecisionAndDistribute(final List<Operation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo)
     {
+        Log.getLogger().info("Sending signed commit to the others");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(this.id, GLOBAL_CONFIG_LOCATION, false);
 
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
@@ -454,14 +455,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        Log.getLogger().info("Server: " + id + "Received message to sign with snapShotId: "
-                + snapShotId + "of Server"
+        Log.getLogger().info("Server: " + id + " Received message to sign with snapShotId: "
+                + snapShotId + " of Server "
                 + messageContext.getSender()
                 + " and decision: " + decision
                 + " and a writeSet of the length of: " + localWriteSet.size());
 
 
-        final int signatureLength = kryo.readObject(input, Integer.class);;
+        final int signatureLength = kryo.readObject(input, Integer.class);
         final byte[] signature = input.readBytes(signatureLength);
 
 
@@ -477,6 +478,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
+        //todo something going wrong here, message is wrong? verify fails?
         final byte[] message = new byte[input.getBuffer().length - signatureLength];
         System.arraycopy(message, 0, input.getBuffer(), 0, input.getBuffer().length - signatureLength);
 
@@ -484,7 +486,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if(signatureMatches)
         {
+            Log.getLogger().info("Signature matches storing it.");
             storeSignedMessage(snapShotId, signature, messageContext, decision);
+        }
+        else
+        {
+            Log.getLogger().info("Signature doesn't match of message, throwing message away.");
         }
 
         input.close();
@@ -518,6 +525,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if(signatureStorage.hasEnough())
         {
+            Log.getLogger().info("Sending update to slave signed by all members.");
             updateSlave(signatureStorage);
             signatureStorageMap.remove(snapShotId);
             return;

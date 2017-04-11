@@ -168,12 +168,21 @@ public class ServerWrapper
      */
     public static void main(String [] args)
     {
-        //todo all ids are globally unique.
+
+        /*
+         * The server arguments are:
+         * serverId (unique in global cluster), instance (db to use, neo4j etc), id in localCluster, actsInGlobalCluster (p.e if is primary),
+         * id of primary of local cluster (id of local cluster)
+         * , use Logging (true of false)
+         *
+         * 0 neo4j 0 0 true true
+         */
         final int serverId;
         final String instance;
-        final boolean actsInGlobalCluster;
         final int localClusterSlaveId;
         final int idOfPrimary;
+
+        final boolean actsInGlobalCluster;
 
         if (args.length <= 3)
         {

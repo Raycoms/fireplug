@@ -364,6 +364,8 @@ public class LocalClusterSlave extends AbstractRecoverable
         final long snapShotId = kryo.readObject(input, Long.class);
         final long lastKey = getGlobalSnapshotId();
 
+        Log.getLogger().info("Received update slave message with decision: " + decision);
+
         if(lastKey > snapShotId)
         {
             Log.getLogger().warn("Something went incredibly wrong. Transaction has been executed even with a missing one at local cluster: " + wrapper.getLocalClusterSlaveId());
@@ -427,6 +429,8 @@ public class LocalClusterSlave extends AbstractRecoverable
                 return output;
             }
         }
+
+        Log.getLogger().info("Correct signatures detected, started to commit now!");
 
         if(lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {

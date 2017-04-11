@@ -210,7 +210,6 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         }
         else
         {
-
             access = new Neo4jDatabaseAccess(id, haAddresses);
         }
 

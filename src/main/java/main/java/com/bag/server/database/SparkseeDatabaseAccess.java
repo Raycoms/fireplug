@@ -11,7 +11,6 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -62,12 +61,16 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         sparksee.close();
     }
 
-    public List<Long> loadNodesAsIdList(Graph graph, NodeStorage node) {
+    public List<Long> loadNodesAsIdList(Graph graph, NodeStorage node)
+    {
         List<Long> ids = new ArrayList<>();
         Objects objects = findNode(graph, node);
-        if (objects != null) {
+        if (objects != null)
+        {
             for (Long nodeId : objects)
+            {
                 ids.add(nodeId);
+            }
 
             objects.close();
         }
@@ -104,31 +107,68 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         {
             final NodeStorage startNode = relationshipStorage.getStartNode();
             final NodeStorage endNode = relationshipStorage.getEndNode();
-
-            final List<Long> objsStart = loadNodesAsIdList(graph, startNode);
             final List<Long> objsEnd = loadNodesAsIdList(graph, endNode);
 
-            //Sparkee, can't search for node or relationship without it's type set!
-            int relationshipTypeId = graph.findType(relationshipStorage.getId());
-
-            for (long localStartNodeId : objsStart)
+            if(relationshipStorage.getStartNode().getProperties().isEmpty())
             {
+                //Sparkee can't search for node or relationship without it's type set!
+                int relationshipTypeId = graph.findType(relationshipStorage.getId());
+
                 for (long localEndNodeId : objsEnd)
                 {
-                    final long edgeId = graph.findEdge(relationshipTypeId, localStartNodeId, localEndNodeId);
-                    if (edgeId == 0)
-                        continue;
+                    final Objects connected = graph.neighbors(localEndNodeId, relationshipTypeId, EdgesDirection.Ingoing);
 
-                    final RelationshipStorage storage = getRelationshipFromRelationshipId(graph, edgeId);
-
-                    if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                    if (connected.isEmpty())
                     {
-                        final Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                        OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
-                        storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                        connected.close();
+                        continue;
                     }
 
-                    returnStorage.add(storage);
+                    final ObjectsIterator iterator = connected.iterator();
+
+                    while(iterator.hasNext())
+                    {
+                        final RelationshipStorage storage = getRelationshipFromRelationshipId(graph, iterator.next());
+
+                        if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        {
+                            final Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
+                            storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                        }
+
+                        returnStorage.add(storage);
+                    }
+                    iterator.close();
+                    connected.close();
+                }
+            }
+            else
+            {
+                final List<Long> objsStart = loadNodesAsIdList(graph, startNode);
+
+                //Sparkee, can't search for node or relationship without it's type set!
+                int relationshipTypeId = graph.findType(relationshipStorage.getId());
+
+                for (long localStartNodeId : objsStart)
+                {
+                    for (long localEndNodeId : objsEnd)
+                    {
+                        final long edgeId = graph.findEdge(relationshipTypeId, localStartNodeId, localEndNodeId);
+                        if (edgeId == 0)
+                            continue;
+
+                        final RelationshipStorage storage = getRelationshipFromRelationshipId(graph, edgeId);
+
+                        if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        {
+                            final Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
+                            storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                        }
+
+                        returnStorage.add(storage);
+                    }
                 }
             }
         }

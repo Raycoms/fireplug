@@ -106,7 +106,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     {
         super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId));
 
-        if(localClusterId == -1)
+        if(localClusterId != -1)
         {
             globalProxy = new ServiceProxy(getProcessId(), "global/config");
         }
