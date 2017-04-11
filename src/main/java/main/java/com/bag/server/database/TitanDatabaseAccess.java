@@ -1,9 +1,6 @@
 package main.java.com.bag.server.database;
 
-import com.thinkaurelius.titan.core.PropertyKey;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanVertex;
+import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
@@ -94,9 +91,10 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
         ArrayList<Object> returnStorage =  new ArrayList<>();
 
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
+
             GraphTraversalSource g = graph.traversal();
 
             //If nodeStorage is null, we're obviously trying to read relationships.
@@ -111,7 +109,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
 
 
@@ -280,9 +278,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             start();
         }
 
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
             GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(nodeStorage.getId());
 
@@ -306,7 +304,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
 
         return true;
@@ -315,9 +313,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
     {
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
 
             //Can't change label in titan!
@@ -343,7 +341,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
         Log.getLogger().info("Successfully executed update node transaction in server:  " + id);
 
@@ -353,10 +351,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyCreate(final NodeStorage storage, final long snapshotId)
     {
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
-
             TitanVertex vertex = graph.addVertex(storage.getId());
             for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
             {
@@ -372,7 +369,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
         Log.getLogger().info("Successfully executed create node transaction in server:  " + id);
         return true;
@@ -381,9 +378,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyDelete(final NodeStorage storage, final long snapshotId)
     {
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
 
             GraphTraversal<Vertex, Vertex> tempNode = getVertexList(storage, g);
@@ -400,7 +397,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
         Log.getLogger().info("Successfully executed delete node transaction in server:  " + id);
         return true;
@@ -409,9 +406,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
     {
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
 
             GraphTraversal<Vertex, Vertex> startNode = getVertexList(key.getStartNode(), g);
@@ -460,7 +457,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
         Log.getLogger().info("Successfully executed update relationship transaction in server:  " + id);
         return true;
@@ -469,9 +466,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
     {
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
 
             GraphTraversal<Vertex, Vertex> startNode = getVertexList(storage.getStartNode(), g);
@@ -501,7 +498,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
         Log.getLogger().info("Successfully executed create relationship transaction in server:  " + id);
         return true;
@@ -510,9 +507,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyDelete(final RelationshipStorage storage, final long snapshotId)
     {
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
 
             ArrayList<Vertex> nodeStartList = getVertexList(storage.getStartNode(), g, snapshotId);
@@ -540,7 +537,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
         Log.getLogger().info("Successfully executed delete relationship transaction in server:  " + id);
         return true;
@@ -559,9 +556,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             start();
         }
 
+        TitanTransaction tx = graph.newTransaction();
         try
         {
-            graph.newTransaction();
             GraphTraversalSource g = graph.traversal();
             GraphTraversal<Vertex, Vertex> tempOutput = g.V().hasLabel(relationshipStorage.getId());
 
@@ -585,7 +582,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            graph.tx().commit();
+            tx.commit();
         }
 
         return true;
