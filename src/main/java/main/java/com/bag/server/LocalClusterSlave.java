@@ -165,8 +165,10 @@ public class LocalClusterSlave extends AbstractRecoverable
                 break;
             case Constants.UPDATE_SLAVE:
                 Log.getLogger().info("Received update slave message");
-                output = handleSlaveUpdateMessage(input, output, kryo);
-                 break;
+                handleSlaveUpdateMessage(input, output, kryo);
+                output.close();
+                input.close();
+                return new byte[0];
             case Constants.ASK_PRIMARY:
                 Log.getLogger().info("Received Ask primary notice message");
                 notifyAllSlavesAboutNewPrimary(kryo);
@@ -358,12 +360,12 @@ public class LocalClusterSlave extends AbstractRecoverable
         return output;
     }
 
-    private Output handleSlaveUpdateMessage(final Input input, final Output output, final Kryo kryo)
+    private void handleSlaveUpdateMessage(final Input input, final Output output, final Kryo kryo)
     {
         //Not required. Is primary already dealt with it.
         if(wrapper.getGlobalCluster() != null)
         {
-            return output;
+            return;
         }
 
         final String decision = kryo.readObject(input, String.class);
@@ -375,13 +377,13 @@ public class LocalClusterSlave extends AbstractRecoverable
         if(lastKey > snapShotId)
         {
             Log.getLogger().warn("Something went incredibly wrong. Transaction has been executed even with a missing one at local cluster: " + wrapper.getLocalClusterSlaveId());
-            return output;
+            return;
         }
         else if(lastKey == snapShotId)
         {
             Log.getLogger().info("Received already committed transaction.");
             kryo.writeObject(output, true);
-            return output;
+            return;
         }
 
         final SignatureStorage storage;
@@ -393,13 +395,9 @@ public class LocalClusterSlave extends AbstractRecoverable
         catch (ClassCastException exp)
         {
             Log.getLogger().warn("Unable to cast to SignatureStorage, something went wrong badly.", exp);
-            return output;
+            return;
         }
 
-        if(storage.getMessage() == null || storage.getMessage().length == 0)
-        {
-            Log.getLogger().error("ARGH storage is EMPTY!!!! ARGH");
-        }
         final Input messageInput = new Input(storage.getMessage());
 
         kryo.readObject(messageInput, String.class);
@@ -418,13 +416,13 @@ public class LocalClusterSlave extends AbstractRecoverable
         catch (ClassCastException e)
         {
             Log.getLogger().warn("Couldn't convert received signature message.", e);
-            return output;
+            return;
         }
 
-        boolean signatureMatches;
+        boolean signatureMatches = false;
         for(Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
         {
-            final RSAKeyLoader rsaLoader = new RSAKeyLoader(1000 + entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
+            final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
             try
             {
                 signatureMatches = TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue());
@@ -438,22 +436,25 @@ public class LocalClusterSlave extends AbstractRecoverable
             if(!signatureMatches)
             {
                 Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
-                return output;
+                return;
+            }
+            else
+            {
+                Log.getLogger().info("Signature matches of server: " + entry.getKey());
             }
         }
 
-        Log.getLogger().info("Correct signatures detected, started to commit now!");
+        Log.getLogger().info("All signatures are correct, started to commit now!");
 
         if(lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
             executeCommit(localWriteSet);
             kryo.writeObject(output, true);
-            return output;
+            return;
         }
 
         //TODO We might request the missing message here?
         Log.getLogger().warn("Something went wrong, missing a message");
-        return output;
     }
 
     /**
@@ -467,7 +468,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         final Input input = new Input(storage.getMessage());
         kryo.readObject(input, String.class);
-        //todo this is crashing again?
+
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
@@ -479,7 +480,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, snapShotId);
         kryo.writeObject(output, storage);
 
-        byte[] result = proxy.invokeUnordered(output.getBuffer());
+        byte[] result = null;
+        while(result == null)
+        {
+            result = proxy.invokeUnordered(output.getBuffer());
+        }
 
         if(Constants.COMMIT.equals(decision))
         {
@@ -517,7 +522,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, oldPrimary);
         kryo.writeObject(output, newPrimary);
 
-        byte[] result = proxy.invokeOrdered(output.getBuffer());
+        byte[] result = proxy.invokeUnordered(output.getBuffer());
 
         final Input input = new Input(result);
         if(Constants.REGISTER_GLOBALLY_MESSAGE.equals(kryo.readObject(input, String.class)) && kryo.readObject(input, Boolean.class))
