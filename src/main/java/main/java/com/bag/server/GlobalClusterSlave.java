@@ -263,7 +263,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signatureStorageMap.put(snapShotId, signatureStorage);
         }
 
-        signatureStorage.addSignatures(id, bytes);
+        signatureStorage.addSignatures(id + 1000, bytes);
 
         kryo.writeObject(output, output.toBytes().length);
         kryo.writeObject(output, bytes.length);
