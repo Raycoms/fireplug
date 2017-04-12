@@ -54,13 +54,16 @@ public class MultipleClientRunner
     /**
      * Run defined number of clients.
      * @param option (if bag or direct)
-     * @param initialClient first client id
-     * @param finalClient last client id
+     * @param processId id of the process, shold be unique for each process starting with zero
+     * @param numOfClients number of clients to start (the ids will be generated according to processId,
+     *                     (ex.: processId=0,numOfClients=3 will span clients 0, 1, 2
+     *                           processId=1,numOfClients=3 will span clients 3, 4, 5)
      * @param percOfWrites percentage of writes
-     * @param amountsOfServers amount of servers to contact
+     * @param numOfServers amount of servers to contact. If <= 0 will only this server will be used (after an abs)
      * @param addresses addresses of servers to contact.
      */
-    private void runClients(final String option, final int initialClient, final int finalClient, final double percOfWrites, final int amountsOfServers, final String addresses)
+    private void runClients(final String option, final int processId, final int numOfClients, final double percOfWrites,
+                            final int numOfServers, final String addresses)
     {
         try
         {
@@ -73,21 +76,23 @@ public class MultipleClientRunner
                 directAddresses = addresses.split(",");
             }
 
-            for (int i = initialClient; i <= finalClient; i++)
+            int clientId = processId * numOfClients;
+
+            for (int i = 0; i < numOfClients; i++)
             {
-                int serverPartner = i % amountsOfServers;
+                int serverPartner = numOfServers <= 0 ? Math.abs(numOfServers) : clientId % numOfServers;
                 String cmd;
                 if (option.equals("bag"))
                 {
                     cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests true %d -1 %d %s",
-                            serverPartner, i, String.valueOf(percOfWrites).replace(',', '.'));
+                            serverPartner, clientId, String.valueOf(percOfWrites).replace(',', '.'));
                 }
                 else if (option.equals("direct"))
                 {
                     serverPartner = i % directAddresses.length;
                     String[] address = directAddresses[serverPartner].split(":");
                     cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests false %s %s %d %s",
-                            address[0], address[1], i, String.valueOf(percOfWrites).replace(',', '.'));
+                            address[0], address[1], clientId, String.valueOf(percOfWrites).replace(',', '.'));
                 }
                 else
                 {
@@ -101,9 +106,10 @@ public class MultipleClientRunner
                 Process proc = pb.start();*/
                 Process proc = Runtime.getRuntime().exec(cmd);
 
-                OutputPrinter printer = new MultipleClientRunner.OutputPrinter("Client " + i, proc.getInputStream());
+                OutputPrinter printer = new MultipleClientRunner.OutputPrinter("Client " + clientId, proc.getInputStream());
                 printer.start();
                 procs.add(proc);
+                clientId += 1;
                 Thread.sleep(rnd.nextInt(200));
             }
 
@@ -122,18 +128,25 @@ public class MultipleClientRunner
 
     public static void main(String[] args)
     {
+        if (args.length < 5)
+        {
+            System.out.println("Usage - BAG: MultipleClientRunner bag processId numOfClientsToRun percOfWrites numOfServers");
+            System.out.println("Usage - Direct: MultipleClientRunner bag processId numOfClientsToRun percOfWrites numOfServers addressesSeparatedByCommas");
+            System.out.println("Each process should have an unique processId. The ids of the clients will be generated according to the processId");
+        }
+
         String opt = args[0];
         String address = null;
-        int initialClient = Integer.parseInt(args[1]);
-        int finalClient = Integer.parseInt(args[2]);
+        int processId = Integer.parseInt(args[1]);
+        int numOfClients = Integer.parseInt(args[2]);
         double percOfWrites = Double.parseDouble(args[3]);
-        int amountOfServers = Integer.parseInt(args[4]);
+        int numOfServers = Integer.parseInt(args[4]);
         if (args.length > 5)
         {
             address = args[5];
         }
 
         MultipleClientRunner runner = new MultipleClientRunner();
-        runner.runClients(opt, initialClient, finalClient, percOfWrites, amountOfServers, address);
+        runner.runClients(opt, processId, numOfClients, percOfWrites, numOfServers, address);
     }
 }
