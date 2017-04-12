@@ -523,7 +523,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
             signatureStorageMap.put(snapShotId, signatureStorage);
-            Log.getLogger().warn("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted.");
+            Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted.");
         }
         else
         {
