@@ -261,7 +261,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signatureStorage = signatureStorageMap.get(getGlobalSnapshotId());
             if(signatureStorage.getMessage().length != output.toBytes().length)
             {
-                throw new RuntimeException("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + output.toBytes());
+                throw new RuntimeException("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + output.toBytes().length);
             }
         }
         else
