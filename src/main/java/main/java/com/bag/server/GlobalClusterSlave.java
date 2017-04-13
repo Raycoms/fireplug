@@ -303,6 +303,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             return;
         }
+        final byte[] buffer = input.getBuffer();
 
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
@@ -347,7 +348,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         final byte[] message = new byte[messageLength];
-        System.arraycopy(input.getBuffer(), 0, message , 0, messageLength);
+        System.arraycopy(buffer, 0, message , 0, messageLength);
 
         boolean signatureMatches = TOMUtil.verifySignature(key, message, signature);
         if(signatureMatches)
