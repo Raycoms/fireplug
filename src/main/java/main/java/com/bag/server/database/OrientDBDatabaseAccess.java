@@ -40,6 +40,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
 
     /**
      * Constructor which sets the id of the server already.
+     *
      * @param id sets the id.
      */
     public OrientDBDatabaseAccess(final int id)
@@ -50,13 +51,14 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        Log.getLogger().warn("Starting OrientDB database service on " + id);
+        Log.getLogger().warn("Starting OrientDB database service on " + this.id);
 
-        factory = new OrientGraphFactory(BASE_PATH).setupPool(1,10);
+        factory = new OrientGraphFactory(BASE_PATH + this.id).setupPool(1, 10);
     }
 
     /**
      * Creates a transaction which will get a list of nodes.
+     *
      * @param identifier the nodes which should be retrieved.
      * @return the result nodes as a List of NodeStorages..
      */
@@ -65,13 +67,13 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     public List<Object> readObject(@NotNull Object identifier, long snapshotId) throws OutDatedDataException
     {
         NodeStorage nodeStorage = null;
-        RelationshipStorage relationshipStorage =  null;
+        RelationshipStorage relationshipStorage = null;
 
-        if(identifier instanceof NodeStorage)
+        if (identifier instanceof NodeStorage)
         {
             nodeStorage = (NodeStorage) identifier;
         }
-        else if(identifier instanceof RelationshipStorage)
+        else if (identifier instanceof RelationshipStorage)
         {
             relationshipStorage = (RelationshipStorage) identifier;
         }
@@ -81,24 +83,24 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             return Collections.emptyList();
         }
 
-        if(factory == null)
+        if (factory == null)
         {
             start();
         }
 
-        final ArrayList<Object> returnStorage =  new ArrayList<>();
+        final ArrayList<Object> returnStorage = new ArrayList<>();
 
         final OrientGraph graph = factory.getTx();
         try
         {
             //If nodeStorage is null, we're obviously trying to read relationships.
-            if(nodeStorage == null)
+            if (nodeStorage == null)
             {
                 final String relationshipId = "class:" + relationshipStorage.getId();
                 final Iterable<Vertex> endNodes = getVertexList(relationshipStorage.getEndNode(), graph);
 
                 final List<Edge> list;
-                if(relationshipStorage.getStartNode().getProperties().isEmpty())
+                if (relationshipStorage.getStartNode().getProperties().isEmpty())
                 {
                     list = StreamSupport.stream(endNodes.spliterator(), false)
                             .flatMap(vertex1 -> StreamSupport.stream(vertex1.getEdges(Direction.IN, relationshipId).spliterator(), false))
@@ -112,7 +114,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                             .filter(edge -> StreamSupport.stream(startNodes.spliterator(), false).anyMatch(vertex -> edge.getVertex(Direction.OUT).equals(vertex)))
                             .collect(Collectors.toList());
                 }
-                for(final Edge edge: list)
+                for (final Edge edge : list)
                 {
                     final RelationshipStorage tempStorage = getRelationshipStorageFromEdge(edge, snapshotId);
                     returnStorage.add(tempStorage);
@@ -123,12 +125,11 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                 for (final Vertex tempVertex : getVertexList(nodeStorage, graph))
                 {
                     final NodeStorage tempStorage = getNodeStorageFromVertex(tempVertex);
-                    if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                    if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                     {
-                        final Object localSId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        final Object localSId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                         OutDatedDataException.checkSnapshotId(localSId, snapshotId);
                         tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
-
                     }
                     returnStorage.add(tempStorage);
                 }
@@ -144,13 +145,15 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
 
     /**
      * Generated a RelationshipStorage from an Edge.
-     * @param edge the base edge.
+     *
+     * @param edge       the base edge.
      * @param snapshotId the snapshot id.
      * @return the relationshipStorage.
      */
     private RelationshipStorage getRelationshipStorageFromEdge(Edge edge, long snapshotId) throws OutDatedDataException
     {
-        RelationshipStorage tempStorage = new RelationshipStorage(edge.getLabel(), getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
+        RelationshipStorage tempStorage =
+                new RelationshipStorage(edge.getLabel(), getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
         for (String key : edge.getPropertyKeys())
         {
             if (key.equals(Constants.TAG_SNAPSHOT_ID))
@@ -166,6 +169,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
 
     /**
      * Generated a NodeStorage from a Vertex.
+     *
      * @param tempVertex the base vertex.
      * @return the nodeStorage.
      */
@@ -181,20 +185,21 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
 
     /**
      * Returns a list of vertices from the database matching the nodeStorage.
+     *
      * @param nodeStorage the nodeStorage.
-     * @param graph the graph database.
+     * @param graph       the graph database.
      * @return a list of vertices.
      */
     private Iterable<Vertex> getVertexList(final NodeStorage nodeStorage, final OrientGraph graph)
     {
-        final String[] propertyKeys   = nodeStorage.getProperties().keySet().toArray(new String[0]);
+        final String[] propertyKeys = nodeStorage.getProperties().keySet().toArray(new String[0]);
         final Object[] propertyValues = nodeStorage.getProperties().values().toArray();
 
         try
         {
             return graph.getVertices(nodeStorage.getId(), propertyKeys, propertyValues);
         }
-        catch(OQueryParsingException e)
+        catch (OQueryParsingException e)
         {
             Log.getLogger().info(String.format("Class %s doesn't exist.", nodeStorage.getId()), e);
             return Collections.emptyList();
@@ -210,16 +215,16 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         factory.close();
     }
 
-
     /**
      * Compares a nodeStorage with the node inside the db to check if correct.
+     *
      * @param nodeStorage the node to compare
      * @return true if equal hash, else false.
      */
     @Override
     public boolean compareNode(final NodeStorage nodeStorage)
     {
-        if(factory == null)
+        if (factory == null)
         {
             start();
         }
@@ -233,7 +238,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                 return HashCreator.sha1FromNode(nodeStorage).equals(tempVertex.getProperty("hash"));
             }
         }
-        catch(NoSuchAlgorithmException e)
+        catch (NoSuchAlgorithmException e)
         {
             Log.getLogger().warn("Failed at generating hash in server " + id, e);
         }
@@ -284,7 +289,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         final OrientGraph graph = factory.getTx();
         try
         {
-            if(graph.getVertexType(storage.getId()) == null)
+            if (graph.getVertexType(storage.getId()) == null)
             {
                 graph.createVertexType(storage.getId());
                 graph.createKeyIndex("idx", Vertex.class);
@@ -370,7 +375,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
     {
-        if(factory.getNoTx().getEdgeType(storage.getId()) == null)
+        if (factory.getNoTx().getEdgeType(storage.getId()) == null)
         {
             factory.getNoTx().createEdgeType(storage.getId());
         }
@@ -441,6 +446,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
 
     /**
      * Compares a nodeStorage with the node inside the db to check if correct.
+     *
      * @param relationshipStorage the node to compare
      * @return true if equal hash, else false.
      */
