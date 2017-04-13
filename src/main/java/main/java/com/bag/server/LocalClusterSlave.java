@@ -419,30 +419,32 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        boolean signatureMatches = false;
+        boolean signatureMatches = true;
         for(Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
         {
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
             try
             {
-                signatureMatches = TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue());
+                if(!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
+                {
+                    Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
+                    signatureMatches = false;
+                }
+                else
+                {
+                    Log.getLogger().info("Signature matches of server: " + entry.getKey());
+                }
             }
             catch (Exception e)
             {
                 signatureMatches = false;
                 Log.getLogger().warn("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
             }
+        }
 
-            if(!signatureMatches)
-            {
-                Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
-                Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
-                return;
-            }
-            else
-            {
-                Log.getLogger().info("Signature matches of server: " + entry.getKey());
-            }
+        if(!signatureMatches)
+        {
+            Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
         }
 
         Log.getLogger().info("All signatures are correct, started to commit now!");
