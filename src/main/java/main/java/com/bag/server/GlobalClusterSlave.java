@@ -534,6 +534,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         else
         {
             signatureStorage = signatureStorageMap.get(snapShotId);
+
+            if(signatureStorage.getMessage().length != message.length)
+            {
+                throw new RuntimeException("AAAHH that Message sizes are wrong!");
+            }
         }
 
         if(!decision.equals(signatureStorage.getDecision()))
@@ -543,7 +548,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         signatureStorage.addSignatures(context.getSender(), signature);
 
-        Log.getLogger().info("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size());
+        Log.getLogger().info("Adding signature to signatureStorage");
 
         if(signatureStorage.hasEnough())
         {
