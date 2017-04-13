@@ -97,4 +97,13 @@ public class SignatureStorage implements Serializable
     {
         return this.decision;
     }
+
+    /**
+     * Set the message of the signature storage.
+     * @param message to set.
+     */
+    public void setMessage(final byte[] message)
+    {
+        this.message = message;
+    }
 }
