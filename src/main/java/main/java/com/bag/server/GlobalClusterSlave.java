@@ -357,6 +357,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         Log.getLogger().warn("Signature doesn't match of message, throwing message away.");
+        throw new RuntimeException("Signature doesn#t match");
     }
 
     @Override
