@@ -98,107 +98,119 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             return Collections.emptyList();
         }
 
-        Session sess = db.newSession();
-        Graph graph = sess.getGraph();
-
         ArrayList<Object> returnStorage = new ArrayList<>();
 
-        if (nodeStorage == null)
+        Session sess = db.newSession();
+        Graph graph = sess.getGraph();
+        try
         {
-            final NodeStorage startNode = relationshipStorage.getStartNode();
-            final NodeStorage endNode = relationshipStorage.getEndNode();
-            final List<Long> objsEnd = loadNodesAsIdList(graph, endNode);
-
-            if(relationshipStorage.getStartNode().getProperties().isEmpty())
+            if (nodeStorage == null)
             {
-                //Sparkee can't search for node or relationship without it's type set!
-                int relationshipTypeId = graph.findType(relationshipStorage.getId());
+                final NodeStorage startNode = relationshipStorage.getStartNode();
+                final NodeStorage endNode = relationshipStorage.getEndNode();
+                final List<Long> objsEnd = loadNodesAsIdList(graph, endNode);
 
-                for (long localEndNodeId : objsEnd)
+                if (relationshipStorage.getStartNode().getProperties().isEmpty())
                 {
-                    final Objects connected = graph.explode(localEndNodeId, relationshipTypeId, EdgesDirection.Ingoing);
+                    //Sparkee can't search for node or relationship without it's type set!
+                    int relationshipTypeId = graph.findType(relationshipStorage.getId());
 
-                    if (connected.isEmpty())
+                    for (long localEndNodeId : objsEnd)
                     {
-                        connected.close();
-                        continue;
-                    }
+                        final Objects connected = graph.explode(localEndNodeId, relationshipTypeId, EdgesDirection.Ingoing);
 
-                    final ObjectsIterator iterator = connected.iterator();
-
-                    while(iterator.hasNext())
-                    {
-                        final RelationshipStorage storage = getRelationshipFromRelationshipId(graph, iterator.next());
-
-                        if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        if (connected.isEmpty())
                         {
-                            final Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                            OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
-                            storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                            connected.close();
+                            continue;
                         }
 
-                        returnStorage.add(storage);
+                        final ObjectsIterator iterator = connected.iterator();
+                        try
+                        {
+                            while (iterator.hasNext())
+                            {
+                                final RelationshipStorage storage = getRelationshipFromRelationshipId(graph, iterator.next());
+
+                                if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                                {
+                                    final Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                                    OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
+                                    storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                                }
+
+                                returnStorage.add(storage);
+                            }
+                        }
+                        finally
+                        {
+                            iterator.close();
+                            connected.close();
+                        }
                     }
-                    iterator.close();
-                    connected.close();
+                }
+                else
+                {
+                    final List<Long> objsStart = loadNodesAsIdList(graph, startNode);
+
+                    //Sparkee, can't search for node or relationship without it's type set!
+                    int relationshipTypeId = graph.findType(relationshipStorage.getId());
+
+                    for (long localStartNodeId : objsStart)
+                    {
+                        for (long localEndNodeId : objsEnd)
+                        {
+                            final long edgeId = graph.findEdge(relationshipTypeId, localStartNodeId, localEndNodeId);
+                            if (edgeId == 0)
+                                continue;
+
+                            final RelationshipStorage storage = getRelationshipFromRelationshipId(graph, edgeId);
+
+                            if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                            {
+                                final Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                                OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
+                                storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                            }
+
+                            returnStorage.add(storage);
+                        }
+                    }
                 }
             }
             else
             {
-                final List<Long> objsStart = loadNodesAsIdList(graph, startNode);
+                Objects objs = findNode(graph, nodeStorage);
 
-                //Sparkee, can't search for node or relationship without it's type set!
-                int relationshipTypeId = graph.findType(relationshipStorage.getId());
-
-                for (long localStartNodeId : objsStart)
+                if (objs == null)
                 {
-                    for (long localEndNodeId : objsEnd)
+                    return Collections.emptyList();
+                }
+                try
+                {
+                    for (final Long nodeId : objs)
                     {
-                        final long edgeId = graph.findEdge(relationshipTypeId, localStartNodeId, localEndNodeId);
-                        if (edgeId == 0)
-                            continue;
+                        NodeStorage tempStorage = getNodeFromNodeId(graph, nodeId);
 
-                        final RelationshipStorage storage = getRelationshipFromRelationshipId(graph, edgeId);
-
-                        if (storage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                         {
-                            final Object sId = storage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            Object sId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                             OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
-                            storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                            tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
-
-                        returnStorage.add(storage);
+                        returnStorage.add(tempStorage);
                     }
                 }
-            }
-        }
-        else
-        {
-            Objects objs = findNode(graph, nodeStorage);
-
-            if (objs == null)
-            {
-                sess.close();
-                return Collections.emptyList();
-            }
-
-            for (final Long nodeId : objs)
-            {
-                NodeStorage tempStorage = getNodeFromNodeId(graph, nodeId);
-
-                if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                finally
                 {
-                    Object sId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                    OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
-                    tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                    objs.close();
                 }
-                returnStorage.add(tempStorage);
             }
-
-            objs.close();
         }
-
-        sess.close();
+        finally
+        {
+            sess.close();
+        }
 
         return returnStorage;
     }
