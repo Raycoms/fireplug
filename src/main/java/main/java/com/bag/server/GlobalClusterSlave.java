@@ -208,7 +208,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
+            {
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
+            }
         }
         else
         {
@@ -257,9 +259,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if(signatureStorageMap.containsKey(getGlobalSnapshotId()))
         {
             signatureStorage = signatureStorageMap.get(getGlobalSnapshotId());
+            if(signatureStorage.getMessage().length != output.toBytes().length)
+            {
+                throw new RuntimeException("AAAHH that Message sizes are wrong!");
+            }
         }
         else
         {
+            Log.getLogger().info("Size of message stored is: " + output.toBytes().length);
             signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, output.toBytes(), decision);
             signatureStorageMap.put(snapShotId, signatureStorage);
         }
@@ -350,7 +357,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         Log.getLogger().warn("Signature doesn't match of message, throwing message away.");
-
     }
 
     @Override
@@ -523,7 +529,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
             signatureStorageMap.put(snapShotId, signatureStorage);
-            Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted.");
+            Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
         }
         else
         {
