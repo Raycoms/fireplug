@@ -435,6 +435,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             if(!signatureMatches)
             {
+                Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
                 Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
                 return;
             }
