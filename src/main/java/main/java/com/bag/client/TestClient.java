@@ -525,7 +525,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        final Output output = new Output(0, 200024);
+        final Output output = new Output(0, 400024);
 
         kryo.writeObject(output, Constants.COMMIT_MESSAGE);
         //Write the timeStamp to the server
