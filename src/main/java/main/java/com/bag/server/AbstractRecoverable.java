@@ -104,9 +104,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         globalWriteSet = new TreeMap<>();
 
-        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
-            final BufferedWriter bw = new BufferedWriter(file);
-            final PrintWriter out = new PrintWriter(bw))
+        try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
+             final BufferedWriter bw = new BufferedWriter(file);
+             final PrintWriter out = new PrintWriter(bw))
         {
             out.println();
             out.println("Starting new experiment: ");
@@ -125,7 +125,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
     }
 
-    public void updateCounts(int writes, int reads, int commits, int aborts) {
+    public void updateCounts(int writes, int reads, int commits, int aborts)
+    {
         instrumentation.updateCounts(writes, reads, commits, aborts);
     }
 
@@ -182,15 +183,17 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Read the specific data of a local or global cluster.
+     *
      * @param input object to read from.
-     * @param kryo kryo object.
+     * @param kryo  kryo object.
      */
     abstract void readSpecificData(final Input input, final Kryo kryo);
 
     /**
      * Write the specific data of a local or global cluster.
+     *
      * @param output object to write to.
-     * @param kryo kryo object.
+     * @param kryo   kryo object.
      */
     abstract void writeSpecificData(final Output output, final Kryo kryo);
 
@@ -335,9 +338,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Handles the relationship read message and requests it to the database.
      *
-     * @param input          get info from.
-     * @param kryo           kryo object.
-     * @param output         write info to.
+     * @param input  get info from.
+     * @param kryo   kryo object.
+     * @param output write info to.
      * @return output object to return to client.
      */
     public Output handleRelationshipRead(final Input input, final Kryo kryo, final Output output)
@@ -407,17 +410,19 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Execute the commit on the replica.
+     *
      * @param localWriteSet the write set to execute.
      */
-    public long executeCommit(final List<Operation> localWriteSet)
+    public void executeCommit(final List<Operation> localWriteSet)
     {
-        long currentSnapshot;
+        final long currentSnapshot;
         synchronized (commitLock)
         {
             ++globalSnapshotId;
             currentSnapshot = globalSnapshotId;
             //Execute the transaction.
-            for (Operation op : localWriteSet) {
+            for (Operation op : localWriteSet)
+            {
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
                 updateCounts(1, 0, 0, 0);
             }
@@ -427,11 +432,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             this.globalWriteSet.put(currentSnapshot, localWriteSet);
         }
         updateCounts(0, 0, 1, 0);
-        return currentSnapshot;
     }
 
     /**
      * Getter for the service replica.
+     *
      * @return instance of the service replica
      */
     public ServiceReplica getReplica()
@@ -441,6 +446,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Getter for the global snapshotId.
+     *
      * @return the snapshot id.
      */
     public long getGlobalSnapshotId()
@@ -450,6 +456,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Get a copy of the global writeSet.
+     *
      * @return a hashmap of all the operations with their snapshotId.
      */
     public Map<Long, List<Operation>> getGlobalWriteSet()
@@ -470,6 +477,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Get the kryoFactory of this recoverable.
+     *
      * @return the factory.
      */
     public KryoFactory getFactory()

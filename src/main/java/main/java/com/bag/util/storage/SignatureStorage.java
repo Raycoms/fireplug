@@ -53,6 +53,19 @@ public class SignatureStorage implements Serializable
     }
 
     /**
+     * Create a SignatureStorage out of another one.
+     * (Copy constructor)
+     * @param signatureStorage signatureStorage to use.
+     */
+    public SignatureStorage(final SignatureStorage signatureStorage)
+    {
+        this.requiredSignatures = signatureStorage.requiredSignatures;
+        this.message = signatureStorage.message;
+        this.decision = signatureStorage.decision;
+        this.signatures.putAll(signatureStorage.signatures);
+    }
+
+    /**
      * Add a signature to the storage.
      * @param globalId the id of the server in the global cluster.
      * @param signature the signature to add.

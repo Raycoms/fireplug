@@ -578,7 +578,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         if (this.wrapper.getLocalCLuster() != null)
         {
-            this.wrapper.getLocalCLuster().propagateUpdate(signatureStorage);
+            this.wrapper.getLocalCLuster().propagateUpdate(new SignatureStorage(signatureStorage));
         }
     }
 
