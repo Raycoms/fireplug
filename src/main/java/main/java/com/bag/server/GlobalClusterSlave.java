@@ -126,7 +126,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
             catch (ClassCastException ex)
             {
-                Log.getLogger().info("Unable to restore signatureStoreMap entry: " + i + " at server: " + id, ex);
+                Log.getLogger().warn("Unable to restore signatureStoreMap entry: " + i + " at server: " + id, ex);
             }
         }
     }
@@ -261,7 +261,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signatureStorage = signatureStorageMap.get(getGlobalSnapshotId());
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
-                throw new RuntimeException("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
+                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
             }
         }
         else
@@ -358,7 +358,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         Log.getLogger().warn("Signature doesn't match of message, throwing message away.");
-        throw new RuntimeException("Signature doesn#t match");
     }
 
     @Override
@@ -370,7 +369,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final Input input = new Input(bytes);
 
         final String messageType = kryo.readObject(input, String.class);
-        Output output = new Output(1, 404800);
+        Output output = new Output(1, 804800);
 
         switch (messageType)
         {
@@ -541,12 +540,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signatureStorage = signatureStorageMap.get(snapShotId);
             if (!signatureStorage.getDecision().equals(decision))
             {
-                throw new RuntimeException("Different decision");
+                Log.getLogger().error("Different decision");
             }
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                throw new RuntimeException("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
+                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
             }
         }
 
