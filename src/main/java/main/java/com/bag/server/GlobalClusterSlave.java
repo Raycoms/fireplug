@@ -69,9 +69,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Turned on global cluster with id:" + id);
     }
 
-    public void initProxy()
+    public synchronized void initProxy()
     {
-        proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
+        if (proxy == null)
+            proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
     }
 
     private byte[] makeEmptyAbortResult()
@@ -302,6 +303,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
+
+        if (proxy == null)
+            initProxy();
+
         Log.getLogger().warn("Snapshot " + snapShotId + ": Sending signed message to " + Arrays.toString(proxy.getViewManager().getCurrentViewProcesses()));
         //proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         byte[] resp = null;
@@ -631,6 +636,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     public Output invokeGlobally(final Input input)
     {
+        if (proxy == null)
+            initProxy();
+        
         return new Output(proxy.invokeOrdered(input.getBuffer()));
     }
 

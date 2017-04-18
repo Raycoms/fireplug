@@ -92,19 +92,6 @@ public class ServerWrapper
         {
             localCluster.setPrimary(true);
         }
-
-        if (localClusterSlaveId != -1)
-        {
-            Log.getLogger().warn("Waiting to init proxy");
-            try
-            {
-                Thread.sleep(10000);
-            } catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-            globalCluster.initProxy();
-        }
     }
 
     /**
