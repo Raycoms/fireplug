@@ -339,7 +339,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        Log.getLogger().info("Server: " + id + " Received message to sign with snapShotId: "
+        Log.getLogger().warn("Server: " + id + " Received message to sign with snapShotId: "
                 + snapShotId + " of Server "
                 + messageContext.getSender()
                 + " and decision: " + decision
