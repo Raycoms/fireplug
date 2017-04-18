@@ -18,10 +18,7 @@ import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Class handling server communication in the global cluster.
@@ -286,12 +283,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
 
             signatureStorage.setProcessed();
-            Log.getLogger().warn("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+            Log.getLogger().warn("Snapshot " + snapShotId + ": Set processed by global cluster by: " + idClient);
             signatureStorage.addSignatures(idClient, signature);
 
             if (signatureStorage.hasEnough())
             {
-                Log.getLogger().warn("Sending update to slave signed by all members: " + snapShotId);
+                Log.getLogger().warn("Snapshot " + snapShotId + ": Sending update to slave signed by all members");
                 updateSlave(signatureStorage);
                 signatureStorageMap.remove(snapShotId);
                 return;
@@ -301,7 +298,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
+        Log.getLogger().warn("Snapshot " + snapShotId + ": Sending signed message to " + Arrays.toString(proxy.getViewManager().getCurrentViewProcesses()));
         proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        //proxy.invokeUnordered(output.getBuffer());
         output.close();
     }
 
@@ -346,8 +345,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        Log.getLogger().warn("Server: " + id + " Received message to sign with snapShotId: "
-                + snapShotId + " of Server "
+        Log.getLogger().warn("Snapshot " + snapShotId + ": Server: " + id + " Received message to sign of Server "
                 + messageContext.getSender()
                 + " and decision: " + decision
                 + " and a writeSet of the length of: " + localWriteSet.size());
@@ -584,12 +582,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         signatureStorage.addSignatures(context.getSender(), signature);
 
-        Log.getLogger().warn("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
+        Log.getLogger().warn("Snapshot " + snapShotId + ": Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
         + " by: " + context.getSender());
 
         if (signatureStorage.hasEnough() && signatureStorage.isProcessed())
         {
-            Log.getLogger().warn("Sending update to slave signed by all members: " + snapShotId);
+            Log.getLogger().warn("Snapshot " + snapShotId + ": Sending update to slave signed by all members");
             updateSlave(signatureStorage);
             signatureStorageMap.remove(snapShotId);
             return;
