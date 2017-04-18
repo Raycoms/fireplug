@@ -459,14 +459,14 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if(lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
-            Log.getLogger().warn("Execute update on slave");
+            Log.getLogger().warn("Execute update on slave: " + snapShotId);
             executeCommit(localWriteSet);
             kryo.writeObject(output, true);
             return;
         }
 
         //TODO We might request the missing message here?
-        Log.getLogger().warn("Something went wrong, missing a message");
+        Log.getLogger().warn("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey);
     }
 
     /**
