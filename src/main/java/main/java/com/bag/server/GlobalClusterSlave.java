@@ -280,7 +280,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
 
             signatureStorage.setProcessed();
-            Log.getLogger().warn("Set processed by global cluster: " + snapShotId);
+            Log.getLogger().warn("Set processed by global cluster: " + snapShotId + " by: " + (id + 1000));
             signatureStorage.addSignatures(id + 1000, signature);
 
             if (signatureStorage.hasEnough())
@@ -578,7 +578,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         signatureStorage.addSignatures(context.getSender(), signature);
 
-        Log.getLogger().warn("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed());
+        Log.getLogger().warn("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
+        + " by: " + context.getSender());
 
         if (signatureStorage.hasEnough() && signatureStorage.isProcessed())
         {
