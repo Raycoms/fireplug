@@ -451,6 +451,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if(lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
+            Log.getLogger().warn("Execute update on slave");
             executeCommit(localWriteSet);
             kryo.writeObject(output, true);
             return;
