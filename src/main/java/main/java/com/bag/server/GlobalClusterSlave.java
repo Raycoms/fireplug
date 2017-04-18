@@ -49,6 +49,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final Map<Long, SignatureStorage> signatureStorageMap = new TreeMap<>();
 
     /**
+     * Lock used to synchronize access to signatureStorageMap.
+     */
+    private final Object lock = new Object();
+
+    /**
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
@@ -256,30 +261,34 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         final SignatureStorage signatureStorage;
-        if (signatureStorageMap.containsKey(getGlobalSnapshotId()))
+
+        synchronized (lock)
         {
-            signatureStorage = signatureStorageMap.get(getGlobalSnapshotId());
-            if (signatureStorage.getMessage().length != output.toBytes().length)
+            if (signatureStorageMap.containsKey(getGlobalSnapshotId()))
             {
-                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
+                signatureStorage = signatureStorageMap.get(getGlobalSnapshotId());
+                if (signatureStorage.getMessage().length != output.toBytes().length)
+                {
+                    Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
+                }
             }
-        }
-        else
-        {
-            Log.getLogger().info("Size of message stored is: " + message.length);
-            signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
-            signatureStorageMap.put(snapShotId, signatureStorage);
-        }
+            else
+            {
+                Log.getLogger().info("Size of message stored is: " + message.length);
+                signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
+                signatureStorageMap.put(snapShotId, signatureStorage);
+            }
 
-        signatureStorage.setProcessed();
-        signatureStorage.addSignatures(id + 1000, signature);
+            signatureStorage.setProcessed();
+            signatureStorage.addSignatures(id + 1000, signature);
 
-        if(signatureStorage.hasEnough())
-        {
-            Log.getLogger().info("Sending update to slave signed by all members.");
-            updateSlave(signatureStorage);
-            signatureStorageMap.remove(snapShotId);
-            return;
+            if (signatureStorage.hasEnough())
+            {
+                Log.getLogger().info("Sending update to slave signed by all members.");
+                updateSlave(signatureStorage);
+                signatureStorageMap.remove(snapShotId);
+                return;
+            }
         }
 
         kryo.writeObject(output, message.length);
@@ -362,7 +371,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         boolean signatureMatches = TOMUtil.verifySignature(key, message, signature);
         if (signatureMatches)
         {
-            storeSignedMessage(snapShotId, signature, messageContext, decision, message);
+            synchronized (lock)
+            {
+                storeSignedMessage(snapShotId, signature, messageContext, decision, message);
+            }
             return;
         }
 
