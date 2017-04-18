@@ -300,7 +300,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
         output.writeBytes(signature);
         Log.getLogger().warn("Snapshot " + snapShotId + ": Sending signed message to " + Arrays.toString(proxy.getViewManager().getCurrentViewProcesses()));
         //proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-        proxy.invokeUnordered(output.getBuffer());
+        byte[] resp = null;
+        while (resp == null)
+        {
+            resp = proxy.invokeUnordered(output.getBuffer());
+            if (resp == null)
+                Log.getLogger().warn("Snapshot " + snapShotId + ": Received empty response");
+            else
+                Log.getLogger().warn("Snapshot " + snapShotId + ": Received response with length " + resp.length);
+        }
         output.close();
     }
 
