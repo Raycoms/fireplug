@@ -299,8 +299,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
         Log.getLogger().warn("Snapshot " + snapShotId + ": Sending signed message to " + Arrays.toString(proxy.getViewManager().getCurrentViewProcesses()));
-        proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-        //proxy.invokeUnordered(output.getBuffer());
+        //proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        proxy.invokeUnordered(output.getBuffer());
         output.close();
     }
 
@@ -320,8 +320,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param messageContext the context.
      * @param kryo           the kryo object.
      */
-    private void handleSignatureMessage(final Input input, final MessageContext messageContext, final Kryo kryo)
+    private void handleSignatureMessage(final Input input, final MessageContext messageContext, final Kryo kryo,
+                                        final Output output)
     {
+        kryo.writeObject(output, Constants.CONTINUE);
+
         //Our own message.
         if (idClient == messageContext.getSender())
         {
@@ -427,7 +430,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 break;
             case Constants.SIGNATURE_MESSAGE:
                 Log.getLogger().info("Received signature message");
-                handleSignatureMessage(input, messageContext, kryo);
+                handleSignatureMessage(input, messageContext, kryo, output);
                 break;
             case Constants.REGISTER_GLOBALLY_MESSAGE:
                 Log.getLogger().info("Received register globally message");
