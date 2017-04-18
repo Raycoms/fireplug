@@ -271,7 +271,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signatureStorageMap.put(snapShotId, signatureStorage);
         }
 
+        signatureStorage.setProcessed();
         signatureStorage.addSignatures(id + 1000, signature);
+
+        if(signatureStorage.hasEnough())
+        {
+            Log.getLogger().info("Sending update to slave signed by all members.");
+            updateSlave(signatureStorage);
+            signatureStorageMap.remove(snapShotId);
+            return;
+        }
 
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
@@ -558,7 +567,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Adding signature to signatureStorage");
 
-        if (signatureStorage.hasEnough())
+        if (signatureStorage.hasEnough() && signatureStorage.isProcessed())
         {
             Log.getLogger().info("Sending update to slave signed by all members.");
             updateSlave(signatureStorage);

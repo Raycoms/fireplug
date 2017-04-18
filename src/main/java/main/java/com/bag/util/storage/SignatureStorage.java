@@ -32,6 +32,11 @@ public class SignatureStorage implements Serializable
     private String decision;
 
     /**
+     * Is the signatureStorage processed by the holding replica.
+     */
+    private boolean isProcessed;
+
+    /**
      * Standard constructor for kryo.
      */
     public SignatureStorage()
@@ -118,5 +123,22 @@ public class SignatureStorage implements Serializable
     public void setMessage(final byte[] message)
     {
         this.message = message;
+    }
+
+    /**
+     * Set that the replica holding this storage object processed the commit.
+     */
+    public void setProcessed()
+    {
+        this.isProcessed = true;
+    }
+
+    /**
+     * Check if the signatureStorage has been processed by the owning replica.
+     * @return true if so.
+     */
+    public boolean isProcessed()
+    {
+        return isProcessed;
     }
 }

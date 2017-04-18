@@ -133,7 +133,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         final Input input = new Input(bytes);
         final String reason = kryo.readObject(input, String.class);
 
-        Output output = new Output(0, 100240);
+        Output output = new Output(0, 400240);
         switch (reason)
         {
             case Constants.READ_MESSAGE:
