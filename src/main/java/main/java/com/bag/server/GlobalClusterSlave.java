@@ -44,6 +44,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final int id;
 
     /**
+     * The id of the internal client used in this server
+     */
+    private final int idClient;
+
+    /**
      * Map which holds the signatureStorages for the consistency.
      */
     private final Map<Long, SignatureStorage> signatureStorageMap = new TreeMap<>();
@@ -62,8 +67,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         super(id, GLOBAL_CONFIG_LOCATION, wrapper);
         this.id = id;
+        this.idClient = id + 1000;
         this.wrapper = wrapper;
-        this.proxy = new ServiceProxy(1000 + id, GLOBAL_CONFIG_LOCATION);
+        this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
         Log.getLogger().info("Turned on global cluster with id:" + id);
     }
 
@@ -238,7 +244,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private void signCommitWithDecisionAndDistribute(final List<Operation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo)
     {
         Log.getLogger().info("Sending signed commit to the other global replicas");
-        final RSAKeyLoader rsaLoader = new RSAKeyLoader(1000 + this.id, GLOBAL_CONFIG_LOCATION, false);
+        final RSAKeyLoader rsaLoader = new RSAKeyLoader(this.idClient, GLOBAL_CONFIG_LOCATION, false);
 
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
         final Output output = new Output(0, 100240);
@@ -280,8 +286,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
 
             signatureStorage.setProcessed();
-            Log.getLogger().warn("Set processed by global cluster: " + snapShotId + " by: " + (id + 1000));
-            signatureStorage.addSignatures(id + 1000, signature);
+            Log.getLogger().warn("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+            signatureStorage.addSignatures(idClient, signature);
 
             if (signatureStorage.hasEnough())
             {
@@ -318,7 +324,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private void handleSignatureMessage(final Input input, final MessageContext messageContext, final Kryo kryo)
     {
         //Our own message.
-        if (id == messageContext.getSender())
+        if (idClient == messageContext.getSender())
         {
             return;
         }
