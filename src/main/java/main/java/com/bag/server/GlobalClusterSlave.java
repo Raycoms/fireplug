@@ -72,7 +72,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
     public synchronized void initProxy()
     {
         if (proxy == null)
+        {
+            Log.getLogger().warn("GlobalClusterSlave: starting internal proxy");
             proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
+        }
     }
 
     private byte[] makeEmptyAbortResult()
@@ -638,7 +641,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         if (proxy == null)
             initProxy();
-        
+
         return new Output(proxy.invokeOrdered(input.getBuffer()));
     }
 

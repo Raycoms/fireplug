@@ -64,7 +64,8 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * The serviceProxy to establish communication with the other replicas.
      */
-    private final ServiceProxy proxy;
+    private ServiceProxy proxy;
+    private int localClusterId;
 
     //todo maybe detect local transaction problems in the future.
     /**
@@ -87,8 +88,8 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper);
         this.id = id;
+        this.localClusterId = localClusterId;
         this.wrapper = wrapper;
-        this.proxy = new ServiceProxy(1000 + id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
     }
 
@@ -103,6 +104,15 @@ public class LocalClusterSlave extends AbstractRecoverable
             primaryId = id;
         }
         this.isPrimary = isPrimary;
+    }
+
+    public synchronized void initProxy()
+    {
+        if (proxy == null)
+        {
+            Log.getLogger().warn("LocalClusterSlave: starting internal proxy");
+            this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        }
     }
 
     /**
@@ -195,6 +205,8 @@ public class LocalClusterSlave extends AbstractRecoverable
             primaryId = messageContext.getLeader();
             final Output localOutput = new Output(0, 512);
             kryo.writeObject(output, Constants.ASK_PRIMARY);
+            if (proxy == null)
+                initProxy();
             proxy.sendMessageToTargets(localOutput.getBuffer(), 0, new int[] {messageContext.getLeader()}, TOMMessageType.UNORDERED_REQUEST);
             localOutput.close();
         }
@@ -306,6 +318,9 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, wrapper.getGlobalServerId());
         primaryGlobalClusterId = wrapper.getGlobalServerId();
 
+        if (proxy == null)
+            initProxy();
+
         proxy.invokeUnordered(output.getBuffer());
 
         output.close();
@@ -328,6 +343,9 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, wrapper.getLocalClusterSlaveId());
         kryo.writeObject(output, wrapper.getGlobalServerId());
         kryo.writeObject(output, primaryGlobalClusterId);
+
+        if (proxy == null)
+            initProxy();
 
         byte[] result = proxy.invokeUnordered(output.getBuffer());
 
@@ -491,6 +509,9 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, snapShotId);
         kryo.writeObject(output, storage);
 
+        if (proxy == null)
+            initProxy();
+
         byte[] result = null;
         while(result == null)
         {
@@ -515,6 +536,9 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.REGISTER_GLOBALLY_CHECK);
         kryo.writeObject(output, oldPrimary);
         kryo.writeObject(output, newPrimary);
+
+        if (proxy == null)
+            initProxy();
 
         byte[] result = proxy.invokeUnordered(output.getBuffer());
 
