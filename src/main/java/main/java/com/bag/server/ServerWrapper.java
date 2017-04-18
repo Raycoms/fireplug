@@ -92,6 +92,19 @@ public class ServerWrapper
         {
             localCluster.setPrimary(true);
         }
+
+        if (localClusterSlaveId != -1)
+        {
+            Log.getLogger().warn("Waiting to init proxy");
+            try
+            {
+                Thread.sleep(10000);
+            } catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+            globalCluster.initProxy();
+        }
     }
 
     /**
@@ -264,7 +277,7 @@ public class ServerWrapper
         @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary);
 
         final Scanner reader = new Scanner(System.in);  // Reading from System.in
-        Log.getLogger().info("Write anything to the console to kill this process");
+        Log.getLogger().warn("Write anything to the console to kill this process");
         final String command = reader.next();
 
         if (command != null)

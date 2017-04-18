@@ -58,7 +58,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * The serviceProxy to establish communication with the other replicas.
      */
-    private final ServiceProxy proxy;
+    private ServiceProxy proxy;
 
     public GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper)
     {
@@ -66,8 +66,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         this.id = id;
         this.idClient = id + 1000;
         this.wrapper = wrapper;
-        this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
         Log.getLogger().info("Turned on global cluster with id:" + id);
+    }
+
+    public void initProxy()
+    {
+        proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
     }
 
     private byte[] makeEmptyAbortResult()
