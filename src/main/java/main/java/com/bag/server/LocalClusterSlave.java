@@ -73,6 +73,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     private HashMap<Integer, TransactionStorage> localTransactionList = new HashMap<>();
 
     /**
+     * Lock to lock the update slave execution to order the execution correctly.
+     */
+    private Object lock = new Object();
+
+    /**
      * Public constructor used to create a local cluster slave.
      * @param id its unique id in the local cluster.
      * @param wrapper its ordering wrapper.
@@ -165,7 +170,10 @@ public class LocalClusterSlave extends AbstractRecoverable
                 break;
             case Constants.UPDATE_SLAVE:
                 Log.getLogger().info("Received update slave message");
-                handleSlaveUpdateMessage(input, output, kryo);
+                synchronized (lock)
+                {
+                    handleSlaveUpdateMessage(input, output, kryo);
+                }
                 output.close();
                 input.close();
                 return new byte[0];
@@ -475,9 +483,8 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
-        final List writeSet = kryo.readObject(input, ArrayList.class);
 
-        final Output output = new Output(10096);
+        final Output output = new Output(100096);
 
         kryo.writeObject(output, Constants.UPDATE_SLAVE);
         kryo.writeObject(output, decision);
@@ -488,23 +495,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         while(result == null)
         {
             result = proxy.invokeUnordered(output.getBuffer());
-        }
-
-        if(Constants.COMMIT.equals(decision))
-        {
-            final ArrayList<Operation> localWriteSet;
-
-            try
-            {
-                localWriteSet = (ArrayList<Operation>) writeSet;
-            }
-            catch (ClassCastException e)
-            {
-                Log.getLogger().warn("Couldn't convert received signature message.", e);
-                return;
-            }
-
-            this.executeCommit(localWriteSet);
         }
 
         pool.release(kryo);
