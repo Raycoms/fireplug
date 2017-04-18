@@ -578,7 +578,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         signatureStorage.addSignatures(context.getSender(), signature);
 
-        Log.getLogger().info("Adding signature to signatureStorage");
+        Log.getLogger().warn("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed());
 
         if (signatureStorage.hasEnough() && signatureStorage.isProcessed())
         {
