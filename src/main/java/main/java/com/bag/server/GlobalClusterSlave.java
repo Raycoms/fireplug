@@ -294,7 +294,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn("Sending update to slave signed by all members: " + snapShotId);
                 updateSlave(signatureStorage);
                 signatureStorageMap.remove(snapShotId);
-                return;
             }
         }
 
