@@ -72,7 +72,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     private final ServerWrapper wrapper;
 
-    private ServerInstrumentation instrumentation;
+    private final ServerInstrumentation instrumentation;
 
     private KryoFactory factory = () ->
     {
@@ -86,11 +86,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         return kryo;
     };
 
-    protected AbstractRecoverable(int id, final String configDirectory, final ServerWrapper wrapper)
+    protected AbstractRecoverable(int id, final String configDirectory, final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
         this.id = id;
         this.wrapper = wrapper;
-        this.instrumentation = new ServerInstrumentation(id);
+        this.instrumentation = instrumentation;
         globalSnapshotId = 1;
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();

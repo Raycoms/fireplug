@@ -67,6 +67,7 @@ public class ServerWrapper
      */
     public ServerWrapper(final int globalServerId, @NotNull final String instance, final boolean isPrimary, final int localClusterSlaveId, final int initialLeaderId)
     {
+        final ServerInstrumentation instrumentation = new ServerInstrumentation(globalServerId);
         this.globalServerId = globalServerId;
         this.instance = instance;
         this.localClusterSlaveId = localClusterSlaveId;
@@ -74,17 +75,16 @@ public class ServerWrapper
         databaseAccess = instantiateDBAccess(instance, globalServerId);
         databaseAccess.start();
 
-
         if(isPrimary)
         {
             Log.getLogger().info("Turn on global cluster with id: " + globalServerId);
-            globalCluster = new GlobalClusterSlave(globalServerId, this);
+            globalCluster = new GlobalClusterSlave(globalServerId, this, instrumentation);
         }
 
         if(localClusterSlaveId != -1)
         {
             Log.getLogger().info("Start local cluster slave with id: "  + localClusterSlaveId);
-            localCluster = new LocalClusterSlave(localClusterSlaveId, this, isPrimary ? globalServerId : initialLeaderId);
+            localCluster = new LocalClusterSlave(localClusterSlaveId, this, isPrimary ? globalServerId : initialLeaderId, instrumentation);
             localCluster.setPrimaryGlobalClusterId(initialLeaderId);
         }
 
@@ -278,7 +278,7 @@ public class ServerWrapper
      */
     public void initNewGlobalClusterInstance()
     {
-        globalCluster = new GlobalClusterSlave(globalServerId, this);
+        globalCluster = new GlobalClusterSlave(globalServerId, this, new ServerInstrumentation(globalServerId));
     }
 
     /**
@@ -286,7 +286,7 @@ public class ServerWrapper
      */
     public void initNewLocalClusterInstance()
     {
-        localCluster = new LocalClusterSlave(localClusterSlaveId, this, globalServerId);
+        localCluster = new LocalClusterSlave(localClusterSlaveId, this, globalServerId, new ServerInstrumentation(globalServerId));
     }
 
     /**

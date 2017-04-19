@@ -63,9 +63,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final ServiceProxy proxy;
 
-    public GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper)
+    public GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
-        super(id, GLOBAL_CONFIG_LOCATION, wrapper);
+        super(id, GLOBAL_CONFIG_LOCATION, wrapper, instrumentation);
         this.id = id;
         this.idClient = id + 1000;
         this.wrapper = wrapper;

@@ -85,9 +85,9 @@ public class LocalClusterSlave extends AbstractRecoverable
      * @param wrapper its ordering wrapper.
      * @param localClusterId the id of the cluster (the id of the starting primary in the global cluster).
      */
-    public LocalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final int localClusterId)
+    public LocalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final int localClusterId, final ServerInstrumentation instrumentation)
     {
-        super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper);
+        super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation);
         this.id = id;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
