@@ -60,10 +60,11 @@ public class MultipleClientRunner
      *                           processId=1,numOfClients=3 will span clients 3, 4, 5)
      * @param percOfWrites percentage of writes
      * @param numOfServers amount of servers to contact. If <= 0 will only this server will be used (after an abs)
+     * @param localClusterId id of accessed local cluster.
      * @param addresses addresses of servers to contact.
      */
     private void runClients(final String option, final int processId, final int numOfClients, final double percOfWrites,
-                            final int numOfServers, final String addresses)
+                            final int numOfServers, final int localClusterId, final String addresses)
     {
         try
         {
@@ -76,7 +77,7 @@ public class MultipleClientRunner
                 directAddresses = addresses.split(",");
             }
 
-            int clientId = processId * numOfClients;
+            int clientId = Integer.parseInt(Integer.toString(processId) + Integer.toString(numOfClients));
 
             for (int i = 0; i < numOfClients; i++)
             {
@@ -84,8 +85,8 @@ public class MultipleClientRunner
                 String cmd;
                 if (option.equals("bag"))
                 {
-                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests true %d -1 %d %s",
-                            serverPartner, clientId, String.valueOf(percOfWrites).replace(',', '.'));
+                    cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests true %d %d %d %s",
+                            serverPartner, localClusterId, clientId, String.valueOf(percOfWrites).replace(',', '.'));
                 }
                 else if (option.equals("direct"))
                 {
@@ -141,12 +142,13 @@ public class MultipleClientRunner
         int numOfClients = Integer.parseInt(args[2]);
         double percOfWrites = Double.parseDouble(args[3]);
         int numOfServers = Integer.parseInt(args[4]);
-        if (args.length > 5)
+        int localClusterId = Integer.parseInt(args[5]);
+        if (args.length > 6)
         {
-            address = args[5];
+            address = args[6];
         }
 
         MultipleClientRunner runner = new MultipleClientRunner();
-        runner.runClients(opt, processId, numOfClients, percOfWrites, numOfServers, address);
+        runner.runClients(opt, processId, numOfClients, percOfWrites, numOfServers, localClusterId, address);
     }
 }
