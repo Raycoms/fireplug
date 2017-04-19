@@ -16,10 +16,7 @@ import main.java.com.bag.util.storage.SignatureStorage;
 import main.java.com.bag.util.storage.TransactionStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -65,6 +62,11 @@ public class LocalClusterSlave extends AbstractRecoverable
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
+
+    /**
+     * Queue to catch messages out of order.
+     */
+    private final Map<Long, List<Operation>> buffer = new TreeMap<>();
 
     //todo maybe detect local transaction problems in the future.
     /**
@@ -461,11 +463,20 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().warn("Execute update on slave: " + snapShotId);
             executeCommit(localWriteSet);
+
+            long requiredKey = lastKey + 1;
+            while(buffer.containsKey(requiredKey))
+            {
+                Log.getLogger().warn("Execute update on slave: " + snapShotId);
+                executeCommit(buffer.remove(requiredKey));
+                requiredKey++;
+            }
+
             kryo.writeObject(output, true);
             return;
         }
+        buffer.put(snapShotId, localWriteSet);
 
-        //TODO We might request the missing message here?
         Log.getLogger().warn("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey);
     }
 
