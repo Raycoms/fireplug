@@ -286,12 +286,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
 
             signatureStorage.setProcessed();
-            Log.getLogger().warn("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+            Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
             signatureStorage.addSignatures(idClient, signature);
 
             if (signatureStorage.hasEnough())
             {
-                Log.getLogger().warn("Sending update to slave signed by all members: " + snapShotId);
+                Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
                 updateSlave(signatureStorage);
                 signatureStorageMap.remove(snapShotId);
             }
@@ -345,7 +345,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        Log.getLogger().warn("Server: " + id + " Received message to sign with snapShotId: "
+        Log.getLogger().info("Server: " + id + " Received message to sign with snapShotId: "
                 + snapShotId + " of Server "
                 + messageContext.getSender()
                 + " and decision: " + decision
@@ -583,12 +583,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         signatureStorage.addSignatures(context.getSender(), signature);
 
-        Log.getLogger().warn("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
+        Log.getLogger().info("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
         + " by: " + context.getSender());
 
         if (signatureStorage.hasEnough() && signatureStorage.isProcessed())
         {
-            Log.getLogger().warn("Sending update to slave signed by all members: " + snapShotId);
+            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
             updateSlave(signatureStorage);
             signatureStorageMap.remove(snapShotId);
             return;
