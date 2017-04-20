@@ -221,13 +221,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (!localWriteSet.isEmpty())
         {
-            new Thread(() ->
+            if (wrapper.getLocalCLuster() != null)
             {
-                if (wrapper.getLocalCLuster() != null)
-                {
-                    signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
-                }
-            }).start();
+                new SignatureThread(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo).start();
+            }
             super.executeCommit(localWriteSet);
         }
         else
@@ -243,6 +240,28 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
         return returnBytes;
+    }
+
+    private class SignatureThread extends Thread
+    {
+        final List<Operation> localWriteSet;
+        final String commit;
+        final long globalSnapshotId;
+        final Kryo kryo;
+
+        private SignatureThread(final List<Operation> localWriteSet, final String commit, final long globalSnapshotId, final Kryo kryo)
+        {
+            this.localWriteSet = localWriteSet;
+            this.commit = commit;
+            this.globalSnapshotId = globalSnapshotId;
+            this.kryo = kryo;
+        }
+
+        @Override
+        public void run()
+        {
+            signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
+        }
     }
 
     private void signCommitWithDecisionAndDistribute(final List<Operation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo)
@@ -299,13 +318,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 updateSlave(signatureStorage);
                 signatureStorageMap.remove(snapShotId);
             }
-        }
 
-        kryo.writeObject(output, message.length);
-        kryo.writeObject(output, signature.length);
-        output.writeBytes(signature);
-        proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-        output.close();
+            kryo.writeObject(output, message.length);
+            kryo.writeObject(output, signature.length);
+            output.writeBytes(signature);
+            proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+            output.close();
+        }
     }
 
     private Output makeEmptyReadResponse(String message, Kryo kryo)
