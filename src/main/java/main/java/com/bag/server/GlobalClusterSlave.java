@@ -211,16 +211,25 @@ public class GlobalClusterSlave extends AbstractRecoverable
             byte[] returnBytes = output.getBuffer();
             output.close();
 
-            if (wrapper.getLocalCLuster() != null)
+            //TODO Do we need to notify the other servers about an abort? I believe not.
+            /*if (wrapper.getLocalCLuster() != null)
             {
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.ABORT, getGlobalSnapshotId(), kryo);
-            }
+            }*/
             return returnBytes;
         }
 
         if (!localWriteSet.isEmpty())
         {
+            new Thread(() ->
+            {
+                if (wrapper.getLocalCLuster() != null)
+                {
+                    signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
+                }
+            }).start();
             super.executeCommit(localWriteSet);
+
             if (wrapper.getLocalCLuster() != null)
             {
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
