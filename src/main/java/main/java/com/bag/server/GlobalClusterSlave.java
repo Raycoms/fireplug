@@ -318,13 +318,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 updateSlave(signatureStorage);
                 signatureStorageMap.remove(snapShotId);
             }
-
-            kryo.writeObject(output, message.length);
-            kryo.writeObject(output, signature.length);
-            output.writeBytes(signature);
-            proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-            output.close();
         }
+
+        kryo.writeObject(output, message.length);
+        kryo.writeObject(output, signature.length);
+        output.writeBytes(signature);
+        proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        output.close();
     }
 
     private Output makeEmptyReadResponse(String message, Kryo kryo)
