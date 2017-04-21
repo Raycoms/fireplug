@@ -222,7 +222,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (!localWriteSet.isEmpty())
         {
             super.executeCommit(localWriteSet);
-            if (wrapper.getLocalCLuster() != null)
+            //FIXME This is only for now this way. If we execute it with primaries without local clusters
+            //if (wrapper.getLocalCLuster() != null)
             {
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
             }
@@ -450,8 +451,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }
                 break;
             case Constants.SIGNATURE_MESSAGE:
-                Log.getLogger().info("Received signature message");
-                handleSignatureMessage(input, messageContext, kryo);
+                if(wrapper.getLocalCLuster() != null)
+                {
+                    handleSignatureMessage(input, messageContext, kryo);
+                }
                 break;
             case Constants.REGISTER_GLOBALLY_MESSAGE:
                 Log.getLogger().info("Received register globally message");
