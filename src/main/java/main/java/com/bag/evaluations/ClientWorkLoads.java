@@ -46,13 +46,12 @@ public class ClientWorkLoads
 
     public static class MassiveNodeInsertThread
     {
-        private TestClient client = null;
-        private NettyClient out = null;
+        private TestClient  client = null;
+        private NettyClient out    = null;
 
         private final int startAt;
         private final int stopAt;
         private final int commitAfter;
-
 
         /**
          * Create a threadsafe version of kryo.
@@ -109,7 +108,8 @@ public class ClientWorkLoads
                         }
                         createNodeOperationList = new ArrayList<>();
                     }
-                } else
+                }
+                else
                 {
                     client.write(null, new NodeStorage(Integer.toString(i)));
                     if (written >= commitAfter || i == stopAt)
@@ -125,8 +125,8 @@ public class ClientWorkLoads
 
     public static class MassiveRelationShipInsertThread
     {
-        private TestClient client = null;
-        private NettyClient out = null;
+        private TestClient  client = null;
+        private NettyClient out    = null;
 
         private final int commitAfter;
         private final int share;
@@ -226,7 +226,8 @@ public class ClientWorkLoads
                             }
                             createRelationshipOperations.clear();
                         }
-                    } else
+                    }
+                    else
                     {
                         client.write(null, new RelationshipStorage(ids[1], new NodeStorage(ids[0]), new NodeStorage(ids[2])));
                         /*if (readLines >= totalShare)
@@ -243,10 +244,12 @@ public class ClientWorkLoads
                     }
                     Log.getLogger().info(sCurrentLine);
                 }
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 Log.getLogger().warn("Error reading file", e);
-            } finally
+            }
+            finally
             {
                 pool.release(kryo);
             }
@@ -257,8 +260,8 @@ public class ClientWorkLoads
     {
         private BAGClient client = null;
 
-        private final int seed;
-        private final int commitAfter;
+        private final int    seed;
+        private final int    commitAfter;
         private final double percOfWrites;
 
         public class GraphRelation
@@ -306,10 +309,14 @@ public class ClientWorkLoads
                 {
                     count += 1;
                     if (count < start)
+                    {
                         continue;
+                    }
 
                     if (count > (start + linesToLoad))
+                    {
                         break;
+                    }
 
                     String[] fields = line.split(" ");
                     GraphRelation item = new GraphRelation();
@@ -357,7 +364,8 @@ public class ClientWorkLoads
             try
             {
                 loadedRelations = loadGraphRelations();
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
                 return;
@@ -387,14 +395,16 @@ public class ClientWorkLoads
                 GraphRelation currentNode = loadedRelations.get(relIndex);
                 relIndex += 1;
                 if (relIndex >= loadedRelations.size())
+                {
                     relIndex = 0;
+                }
 
                 boolean isRead = bytes[i] == 0;
                 RelationshipStorage readRelationship = null;
                 NodeStorage readNodeStorage = null;
                 Operation operation = null;
 
-                if (isRead)
+                if (isRead || this.percOfWrites == 0)
                 {
                     double randomNum = random.nextDouble() * 100 + 1;
                     if (randomNum <= 15.7)
@@ -405,7 +415,8 @@ public class ClientWorkLoads
                                 new NodeStorage(currentNode.destination));
                         //get relationship
                         readRelations += 1;
-                    } else if (randomNum <= 15.7 + 55.4)
+                    }
+                    else if (randomNum <= 15.7 + 55.4)
                     {
                         readRelationship = new RelationshipStorage(
                                 currentNode.relationName,
@@ -413,13 +424,15 @@ public class ClientWorkLoads
                                 new NodeStorage(currentNode.destination));
                         //get all relationships of a particular node
                         readRelations += 1;
-                    } else
+                    }
+                    else
                     {
                         readNodeStorage = new NodeStorage(currentNode.origin);
                         //get node
                         readNodes += 1;
                     }
-                } else
+                }
+                else
                 {
                     Log.getLogger().info("IS WRITE");
                     double randomNum = random.nextDouble() * 100 + 1;
@@ -431,7 +444,8 @@ public class ClientWorkLoads
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
                         //add relationship
                         createRelations += 1;
-                    } else if (randomNum <= 52.5 + 9.2)
+                    }
+                    else if (randomNum <= 52.5 + 9.2)
                     {
                         operation = new DeleteOperation<>(new RelationshipStorage(
                                 Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
@@ -439,18 +453,21 @@ public class ClientWorkLoads
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
                         //delete relationship
                         deleteRelations += 1;
-                    } else if (randomNum <= 52.5 + 9.2 + 16.5)
+                    }
+                    else if (randomNum <= 52.5 + 9.2 + 16.5)
                     {
                         operation = new CreateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //add node
                         createNodes += 1;
-                    } else if (randomNum <= 52.5 + 9.2 + 16.5 + 20.7)
+                    }
+                    else if (randomNum <= 52.5 + 9.2 + 16.5 + 20.7)
                     {
                         operation = new UpdateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
                                 new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //update node
                         updateNodes += 1;
-                    } else
+                    }
+                    else
                     {
                         operation = new DeleteOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //delete node
@@ -465,8 +482,12 @@ public class ClientWorkLoads
                         client.read(readNodeStorage);
                         try
                         {
-                            while (client.getReadQueue().take() != TestClient.FINISHED_READING) ;
-                        } catch (InterruptedException e)
+                            while (client.getReadQueue().take() != TestClient.FINISHED_READING)
+                            {
+                                ;
+                            }
+                        }
+                        catch (InterruptedException e)
                         {
                                 /*
                                  * Intentionally left empty.
@@ -479,23 +500,30 @@ public class ClientWorkLoads
                         client.read(readRelationship);
                         try
                         {
-                            while (client.getReadQueue().take() != TestClient.FINISHED_READING) ;
-                        } catch (InterruptedException e)
+                            while (client.getReadQueue().take() != TestClient.FINISHED_READING)
+                            {
+                                ;
+                            }
+                        }
+                        catch (InterruptedException e)
                         {
                                 /*
                                  * Intentionally left empty.
                                  */
                         }
                     }
-                } else
+                }
+                else
                 {
                     if (operation instanceof DeleteOperation)
                     {
                         client.write(((DeleteOperation) operation).getObject(), null);
-                    } else if (operation instanceof UpdateOperation)
+                    }
+                    else if (operation instanceof UpdateOperation)
                     {
                         client.write(((UpdateOperation) operation).getKey(), ((UpdateOperation) operation).getValue());
-                    } else if (operation instanceof CreateOperation)
+                    }
+                    else if (operation instanceof CreateOperation)
                     {
                         client.write(null, ((CreateOperation) operation).getObject());
                     }
