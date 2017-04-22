@@ -12,8 +12,6 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.operations.Operation;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
-import main.java.com.bag.util.storage.NodeStorage;
-import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import main.java.com.bag.util.storage.TransactionStorage;
 import org.jetbrains.annotations.NotNull;
@@ -161,13 +159,9 @@ public class LocalClusterSlave extends AbstractRecoverable
                 output = handleGetPrimaryMessage(messageContext, output, kryo);
                 break;
             case Constants.COMMIT:
-                Log.getLogger().info("Received commit message");
-                output.close();
-                byte[] result = handleReadOnlyCommit(input, kryo);
-                input.close();
-                pool.release(kryo);
-                Log.getLogger().info("Return it to client, size: " + result.length);
-                return result;
+                Log.getLogger().info("Received Commit message");
+                output = handleCommitMessage(input, messageContext, kryo, output);
+                break;
             case Constants.PRIMARY_NOTICE:
                 Log.getLogger().info("Received Primary notice message");
                 output = handlePrimaryNoticeMessage(input, output, kryo);
@@ -216,80 +210,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         pool.release(kryo);
 
         return returnValue;
-    }
-
-    private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
-    {
-        final Long timeStamp = kryo.readObject(input, Long.class);
-        return executeCommit(kryo, input, timeStamp);
-    }
-
-    /**
-     * Check for conflicts and unpack things for conflict handle check.
-     *
-     * @param kryo  the kryo instance.
-     * @param input the input.
-     * @return the response.
-     */
-    private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
-    {
-        //Read the inputStream.
-        final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
-        final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
-        final List writeSetX = kryo.readObject(input, ArrayList.class);
-
-        //Create placeHolders.
-        ArrayList<NodeStorage> readSetNode;
-        ArrayList<RelationshipStorage> readsSetRelationship;
-        ArrayList<Operation> localWriteSet;
-
-        input.close();
-        Output output = new Output(128);
-        kryo.writeObject(output, Constants.COMMIT_RESPONSE);
-
-        try
-        {
-            readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
-            readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
-            localWriteSet = (ArrayList<Operation>) writeSetX;
-        }
-        catch (Exception e)
-        {
-            Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
-            kryo.writeObject(output, Constants.ABORT);
-            kryo.writeObject(output, getGlobalSnapshotId());
-
-            //Send abort to client and abort
-            byte[] returnBytes = output.getBuffer();
-            output.close();
-            return returnBytes;
-        }
-
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
-        {
-            updateCounts(0, 0, 0, 1);
-
-            Log.getLogger()
-                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: " + localWriteSet.size()
-                            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-            kryo.writeObject(output, Constants.ABORT);
-            kryo.writeObject(output, getGlobalSnapshotId());
-
-            //Send abort to client and abort
-            byte[] returnBytes = output.getBuffer();
-            output.close();
-            return returnBytes;
-        }
-
-        updateCounts(0, 0, 1, 0);
-        kryo.writeObject(output, Constants.COMMIT);
-        kryo.writeObject(output, getGlobalSnapshotId());
-
-        byte[] returnBytes = output.getBuffer();
-        output.close();
-        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
-
-        return returnBytes;
     }
 
     /**
@@ -347,10 +267,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     @NotNull
     private Output handleCommitMessage(final Input input, final MessageContext messageContext, final Kryo kryo, final Output output)
     {
-
-
-
-        /*kryo.writeObject(output, Constants.COMMIT);
+        kryo.writeObject(output, Constants.COMMIT);
         //todo messageContext.getLeader() returning -1 ?
         if (messageContext.getLeader() == id)
         {
@@ -376,7 +293,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             wrapper.terminateGlobalCluster();
         }
 
-        isPrimary = false;*/
+        isPrimary = false;
         return output;
     }
 
