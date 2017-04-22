@@ -63,7 +63,7 @@ public class RunTests
             lowLevelLogging = Boolean.parseBoolean(args[5]);
 
         if (!lowLevelLogging)
-            LogManager.getRootLogger().setLevel(Level.INFO);
+            LogManager.getRootLogger().setLevel(Level.WARN);
 
         BAGClient client;
         if (usesBag)

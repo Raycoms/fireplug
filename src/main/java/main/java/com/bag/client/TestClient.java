@@ -32,7 +32,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     /**
      * Should the transaction runNetty in secure mode?
      */
-    private boolean secureMode = false;
+    private boolean secureMode = true;
 
     /**
      * The place the local config file is. This + the cluster id will contain the concrete cluster config location.
@@ -111,7 +111,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             globalProxy = new ServiceProxy(100 + getProcessId(), "global/config");
         }
 
-        secureMode = true;
+        secureMode = false;
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
@@ -415,7 +415,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final Kryo kryo = pool.borrow();
 
         final boolean readOnly = isReadOnly();
-        Log.getLogger().info("Starting commit: secure Mode: " + secureMode + " readOnly: " + readOnly);
+        Log.getLogger().info("Starting commit");
 
         if (readOnly && !secureMode)
         {
