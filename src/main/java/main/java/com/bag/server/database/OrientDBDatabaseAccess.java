@@ -150,7 +150,8 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      */
     private RelationshipStorage getRelationshipStorageFromEdge(Edge edge, long snapshotId) throws OutDatedDataException
     {
-        RelationshipStorage tempStorage = new RelationshipStorage(edge.getLabel(), getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
+        RelationshipStorage tempStorage = new RelationshipStorage(edge.getLabel().replace("class:", ""),
+                getNodeStorageFromVertex(edge.getVertex(Direction.OUT)), getNodeStorageFromVertex(edge.getVertex(Direction.IN)));
         for (String key : edge.getPropertyKeys())
         {
             if (key.equals(Constants.TAG_SNAPSHOT_ID))
