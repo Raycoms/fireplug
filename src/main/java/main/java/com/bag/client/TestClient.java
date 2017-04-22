@@ -414,12 +414,12 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        Log.getLogger().info("Starting commit");
         final boolean readOnly = isReadOnly();
+        Log.getLogger().info("Starting commit: secure Mode: " + secureMode + " readOnly: " + readOnly);
 
         if (readOnly && !secureMode)
         {
-            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+            Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
             resetSets();
             return;
