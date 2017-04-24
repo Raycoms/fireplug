@@ -300,29 +300,29 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (signatureStorage.getMessage().length != output.toBytes().length)
                 {
                     Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
+                    
+                    final Input input = new Input(signatureStorage.getMessage());
+                    final Long snapShotId2 = kryo.readObject(input, Long.class);
+
+                    final List lWriteSet = kryo.readObject(input, ArrayList.class);
+                    final ArrayList<Operation> localWriteSet2;
+
+                    input.close();
+
+                    try
+                    {
+                        localWriteSet2 = (ArrayList<Operation>) lWriteSet;
+                    }
+                    catch (ClassCastException e)
+                    {
+                        Log.getLogger().warn("Couldn't convert received signature message.", e);
+                        return;
+                    }
+
+                    Log.getLogger().error("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
+                    Log.getLogger().error("WriteSet local: " + localWriteSet2.toArray().toString());
+                    Log.getLogger().error("WriteSet received: " + localWriteSet.toArray().toString());
                 }
-
-                final Input input = new Input(signatureStorage.getMessage());
-                final Long snapShotId2 = kryo.readObject(input, Long.class);
-
-                final List lWriteSet = kryo.readObject(input, ArrayList.class);
-                final ArrayList<Operation> localWriteSet2;
-
-                input.close();
-
-                try
-                {
-                    localWriteSet2 = (ArrayList<Operation>) lWriteSet;
-                }
-                catch (ClassCastException e)
-                {
-                    Log.getLogger().warn("Couldn't convert received signature message.", e);
-                    return;
-                }
-
-                Log.getLogger().error("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
-                Log.getLogger().error("WriteSet local: " + localWriteSet2.toArray().toString());
-                Log.getLogger().error("WriteSet received: " + localWriteSet.toArray().toString());
             }
             else
             {
