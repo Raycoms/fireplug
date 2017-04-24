@@ -6,6 +6,7 @@ import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.core.messages.TOMMessageType;
 import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
@@ -301,7 +302,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     Log.getLogger().error("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
 
-                    final Input input = new Input(signatureStorage.getMessage());
+                    final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
                     final Long snapShotId2 = kryo.readObject(input, Long.class);
 
                     final List lWriteSet = kryo.readObject(input, ArrayList.class);
