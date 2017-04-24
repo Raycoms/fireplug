@@ -403,7 +403,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             synchronized (lock)
             {
-                storeSignedMessage(snapShotId, signature, messageContext, decision, message);
+                storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet);
             }
             return;
         }
@@ -579,7 +579,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param decision   the decision.
      * @param message    the message.
      */
-    private void storeSignedMessage(final Long snapShotId, final byte[] signature, @NotNull final MessageContext context, final String decision, final byte[] message)
+    private void storeSignedMessage(final Long snapShotId, final byte[] signature, @NotNull final MessageContext context, final String decision, final byte[] message, final List<Operation> writeSet)
     {
         final SignatureStorage signatureStorage;
         if (!signatureStorageMap.containsKey(snapShotId))
@@ -599,6 +599,33 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (signatureStorage.getMessage().length != message.length)
             {
                 Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
+
+                final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+                final Kryo kryo = pool.borrow();
+
+                final Input input = new Input(signatureStorage.getMessage());
+                final Long snapShotId2 = kryo.readObject(input, Long.class);
+
+                final List lWriteSet = kryo.readObject(input, ArrayList.class);
+                final ArrayList<Operation> localWriteSet;
+
+                input.close();
+                pool.release(kryo);
+
+                try
+                {
+                    localWriteSet = (ArrayList<Operation>) lWriteSet;
+                }
+                catch (ClassCastException e)
+                {
+                    Log.getLogger().warn("Couldn't convert received signature message.", e);
+                    return;
+                }
+                
+                Log.getLogger().error("SnapshotId local: " + snapShotId2 + " snapshotId global: " + snapShotId);
+                Log.getLogger().error("WriteSet local: " + localWriteSet.toArray().toString());
+                Log.getLogger().error("WriteSet local: " + writeSet.toArray().toString());
+
             }
         }
 
