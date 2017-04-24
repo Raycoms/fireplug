@@ -312,7 +312,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
 
                     final List lWriteSet = kryo.readObject(input, ArrayList.class);
-                    Log.getLogger().warn("WriteSet received: " + localWriteSet.toArray().toString());
+                    Log.getLogger().warn("WriteSet received: " + localWriteSet.size());
 
                     final ArrayList<Operation> localWriteSet2;
 
@@ -327,7 +327,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         Log.getLogger().warn("Couldn't convert received signature message.", e);
                         return;
                     }
-                    Log.getLogger().warn("WriteSet local: " + localWriteSet2.toArray().toString());
+                    Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
                     Log.getLogger().warn("End logging");
                 }
             }
@@ -639,7 +639,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
 
                 final List lWriteSet = kryo.readObject(input, ArrayList.class);
-                Log.getLogger().warn("WriteSet received: " + writeSet.toArray().toString());
+                Log.getLogger().warn("WriteSet received: " + writeSet.size());
 
                 final ArrayList<Operation> localWriteSet2;
 
@@ -654,7 +654,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     Log.getLogger().warn("Couldn't convert received signature message.", e);
                     return;
                 }
-                Log.getLogger().warn("WriteSet local: " + localWriteSet2.toArray().toString());
+                Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
                 Log.getLogger().warn("End logging");
             }
         }
