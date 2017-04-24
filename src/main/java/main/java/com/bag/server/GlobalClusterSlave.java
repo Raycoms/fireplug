@@ -381,6 +381,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
 
+        if(snapShotId == -1)
+        {
+            Log.getLogger().error("Wtf, reciev -1 snapshot id");
+        }
+
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<Operation> localWriteSet;
 
