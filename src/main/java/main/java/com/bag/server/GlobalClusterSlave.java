@@ -10,16 +10,16 @@ import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import main.java.com.bag.operations.CreateOperation;
+import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.cypher.InvalidArgumentException;
-
-import java.io.IOException;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -305,7 +305,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
 
                     Log.getLogger().warn("Start logging");
-                    final Input input = new Input(signatureStorage.getMessage());
+                    final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
                     kryo.readObject(input, String.class);
                     kryo.readObject(input, String.class);
                     final Long snapShotId2 = kryo.readObject(input, Long.class);
@@ -313,6 +313,25 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                     final List lWriteSet = kryo.readObject(input, ArrayList.class);
                     Log.getLogger().warn("WriteSet received: " + localWriteSet.size());
+                    for(Operation op: localWriteSet)
+                    {
+                        if(op instanceof UpdateOperation)
+                        {
+                            Log.getLogger().warn("Update");
+                            Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
+                            Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
+                        }
+                        else if(op instanceof DeleteOperation)
+                        {
+                            Log.getLogger().warn("Delete");
+                            Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                        }
+                        else if (op instanceof CreateOperation)
+                        {
+                            Log.getLogger().warn("Create");
+                            Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                        }
+                    }
 
                     final ArrayList<Operation> localWriteSet2;
 
@@ -328,6 +347,27 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         return;
                     }
                     Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
+
+                    for(Operation op: localWriteSet2)
+                    {
+                        if(op instanceof UpdateOperation)
+                        {
+                            Log.getLogger().warn("Update");
+                            Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
+                            Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
+                        }
+                        else if(op instanceof DeleteOperation)
+                        {
+                            Log.getLogger().warn("Delete");
+                            Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                        }
+                        else if (op instanceof CreateOperation)
+                        {
+                            Log.getLogger().warn("Create");
+                            Log.getLogger().warn(((CreateOperation) op).getObject().toString());
+                        }
+                    }
+
                     Log.getLogger().warn("End logging");
                 }
             }
@@ -640,6 +680,25 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 final List lWriteSet = kryo.readObject(input, ArrayList.class);
                 Log.getLogger().warn("WriteSet received: " + writeSet.size());
+                for(Operation op: writeSet)
+                {
+                    if(op instanceof UpdateOperation)
+                    {
+                        Log.getLogger().warn("Update");
+                        Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
+                        Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
+                    }
+                    else if(op instanceof DeleteOperation)
+                    {
+                        Log.getLogger().warn("Delete");
+                        Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                    }
+                    else if (op instanceof CreateOperation)
+                    {
+                        Log.getLogger().warn("Create");
+                        Log.getLogger().warn(((CreateOperation) op).getObject().toString());
+                    }
+                }
 
                 final ArrayList<Operation> localWriteSet2;
 
@@ -655,6 +714,27 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     return;
                 }
                 Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
+
+                for(Operation op: localWriteSet2)
+                {
+                    if(op instanceof UpdateOperation)
+                    {
+                        Log.getLogger().warn("Update");
+                        Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
+                        Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
+                    }
+                    else if(op instanceof DeleteOperation)
+                    {
+                        Log.getLogger().warn("Delete");
+                        Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                    }
+                    else if (op instanceof CreateOperation)
+                    {
+                        Log.getLogger().warn("Create");
+                        Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                    }
+                }
+
                 Log.getLogger().warn("End logging");
             }
         }
