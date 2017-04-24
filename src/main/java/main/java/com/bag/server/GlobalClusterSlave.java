@@ -623,7 +623,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                Log.getLogger().error("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
+                Log.getLogger().warn("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
+
+                final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+                final Kryo kryo = pool.borrow();
 
                 Log.getLogger().warn("Start logging");
                 final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
@@ -631,7 +634,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
 
                 final List lWriteSet = kryo.readObject(input, ArrayList.class);
-                Log.getLogger().warn("WriteSet received: " + localWriteSet.toArray().toString());
+                Log.getLogger().warn("WriteSet received: " + writeSet.toArray().toString());
 
                 final ArrayList<Operation> localWriteSet2;
 
@@ -648,7 +651,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }
                 Log.getLogger().warn("WriteSet local: " + localWriteSet2.toArray().toString());
                 Log.getLogger().warn("End logging");
-
             }
         }
 
