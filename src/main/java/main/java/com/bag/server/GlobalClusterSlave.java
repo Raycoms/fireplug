@@ -300,7 +300,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (signatureStorage.getMessage().length != output.toBytes().length)
                 {
                     Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
-                    
+
                     final Input input = new Input(signatureStorage.getMessage());
                     final Long snapShotId2 = kryo.readObject(input, Long.class);
 
@@ -620,7 +620,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
+                Log.getLogger().warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
 
                 final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
                 final Kryo kryo = pool.borrow();
@@ -644,9 +644,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     return;
                 }
 
-                Log.getLogger().error("SnapshotId local: " + snapShotId2 + " snapshotId global: " + snapShotId);
-                Log.getLogger().error("WriteSet local: " + localWriteSet.toArray().toString());
-                Log.getLogger().error("WriteSet local: " + writeSet.toArray().toString());
+                Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId global: " + snapShotId);
+                Log.getLogger().warn("WriteSet local: " + localWriteSet.toArray().toString());
+                Log.getLogger().warn("WriteSet local: " + writeSet.toArray().toString());
 
             }
         }
