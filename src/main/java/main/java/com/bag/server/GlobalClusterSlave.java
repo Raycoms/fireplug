@@ -319,9 +319,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         return;
                     }
 
-                    Log.getLogger().error("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
-                    Log.getLogger().error("WriteSet local: " + localWriteSet2.toArray().toString());
-                    Log.getLogger().error("WriteSet received: " + localWriteSet.toArray().toString());
+                    Log.getLogger().warn("Start logging");
+                    Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
+                    Log.getLogger().warn("WriteSet local: " + localWriteSet2.toArray().toString());
+                    Log.getLogger().warn("WriteSet received: " + localWriteSet.toArray().toString());
+                    Log.getLogger().warn("End logging");
                 }
             }
             else
@@ -644,9 +646,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     return;
                 }
 
-                Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId global: " + snapShotId);
+                Log.getLogger().warn("Start logging");
+                Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
                 Log.getLogger().warn("WriteSet local: " + localWriteSet.toArray().toString());
-                Log.getLogger().warn("WriteSet local: " + writeSet.toArray().toString());
+                Log.getLogger().warn("WriteSet received: " + localWriteSet.toArray().toString());
+                Log.getLogger().warn("End logging");
 
             }
         }
