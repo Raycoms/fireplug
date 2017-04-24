@@ -299,7 +299,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 signatureStorage = signatureStorageMap.get(getGlobalSnapshotId());
                 if (signatureStorage.getMessage().length != output.toBytes().length)
                 {
-                    Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
+                    Log.getLogger().error("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
 
                     final Input input = new Input(signatureStorage.getMessage());
                     final Long snapShotId2 = kryo.readObject(input, Long.class);
@@ -622,7 +622,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                Log.getLogger().warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
+                Log.getLogger().warn("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
 
                 final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
                 final Kryo kryo = pool.borrow();
