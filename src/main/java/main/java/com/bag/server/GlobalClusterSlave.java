@@ -302,10 +302,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     Log.getLogger().error("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
 
+                    Log.getLogger().warn("Start logging");
                     final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
                     final Long snapShotId2 = kryo.readObject(input, Long.class);
+                    Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
 
                     final List lWriteSet = kryo.readObject(input, ArrayList.class);
+                    Log.getLogger().warn("WriteSet received: " + localWriteSet.toArray().toString());
+
                     final ArrayList<Operation> localWriteSet2;
 
                     input.close();
@@ -319,11 +323,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         Log.getLogger().warn("Couldn't convert received signature message.", e);
                         return;
                     }
-
-                    Log.getLogger().warn("Start logging");
-                    Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
                     Log.getLogger().warn("WriteSet local: " + localWriteSet2.toArray().toString());
-                    Log.getLogger().warn("WriteSet received: " + localWriteSet.toArray().toString());
                     Log.getLogger().warn("End logging");
                 }
             }
@@ -623,34 +623,30 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                Log.getLogger().warn("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
+                Log.getLogger().error("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
 
-                final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-                final Kryo kryo = pool.borrow();
-
-                final Input input = new Input(signatureStorage.getMessage());
+                Log.getLogger().warn("Start logging");
+                final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
                 final Long snapShotId2 = kryo.readObject(input, Long.class);
+                Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
 
                 final List lWriteSet = kryo.readObject(input, ArrayList.class);
-                final ArrayList<Operation> localWriteSet;
+                Log.getLogger().warn("WriteSet received: " + localWriteSet.toArray().toString());
+
+                final ArrayList<Operation> localWriteSet2;
 
                 input.close();
-                pool.release(kryo);
 
                 try
                 {
-                    localWriteSet = (ArrayList<Operation>) lWriteSet;
+                    localWriteSet2 = (ArrayList<Operation>) lWriteSet;
                 }
                 catch (ClassCastException e)
                 {
                     Log.getLogger().warn("Couldn't convert received signature message.", e);
                     return;
                 }
-
-                Log.getLogger().warn("Start logging");
-                Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
-                Log.getLogger().warn("WriteSet local: " + localWriteSet.toArray().toString());
-                Log.getLogger().warn("WriteSet received: " + localWriteSet.toArray().toString());
+                Log.getLogger().warn("WriteSet local: " + localWriteSet2.toArray().toString());
                 Log.getLogger().warn("End logging");
 
             }
