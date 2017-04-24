@@ -17,7 +17,9 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.cypher.InvalidArgumentException;
 
+import java.io.IOException;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -300,10 +302,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 signatureStorage = signatureStorageMap.get(getGlobalSnapshotId());
                 if (signatureStorage.getMessage().length != output.toBytes().length)
                 {
-                    Log.getLogger().error("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
+                    Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
 
                     Log.getLogger().warn("Start logging");
-                    final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
+                    final Input input = new Input(signatureStorage.getMessage());
+                    kryo.readObject(input, String.class);
                     final Long snapShotId2 = kryo.readObject(input, Long.class);
                     Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
 
@@ -380,12 +383,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
-
-        if(snapShotId == -1)
-        {
-            Log.getLogger().error("Wtf, reciev -1 snapshot id");
-        }
-
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<Operation> localWriteSet;
 
@@ -628,13 +625,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                Log.getLogger().warn("THE DEVIL: Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
+                Log.getLogger().warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
 
                 final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
                 final Kryo kryo = pool.borrow();
 
                 Log.getLogger().warn("Start logging");
                 final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
+                kryo.readObject(input, String.class);
                 final Long snapShotId2 = kryo.readObject(input, Long.class);
                 Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
 
