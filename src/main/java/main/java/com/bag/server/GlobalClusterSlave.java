@@ -307,6 +307,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     Log.getLogger().warn("Start logging");
                     final Input input = new Input(signatureStorage.getMessage());
                     kryo.readObject(input, String.class);
+                    kryo.readObject(input, String.class);
                     final Long snapShotId2 = kryo.readObject(input, Long.class);
                     Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
 
@@ -632,6 +633,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 Log.getLogger().warn("Start logging");
                 final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
+                kryo.readObject(input, String.class);
                 kryo.readObject(input, String.class);
                 final Long snapShotId2 = kryo.readObject(input, Long.class);
                 Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
