@@ -166,7 +166,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param input the input.
      * @return the response.
      */
-    private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
+    private synchronized byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -205,7 +205,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
-                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: " + localWriteSet.size()
+                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                            + localWriteSet.size()
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
@@ -213,20 +214,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
             //Send abort to client and abort
             byte[] returnBytes = output.getBuffer();
             output.close();
-
-            //TODO Do we need to notify the other servers about an abort? I believe not.
-            /*if (wrapper.getLocalCLuster() != null)
-            {
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.ABORT, getGlobalSnapshotId(), kryo);
-            }*/
             return returnBytes;
         }
-
         if (!localWriteSet.isEmpty())
         {
             super.executeCommit(localWriteSet);
-            //FIXME This is only for now this way. If we execute it with primaries without local clusters
-            //if (wrapper.getLocalCLuster() != null)
+            if (wrapper.getLocalCLuster() != null)
             {
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
             }
