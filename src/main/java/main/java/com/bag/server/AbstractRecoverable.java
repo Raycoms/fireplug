@@ -12,7 +12,7 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
-import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.server.database.OrientDBDatabaseAccess;
@@ -55,7 +55,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Write set of the nodes contains updates and deletes.
      */
-    private TreeMap<Long, List<Operation>> globalWriteSet;
+    private TreeMap<Long, List<IOperation>> globalWriteSet;
 
     /**
      * Object to lock global write set.
@@ -152,11 +152,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             {
                 long snapshotId = kryo.readObject(input, Long.class);
                 Object object = kryo.readClassAndObject(input);
-                if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof Operation)
+                if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
                 {
                     synchronized (lock)
                     {
-                        globalWriteSet.put(snapshotId, (List<Operation>) object);
+                        globalWriteSet.put(snapshotId, (List<IOperation>) object);
                     }
                 }
             }
@@ -217,7 +217,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             else
             {
                 kryo.writeObject(output, globalWriteSet.size());
-                for (Map.Entry<Long, List<Operation>> writeSet : globalWriteSet.entrySet())
+                for (Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
                 {
                     kryo.writeObject(output, writeSet.getKey());
                     kryo.writeObject(output, writeSet.getValue());
@@ -413,7 +413,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @param localWriteSet the write set to execute.
      */
-    public void executeCommit(final List<Operation> localWriteSet)
+    public void executeCommit(final List<IOperation> localWriteSet)
     {
         final long currentSnapshot;
         synchronized (commitLock)
@@ -421,11 +421,15 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             ++globalSnapshotId;
             currentSnapshot = globalSnapshotId;
             //Execute the transaction.
-            for (Operation op : localWriteSet)
+            Log.getLogger().warn("Executing transaction with snapshot Id: " + globalSnapshotId);
+
+            for (IOperation op : localWriteSet)
             {
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
+                Log.getLogger().warn(globalSnapshotId + " : "  + op.toString());
                 updateCounts(1, 0, 0, 0);
             }
+
         }
         synchronized (lock)
         {
@@ -459,7 +463,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return a hashmap of all the operations with their snapshotId.
      */
-    public Map<Long, List<Operation>> getGlobalWriteSet()
+    public Map<Long, List<IOperation>> getGlobalWriteSet()
     {
         synchronized (lock)
         {

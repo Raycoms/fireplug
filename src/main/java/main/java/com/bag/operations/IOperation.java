@@ -6,7 +6,7 @@ import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
  * Generic command which may be sent to the database.
  */
 @FunctionalInterface
-public interface Operation
+public interface IOperation
 {
     /**
      * Applies an operation to the database.
@@ -17,4 +17,7 @@ public interface Operation
 
     @Override
     abstract boolean equals(Object obj);
+
+    @Override
+    abstract String toString();
 }

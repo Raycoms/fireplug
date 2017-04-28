@@ -11,7 +11,7 @@ import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
-import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.util.*;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -51,7 +51,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private ArrayList<NodeStorage>         readsSetNode;
     private ArrayList<RelationshipStorage> readsSetRelationship;
 
-    private ArrayList<Operation> writeSet;
+    private ArrayList<IOperation> writeSet;
 
     /**
      * Local timestamp of the current transaction.

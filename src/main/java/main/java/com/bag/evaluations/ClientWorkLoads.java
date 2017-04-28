@@ -8,7 +8,7 @@ import main.java.com.bag.client.BAGClient;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
-import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
@@ -88,7 +88,7 @@ public class ClientWorkLoads
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
-            List<Operation> createNodeOperationList = new ArrayList<>();
+            List<IOperation> createNodeOperationList = new ArrayList<>();
 
             int written = 0;
             for (int i = startAt; i <= stopAt; i++)
@@ -402,7 +402,7 @@ public class ClientWorkLoads
                 boolean isRead = bytes[i] == 0;
                 RelationshipStorage readRelationship = null;
                 NodeStorage readNodeStorage = null;
-                Operation operation = null;
+                IOperation operation = null;
 
                 if (isRead || this.percOfWrites == 0)
                 {

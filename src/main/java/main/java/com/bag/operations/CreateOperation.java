@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * Create command which may be sent to the database.
  */
-public class CreateOperation<S extends Serializable> implements Operation, Serializable
+public class CreateOperation<S extends Serializable> implements IOperation, Serializable
 {
     private final S storage;
 
@@ -68,5 +68,11 @@ public class CreateOperation<S extends Serializable> implements Operation, Seria
             return storage.equals(((RelationshipStorage) e).getStartNode()) || storage.equals(((RelationshipStorage) e).getEndNode());
         }
         return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Create: " + storage.toString();
     }
 }

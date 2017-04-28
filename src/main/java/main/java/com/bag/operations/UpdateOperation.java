@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * Update command which may be sent to the database.
  */
-public class UpdateOperation<S extends Serializable> implements Operation, Serializable
+public class UpdateOperation<S extends Serializable> implements IOperation, Serializable
 {
     private final S key;
     private final S value;
@@ -81,5 +81,11 @@ public class UpdateOperation<S extends Serializable> implements Operation, Seria
             return key.equals(((RelationshipStorage) e).getStartNode()) || key.equals(((RelationshipStorage) e).getEndNode());
         }
         return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Delete: " + key.toString() + " to " + value.toString();
     }
 }

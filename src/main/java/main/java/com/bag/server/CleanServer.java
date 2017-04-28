@@ -17,7 +17,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
-import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.server.database.OrientDBDatabaseAccess;
@@ -139,8 +139,8 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         final List returnValue = kryo.readObject(input, ArrayList.class);
         Log.getLogger().info("Received message!");
         for (Object obj : returnValue) {
-            if (obj instanceof Operation) {
-                ((Operation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT);
+            if (obj instanceof IOperation) {
+                ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT);
                 instrumentation.updateCounts(1, 0, 0, 0);
                 writesPerformed += 1;
             } else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage) {

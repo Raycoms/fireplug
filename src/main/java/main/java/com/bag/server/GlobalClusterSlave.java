@@ -12,7 +12,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
-import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
@@ -176,7 +176,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         //Create placeHolders.
         ArrayList<NodeStorage> readSetNode;
         ArrayList<RelationshipStorage> readsSetRelationship;
-        ArrayList<Operation> localWriteSet;
+        ArrayList<IOperation> localWriteSet;
 
         input.close();
         Output output = new Output(128);
@@ -186,7 +186,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
             readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
-            localWriteSet = (ArrayList<Operation>) writeSetX;
+            localWriteSet = (ArrayList<IOperation>) writeSetX;
         }
         catch (Exception e)
         {
@@ -256,7 +256,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         //Create placeHolders.
         ArrayList<NodeStorage> readSetNode;
         ArrayList<RelationshipStorage> readsSetRelationship;
-        ArrayList<Operation> localWriteSet;
+        ArrayList<IOperation> localWriteSet;
 
         input.close();
         Output output = new Output(128);
@@ -266,7 +266,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
             readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
-            localWriteSet = (ArrayList<Operation>) writeSetX;
+            localWriteSet = (ArrayList<IOperation>) writeSetX;
         }
         catch (Exception e)
         {
@@ -311,12 +311,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     private class SignatureThread extends Thread
     {
-        final List<Operation> localWriteSet;
-        final String commit;
-        final long globalSnapshotId;
-        final Kryo kryo;
+        final List<IOperation> localWriteSet;
+        final String           commit;
+        final long             globalSnapshotId;
+        final Kryo             kryo;
 
-        private SignatureThread(final List<Operation> localWriteSet, final String commit, final long globalSnapshotId, final Kryo kryo)
+        private SignatureThread(final List<IOperation> localWriteSet, final String commit, final long globalSnapshotId, final Kryo kryo)
         {
             this.localWriteSet = localWriteSet;
             this.commit = commit;
@@ -331,7 +331,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
     }
 
-    private void signCommitWithDecisionAndDistribute(final List<Operation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo)
+    private void signCommitWithDecisionAndDistribute(final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo)
     {
         Log.getLogger().info("Sending signed commit to the other global replicas");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(this.idClient, GLOBAL_CONFIG_LOCATION, false);
@@ -367,7 +367,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
 
-                    Log.getLogger().warn("Start logging");
+                    /*Log.getLogger().warn("Start logging");
                     final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
                     kryo.readObject(input, String.class);
                     kryo.readObject(input, String.class);
@@ -376,7 +376,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                     final List lWriteSet = kryo.readObject(input, ArrayList.class);
                     Log.getLogger().warn("WriteSet received: " + localWriteSet.size());
-                    for(Operation op: localWriteSet)
+                    for(IOperation op: localWriteSet)
                     {
                         if(op instanceof UpdateOperation)
                         {
@@ -396,13 +396,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         }
                     }
 
-                    final ArrayList<Operation> localWriteSet2;
+                    final ArrayList<IOperation> localWriteSet2;
 
                     input.close();
 
                     try
                     {
-                        localWriteSet2 = (ArrayList<Operation>) lWriteSet;
+                        localWriteSet2 = (ArrayList<IOperation>) lWriteSet;
                     }
                     catch (ClassCastException e)
                     {
@@ -411,7 +411,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                     Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
 
-                    for(Operation op: localWriteSet2)
+                    for(IOperation op: localWriteSet2)
                     {
                         if(op instanceof UpdateOperation)
                         {
@@ -431,7 +431,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         }
                     }
 
-                    Log.getLogger().warn("End logging");
+                    Log.getLogger().warn("End logging");*/
                 }
             }
             else
@@ -488,11 +488,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
-        final ArrayList<Operation> localWriteSet;
+        final ArrayList<IOperation> localWriteSet;
 
         try
         {
-            localWriteSet = (ArrayList<Operation>) writeSet;
+            localWriteSet = (ArrayList<IOperation>) writeSet;
         }
         catch (ClassCastException e)
         {
@@ -711,7 +711,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param decision   the decision.
      * @param message    the message.
      */
-    private void storeSignedMessage(final Long snapShotId, final byte[] signature, @NotNull final MessageContext context, final String decision, final byte[] message, final List<Operation> writeSet)
+    private void storeSignedMessage(final Long snapShotId, final byte[] signature, @NotNull final MessageContext context, final String decision, final byte[] message, final List<IOperation> writeSet)
     {
         final SignatureStorage signatureStorage;
         if (!signatureStorageMap.containsKey(snapShotId))
@@ -744,7 +744,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 final List lWriteSet = kryo.readObject(input, ArrayList.class);
                 Log.getLogger().warn("WriteSet received: " + writeSet.size());
-                for(Operation op: writeSet)
+                for(IOperation op: writeSet)
                 {
                     if(op instanceof UpdateOperation)
                     {
@@ -764,13 +764,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                 }
 
-                final ArrayList<Operation> localWriteSet2;
+                final ArrayList<IOperation> localWriteSet2;
 
                 input.close();
 
                 try
                 {
-                    localWriteSet2 = (ArrayList<Operation>) lWriteSet;
+                    localWriteSet2 = (ArrayList<IOperation>) lWriteSet;
                 }
                 catch (ClassCastException e)
                 {
@@ -779,7 +779,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }
                 Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
 
-                for(Operation op: localWriteSet2)
+                for(IOperation op: localWriteSet2)
                 {
                     if(op instanceof UpdateOperation)
                     {

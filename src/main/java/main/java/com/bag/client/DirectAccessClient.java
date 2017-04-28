@@ -15,7 +15,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import main.java.com.bag.evaluations.NettyClient;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
-import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.nettyhandlers.BAGMessageDecoder;
 import main.java.com.bag.server.nettyhandlers.BAGMessageEncoder;
@@ -36,14 +36,14 @@ import java.util.concurrent.ThreadFactory;
  */
 public class DirectAccessClient implements BAGClient {
 
-    private NettyClient server;
+    private NettyClient           server;
     private BlockingQueue<Object> readQueue;
-    private final EventLoopGroup connectGroup;
-    private ClientHandler handler;
-    private String host;
-    private int hostPort;
-    private KryoPool kryoPool;
-    private ArrayList<Operation> writeSet;
+    private final EventLoopGroup  connectGroup;
+    private ClientHandler         handler;
+    private String                host;
+    private int                   hostPort;
+    private KryoPool              kryoPool;
+    private ArrayList<IOperation> writeSet;
 
     /**
      * Create a threadsafe version of kryo.

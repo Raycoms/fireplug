@@ -9,7 +9,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.SignatureStorage;
@@ -66,7 +66,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Queue to catch messages out of order.
      */
-    private final Map<Long, List<Operation>> buffer = new TreeMap<>();
+    private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
 
     //todo maybe detect local transaction problems in the future.
     /**
@@ -415,13 +415,13 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         kryo.readObject(messageInput, Long.class);
         final List writeSet = kryo.readObject(messageInput, ArrayList.class);
-        final ArrayList<Operation> localWriteSet;
+        final ArrayList<IOperation> localWriteSet;
 
         messageInput.close();
 
         try
         {
-            localWriteSet = (ArrayList<Operation>) writeSet;
+            localWriteSet = (ArrayList<IOperation>) writeSet;
         }
         catch (ClassCastException e)
         {

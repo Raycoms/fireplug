@@ -1,7 +1,7 @@
 package main.java.com.bag.server;
 
 import main.java.com.bag.operations.DeleteOperation;
-import main.java.com.bag.operations.Operation;
+import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -34,7 +34,7 @@ public class ConflictHandler
      * @param snapshotId the snapShotId of the transaction.
      * @return true if no conflict has been found.
      */
-    protected static boolean checkForConflict(Map<Long, List<Operation>> globalWriteSet, List<Operation> localWriteSet,
+    protected static boolean checkForConflict(Map<Long, List<IOperation>> globalWriteSet, List<IOperation> localWriteSet,
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship,
             long snapshotId, IDatabaseAccess access)
@@ -53,12 +53,12 @@ public class ConflictHandler
      * @param snapshotId the snapShotId of the transaction.
      * @return true if data is up to date.
      */
-    private static boolean isUpToDate(Map<Long, List<Operation>> writeSet, List<Operation> localWriteSet,
+    private static boolean isUpToDate(Map<Long, List<IOperation>> writeSet, List<IOperation> localWriteSet,
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
 
-        List<Operation> pastWrites = null;
+        List<IOperation> pastWrites = null;
 
         boolean commit = true;
         if(!readSetNode.isEmpty())
@@ -86,7 +86,7 @@ public class ConflictHandler
             return false;
         }
 
-        final List<Operation> tempList = localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
+        final List<IOperation> tempList = localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
                 .collect(Collectors.toList());
 
         if(!tempList.isEmpty())
