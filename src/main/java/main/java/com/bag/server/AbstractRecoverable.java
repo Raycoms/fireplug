@@ -143,6 +143,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         Input input = new Input(bytes);
 
         globalSnapshotId = kryo.readObject(input, Long.class);
+        Log.getLogger().error("Install snapshot with old values!!!!: " + globalSnapshotId);
 
         if (input.canReadInt())
         {
