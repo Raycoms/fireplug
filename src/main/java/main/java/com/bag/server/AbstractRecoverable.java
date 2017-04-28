@@ -415,11 +415,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     public void executeCommit(final List<IOperation> localWriteSet)
     {
-        final long currentSnapshot;
         synchronized (commitLock)
         {
-            ++globalSnapshotId;
-            currentSnapshot = globalSnapshotId;
+            final long currentSnapshot = ++globalSnapshotId;
             //Execute the transaction.
             Log.getLogger().warn("Executing transaction with snapshot Id: " + globalSnapshotId);
 
@@ -429,12 +427,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 Log.getLogger().warn(globalSnapshotId + " : "  + op.toString());
                 updateCounts(1, 0, 0, 0);
             }
-
-        }
-        synchronized (lock)
-        {
             this.globalWriteSet.put(currentSnapshot, localWriteSet);
         }
+
         updateCounts(0, 0, 1, 0);
     }
 
