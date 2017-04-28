@@ -239,6 +239,76 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnBytes;
     }
 
+    /**
+     * Check for conflicts and unpack things for conflict handle check.
+     *
+     * @param kryo  the kryo instance.
+     * @param input the input.
+     * @return the response.
+     */
+    private byte[] executeReadOnlyCommit(final Kryo kryo, final Input input, final long timeStamp)
+    {
+        //Read the inputStream.
+        final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
+        final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
+        final List writeSetX = kryo.readObject(input, ArrayList.class);
+
+        //Create placeHolders.
+        ArrayList<NodeStorage> readSetNode;
+        ArrayList<RelationshipStorage> readsSetRelationship;
+        ArrayList<Operation> localWriteSet;
+
+        input.close();
+        Output output = new Output(128);
+        kryo.writeObject(output, Constants.COMMIT_RESPONSE);
+
+        try
+        {
+            readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+            readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+            localWriteSet = (ArrayList<Operation>) writeSetX;
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
+            kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, getGlobalSnapshotId());
+
+            //Send abort to client and abort
+            byte[] returnBytes = output.getBuffer();
+            output.close();
+            return returnBytes;
+        }
+
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
+        {
+            updateCounts(0, 0, 0, 1);
+
+            Log.getLogger()
+                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                            + localWriteSet.size()
+                            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+            kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, getGlobalSnapshotId());
+
+            //Send abort to client and abort
+            byte[] returnBytes = output.getBuffer();
+            output.close();
+            return returnBytes;
+        }
+
+        updateCounts(0, 0, 1, 0);
+
+        kryo.writeObject(output, Constants.COMMIT);
+        kryo.writeObject(output, getGlobalSnapshotId());
+
+        byte[] returnBytes = output.getBuffer();
+        output.close();
+        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
+
+        return returnBytes;
+    }
+
     private class SignatureThread extends Thread
     {
         final List<Operation> localWriteSet;
@@ -556,7 +626,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
     {
         final Long timeStamp = kryo.readObject(input, Long.class);
-        return executeCommit(kryo, input, timeStamp);
+        return executeReadOnlyCommit(kryo, input, timeStamp);
     }
 
     /**
@@ -594,6 +664,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param input the message.
      * @return the message in bytes.
      */
+    @SuppressWarnings("squid:S2095")
     private byte[] handleRegisteringSlave(final Input input, final Kryo kryo)
     {
         final int localClusterID = kryo.readObject(input, Integer.class);
