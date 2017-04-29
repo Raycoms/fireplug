@@ -201,29 +201,29 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public byte[] getSnapshot()
     {
+        Log.getLogger().warn("Get snapshot!!");
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
         Output output = new Output(0, 200240);
 
-        kryo.writeObject(output, globalSnapshotId);
+        kryo.writeObject(output, getGlobalSnapshotId());
 
+        final long time = System.nanoTime();
+        Log.getLogger().warn("Starting locking");
+        LinkedHashMap<Long, List<IOperation>> temp = new LinkedHashMap<>();
         synchronized (lock)
         {
-            if (globalWriteSet == null)
-            {
-                globalWriteSet = new TreeMap<>();
-            }
-            else
-            {
-                kryo.writeObject(output, globalWriteSet.size());
-                for (Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
-                {
-                    kryo.writeObject(output, writeSet.getKey());
-                    kryo.writeObject(output, writeSet.getValue());
-                }
-            }
+            temp.putAll(globalWriteSet);
+        }
+        Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
+
+        kryo.writeObject(output, temp.size());
+        for (Map.Entry<Long, List<IOperation>> writeSet : temp.entrySet())
+        {
+            kryo.writeObject(output, writeSet.getKey());
+            kryo.writeObject(output, writeSet.getValue());
         }
 
         kryo.writeObject(output, id);
