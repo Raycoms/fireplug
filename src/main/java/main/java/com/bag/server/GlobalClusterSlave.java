@@ -148,15 +148,21 @@ public class GlobalClusterSlave extends AbstractRecoverable
     @Override
     void writeSpecificData(final Output output, final Kryo kryo)
     {
-        if (signatureStorageMap != null)
+        final long time = System.nanoTime();
+        Log.getLogger().warn("Starting locking in global cluster slave");
+        synchronized (lock)
         {
-            kryo.writeObject(output, signatureStorageMap.size());
-            for (Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
+            if (signatureStorageMap != null)
             {
-                kryo.writeObject(output, entrySet.getKey());
-                kryo.writeObject(output, entrySet.getValue());
+                kryo.writeObject(output, signatureStorageMap.size());
+                for (Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
+                {
+                    kryo.writeObject(output, entrySet.getKey());
+                    kryo.writeObject(output, entrySet.getValue());
+                }
             }
         }
+        Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
     }
 
     /**
