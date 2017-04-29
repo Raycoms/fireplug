@@ -213,10 +213,15 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         final long time = System.nanoTime();
         Log.getLogger().warn("Starting locking");
         LinkedHashMap<Long, List<IOperation>> temp = new LinkedHashMap<>();
+
         synchronized (lock)
         {
-            temp.putAll(globalWriteSet);
+            if (globalWriteSet != null && !globalWriteSet.isEmpty())
+            {
+                temp.putAll(globalWriteSet);
+            }
         }
+
         Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
 
         kryo.writeObject(output, temp.size());
