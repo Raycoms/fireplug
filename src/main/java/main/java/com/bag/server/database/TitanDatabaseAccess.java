@@ -51,16 +51,17 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         graph = config.open();
         TitanManagement mg = graph.openManagement();
         PropertyKey idxKey = mg.getPropertyKey("idx");
-        if (idxKey == null) {
+        if (idxKey == null)
+        {
             idxKey = mg.makePropertyKey("idx").dataType(String.class).make();
             mg.buildIndex("byIdx", Vertex.class).addKey(idxKey).buildCompositeIndex();
         }
         mg.commit();
     }
 
-
     /**
      * Creates a transaction which will get a list of nodes.
+     *
      * @param identifier the nodes which should be retrieved.
      * @return the result nodes as a List of NodeStorages..
      */
@@ -68,13 +69,13 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     public List<Object> readObject(@NotNull Object identifier, long snapshotId) throws OutDatedDataException
     {
         NodeStorage nodeStorage = null;
-        RelationshipStorage relationshipStorage =  null;
+        RelationshipStorage relationshipStorage = null;
 
-        if(identifier instanceof NodeStorage)
+        if (identifier instanceof NodeStorage)
         {
             nodeStorage = (NodeStorage) identifier;
         }
-        else if(identifier instanceof RelationshipStorage)
+        else if (identifier instanceof RelationshipStorage)
         {
             relationshipStorage = (RelationshipStorage) identifier;
         }
@@ -84,12 +85,12 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             return Collections.emptyList();
         }
 
-        if(graph == null)
+        if (graph == null)
         {
             start();
         }
 
-        ArrayList<Object> returnStorage =  new ArrayList<>();
+        ArrayList<Object> returnStorage = new ArrayList<>();
 
         TitanTransaction tx = graph.newTransaction();
         try
@@ -98,7 +99,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             GraphTraversalSource g = graph.traversal();
 
             //If nodeStorage is null, we're obviously trying to read relationships.
-            if(nodeStorage == null)
+            if (nodeStorage == null)
             {
                 returnStorage.addAll(getRelationshipStorages(relationshipStorage, g, snapshotId));
             }
@@ -118,20 +119,21 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     /**
      * Creates a relationShipStorage list by obtaining the info from the graph using.
+     *
      * @param relationshipStorage the keys to retrieve from the graph.
-     * @param g the graph to retrieve them from.
+     * @param g                   the graph to retrieve them from.
      * @return a list matching the keys
      */
     private List<RelationshipStorage> getRelationshipStorages(final RelationshipStorage relationshipStorage, final GraphTraversalSource g, long snapshotId)
             throws OutDatedDataException
     {
-        ArrayList<Edge> relationshipList =  new ArrayList<>();
+        ArrayList<Edge> relationshipList = new ArrayList<>();
         //g.V(1).bothE().where(otherV().hasId(2)).hasLabel('knows').has('weight',gt(0.0))
 
-        ArrayList<Vertex> nodeEndList =  getVertexList(relationshipStorage.getEndNode(), g, snapshotId);
+        ArrayList<Vertex> nodeEndList = getVertexList(relationshipStorage.getEndNode(), g, snapshotId);
 
         GraphTraversal<Vertex, Edge> tempOutput;
-        if(relationshipStorage.getStartNode().getProperties().isEmpty())
+        if (relationshipStorage.getStartNode().getProperties().isEmpty())
         {
             tempOutput = graph.traversal().V(nodeEndList.toArray()).bothE();
         }
@@ -151,22 +153,24 @@ public class TitanDatabaseAccess implements IDatabaseAccess
             tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
         }
 
-        if(tempOutput != null)
+        if (tempOutput != null)
         {
             tempOutput.fill(relationshipList);
         }
 
         ArrayList<RelationshipStorage> returnList = new ArrayList<>();
 
-        for(Edge edge: relationshipList)
+        for (Edge edge : relationshipList)
         {
             RelationshipStorage tempStorage = getRelationshipStorageFromEdge(edge);
-            if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+            if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
             {
-                Object sId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                Object sId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                 OutDatedDataException.checkSnapshotId(sId, snapshotId);
                 tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
             }
+            tempStorage.removeProperty(Constants.TAG_HASH);
+
 
             returnList.add(tempStorage);
         }
@@ -175,8 +179,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     /**
      * Creates a list of vertices matching a certain nodeStorage.
+     *
      * @param nodeStorage the key.
-     * @param g the graph.
+     * @param g           the graph.
      * @return the list of vertices.
      */
     private ArrayList<Vertex> getVertexList(final NodeStorage nodeStorage, final GraphTraversalSource g, long snapshotId)
@@ -184,7 +189,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         GraphTraversal<Vertex, Vertex> tempOutput = getVertexList(nodeStorage, g);
         ArrayList<Vertex> nodeList = new ArrayList<>();
 
-        if(tempOutput!= null)
+        if (tempOutput != null)
         {
             tempOutput.fill(nodeList);
         }
@@ -194,25 +199,27 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     /**
      * Creates a list of vertices matching a certain nodeStorage.
+     *
      * @param nodeStorage the key.
-     * @param g the graph.
+     * @param g           the graph.
      * @return the list of vertices.
      */
     private List<NodeStorage> getNodeStorages(NodeStorage nodeStorage, GraphTraversalSource g, long snapshotId) throws OutDatedDataException
     {
-        ArrayList<Vertex> nodeList =  getVertexList(nodeStorage, g, snapshotId);
-        ArrayList<NodeStorage> returnStorage =  new ArrayList<>();
+        ArrayList<Vertex> nodeList = getVertexList(nodeStorage, g, snapshotId);
+        ArrayList<NodeStorage> returnStorage = new ArrayList<>();
 
-        for(Vertex vertex: nodeList)
+        for (Vertex vertex : nodeList)
         {
             NodeStorage tempStorage = getNodeStorageFromVertex(vertex);
 
-            if(tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+            if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
             {
-                Object sId =  tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                Object sId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                 OutDatedDataException.checkSnapshotId(sId, snapshotId);
                 tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
             }
+            tempStorage.removeProperty(Constants.TAG_HASH);
 
             returnStorage.add(tempStorage);
         }
@@ -222,6 +229,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     /**
      * Generated a NodeStorage from a Vertex.
+     *
      * @param tempVertex the base vertex.
      * @return the nodeStorage.
      */
@@ -229,9 +237,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     {
         NodeStorage tempStorage = new NodeStorage(tempVertex.label());
 
-        for(String key: tempVertex.keys())
+        for (String key : tempVertex.keys())
         {
-            if(key.equals(Constants.TAG_SNAPSHOT_ID))
+            if (key.equals(Constants.TAG_SNAPSHOT_ID))
             {
                 continue;
             }
@@ -242,16 +250,19 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     /**
      * Generated a RelationshipStorage from an Edge.
+     *
      * @param edge the base edge.
      * @return the relationshipStorage.
      */
     private RelationshipStorage getRelationshipStorageFromEdge(Edge edge)
     {
         RelationshipStorage tempStorage = new RelationshipStorage(edge.label(), getNodeStorageFromVertex(edge.outVertex()), getNodeStorageFromVertex(edge.inVertex()));
-        for(String s: edge.keys())
+        for (String s : edge.keys())
         {
             if (edge.property(s).isPresent())
+            {
                 tempStorage.addProperty(s, edge.property(s).value());
+            }
         }
         return tempStorage;
     }
@@ -267,13 +278,14 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     /**
      * Compares a nodeStorage with the node inside the db to check if correct.
+     *
      * @param nodeStorage the node to compare
      * @return true if equal hash, else false.
      */
     @Override
     public boolean compareNode(final NodeStorage nodeStorage)
     {
-        if(graph == null)
+        if (graph == null)
         {
             start();
         }
@@ -293,12 +305,12 @@ public class TitanDatabaseAccess implements IDatabaseAccess
                 tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
             }
 
-            if(tempOutput == null || !HashCreator.sha1FromNode(nodeStorage).equals(tempOutput.values("hash").toString()))
+            if (tempOutput == null || !HashCreator.sha1FromNode(nodeStorage).equals(tempOutput.values("hash").toString()))
             {
                 return false;
             }
         }
-        catch(NoSuchAlgorithmException e)
+        catch (NoSuchAlgorithmException e)
         {
             Log.getLogger().info("Failed at generating hash in server " + id, e);
         }
@@ -438,7 +450,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
                     {
                         Edge edge = edges.next();
                         if (!edge.outVertex().equals(endVertex) && !edge.inVertex().equals(endVertex))
+                        {
                             continue;
+                        }
 
                         for (Map.Entry<String, Object> entry : value.getProperties().entrySet())
                         {
@@ -479,7 +493,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
                 Vertex tempVertex = startNode.next();
                 while (endNode.hasNext())
                 {
-                    Edge edge  = tempVertex.addEdge(storage.getId(), endNode.next());
+                    Edge edge = tempVertex.addEdge(storage.getId(), endNode.next());
 
                     edge.property(Constants.TAG_HASH, HashCreator.sha1FromRelationship(storage));
                     edge.property(Constants.TAG_SNAPSHOT_ID, snapshotId);
@@ -545,13 +559,14 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     /**
      * Compares a nodeStorage with the node inside the db to check if correct.
+     *
      * @param relationshipStorage the node to compare
      * @return true if equal hash, else false.
      */
     @Override
     public boolean compareRelationship(final RelationshipStorage relationshipStorage)
     {
-        if(graph == null)
+        if (graph == null)
         {
             start();
         }
@@ -571,12 +586,12 @@ public class TitanDatabaseAccess implements IDatabaseAccess
                 tempOutput = tempOutput.has(entry.getKey(), entry.getValue());
             }
 
-            if(tempOutput == null || !HashCreator.sha1FromRelationship(relationshipStorage).equals(tempOutput.values("hash").toString()))
+            if (tempOutput == null || !HashCreator.sha1FromRelationship(relationshipStorage).equals(tempOutput.values("hash").toString()))
             {
                 return false;
             }
         }
-        catch(NoSuchAlgorithmException e)
+        catch (NoSuchAlgorithmException e)
         {
             Log.getLogger().warn("Failed at generating hash in server " + id, e);
         }
@@ -590,8 +605,9 @@ public class TitanDatabaseAccess implements IDatabaseAccess
 
     /**
      * Gets the graph traversal object for a nodeStorage.
+     *
      * @param nodeStorage the storage.
-     * @param g the graph.
+     * @param g           the graph.
      * @return the traversal object.
      */
     private GraphTraversal<Vertex, Vertex> getVertexList(final NodeStorage nodeStorage, final GraphTraversalSource g)

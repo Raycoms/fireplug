@@ -138,7 +138,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                                     OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
                                     storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
                                 }
-
+                                storage.removeProperty(Constants.TAG_HASH);
                                 returnStorage.add(storage);
                             }
                         }
@@ -172,6 +172,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                                 OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
                                 storage.removeProperty(Constants.TAG_SNAPSHOT_ID);
                             }
+                            storage.removeProperty(Constants.TAG_HASH);
 
                             returnStorage.add(storage);
                         }
@@ -198,6 +199,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                             OutDatedDataException.checkSnapshotId(sId, localSnapshotId);
                             tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
+                        tempStorage.removeProperty(Constants.TAG_HASH);
                         returnStorage.add(tempStorage);
                     }
                 }

@@ -117,6 +117,14 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                 for (final Edge edge : list)
                 {
                     final RelationshipStorage tempStorage = getRelationshipStorageFromEdge(edge, snapshotId);
+                    if (tempStorage.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                    {
+                        final Object localSId = tempStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        OutDatedDataException.checkSnapshotId(localSId, snapshotId);
+                        tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                    }
+                    tempStorage.removeProperty(Constants.TAG_HASH);
+
                     returnStorage.add(tempStorage);
                 }
             }
@@ -131,6 +139,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
                         OutDatedDataException.checkSnapshotId(localSId, snapshotId);
                         tempStorage.removeProperty(Constants.TAG_SNAPSHOT_ID);
                     }
+                    tempStorage.removeProperty(Constants.TAG_HASH);
                     returnStorage.add(tempStorage);
                 }
             }

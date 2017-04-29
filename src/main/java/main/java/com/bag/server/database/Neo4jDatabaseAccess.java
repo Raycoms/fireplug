@@ -212,6 +212,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             OutDatedDataException.checkSnapshotId(sId, snapshotId);
                             temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
+                        temp.removeProperty(Constants.TAG_HASH);
                         returnStorage.add(temp);
                     }
                     else if (entry.getValue() instanceof RelationshipProxy)
@@ -228,6 +229,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             OutDatedDataException.checkSnapshotId(sId, snapshotId);
                             temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
+                        temp.removeProperty(Constants.TAG_HASH);
                     }
                 }
             }
