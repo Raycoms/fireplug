@@ -202,7 +202,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public byte[] getSnapshot()
     {
-        /*Log.getLogger().warn("Get snapshot!!");
+        Log.getLogger().warn("Get snapshot!!");
         KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         Kryo kryo = pool.borrow();
 
@@ -215,7 +215,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         Log.getLogger().warn("Starting locking");
         LinkedHashMap<Long, List<IOperation>> temp = new LinkedHashMap<>();
         boolean needToLock = false;
-
+        /*
         synchronized (lock)
         {
             if (globalWriteSet != null && !globalWriteSet.isEmpty())
@@ -223,7 +223,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 temp.putAll(globalWriteSet);
                 needToLock = true;
             }
-        }
+        }*/
 
         Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
 
@@ -257,11 +257,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, "none");
         }
 
-        writeSpecificData(output, kryo, needToLock);
+        //writeSpecificData(output, kryo, needToLock);
 
         byte[] bytes = output.getBuffer();
         output.close();
-        pool.release(kryo);*/
+        pool.release(kryo);
         return new byte[]{0};
     }
 
