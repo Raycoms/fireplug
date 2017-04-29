@@ -486,6 +486,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             latestWritesSet.remove(oldestEntry.getKey());
             globalWriteSet.put(oldestEntry.getKey(), oldestEntry.getValue());
         }
+        Log.getLogger().info("Latest: " + latestWritesSet.size() + " complete: "  + globalWriteSet.size());
     }
 
     /**

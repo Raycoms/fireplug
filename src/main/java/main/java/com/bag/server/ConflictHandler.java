@@ -45,8 +45,6 @@ public class ConflictHandler
             long snapshotId,
             IDatabaseAccess access)
     {
-        //Commented out during first experiments because implementation is buggy
-        //TODO check this, is throwing ClassCastException...
         return isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
