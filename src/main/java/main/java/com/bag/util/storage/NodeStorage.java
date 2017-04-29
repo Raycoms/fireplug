@@ -1,7 +1,6 @@
 package main.java.com.bag.util.storage;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.TreeMap;
@@ -21,8 +20,8 @@ public class NodeStorage implements Serializable
     /**
      * The properties of the node, may be empty as well.
      */
-    @Nullable
-    private Map<String, Object> properties;
+    @NotNull
+    private Map<String, Object> properties = new TreeMap<>();
 
     public NodeStorage()
     {
@@ -31,6 +30,7 @@ public class NodeStorage implements Serializable
 
     /**
      * Simple nodeStorage constructor.
+     *
      * @param id string identifier of the node.
      */
     public NodeStorage(@NotNull String id)
@@ -42,19 +42,23 @@ public class NodeStorage implements Serializable
 
     /**
      * Simple nodeStorage constructor.
-     * @param id string identifier of the node.
+     *
+     * @param id         string identifier of the node.
      * @param properties properties of the node.
      */
     public NodeStorage(@NotNull String id, @NotNull Map<String, Object> properties)
     {
         this.id = "Node";
-        this.properties = properties;
+        this.properties.putAll(properties);
         if (!properties.containsKey("idx"))
+        {
             this.properties.put("idx", id);
+        }
     }
 
     /**
      * Getter of the id.
+     *
      * @return string description of the node.
      */
     @NotNull
@@ -65,44 +69,35 @@ public class NodeStorage implements Serializable
 
     /**
      * Getter of the properties.
+     *
      * @return unmodifiable map of the properties.
      */
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? new TreeMap<>() : new TreeMap<>(properties);
+        return new TreeMap<>(properties);
     }
 
     /**
      * Sets or adds new properties.
+     *
      * @param properties a property map.
      */
     public void setProperties(@NotNull final Map<String, Object> properties)
     {
-        if(this.properties == null)
-        {
-            this.properties = properties;
-        }
-        else
-        {
-            this.properties.putAll(properties);
-        }
+        this.properties.putAll(properties);
     }
 
     /**
      * Add a new property to the properties.
+     *
      * @param description description of the property.
-     * @param value value of the property.
+     * @param value       value of the property.
      */
     public void addProperty(String description, Object value)
     {
-        if(this.properties == null)
-        {
-            this.properties = new TreeMap<>();
-        }
         this.properties.put(description, value);
     }
-
 
     @Override
     public boolean equals(final Object o)
@@ -136,50 +131,50 @@ public class NodeStorage implements Serializable
 
     /**
      * Remove a certain property from the properties.
+     *
      * @param key the key of the property which should be removed.
      */
     public void removeProperty(String key)
     {
-        if(properties != null)
-        {
-            properties.remove(key);
-        }
+        properties.remove(key);
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         StringBuilder sb = new StringBuilder();
         sb.append(id);
-        if (properties != null) {
-            sb.append("[");
-            for(Map.Entry<String, Object> item : properties.entrySet()) {
-                sb.append(item.getKey());
-                sb.append("=");
-                sb.append(item.getValue());
-                sb.append(",");
-            }
-            sb.deleteCharAt(sb.length()-1);
-            sb.append("]");
+
+        sb.append("[");
+        for (Map.Entry<String, Object> item : properties.entrySet())
+        {
+            sb.append(item.getKey());
+            sb.append("=");
+            sb.append(item.getValue());
+            sb.append(",");
         }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("]");
+
 
         return sb.toString();
     }
 
     /**
      * Returns a byte representation of the nodeStorage.
+     *
      * @return a byte array.
      */
     public byte[] getBytes()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(id);
-        if (properties != null)
+
+        for (Map.Entry<String, Object> entry : properties.entrySet())
         {
-            for(Map.Entry<String, Object> entry: properties.entrySet())
-            {
-                sb.append(entry.getKey()).append(entry.getValue());
-            }
+            sb.append(entry.getKey()).append(entry.getValue());
         }
+
         return sb.toString().getBytes();
     }
 }

@@ -8,7 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.TreeMap;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,8 +24,8 @@ public class RelationshipStorage implements Serializable
     /**
      * The properties of the relationship, may be empty as well.
      */
-    @Nullable
-    private Map<String, Object> properties;
+    @NotNull
+    private Map<String, Object> properties = new TreeMap<>();
 
     /**
      * The node the relationship starts.
@@ -72,7 +71,7 @@ public class RelationshipStorage implements Serializable
     public RelationshipStorage(@NotNull String id, @Nullable Map<String, Object> properties, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
     {
         this(id, startNode, endNode);
-        this.properties = properties;
+        this.properties.putAll(properties);
     }
 
     /**
@@ -94,7 +93,7 @@ public class RelationshipStorage implements Serializable
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? new TreeMap<>() : new TreeMap<>(properties);
+        return new TreeMap<>(properties);
     }
 
     /**
@@ -104,14 +103,7 @@ public class RelationshipStorage implements Serializable
      */
     public void setProperties(@NotNull final Map<String, Object> properties)
     {
-        if (this.properties == null)
-        {
-            this.properties = properties;
-        }
-        else
-        {
-            this.properties.putAll(properties);
-        }
+        this.properties.putAll(properties);
     }
 
     /**
@@ -122,15 +114,13 @@ public class RelationshipStorage implements Serializable
      */
     public void addProperty(String description, Object value)
     {
-        if (this.properties == null)
-        {
-            this.properties = new HashMap<>();
-        }
+
         this.properties.put(description, value);
     }
 
     /**
      * Getter of the start node.
+     *
      * @return NodeStorage of start node.
      */
     @NotNull
@@ -141,6 +131,7 @@ public class RelationshipStorage implements Serializable
 
     /**
      * Getter of the end node.
+     *
      * @return NodeStorage of end node.
      */
     @NotNull
@@ -189,47 +180,41 @@ public class RelationshipStorage implements Serializable
     {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
-        if (startNode != null)
-            sb.append(startNode.toString());
-        else
-            sb.append("null");
+
+        sb.append(startNode.toString());
         sb.append(") <-- ");
         sb.append(id);
-        if (properties != null) {
-            sb.append("[");
-            for (Map.Entry<String, Object> item : properties.entrySet()) {
-                sb.append(item.getKey());
-                sb.append("=");
-                sb.append(item.getValue());
-                sb.append(",");
-            }
-            sb.deleteCharAt(sb.length()-1);
-            sb.append("] --> (");
+
+        sb.append("[");
+        for (Map.Entry<String, Object> item : properties.entrySet())
+        {
+            sb.append(item.getKey());
+            sb.append("=");
+            sb.append(item.getValue());
+            sb.append(",");
         }
-        else
-            sb.append(" --> (");
-        if (endNode != null)
-            sb.append(endNode.toString());
-        else
-            sb.append("null");
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("] --> (");
+        sb.append(endNode.toString());
+
         sb.append(")");
         return sb.toString();
     }
 
     /**
      * Remove a certain property from the properties.
+     *
      * @param key the key of the property which should be removed.
      */
     public void removeProperty(String key)
     {
-        if(properties != null)
-        {
-            properties.remove(key);
-        }
+
+        properties.remove(key);
     }
 
     /**
      * Returns a byte representation of the nodeStorage.
+     *
      * @return a byte array.
      */
     public byte[] getBytes()
@@ -237,25 +222,21 @@ public class RelationshipStorage implements Serializable
         StringBuilder sb = new StringBuilder();
         sb.append(id);
 
-        if (properties != null)
+        for (Map.Entry<String, Object> entry : properties.entrySet())
         {
-            for(Map.Entry<String, Object> entry: properties.entrySet())
-            {
-                sb.append(entry.getKey()).append(entry.getValue());
-            }
+            sb.append(entry.getKey()).append(entry.getValue());
         }
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try
         {
-            outputStream.write( sb.toString().getBytes() );
-            outputStream.write( startNode.getBytes() );
-            outputStream.write( endNode.getBytes() );
-
+            outputStream.write(sb.toString().getBytes());
+            outputStream.write(startNode.getBytes());
+            outputStream.write(endNode.getBytes());
         }
         catch (IOException e)
         {
-            Log.getLogger().info(e.getMessage());
+            Log.getLogger().info(e.getMessage(), e);
         }
 
         return outputStream.toByteArray();
