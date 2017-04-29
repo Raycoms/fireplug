@@ -152,7 +152,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().warn("Starting locking in global cluster slave");
         synchronized (lock)
         {
-            if (signatureStorageMap != null)
+            if (signatureStorageMap != null && !signatureStorageMap.isEmpty())
             {
                 kryo.writeObject(output, signatureStorageMap.size());
                 for (Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
