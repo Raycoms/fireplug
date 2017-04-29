@@ -114,7 +114,6 @@ public class RelationshipStorage implements Serializable
      */
     public void addProperty(String description, Object value)
     {
-
         this.properties.put(description, value);
     }
 
@@ -208,7 +207,6 @@ public class RelationshipStorage implements Serializable
      */
     public void removeProperty(String key)
     {
-
         properties.remove(key);
     }
 

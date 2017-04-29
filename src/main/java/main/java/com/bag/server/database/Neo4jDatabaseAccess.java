@@ -517,22 +517,23 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            storage.addProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(storage));
-            storage.addProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
+            final RelationshipStorage tempStorage = new RelationshipStorage(storage.getId(), storage.getProperties(), storage.getStartNode(), storage.getEndNode());
+            tempStorage.addProperty(Constants.TAG_HASH, HashCreator.sha1FromRelationship(storage));
+            tempStorage.addProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
 
-            final String builder = MATCH + buildNodeString(storage.getStartNode(), "1") +
+            final String builder = MATCH + buildNodeString(tempStorage.getStartNode(), "1") +
                     ", " +
-                    buildNodeString(storage.getEndNode(), "2") +
+                    buildNodeString(tempStorage.getEndNode(), "2") +
                     " CREATE (n1)" +
-                    buildPureRelationshipString(storage) +
+                    buildPureRelationshipString(tempStorage) +
                     "(n2)";
 
             //Transform relationship params.
-            Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
+            Map<String, Object> properties = transFormToPropertyMap(tempStorage.getProperties(), "");
 
             //Adds also params of start and end node.
-            properties.putAll(transFormToPropertyMap(storage.getStartNode().getProperties(), "1"));
-            properties.putAll(transFormToPropertyMap(storage.getEndNode().getProperties(), "2"));
+            properties.putAll(transFormToPropertyMap(tempStorage.getStartNode().getProperties(), "1"));
+            properties.putAll(transFormToPropertyMap(tempStorage.getEndNode().getProperties(), "2"));
 
             graphDb.execute(builder, properties);
         }
