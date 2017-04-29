@@ -195,8 +195,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @param output object to write to.
      * @param kryo   kryo object.
+     * @param needToLock check if need to lock anything or server is currently starting.
      */
-    abstract void writeSpecificData(final Output output, final Kryo kryo);
+    abstract void writeSpecificData(final Output output, final Kryo kryo, boolean needToLock);
 
     @Override
     public byte[] getSnapshot()
@@ -213,12 +214,14 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         final long time = System.nanoTime();
         Log.getLogger().warn("Starting locking");
         LinkedHashMap<Long, List<IOperation>> temp = new LinkedHashMap<>();
+        boolean needToLock = false;
 
         synchronized (lock)
         {
             if (globalWriteSet != null && !globalWriteSet.isEmpty())
             {
                 temp.putAll(globalWriteSet);
+                needToLock = true;
             }
         }
 
@@ -254,7 +257,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, "none");
         }
 
-        writeSpecificData(output, kryo);
+        writeSpecificData(output, kryo, needToLock);
 
         byte[] bytes = output.getBuffer();
         output.close();
