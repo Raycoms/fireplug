@@ -366,8 +366,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (signatureStorage.getMessage().length != output.toBytes().length)
                 {
                     Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
-
-                    /*Log.getLogger().warn("Start logging");
+                    Log.getLogger().warn("Start logging");
                     final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
                     kryo.readObject(input, String.class);
                     kryo.readObject(input, String.class);
@@ -392,7 +391,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         else if (op instanceof CreateOperation)
                         {
                             Log.getLogger().warn("Create");
-                            Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                            Log.getLogger().warn(((CreateOperation) op).getObject().toString());
                         }
                     }
 
@@ -431,7 +430,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         }
                     }
 
-                    Log.getLogger().warn("End logging");*/
+                    Log.getLogger().warn("End logging");
                 }
             }
             else
@@ -795,7 +794,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     else if (op instanceof CreateOperation)
                     {
                         Log.getLogger().warn("Create");
-                        Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                        Log.getLogger().warn(((CreateOperation) op).getObject().toString());
                     }
                 }
 

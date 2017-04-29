@@ -420,12 +420,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             final long currentSnapshot = ++globalSnapshotId;
             //Execute the transaction.
-            Log.getLogger().warn("Executing transaction with snapshot Id: " + globalSnapshotId);
-
             for (IOperation op : localWriteSet)
             {
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
-                Log.getLogger().warn(globalSnapshotId + " : "  + op.toString());
                 updateCounts(1, 0, 0, 0);
             }
             this.globalWriteSet.put(currentSnapshot, localWriteSet);
