@@ -728,6 +728,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
         }
 
+        if (signatureStorage.getMessage().length != message.length)
+        {
+            Log.getLogger().warn("Different message length!");
+        }
+
         if (!decision.equals(signatureStorage.getDecision()))
         {
             Log.getLogger().warn("Replica: " + id + " did receive a different decision of replica: " + context.getSender() + ". Might be corrupted.");
