@@ -155,12 +155,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (signatureStorageMap != null && !signatureStorageMap.isEmpty())
             {
                 kryo.writeObject(output, signatureStorageMap.size());
-                for (Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
+                for (final Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
                 {
                     kryo.writeObject(output, entrySet.getKey());
                     kryo.writeObject(output, entrySet.getValue());
                 }
             }
+            Log.getLogger().warn("Going to release lock.");
         }
         Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
     }
