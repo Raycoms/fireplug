@@ -20,11 +20,9 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
+
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Class handling server communication in the global cluster.
@@ -150,22 +148,28 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         final long time = System.nanoTime();
 
-        if(needToLock)
+        if (needToLock)
         {
             Log.getLogger().warn("Starting locking in global cluster slave");
+            Map<Long, SignatureStorage> copy = null;
             synchronized (lock)
             {
                 if (signatureStorageMap != null)
                 {
-                    kryo.writeObject(output, signatureStorageMap.size());
-                    for (final Map.Entry<Long, SignatureStorage> entrySet : signatureStorageMap.entrySet())
-                    {
-                        kryo.writeObject(output, entrySet.getKey());
-                        kryo.writeObject(output, entrySet.getValue());
-                    }
+                    copy = new TreeMap<>(signatureStorageMap);
                 }
             }
             Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
+
+            if(copy != null)
+            {
+                kryo.writeObject(output, copy.size());
+                for (final Map.Entry<Long, SignatureStorage> entrySet : copy.entrySet())
+                {
+                    kryo.writeObject(output, entrySet.getKey());
+                    kryo.writeObject(output, entrySet.getValue());
+                }
+            }
         }
     }
 
@@ -385,15 +389,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                     final List lWriteSet = kryo.readObject(input, ArrayList.class);
                     Log.getLogger().warn("WriteSet received: " + localWriteSet.size());
-                    for(IOperation op: localWriteSet)
+                    for (IOperation op : localWriteSet)
                     {
-                        if(op instanceof UpdateOperation)
+                        if (op instanceof UpdateOperation)
                         {
                             Log.getLogger().warn("Update");
                             Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
                             Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
                         }
-                        else if(op instanceof DeleteOperation)
+                        else if (op instanceof DeleteOperation)
                         {
                             Log.getLogger().warn("Delete");
                             Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
@@ -420,15 +424,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                     Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
 
-                    for(IOperation op: localWriteSet2)
+                    for (IOperation op : localWriteSet2)
                     {
-                        if(op instanceof UpdateOperation)
+                        if (op instanceof UpdateOperation)
                         {
                             Log.getLogger().warn("Update");
                             Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
                             Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
                         }
-                        else if(op instanceof DeleteOperation)
+                        else if (op instanceof DeleteOperation)
                         {
                             Log.getLogger().warn("Delete");
                             Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
@@ -591,7 +595,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }
                 break;
             case Constants.SIGNATURE_MESSAGE:
-                if(wrapper.getLocalCLuster() != null)
+                if (wrapper.getLocalCLuster() != null)
                 {
                     handleSignatureMessage(input, messageContext, kryo);
                 }
@@ -720,7 +724,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param decision   the decision.
      * @param message    the message.
      */
-    private void storeSignedMessage(final Long snapShotId, final byte[] signature, @NotNull final MessageContext context, final String decision, final byte[] message, final List<IOperation> writeSet)
+    private void storeSignedMessage(
+            final Long snapShotId,
+            final byte[] signature,
+            @NotNull final MessageContext context,
+            final String decision,
+            final byte[] message,
+            final List<IOperation> writeSet)
     {
         final SignatureStorage signatureStorage;
         if (!signatureStorageMap.containsKey(snapShotId))
@@ -754,15 +764,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             final List lWriteSet = kryo.readObject(input, ArrayList.class);
             Log.getLogger().warn("WriteSet received: " + writeSet.size());
-            for(IOperation op: writeSet)
+            for (IOperation op : writeSet)
             {
-                if(op instanceof UpdateOperation)
+                if (op instanceof UpdateOperation)
                 {
                     Log.getLogger().warn("Update");
                     Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
                     Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
                 }
-                else if(op instanceof DeleteOperation)
+                else if (op instanceof DeleteOperation)
                 {
                     Log.getLogger().warn("Delete");
                     Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
@@ -789,15 +799,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
             Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
 
-            for(IOperation op: localWriteSet2)
+            for (IOperation op : localWriteSet2)
             {
-                if(op instanceof UpdateOperation)
+                if (op instanceof UpdateOperation)
                 {
                     Log.getLogger().warn("Update");
                     Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
                     Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
                 }
-                else if(op instanceof DeleteOperation)
+                else if (op instanceof DeleteOperation)
                 {
                     Log.getLogger().warn("Delete");
                     Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
@@ -820,7 +830,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         signatureStorage.addSignatures(context.getSender(), signature);
 
         Log.getLogger().info("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
-        + " by: " + context.getSender());
+                + " by: " + context.getSender());
 
         if (signatureStorage.hasEnough() && signatureStorage.isProcessed())
         {
