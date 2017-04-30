@@ -432,11 +432,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             for (IOperation op : localWriteSet)
             {
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
-                Log.getLogger().warn("Op: " + op.toString());
                 updateCounts(1, 0, 0, 0);
             }
             this.globalWriteSet.put(currentSnapshot, localWriteSet);
-            Log.getLogger().warn("Put into write set, finishing execution");
         }
 
         updateCounts(0, 0, 1, 0);
