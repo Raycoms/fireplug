@@ -395,14 +395,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
             updateSlave(signatureStorage);
-            signatureStorageCache.invalidate(snapShotId);
+
+            if(signatureStorage.hasAll())
+            {
+                signatureStorageCache.invalidate(snapShotId);
+            }
         }
         else
         {
             signatureStorageCache.put(snapShotId, signatureStorage);
         }
-
-
+        
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
@@ -767,11 +770,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
                 + " by: " + context.getSender());
 
-        if (signatureStorage.hasEnough() && signatureStorage.isProcessed())
+        if (signatureStorage.hasEnough())
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-            updateSlave(signatureStorage);
-            signatureStorageCache.invalidate(snapShotId);
+            if(signatureStorage.isProcessed())
+            {
+                updateSlave(signatureStorage);
+                signatureStorage.setDistributed();
+            }
+
+            if(signatureStorage.hasAll() && signatureStorage.isDistributed())
+            {
+                signatureStorageCache.invalidate(snapShotId);
+            }
             return;
         }
         signatureStorageCache.put(snapShotId, signatureStorage);

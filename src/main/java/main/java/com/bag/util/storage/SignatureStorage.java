@@ -34,7 +34,12 @@ public class SignatureStorage implements Serializable
     /**
      * Is the signatureStorage processed by the holding replica.
      */
-    private boolean isProcessed;
+    private boolean isProcessed = false;
+
+    /**
+     * Checks if the storage has been sent to the clients already.
+     */
+    private boolean isDistributed = false;
 
     /**
      * Standard constructor for kryo.
@@ -140,5 +145,30 @@ public class SignatureStorage implements Serializable
     public boolean isProcessed()
     {
         return isProcessed;
+    }
+
+    /**
+     * Check if storage has all signatures (Simulate this here with +1 for now)
+     * @return true if s.
+     */
+    public boolean hasAll()
+    {
+        return signatures.size() >= requiredSignatures + 1;
+    }
+
+    /**
+     * Set that the storage has been sent to the slave already.
+     */
+    public void setDistributed()
+    {
+        this.isDistributed = true;
+    }
+
+    /**
+     * Check if the storage has been sent to the slave already.
+     */
+    public boolean isDistributed()
+    {
+        return this.isDistributed;
     }
 }
