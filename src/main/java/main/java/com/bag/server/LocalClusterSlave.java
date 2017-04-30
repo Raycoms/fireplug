@@ -383,19 +383,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         final long lastKey = getGlobalSnapshotId();
 
         Log.getLogger().info("Received update slave message with decision: " + decision);
-
-        if(lastKey > snapShotId)
-        {
-            Log.getLogger().warn("Something went incredibly wrong. Transaction has been executed even with a missing one at local cluster: " + wrapper.getLocalClusterSlaveId());
-            return;
-        }
-        else if(lastKey == snapShotId)
-        {
-            Log.getLogger().info("Received already committed transaction.");
-            kryo.writeObject(output, true);
-            return;
-        }
-
         final SignatureStorage storage;
 
         try
