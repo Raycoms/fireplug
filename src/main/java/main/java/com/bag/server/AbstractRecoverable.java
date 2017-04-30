@@ -252,8 +252,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        final long time = System.nanoTime();
-        Log.getLogger().warn("Starting locking");
         LinkedHashMap<Long, List<IOperation>> temp = new LinkedHashMap<>();
         boolean needToLock = false;
 
@@ -265,8 +263,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 needToLock = true;
             }
         }
-
-        Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
 
         kryo.writeObject(output, temp.size());
         for (Map.Entry<Long, List<IOperation>> writeSet : temp.entrySet())
@@ -311,7 +307,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
-        return new byte[] {0};
+        return bytes;
     }
 
     /**

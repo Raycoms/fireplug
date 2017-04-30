@@ -143,13 +143,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
     @Override
     Output writeSpecificData(final Output output, final Kryo kryo, boolean needToLock)
     {
-        final long time = System.nanoTime();
-
         if (needToLock)
         {
-            Log.getLogger().warn("Starting locking in global cluster slave: " + signatureStorageCache.estimatedSize());
             final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
-            Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
             kryo.writeObject(output, copy.size());
             for (final Map.Entry<Long, SignatureStorage> entrySet : copy.entrySet())
             {
