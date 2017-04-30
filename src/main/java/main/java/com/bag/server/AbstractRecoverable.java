@@ -428,7 +428,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             final long currentSnapshot = ++globalSnapshotId;
             //Execute the transaction.
-            Log.getLogger().warn(globalSnapshotId + " on server x ops: " + localWriteSet.size());
             for (IOperation op : localWriteSet)
             {
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
