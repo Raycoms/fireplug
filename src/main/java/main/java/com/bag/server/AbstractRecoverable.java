@@ -69,7 +69,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Write set cache of the nodes contains updates and deletes but only of the last x transactions.
      */
     private Cache<Long, List<IOperation>> latestWritesSet = Caffeine.newBuilder()
-            .maximumSize(1000)
+            .maximumSize(500)
             .writer(new CacheWriter<Long, List<IOperation>>()
             {
                 @Override
@@ -352,7 +352,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, localSnapshotId);
 
-            Log.getLogger().warn("Transaction found conflict", e);
+            Log.getLogger().warn("Transaction found conflict");
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
             return output;
