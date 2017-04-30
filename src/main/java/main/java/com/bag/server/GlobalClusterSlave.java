@@ -57,11 +57,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
 
     /**
-     * Lock used to synchronize access to signatureStorageCache.
-     */
-    private final Object lock = new Object();
-
-    /**
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
@@ -152,7 +147,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (needToLock)
         {
-            Log.getLogger().warn("Starting locking in global cluster slave");
+            Log.getLogger().warn("Starting locking in global cluster slave: " + signatureStorageCache.estimatedSize());
             final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
             Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
             kryo.writeObject(output, copy.size());
@@ -376,81 +371,80 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final SignatureStorage signatureStorage;
 
-        synchronized (lock)
+
+        if (signatureStorageCache.getIfPresent(getGlobalSnapshotId()) != null)
         {
-            if (signatureStorageCache.getIfPresent(getGlobalSnapshotId()) != null)
+            signatureStorage = signatureStorageCache.getIfPresent(getGlobalSnapshotId());
+            if (signatureStorage.getMessage().length != output.toBytes().length)
             {
-                signatureStorage = signatureStorageCache.getIfPresent(getGlobalSnapshotId());
-                if (signatureStorage.getMessage().length != output.toBytes().length)
+                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
+                Log.getLogger().warn("Start logging");
+                final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
+                kryo.readObject(input, String.class);
+                kryo.readObject(input, String.class);
+                final Long snapShotId2 = kryo.readObject(input, Long.class);
+                Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
+
+                final List lWriteSet = kryo.readObject(input, ArrayList.class);
+                Log.getLogger().warn("WriteSet received: " + localWriteSet.size());
+                for (IOperation op : localWriteSet)
                 {
-                    Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
-                    Log.getLogger().warn("Start logging");
-                    final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
-                    kryo.readObject(input, String.class);
-                    kryo.readObject(input, String.class);
-                    final Long snapShotId2 = kryo.readObject(input, Long.class);
-                    Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
-
-                    final List lWriteSet = kryo.readObject(input, ArrayList.class);
-                    Log.getLogger().warn("WriteSet received: " + localWriteSet.size());
-                    for (IOperation op : localWriteSet)
+                    if (op instanceof UpdateOperation)
                     {
-                        if (op instanceof UpdateOperation)
-                        {
-                            Log.getLogger().warn("Update");
-                            Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
-                            Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
-                        }
-                        else if (op instanceof DeleteOperation)
-                        {
-                            Log.getLogger().warn("Delete");
-                            Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
-                        }
-                        else if (op instanceof CreateOperation)
-                        {
-                            Log.getLogger().warn("Create");
-                            Log.getLogger().warn(((CreateOperation) op).getObject().toString());
-                        }
+                        Log.getLogger().warn("Update");
+                        Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
+                        Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
                     }
-
-                    final ArrayList<IOperation> localWriteSet2;
-
-                    input.close();
-
-                    try
+                    else if (op instanceof DeleteOperation)
                     {
-                        localWriteSet2 = (ArrayList<IOperation>) lWriteSet;
+                        Log.getLogger().warn("Delete");
+                        Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
                     }
-                    catch (ClassCastException e)
+                    else if (op instanceof CreateOperation)
                     {
-                        Log.getLogger().warn("Couldn't convert received signature message.", e);
-                        return;
+                        Log.getLogger().warn("Create");
+                        Log.getLogger().warn(((CreateOperation) op).getObject().toString());
                     }
-                    Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
-
-                    for (IOperation op : localWriteSet2)
-                    {
-                        if (op instanceof UpdateOperation)
-                        {
-                            Log.getLogger().warn("Update");
-                            Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
-                            Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
-                        }
-                        else if (op instanceof DeleteOperation)
-                        {
-                            Log.getLogger().warn("Delete");
-                            Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
-                        }
-                        else if (op instanceof CreateOperation)
-                        {
-                            Log.getLogger().warn("Create");
-                            Log.getLogger().warn(((CreateOperation) op).getObject().toString());
-                        }
-                    }
-
-                    Log.getLogger().warn("End logging");
                 }
+
+                final ArrayList<IOperation> localWriteSet2;
+
+                input.close();
+
+                try
+                {
+                    localWriteSet2 = (ArrayList<IOperation>) lWriteSet;
+                }
+                catch (ClassCastException e)
+                {
+                    Log.getLogger().warn("Couldn't convert received signature message.", e);
+                    return;
+                }
+                Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
+
+                for (IOperation op : localWriteSet2)
+                {
+                    if (op instanceof UpdateOperation)
+                    {
+                        Log.getLogger().warn("Update");
+                        Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
+                        Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
+                    }
+                    else if (op instanceof DeleteOperation)
+                    {
+                        Log.getLogger().warn("Delete");
+                        Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
+                    }
+                    else if (op instanceof CreateOperation)
+                    {
+                        Log.getLogger().warn("Create");
+                        Log.getLogger().warn(((CreateOperation) op).getObject().toString());
+                    }
+                }
+
+                Log.getLogger().warn("End logging");
             }
+
             else
             {
                 Log.getLogger().info("Size of message stored is: " + message.length);
@@ -553,10 +547,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         boolean signatureMatches = TOMUtil.verifySignature(key, message, signature);
         if (signatureMatches)
         {
-            synchronized (lock)
-            {
-                storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet);
-            }
+
+            storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet);
             return;
         }
 
