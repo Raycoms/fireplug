@@ -430,7 +430,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, localSnapshotId);
 
-            Log.getLogger().warn("Transaction found conflict", e);
+            Log.getLogger().warn("Transaction found conflict");
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
         }
