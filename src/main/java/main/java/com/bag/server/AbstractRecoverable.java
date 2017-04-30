@@ -37,6 +37,12 @@ import java.util.*;
  */
 public abstract class AbstractRecoverable extends DefaultRecoverable
 {
+
+    /**
+     * Keep the last x transaction in a separate list.
+     */
+    public static final int KEEP_LAST_X = 1000;
+
     /**
      * Contains the local server replica.
      */
@@ -55,7 +61,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Write set of the nodes contains updates and deletes.
      */
-    private TreeMap<Long, List<IOperation>> globalWriteSet;
+    private LinkedHashMap<Long, List<IOperation>> globalWriteSet;
+
+    /**
+     * Write set of the nodes contains updates and deletes but only of the last x transactions.
+     */
+    private LinkedHashMap<Long, List<IOperation>> latestWritesSet;
 
     /**
      * Object to lock global write set.
@@ -102,7 +113,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
 
-        globalWriteSet = new TreeMap<>();
+        globalWriteSet = new LinkedHashMap<>();
+        latestWritesSet = new LinkedHashMap<>();
 
         try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
              final BufferedWriter bw = new BufferedWriter(file);
@@ -148,8 +160,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         if (input.canReadInt())
         {
             int writeSetSize = kryo.readObject(input, Integer.class);
-
-            for (int i = 0; i < (Integer) writeSetSize; i++)
+            for (int i = 0; i < writeSetSize; i++)
             {
                 long snapshotId = kryo.readObject(input, Long.class);
                 Object object = kryo.readClassAndObject(input);
@@ -163,9 +174,26 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             }
         }
 
+        if (input.canReadInt())
+        {
+            int writeSetSize = kryo.readObject(input, Integer.class);
+            for (int i = 0; i < writeSetSize; i++)
+            {
+                long snapshotId = kryo.readObject(input, Long.class);
+                Object object = kryo.readClassAndObject(input);
+                if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
+                {
+                    synchronized (lock)
+                    {
+                        latestWritesSet.put(snapshotId, (List<IOperation>) object);
+                    }
+                }
+            }
+        }
+
         this.id = kryo.readObject(input, Integer.class);
         String instance = kryo.readObject(input, String.class);
-        wrapper.setDataBaseAccess(wrapper.instantiateDBAccess(instance, wrapper.getGlobalServerId()));
+        wrapper.setDataBaseAccess(ServerWrapper.instantiateDBAccess(instance, wrapper.getGlobalServerId()));
 
         readSpecificData(input, kryo);
 
@@ -434,9 +462,24 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 updateCounts(1, 0, 0, 0);
             }
             this.globalWriteSet.put(currentSnapshot, localWriteSet);
+            putIntoWriteSet(currentSnapshot, localWriteSet);
         }
 
         updateCounts(0, 0, 1, 0);
+    }
+
+    private void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
+    {
+        if(latestWritesSet.size() < KEEP_LAST_X)
+        {
+            latestWritesSet.put(currentSnapshot, localWriteSet);
+        }
+        else
+        {
+            Map.Entry<Long, List<IOperation>> oldestEntry = latestWritesSet.entrySet().iterator().next();
+            latestWritesSet.remove(oldestEntry.getKey());
+            globalWriteSet.put(oldestEntry.getKey(), oldestEntry.getValue());
+        }
     }
 
     /**
@@ -448,6 +491,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     {
         return replica;
     }
+
 
     /**
      * Getter for the global snapshotId.
@@ -468,7 +512,20 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     {
         synchronized (lock)
         {
-            return new TreeMap<>(globalWriteSet);
+            return new LinkedHashMap<>(globalWriteSet);
+        }
+    }
+
+    /**
+     * Get a copy of the global writeSet.
+     *
+     * @return a hashmap of all the operations with their snapshotId.
+     */
+    public Map<Long, List<IOperation>> getLatestWritesSet()
+    {
+        synchronized (lock)
+        {
+            return new LinkedHashMap<>(latestWritesSet);
         }
     }
 

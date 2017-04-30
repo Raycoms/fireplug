@@ -215,7 +215,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), new ArrayList<>(localWriteSet), readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), new ArrayList<>(localWriteSet), readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
 
@@ -295,7 +295,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
 
