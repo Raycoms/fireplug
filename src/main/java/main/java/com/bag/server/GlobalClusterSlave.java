@@ -152,13 +152,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().warn("Starting locking in global cluster slave");
             Map<Long, SignatureStorage> copy = null;
-            synchronized (lock)
+            /*synchronized (lock)
             {
                 if (signatureStorageMap != null)
                 {
                     copy = new TreeMap<>(signatureStorageMap);
                 }
-            }
+            }*/
             Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
 
             if(copy != null)
