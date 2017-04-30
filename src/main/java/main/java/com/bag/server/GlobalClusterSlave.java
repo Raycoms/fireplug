@@ -10,6 +10,8 @@ import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
@@ -50,12 +52,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final int idClient;
 
     /**
-     * Map which holds the signatureStorages for the consistency.
+     * Cache which holds the signatureStorages for the consistency.
      */
-    private final Map<Long, SignatureStorage> signatureStorageMap = new TreeMap<>();
+    private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
 
     /**
-     * Lock used to synchronize access to signatureStorageMap.
+     * Lock used to synchronize access to signatureStorageCache.
      */
     private final Object lock = new Object();
 
@@ -134,7 +136,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             try
             {
-                signatureStorageMap.put(kryo.readObject(input, Long.class), kryo.readObject(input, SignatureStorage.class));
+                signatureStorageCache.put(kryo.readObject(input, Long.class), kryo.readObject(input, SignatureStorage.class));
             }
             catch (ClassCastException ex)
             {
@@ -151,24 +153,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (needToLock)
         {
             Log.getLogger().warn("Starting locking in global cluster slave");
-            Map<Long, SignatureStorage> copy = null;
-            /*synchronized (lock)
-            {
-                if (signatureStorageMap != null)
-                {
-                    copy = new TreeMap<>(signatureStorageMap);
-                }
-            }*/
+            final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
             Log.getLogger().warn("Released lock at: " + (System.nanoTime() - time) / Constants.NANO_TIME_DIVIDER);
-
-            if(copy != null)
+            kryo.writeObject(output, copy.size());
+            for (final Map.Entry<Long, SignatureStorage> entrySet : copy.entrySet())
             {
-                kryo.writeObject(output, copy.size());
-                for (final Map.Entry<Long, SignatureStorage> entrySet : copy.entrySet())
-                {
-                    kryo.writeObject(output, entrySet.getKey());
-                    kryo.writeObject(output, entrySet.getValue());
-                }
+                kryo.writeObject(output, entrySet.getKey());
+                kryo.writeObject(output, entrySet.getValue());
             }
         }
         return output;
@@ -215,7 +206,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), new ArrayList<>(localWriteSet), readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                super.getLatestWritesSet(),
+                new ArrayList<>(localWriteSet),
+                readSetNode,
+                readsSetRelationship,
+                timeStamp,
+                wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
 
@@ -295,7 +292,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                super.getLatestWritesSet(),
+                localWriteSet,
+                readSetNode,
+                readsSetRelationship,
+                timeStamp,
+                wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
 
@@ -375,9 +378,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         synchronized (lock)
         {
-            if (signatureStorageMap.containsKey(getGlobalSnapshotId()))
+            if (signatureStorageCache.getIfPresent(getGlobalSnapshotId()) != null)
             {
-                signatureStorage = signatureStorageMap.get(getGlobalSnapshotId());
+                signatureStorage = signatureStorageCache.getIfPresent(getGlobalSnapshotId());
                 if (signatureStorage.getMessage().length != output.toBytes().length)
                 {
                     Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
@@ -452,7 +455,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             {
                 Log.getLogger().info("Size of message stored is: " + message.length);
                 signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
-                signatureStorageMap.put(snapShotId, signatureStorage);
+                signatureStorageCache.put(snapShotId, signatureStorage);
             }
 
             signatureStorage.setProcessed();
@@ -463,7 +466,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             {
                 Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
                 updateSlave(signatureStorage);
-                signatureStorageMap.remove(snapShotId);
+                signatureStorageCache.invalidate(snapShotId);
             }
         }
 
@@ -734,15 +737,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final List<IOperation> writeSet)
     {
         final SignatureStorage signatureStorage;
-        if (!signatureStorageMap.containsKey(snapShotId))
+        if (signatureStorageCache.getIfPresent(snapShotId) == null)
         {
             signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
-            signatureStorageMap.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(snapShotId, signatureStorage);
             Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
         }
         else
         {
-            signatureStorage = signatureStorageMap.get(snapShotId);
+            signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
             if (!signatureStorage.getDecision().equals(decision))
             {
                 Log.getLogger().error("Different decision");
@@ -837,10 +840,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
             updateSlave(signatureStorage);
-            signatureStorageMap.remove(snapShotId);
+            signatureStorageCache.invalidate(snapShotId);
             return;
         }
-        signatureStorageMap.put(snapShotId, signatureStorage);
+        signatureStorageCache.put(snapShotId, signatureStorage);
     }
 
     /**

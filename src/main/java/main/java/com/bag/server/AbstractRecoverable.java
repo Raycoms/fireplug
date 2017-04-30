@@ -461,7 +461,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
                 updateCounts(1, 0, 0, 0);
             }
-            this.globalWriteSet.put(currentSnapshot, localWriteSet);
+            this.putIntoWriteSet(currentSnapshot, localWriteSet);
             putIntoWriteSet(currentSnapshot, localWriteSet);
         }
 
