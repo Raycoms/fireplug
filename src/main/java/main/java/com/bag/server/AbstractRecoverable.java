@@ -244,15 +244,14 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     public byte[] getSnapshot()
     {
         Log.getLogger().warn("Get snapshot!!");
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
 
-        //Todo probably will need a bigger buffer in the future. size depending on the set size?
         Output output = new Output(0, 200240);
 
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        LinkedHashMap<Long, List<IOperation>> temp = new LinkedHashMap<>();
+        final LinkedHashMap<Long, List<IOperation>> temp = new LinkedHashMap<>();
         boolean needToLock = false;
 
         synchronized (lock)
@@ -265,15 +264,17 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         }
 
         kryo.writeObject(output, temp.size());
-        for (Map.Entry<Long, List<IOperation>> writeSet : temp.entrySet())
+        for (final Map.Entry<Long, List<IOperation>> writeSet : temp.entrySet())
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());
         }
 
         final Map<Long, List<IOperation>> latest = latestWritesSet.asMap();
-        kryo.writeObject(output, latest.size());
-        for (Map.Entry<Long, List<IOperation>> writeSet : latest.entrySet())
+        final Map<Long, List<IOperation>> tempLatest = new HashMap<>(latest);
+
+        kryo.writeObject(output, tempLatest.size());
+        for (final Map.Entry<Long, List<IOperation>> writeSet : tempLatest.entrySet())
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());
