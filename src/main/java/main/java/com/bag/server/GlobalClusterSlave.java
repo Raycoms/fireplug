@@ -390,7 +390,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         signatureStorage.setProcessed();
         Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
         signatureStorage.addSignatures(idClient, signature);
-
         if (signatureStorage.hasEnough())
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);

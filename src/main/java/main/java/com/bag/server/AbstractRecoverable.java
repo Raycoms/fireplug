@@ -9,6 +9,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import com.github.benmanes.caffeine.cache.*;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
@@ -24,6 +25,7 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.TransactionStorage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -64,9 +66,24 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     private LinkedHashMap<Long, List<IOperation>> globalWriteSet;
 
     /**
-     * Write set of the nodes contains updates and deletes but only of the last x transactions.
+     * Write set cache of the nodes contains updates and deletes but only of the last x transactions.
      */
-    private LinkedHashMap<Long, List<IOperation>> latestWritesSet;
+    private Cache<Long, List<IOperation>> latestWritesSet = Caffeine.newBuilder()
+            .maximumSize(1000)
+            .writer(new CacheWriter<Long, List<IOperation>>()
+            {
+                @Override
+                public void write(@NotNull final Long key, @NotNull final List<IOperation> value)
+                {
+                    globalWriteSet.put(key, value);
+                }
+
+                @Override
+                public void delete(@NotNull final Long key, @NotNull final List<IOperation> value, @NotNull final RemovalCause cause)
+                {
+                    //Nothing to do.
+                }
+            }).build();
 
     /**
      * Object to lock global write set.
@@ -114,7 +131,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         pool.release(kryo);
 
         globalWriteSet = new LinkedHashMap<>();
-        latestWritesSet = new LinkedHashMap<>();
 
         try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
              final BufferedWriter bw = new BufferedWriter(file);
@@ -183,10 +199,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 Object object = kryo.readClassAndObject(input);
                 if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
                 {
-                    synchronized (lock)
-                    {
-                        latestWritesSet.put(snapshotId, (List<IOperation>) object);
-                    }
+                    latestWritesSet.put(snapshotId, (List<IOperation>) object);
                 }
             }
         }
@@ -221,8 +234,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Write the specific data of a local or global cluster.
      *
-     * @param output object to write to.
-     * @param kryo   kryo object.
+     * @param output     object to write to.
+     * @param kryo       kryo object.
      * @param needToLock check if need to lock anything or server is currently starting.
      */
     abstract Output writeSpecificData(final Output output, final Kryo kryo, boolean needToLock);
@@ -262,6 +275,14 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, writeSet.getValue());
         }
 
+        final Map<Long, List<IOperation>> latest = latestWritesSet.asMap();
+        kryo.writeObject(output, latest.size());
+        for (Map.Entry<Long, List<IOperation>> writeSet : latest.entrySet())
+        {
+            kryo.writeObject(output, writeSet.getKey());
+            kryo.writeObject(output, writeSet.getValue());
+        }
+
         kryo.writeObject(output, id);
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
         if (databaseAccess instanceof Neo4jDatabaseAccess)
@@ -290,7 +311,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
-        return new byte[]{0};
+        return new byte[] {0};
     }
 
     /**
@@ -470,16 +491,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     private void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
     {
-        if(latestWritesSet.size() < KEEP_LAST_X)
-        {
-            latestWritesSet.put(currentSnapshot, localWriteSet);
-        }
-        else
-        {
-            Map.Entry<Long, List<IOperation>> oldestEntry = latestWritesSet.entrySet().iterator().next();
-            latestWritesSet.remove(oldestEntry.getKey());
-            globalWriteSet.put(oldestEntry.getKey(), oldestEntry.getValue());
-        }
+        latestWritesSet.put(currentSnapshot, localWriteSet);
     }
 
     /**
@@ -491,7 +503,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     {
         return replica;
     }
-
 
     /**
      * Getter for the global snapshotId.
@@ -523,10 +534,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     public Map<Long, List<IOperation>> getLatestWritesSet()
     {
-        synchronized (lock)
-        {
-            return new LinkedHashMap<>(latestWritesSet);
-        }
+        return latestWritesSet.asMap();
     }
 
     /**
