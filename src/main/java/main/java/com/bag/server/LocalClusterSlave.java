@@ -448,7 +448,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if(lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
-            Log.getLogger().info("Execute update on slave: " + snapShotId);
+            Log.getLogger().warn("Execute update on slave: " + snapShotId);
             executeCommit(localWriteSet);
 
             long requiredKey = lastKey + 1;
@@ -463,7 +463,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
         buffer.put(snapShotId, localWriteSet);
-        Log.getLogger().warn("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
+        Log.getLogger().error("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
     }
 
     /**
