@@ -468,6 +468,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 updateSlave(signatureStorage);
                 signatureStorageCache.invalidate(snapShotId);
             }
+            else
+            {
+                signatureStorageCache.put(snapShotId, signatureStorage);
+            }
         }
 
         kryo.writeObject(output, message.length);
