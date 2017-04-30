@@ -378,95 +378,30 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
                 Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length);
-                Log.getLogger().warn("Start logging");
-                final Input input = new Input(new ByteBufferInput(signatureStorage.getMessage()));
-                kryo.readObject(input, String.class);
-                kryo.readObject(input, String.class);
-                final Long snapShotId2 = kryo.readObject(input, Long.class);
-                Log.getLogger().warn("SnapshotId local: " + snapShotId2 + " snapshotId received: " + snapShotId);
-
-                final List lWriteSet = kryo.readObject(input, ArrayList.class);
-                Log.getLogger().warn("WriteSet received: " + localWriteSet.size());
-                for (IOperation op : localWriteSet)
-                {
-                    if (op instanceof UpdateOperation)
-                    {
-                        Log.getLogger().warn("Update");
-                        Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
-                        Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
-                    }
-                    else if (op instanceof DeleteOperation)
-                    {
-                        Log.getLogger().warn("Delete");
-                        Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
-                    }
-                    else if (op instanceof CreateOperation)
-                    {
-                        Log.getLogger().warn("Create");
-                        Log.getLogger().warn(((CreateOperation) op).getObject().toString());
-                    }
-                }
-
-                final ArrayList<IOperation> localWriteSet2;
-
-                input.close();
-
-                try
-                {
-                    localWriteSet2 = (ArrayList<IOperation>) lWriteSet;
-                }
-                catch (ClassCastException e)
-                {
-                    Log.getLogger().warn("Couldn't convert received signature message.", e);
-                    return;
-                }
-                Log.getLogger().warn("WriteSet local: " + localWriteSet2.size());
-
-                for (IOperation op : localWriteSet2)
-                {
-                    if (op instanceof UpdateOperation)
-                    {
-                        Log.getLogger().warn("Update");
-                        Log.getLogger().warn(((UpdateOperation) op).getKey().toString());
-                        Log.getLogger().warn(((UpdateOperation) op).getValue().toString());
-                    }
-                    else if (op instanceof DeleteOperation)
-                    {
-                        Log.getLogger().warn("Delete");
-                        Log.getLogger().warn(((DeleteOperation) op).getObject().toString());
-                    }
-                    else if (op instanceof CreateOperation)
-                    {
-                        Log.getLogger().warn("Create");
-                        Log.getLogger().warn(((CreateOperation) op).getObject().toString());
-                    }
-                }
-
-                Log.getLogger().warn("End logging");
-            }
-
-            else
-            {
-                Log.getLogger().info("Size of message stored is: " + message.length);
-                signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
-                signatureStorageCache.put(snapShotId, signatureStorage);
-            }
-
-            signatureStorage.setProcessed();
-            Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
-            signatureStorage.addSignatures(idClient, signature);
-
-            if (signatureStorage.hasEnough())
-            {
-                Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-                updateSlave(signatureStorage);
-                signatureStorageCache.invalidate(snapShotId);
-            }
-            else
-            {
-                signatureStorageCache.put(snapShotId, signatureStorage);
             }
         }
+        else
+        {
+            Log.getLogger().info("Size of message stored is: " + message.length);
+            signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
+            signatureStorageCache.put(snapShotId, signatureStorage);
+        }
+
+        signatureStorage.setProcessed();
+        Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+        signatureStorage.addSignatures(idClient, signature);
+
+        if (signatureStorage.hasEnough())
+        {
+            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+            updateSlave(signatureStorage);
+            signatureStorageCache.invalidate(snapShotId);
+        }
+        else
+        {
+            signatureStorageCache.put(snapShotId, signatureStorage);
+        }
+
 
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
