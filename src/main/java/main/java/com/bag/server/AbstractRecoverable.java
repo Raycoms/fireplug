@@ -257,7 +257,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, "none");
         }
 
-        //writeSpecificData(output, kryo, needToLock);
+        writeSpecificData(output, kryo, needToLock);
 
         byte[] bytes = output.getBuffer();
         output.close();

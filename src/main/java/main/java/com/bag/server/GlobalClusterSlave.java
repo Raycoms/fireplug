@@ -147,6 +147,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
     void writeSpecificData(final Output output, final Kryo kryo, boolean needToLock)
     {
         final long time = System.nanoTime();
+        if (signatureStorageMap != null && !signatureStorageMap.isEmpty())
+        {
+            needToLock = true;
+        }
 
         if (needToLock)
         {
