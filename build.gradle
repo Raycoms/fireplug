@@ -34,10 +34,15 @@ dependencies {
     compile group: 'org.jboss.spec.javax.ws.rs', name: 'jboss-jaxrs-api_2.0_spec', version: '1.0.0.Final'
     compile group: 'com.esotericsoftware', name: 'kryo', version: '4.0.0'
     compile group: 'com.barchart.udt', name: 'barchart-udt-bundle', version: '2.3.0'
+    compile group: 'com.barchart.udt', name: 'barchart-udt-bundle', version: '2.3.0'
+    compile 'com.github.ben-manes.caffeine:caffeine:2.4.0'
+
     compile 'com.intellij:annotations:+@jar'
     compile "org.neo4j:neo4j-enterprise:${neo4jVersion}"
     compile 'org.neo4j:neo4j-lucene-index:2.3.3'
 }
+
+
 
 shadowJar {
     classifier = 'fat'
