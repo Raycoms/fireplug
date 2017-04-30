@@ -197,7 +197,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * @param kryo   kryo object.
      * @param needToLock check if need to lock anything or server is currently starting.
      */
-    abstract void writeSpecificData(final Output output, final Kryo kryo, boolean needToLock);
+    abstract Output writeSpecificData(final Output output, final Kryo kryo, boolean needToLock);
 
     @Override
     public byte[] getSnapshot()
@@ -257,7 +257,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, "none");
         }
 
-        //writeSpecificData(output, kryo, needToLock);
+        output = writeSpecificData(output, kryo, needToLock);
 
         byte[] bytes = output.getBuffer();
         output.close();

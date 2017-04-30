@@ -144,9 +144,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
     }
 
     @Override
-    void writeSpecificData(final Output output, final Kryo kryo, boolean needToLock)
+    Output writeSpecificData(final Output output, final Kryo kryo, boolean needToLock)
     {
-        final long time = System.nanoTime();
+        /*final long time = System.nanoTime();
         if (signatureStorageMap != null && !signatureStorageMap.isEmpty())
         {
             needToLock = true;
@@ -174,7 +174,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     kryo.writeObject(output, entrySet.getValue());
                 }
             }
-        }
+        }*/
+        return output;
     }
 
     /**
