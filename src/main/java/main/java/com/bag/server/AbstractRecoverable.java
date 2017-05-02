@@ -33,7 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * Super class of local or global cluster.
@@ -65,7 +65,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Write set of the nodes contains updates and deletes.
      */
-    private ConcurrentHashMap<Long, List<IOperation>> globalWriteSet;
+    private ConcurrentSkipListMap<Long, List<IOperation>> globalWriteSet;
 
     /**
      * Write set cache of the nodes contains updates and deletes but only of the last x transactions.
@@ -127,7 +127,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
 
-        globalWriteSet = new ConcurrentHashMap<>();
+        globalWriteSet = new ConcurrentSkipListMap<>();
 
         try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
              final BufferedWriter bw = new BufferedWriter(file);
