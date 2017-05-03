@@ -160,6 +160,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public void installSnapshot(final byte[] bytes)
     {
+        Log.getLogger().warn("Install snapshot!");
         if (bytes == null)
         {
             return;
