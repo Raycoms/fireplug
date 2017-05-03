@@ -122,13 +122,14 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         //the default verifier is instantiated with null in the ServerReplica.
         this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());
-
+        Log.getLogger().warn("Instantiated abstract recoverable of id: "  + id);
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
 
         globalWriteSet = new ConcurrentSkipListMap<>();
 
+        Log.getLogger().warn("Instantiating fileWriter.");
         try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
              final BufferedWriter bw = new BufferedWriter(file);
              final PrintWriter out = new PrintWriter(bw))
@@ -148,6 +149,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             Log.getLogger().info("Problem while writing to file!", e);
         }
+        Log.getLogger().warn("Finished file writer instantiation.");
     }
 
     public void updateCounts(int writes, int reads, int commits, int aborts)
