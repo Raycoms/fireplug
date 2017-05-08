@@ -29,7 +29,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -170,8 +169,26 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         globalSnapshotId = kryo.readObject(input, Long.class);
         Log.getLogger().error("Install snapshot with old values!!!!: " + globalSnapshotId);
 
-        globalWriteSet.putAll(kryo.readObject(input, ConcurrentSkipListMap.class));
-        latestWritesSet.putAll(kryo.readObject(input, ConcurrentMap.class));
+        while (input.canReadLong())
+        {
+            long snapshotId = kryo.readObject(input, Long.class);
+            Object object = kryo.readClassAndObject(input);
+            if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
+            {
+                globalWriteSet.put(snapshotId, (List<IOperation>) object);
+            }
+        }
+        
+        while (input.canReadLong())
+        {
+            long snapshotId = kryo.readObject(input, Long.class);
+            Object object = kryo.readClassAndObject(input);
+            if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
+            {
+                latestWritesSet.put(snapshotId, (List<IOperation>) object);
+            }
+        }
+
 
         this.id = kryo.readObject(input, Integer.class);
         String instance = kryo.readObject(input, String.class);
@@ -223,8 +240,17 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        kryo.writeObject(output, globalWriteSet);
-        kryo.writeObject(output, latestWritesSet.asMap());
+        for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
+        {
+            kryo.writeObject(output, writeSet.getKey());
+            kryo.writeObject(output, writeSet.getValue());
+        }
+
+        for (final Map.Entry<Long, List<IOperation>> writeSet : latestWritesSet.asMap().entrySet())
+        {
+            kryo.writeObject(output, writeSet.getKey());
+            kryo.writeObject(output, writeSet.getValue());
+        }
 
         kryo.writeObject(output, id);
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
