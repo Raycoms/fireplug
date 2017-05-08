@@ -77,13 +77,13 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 @Override
                 public void write(@NotNull final Long key, @NotNull final List<IOperation> value)
                 {
-                    globalWriteSet.put(key, value);
+                    //Nothing to do.
                 }
 
                 @Override
                 public void delete(@NotNull final Long key, @Nullable final List<IOperation> value, @NotNull final RemovalCause cause)
                 {
-                    //Nothing to do.
+                    globalWriteSet.put(key, value);
                 }
             }).build();
 
