@@ -142,18 +142,23 @@ public class GlobalClusterSlave extends AbstractRecoverable
     }
 
     @Override
-    Output writeSpecificData(final Output output, final Kryo kryo, boolean needToLock)
+    Output writeSpecificData(final Output output, final Kryo kryo)
     {
-        if (needToLock)
+        if (signatureStorageCache == null)
         {
-            final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
-            kryo.writeObject(output, copy.size());
-            for (final Map.Entry<Long, SignatureStorage> entrySet : copy.entrySet())
-            {
-                kryo.writeObject(output, entrySet.getKey());
-                kryo.writeObject(output, entrySet.getValue());
-            }
+            return output;
         }
+        
+        Log.getLogger().warn("Size at globa: " + signatureStorageCache.estimatedSize());
+
+        final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
+        kryo.writeObject(output, copy.size());
+        for (final Map.Entry<Long, SignatureStorage> entrySet : copy.entrySet())
+        {
+            kryo.writeObject(output, entrySet.getKey());
+            kryo.writeObject(output, entrySet.getValue());
+        }
+
         return output;
     }
 
@@ -393,7 +398,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateSlave(signatureStorage);
             signatureStorage.setDistributed();
 
-            if(signatureStorage.hasAll())
+            if (signatureStorage.hasAll())
             {
                 signatureStorageCache.invalidate(snapShotId);
             }
@@ -770,13 +775,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (signatureStorage.hasEnough())
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-            if(signatureStorage.isProcessed())
+            if (signatureStorage.isProcessed())
             {
                 updateSlave(signatureStorage);
                 signatureStorage.setDistributed();
             }
 
-            if(signatureStorage.hasAll() && signatureStorage.isDistributed())
+            if (signatureStorage.hasAll() && signatureStorage.isDistributed())
             {
                 signatureStorageCache.invalidate(snapShotId);
                 return;

@@ -233,9 +233,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @param output     object to write to.
      * @param kryo       kryo object.
-     * @param needToLock check if need to lock anything or server is currently starting.
      */
-    abstract Output writeSpecificData(final Output output, final Kryo kryo, boolean needToLock);
+    abstract Output writeSpecificData(final Output output, final Kryo kryo);
 
     @Override
     public byte[] getSnapshot()
@@ -248,11 +247,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        Output output = new Output(0, 200240);
+        Output output = new Output(0, 800240);
 
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        boolean needToLock = false;
         if (globalWriteSet != null && !globalWriteSet.isEmpty())
         {
             kryo.writeObject(output, globalWriteSet.size());
@@ -273,28 +271,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, id);
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
-        if (databaseAccess instanceof Neo4jDatabaseAccess)
-        {
-            kryo.writeObject(output, Constants.NEO4J);
-        }
-        else if (databaseAccess instanceof TitanDatabaseAccess)
-        {
-            kryo.writeObject(output, Constants.TITAN);
-        }
-        else if (databaseAccess instanceof OrientDBDatabaseAccess)
-        {
-            kryo.writeObject(output, Constants.ORIENTDB);
-        }
-        else if (databaseAccess instanceof SparkseeDatabaseAccess)
-        {
-            kryo.writeObject(output, Constants.SPARKSEE);
-        }
-        else
-        {
-            kryo.writeObject(output, "none");
-        }
+        kryo.writeObject(output, databaseAccess.toString());
 
-        output = writeSpecificData(output, kryo, needToLock);
+        output = writeSpecificData(output, kryo);
 
         byte[] bytes = output.getBuffer();
         output.close();
