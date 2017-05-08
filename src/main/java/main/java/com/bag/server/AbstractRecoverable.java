@@ -15,10 +15,6 @@ import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
-import main.java.com.bag.server.database.Neo4jDatabaseAccess;
-import main.java.com.bag.server.database.OrientDBDatabaseAccess;
-import main.java.com.bag.server.database.SparkseeDatabaseAccess;
-import main.java.com.bag.server.database.TitanDatabaseAccess;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
@@ -33,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -173,33 +170,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         globalSnapshotId = kryo.readObject(input, Long.class);
         Log.getLogger().error("Install snapshot with old values!!!!: " + globalSnapshotId);
 
-        if (input.canReadInt())
-        {
-            int writeSetSize = kryo.readObject(input, Integer.class);
-            for (int i = 0; i < writeSetSize; i++)
-            {
-                long snapshotId = kryo.readObject(input, Long.class);
-                Object object = kryo.readClassAndObject(input);
-                if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
-                {
-                    globalWriteSet.put(snapshotId, (List<IOperation>) object);
-                }
-            }
-        }
-
-        if (input.canReadInt())
-        {
-            int writeSetSize = kryo.readObject(input, Integer.class);
-            for (int i = 0; i < writeSetSize; i++)
-            {
-                long snapshotId = kryo.readObject(input, Long.class);
-                Object object = kryo.readClassAndObject(input);
-                if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
-                {
-                    latestWritesSet.put(snapshotId, (List<IOperation>) object);
-                }
-            }
-        }
+        globalWriteSet.putAll(kryo.readObject(input, ConcurrentSkipListMap.class));
+        latestWritesSet.putAll(kryo.readObject(input, ConcurrentMap.class));
 
         this.id = kryo.readObject(input, Integer.class);
         String instance = kryo.readObject(input, String.class);
@@ -251,19 +223,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        kryo.writeObject(output, globalWriteSet.size());
-        for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
-        {
-            kryo.writeObject(output, writeSet.getKey());
-            kryo.writeObject(output, writeSet.getValue());
-        }
-
-        kryo.writeObject(output, latestWritesSet.estimatedSize());
-        for (final Map.Entry<Long, List<IOperation>> writeSet : latestWritesSet.asMap().entrySet())
-        {
-            kryo.writeObject(output, writeSet.getKey());
-            kryo.writeObject(output, writeSet.getValue());
-        }
+        kryo.writeObject(output, globalWriteSet);
+        kryo.writeObject(output, latestWritesSet.asMap());
 
         kryo.writeObject(output, id);
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
