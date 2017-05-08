@@ -122,7 +122,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         //the default verifier is instantiated with null in the ServerReplica.
         this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());
-        Log.getLogger().warn("Instantiated abstract recoverable of id: "  + id);
+        Log.getLogger().warn("Instantiated abstract recoverable of id: " + id);
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
@@ -231,17 +231,17 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Write the specific data of a local or global cluster.
      *
-     * @param output     object to write to.
-     * @param kryo       kryo object.
+     * @param output object to write to.
+     * @param kryo   kryo object.
      */
     abstract Output writeSpecificData(final Output output, final Kryo kryo);
 
     @Override
     public byte[] getSnapshot()
     {
-        if(globalWriteSet == null || latestWritesSet == null)
+        if (globalWriteSet == null || latestWritesSet == null)
         {
-            return new byte[]{0};
+            return new byte[] {0};
         }
         Log.getLogger().warn("Get snapshot!!: " + globalWriteSet.size() + " + " + latestWritesSet.estimatedSize());
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
@@ -251,19 +251,15 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        if (globalWriteSet != null && !globalWriteSet.isEmpty())
+        kryo.writeObject(output, globalWriteSet.size());
+        for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
         {
-            kryo.writeObject(output, globalWriteSet.size());
-            for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
-            {
-                kryo.writeObject(output, writeSet.getKey());
-                kryo.writeObject(output, writeSet.getValue());
-            }
+            kryo.writeObject(output, writeSet.getKey());
+            kryo.writeObject(output, writeSet.getValue());
         }
 
-        final Map<Long, List<IOperation>> latest = latestWritesSet.asMap();
-        kryo.writeObject(output, latest.size());
-        for (final Map.Entry<Long, List<IOperation>> writeSet : latest.entrySet())
+        kryo.writeObject(output, latestWritesSet.estimatedSize());
+        for (final Map.Entry<Long, List<IOperation>> writeSet : latestWritesSet.asMap().entrySet())
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());

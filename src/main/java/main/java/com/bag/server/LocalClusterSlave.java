@@ -548,7 +548,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     }
 
     @Override
-    Output writeSpecificData(final Output output, final Kryo kryo)
+    public Output writeSpecificData(final Output output, final Kryo kryo)
     {
         kryo.writeObject(output, primaryGlobalClusterId);
         return output;

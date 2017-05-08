@@ -142,13 +142,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
     }
 
     @Override
-    Output writeSpecificData(final Output output, final Kryo kryo)
+    public Output writeSpecificData(final Output output, final Kryo kryo)
     {
         if (signatureStorageCache == null)
         {
             return output;
         }
-        
+
         Log.getLogger().warn("Size at globa: " + signatureStorageCache.estimatedSize());
 
         final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
