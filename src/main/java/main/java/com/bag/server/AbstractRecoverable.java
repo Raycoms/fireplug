@@ -189,7 +189,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             }
         }
 
-
         this.id = kryo.readObject(input, Integer.class);
         String instance = kryo.readObject(input, String.class);
         wrapper.setDataBaseAccess(ServerWrapper.instantiateDBAccess(instance, wrapper.getGlobalServerId()));
@@ -257,7 +256,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
         kryo.writeObject(output, databaseAccess.toString());
 
-        //output = writeSpecificData(output, kryo);
+        output = writeSpecificData(output, kryo);
 
         byte[] bytes = output.getBuffer();
         output.close();
@@ -430,7 +429,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             //Execute the transaction.
             for (IOperation op : localWriteSet)
             {
-                Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
+                //Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
                 updateCounts(1, 0, 0, 0);
             }
@@ -473,7 +472,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     public Map<Long, List<IOperation>> getGlobalWriteSet()
     {
-        return new LinkedHashMap<>(globalWriteSet);
+        return new TreeMap<>(globalWriteSet);
     }
 
     /**
@@ -483,7 +482,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     public Map<Long, List<IOperation>> getLatestWritesSet()
     {
-        return latestWritesSet.asMap();
+        return  new TreeMap<>(latestWritesSet.asMap());
     }
 
     /**
