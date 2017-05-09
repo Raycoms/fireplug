@@ -57,6 +57,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
 
     /**
+     * Object to lock access for committing.
+     */
+    private final Object lock = new Object();
+
+    /**
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
@@ -169,83 +174,86 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param input the input.
      * @return the response.
      */
-    private synchronized byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
+    private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
-        //Read the inputStream.
-        final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
-        final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
-        final List writeSetX = kryo.readObject(input, ArrayList.class);
-
-        //Create placeHolders.
-        ArrayList<NodeStorage> readSetNode;
-        ArrayList<RelationshipStorage> readsSetRelationship;
-        ArrayList<IOperation> localWriteSet;
-
-        input.close();
-        Output output = new Output(128);
-        kryo.writeObject(output, Constants.COMMIT_RESPONSE);
-
-        try
+        synchronized (lock)
         {
-            readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
-            readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
-            localWriteSet = (ArrayList<IOperation>) writeSetX;
-        }
-        catch (Exception e)
-        {
-            Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
-            kryo.writeObject(output, Constants.ABORT);
-            kryo.writeObject(output, getGlobalSnapshotId());
+            //Read the inputStream.
+            final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
+            final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
+            final List writeSetX = kryo.readObject(input, ArrayList.class);
 
-            //Send abort to client and abort
-            byte[] returnBytes = output.getBuffer();
-            output.close();
-            return returnBytes;
-        }
+            //Create placeHolders.
+            ArrayList<NodeStorage> readSetNode;
+            ArrayList<RelationshipStorage> readsSetRelationship;
+            ArrayList<IOperation> localWriteSet;
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
-                super.getLatestWritesSet(),
-                new ArrayList<>(localWriteSet),
-                readSetNode,
-                readsSetRelationship,
-                timeStamp,
-                wrapper.getDataBaseAccess()))
-        {
-            updateCounts(0, 0, 0, 1);
+            input.close();
+            Output output = new Output(128);
+            kryo.writeObject(output, Constants.COMMIT_RESPONSE);
 
-            Log.getLogger()
-                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                            + localWriteSet.size()
-                            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-            kryo.writeObject(output, Constants.ABORT);
-            kryo.writeObject(output, getGlobalSnapshotId());
-
-            //Send abort to client and abort
-            byte[] returnBytes = output.getBuffer();
-            output.close();
-            return returnBytes;
-        }
-        if (!localWriteSet.isEmpty())
-        {
-            super.executeCommit(localWriteSet);
-            if (wrapper.getLocalCLuster() != null)
+            try
             {
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
+                readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+                readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+                localWriteSet = (ArrayList<IOperation>) writeSetX;
             }
+            catch (Exception e)
+            {
+                Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
+                kryo.writeObject(output, Constants.ABORT);
+                kryo.writeObject(output, getGlobalSnapshotId());
+
+                //Send abort to client and abort
+                byte[] returnBytes = output.getBuffer();
+                output.close();
+                return returnBytes;
+            }
+
+            if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                    super.getLatestWritesSet(),
+                    new ArrayList<>(localWriteSet),
+                    readSetNode,
+                    readsSetRelationship,
+                    timeStamp,
+                    wrapper.getDataBaseAccess()))
+            {
+                updateCounts(0, 0, 0, 1);
+
+                Log.getLogger()
+                        .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                                + localWriteSet.size()
+                                + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+                kryo.writeObject(output, Constants.ABORT);
+                kryo.writeObject(output, getGlobalSnapshotId());
+
+                //Send abort to client and abort
+                byte[] returnBytes = output.getBuffer();
+                output.close();
+                return returnBytes;
+            }
+            if (!localWriteSet.isEmpty())
+            {
+                super.executeCommit(localWriteSet);
+                if (wrapper.getLocalCLuster() != null)
+                {
+                    signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
+                }
+            }
+            else
+            {
+                updateCounts(0, 0, 1, 0);
+            }
+
+            kryo.writeObject(output, Constants.COMMIT);
+            kryo.writeObject(output, getGlobalSnapshotId());
+
+            byte[] returnBytes = output.getBuffer();
+            output.close();
+            Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
+
+            return returnBytes;
         }
-        else
-        {
-            updateCounts(0, 0, 1, 0);
-        }
-
-        kryo.writeObject(output, Constants.COMMIT);
-        kryo.writeObject(output, getGlobalSnapshotId());
-
-        byte[] returnBytes = output.getBuffer();
-        output.close();
-        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
-
-        return returnBytes;
     }
 
     /**
