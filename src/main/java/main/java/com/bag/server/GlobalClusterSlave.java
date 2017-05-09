@@ -695,7 +695,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (signatureStorage.getMessage().length != message.length)
         {
-            Log.getLogger().warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
+            Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server " + message.length);
 
             final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
             final Kryo kryo = pool.borrow();
