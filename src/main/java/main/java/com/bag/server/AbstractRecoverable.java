@@ -240,7 +240,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
+        /*for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());
@@ -250,7 +250,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());
-        }
+        }*/
 
         kryo.writeObject(output, id);
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
