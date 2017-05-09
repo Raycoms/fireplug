@@ -149,7 +149,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return output;
         }
 
-        Log.getLogger().warn("Size at globa: " + signatureStorageCache.estimatedSize());
+        Log.getLogger().warn("Size at global: " + signatureStorageCache.estimatedSize());
 
         final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
         kryo.writeObject(output, copy.size());
