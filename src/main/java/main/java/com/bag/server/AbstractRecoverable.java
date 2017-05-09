@@ -256,7 +256,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
         kryo.writeObject(output, databaseAccess.toString());
 
-        output = writeSpecificData(output, kryo);
+        //output = writeSpecificData(output, kryo);
 
         byte[] bytes = output.getBuffer();
         output.close();
