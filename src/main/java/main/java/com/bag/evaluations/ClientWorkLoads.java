@@ -469,6 +469,7 @@ public class ClientWorkLoads
                     }
                     else
                     {
+                        Log.getLogger().warn("Delete node");
                         operation = new DeleteOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
                         //delete node
                         deleteNodes += 1;
