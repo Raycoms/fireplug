@@ -422,7 +422,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @param localWriteSet the write set to execute.
      */
-    public void executeCommit(final List<IOperation> localWriteSet)
+    public void executeCommit(final List<IOperation> localWriteSet, final String location)
     {
         synchronized (commitLock)
         {
@@ -430,7 +430,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             //Execute the transaction.
             for (IOperation op : localWriteSet)
             {
-                Log.getLogger().warn(currentSnapshot + " Running: " + op.toString());
+                Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
                 updateCounts(1, 0, 0, 0);
             }
