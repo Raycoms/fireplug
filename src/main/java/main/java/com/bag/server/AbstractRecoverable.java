@@ -430,6 +430,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             //Execute the transaction.
             for (IOperation op : localWriteSet)
             {
+                Log.getLogger().warn(currentSnapshot + " Running: " + op.toString());
                 op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
                 updateCounts(1, 0, 0, 0);
             }
