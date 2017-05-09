@@ -220,6 +220,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
+            if(!localWriteSet.isEmpty())
+            {
+                Log.getLogger().warn("Aborting: " + localWriteSet.get(0).toString());
+            }
+
             //Send abort to client and abort
             byte[] returnBytes = output.getBuffer();
             output.close();
@@ -301,13 +306,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
-                    .warn("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                             + localWriteSet.size()
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-            if(!localWriteSet.isEmpty())
-            {
-                Log.getLogger().warn("Aborting: " + localWriteSet.get(0).toString());
-            }
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
