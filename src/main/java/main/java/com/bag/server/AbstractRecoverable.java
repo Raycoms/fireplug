@@ -228,12 +228,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public byte[] getSnapshot()
     {
-        if (globalWriteSet == null || latestWritesSet == null)
+        /*if (globalWriteSet == null || latestWritesSet == null)
         {
             return new byte[] {0};
         }
         Log.getLogger().warn("Snapshot!");
-        //Log.getLogger().warn("Get snapshot!!: " + globalWriteSet.size() + " + " + latestWritesSet.estimatedSize());
+        Log.getLogger().warn("Get snapshot!!: " + globalWriteSet.size() + " + " + latestWritesSet.estimatedSize());
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
@@ -241,7 +241,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        /*for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
+        for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());
@@ -251,7 +251,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());
-        }*/
+        }
 
         kryo.writeObject(output, id);
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
@@ -261,8 +261,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         byte[] bytes = output.getBuffer();
         output.close();
-        pool.release(kryo);
-        return bytes;
+        pool.release(kryo);*/
+        return new byte[] {0};
     }
 
     /**
