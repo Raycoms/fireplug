@@ -228,7 +228,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public byte[] getSnapshot()
     {
-        if (globalWriteSet == null || latestWritesSet == null)
+        if (globalWriteSet == null || latestWritesSet == null || true)
         {
             return new byte[] {0};
         }
