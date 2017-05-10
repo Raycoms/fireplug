@@ -69,16 +69,13 @@ public class ConflictHandler
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
 
-        Log.getLogger().warn("Starting isUpToDate");
         List<IOperation> pastWrites = new ArrayList<>();
 
         boolean commit = true;
         if (!readSetNode.isEmpty())
         {
-            Log.getLogger().warn("ReadSet node is not empty, size: " + writeSet.size());
             if (!writeSet.isEmpty() && snapshotId <= writeSet.lastKey())
             {
-                Log.getLogger().warn("Will access the old ones");
 
                 pastWrites = writeSet.entrySet()
                         .stream()
@@ -87,12 +84,9 @@ public class ConflictHandler
                         .map(Map.Entry::getValue)
                         .flatMap(List::stream)
                         .collect(Collectors.toList());
-                Log.getLogger().warn("Accessed the old ones");
 
             }
-
-            Log.getLogger().warn("Will access the last writes one, size: " + latestWriteSet.size());
-
+            
             pastWrites.addAll(latestWriteSet.entrySet()
                     .stream()
                     .filter(id -> id.getKey() > snapshotId)
@@ -101,15 +95,8 @@ public class ConflictHandler
                     .flatMap(List::stream)
                     .collect(Collectors.toList()));
 
-            Log.getLogger().warn("Accessed the last writes ones");
-
-
             List<IOperation> copy = new ArrayList<>(pastWrites);
-
             commit = readSetNode.isEmpty() || !copy.removeAll(readSetNode);
-
-            Log.getLogger().warn("Finished checking");
-
         }
 
         if (!commit)
@@ -121,21 +108,12 @@ public class ConflictHandler
             return false;
         }
 
-        Log.getLogger().warn("No conflicts with nodes");
-
-
         if (!readSetRelationship.isEmpty())
         {
-            Log.getLogger().warn("ReadSet rs is not empty, size: " + writeSet.size());
-
             if (pastWrites.isEmpty())
             {
-                Log.getLogger().warn("past writes is not empty");
-
                 if (!writeSet.isEmpty() && snapshotId <= writeSet.lastKey())
                 {
-                    Log.getLogger().warn("Will access the old ones");
-
                     pastWrites = writeSet.entrySet()
                             .stream()
                             .filter(id -> id.getKey() > snapshotId)
@@ -143,12 +121,8 @@ public class ConflictHandler
                             .map(Map.Entry::getValue)
                             .flatMap(List::stream)
                             .collect(Collectors.toList());
-                    Log.getLogger().warn("Accessed the old ones");
 
                 }
-
-                Log.getLogger().warn("Will access the last writes one, size: " + latestWriteSet.size());
-
                 pastWrites.addAll(latestWriteSet.entrySet()
                         .stream()
                         .filter(id -> id.getKey() > snapshotId)
@@ -157,10 +131,8 @@ public class ConflictHandler
                         .flatMap(List::stream)
                         .collect(Collectors.toList()));
 
-                Log.getLogger().warn("Accessed the last writes ones");
             }
             List<IOperation> copy = new ArrayList<>(pastWrites);
-
             commit = readSetRelationship.isEmpty() || !copy.removeAll(readSetRelationship);
         }
 
@@ -173,24 +145,15 @@ public class ConflictHandler
             return false;
         }
 
-        Log.getLogger().warn("No conflicts with relationships");
-
-
         final List<IOperation> tempList = localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
                 .collect(Collectors.toList());
 
         if (!tempList.isEmpty())
         {
-            Log.getLogger().warn("temp list is not empty, size: " + writeSet.size());
-
             if (pastWrites.isEmpty())
             {
-                Log.getLogger().warn("past writes is not empty");
-
                 if (!writeSet.isEmpty() && snapshotId <= writeSet.lastKey())
                 {
-                    Log.getLogger().warn("Will access the old ones");
-
                     pastWrites = writeSet.entrySet()
                             .stream()
                             .filter(id -> id.getKey() > snapshotId)
@@ -198,11 +161,7 @@ public class ConflictHandler
                             .map(Map.Entry::getValue)
                             .flatMap(List::stream)
                             .collect(Collectors.toList());
-                    Log.getLogger().warn("Accessed the old ones");
-
                 }
-
-                Log.getLogger().warn("Will access the last writes one, size: " + latestWriteSet.size());
 
                 pastWrites.addAll(latestWriteSet.entrySet()
                         .stream()
@@ -211,23 +170,15 @@ public class ConflictHandler
                         .map(Map.Entry::getValue)
                         .flatMap(List::stream)
                         .collect(Collectors.toList()));
-
-                Log.getLogger().warn("Accessed the last writes ones");
             }
             List<IOperation> copy = new ArrayList<>(pastWrites);
 
             commit = tempList.isEmpty() || !copy.removeAll(tempList);
         }
-        if (!commit)
+        if (!commit && !localWriteSet.isEmpty())
         {
-            if (!localWriteSet.isEmpty())
-            {
-                Log.getLogger().warn("Aborting because of writeSet containing clashing operation");
-            }
+            Log.getLogger().warn("Aborting because of writeSet containing clashing operation");
         }
-
-        Log.getLogger().warn("No conflicts with writes");
-
 
         return commit;
     }
