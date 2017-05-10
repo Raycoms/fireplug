@@ -225,7 +225,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if(!localWriteSet.isEmpty())
             {
-                Log.getLogger().warn("Aborting of: " + getGlobalSnapshotId());
+                Log.getLogger().warn("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
                 for(IOperation operation: localWriteSet)
                 {
                     Log.getLogger().warn(operation.toString());
@@ -242,7 +242,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (!localWriteSet.isEmpty())
         {
-            Log.getLogger().warn("Comitting: " + getGlobalSnapshotId());
+            Log.getLogger().warn("Comitting: " + getGlobalSnapshotId()  + " localId: " + timeStamp);
             for(IOperation operation: localWriteSet)
             {
                 Log.getLogger().warn(operation.toString());
