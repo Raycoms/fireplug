@@ -205,13 +205,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+        Log.getLogger().warn("Starting conflictHandler!");
+        final double time = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
+
+        boolean noConflict = ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
                 readSetNode,
                 readsSetRelationship,
                 timeStamp,
-                wrapper.getDataBaseAccess()))
+                wrapper.getDataBaseAccess());
+        Log.getLogger().warn("Ending conflictHandler!: " + ((System.nanoTime()/Constants.NANO_TIME_DIVIDER) - time));
+
+        if (!noConflict)
         {
             updateCounts(0, 0, 0, 1);
 
