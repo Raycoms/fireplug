@@ -222,7 +222,21 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if(!localWriteSet.isEmpty())
             {
-                Log.getLogger().warn("Aborting: " + localWriteSet.get(0).toString());
+                Log.getLogger().warn("Aborting!!!");
+                for(IOperation operation: localWriteSet)
+                {
+                    Log.getLogger().warn(operation.toString());
+                }
+
+                for(NodeStorage nodeStorage : readSetNode)
+                {
+                    Log.getLogger().warn(nodeStorage.toString());
+                }
+
+                for(RelationshipStorage nodeStorage : readsSetRelationship)
+                {
+                    Log.getLogger().warn(nodeStorage.toString());
+                }
             }
 
             //Send abort to client and abort
@@ -233,6 +247,21 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (!localWriteSet.isEmpty())
         {
+            Log.getLogger().warn("Comitting!!!");
+            for(IOperation operation: localWriteSet)
+            {
+                Log.getLogger().warn(operation.toString());
+            }
+
+            for(NodeStorage nodeStorage : readSetNode)
+            {
+                Log.getLogger().warn(nodeStorage.toString());
+            }
+
+            for(RelationshipStorage nodeStorage : readsSetRelationship)
+            {
+                Log.getLogger().warn(nodeStorage.toString());
+            }
             super.executeCommit(localWriteSet, "master");
             if (wrapper.getLocalCLuster() != null)
             {
