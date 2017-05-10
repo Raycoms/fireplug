@@ -4,6 +4,7 @@ import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
@@ -54,7 +55,7 @@ public class ConflictHandler
      * Checks if no changes have been made since the start of the transaction.
      *
      * @param writeSet            the node and relationship writeSet.
-     * @param localWriteSet       the node and relationship write set of the transaction.
+     * @param latestWriteSet       the node and relationship write set of the transaction.
      * @param localWriteSet       the node and relationship writeSet of the transaction.
      * @param readSetNode         the node readSet.
      * @param readSetRelationship the relationship readSet
@@ -98,6 +99,7 @@ public class ConflictHandler
 
         if (!commit)
         {
+            Log.getLogger().warn("Aborting because of writeSet containing node read");
             return false;
         }
 
@@ -132,6 +134,7 @@ public class ConflictHandler
 
         if (!commit)
         {
+            Log.getLogger().warn("Aborting because of writeSet containing rs read");
             return false;
         }
 
@@ -166,6 +169,11 @@ public class ConflictHandler
             }
             commit = tempList.isEmpty() || !pastWrites.removeAll(tempList);
         }
+        if(!commit)
+        {
+            Log.getLogger().warn("Aborting because of writeSet containing clashing operation");
+        }
+
         return commit;
     }
 
@@ -178,6 +186,11 @@ public class ConflictHandler
      */
     private static boolean isCorrect(List<NodeStorage> readSetNode, List<RelationshipStorage> readSetRelationship, IDatabaseAccess access)
     {
-        return access.equalHash(readSetNode) && access.equalHash(readSetRelationship);
+        boolean eq = access.equalHash(readSetNode) && access.equalHash(readSetRelationship);
+        if(!eq)
+        {
+            Log.getLogger().warn("Aborting because of incorrect read");
+        }
+        return eq;
     }
 }
