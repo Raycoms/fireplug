@@ -77,6 +77,8 @@ public class ConflictHandler
         {
             if (snapshotId <= writeSet.lastKey())
             {
+                Log.getLogger().warn("Will access the old ones");
+
                 pastWrites = writeSet.entrySet()
                         .stream()
                         .filter(id -> id.getKey() > snapshotId)
@@ -84,7 +86,11 @@ public class ConflictHandler
                         .map(Map.Entry::getValue)
                         .flatMap(List::stream)
                         .collect(Collectors.toList());
+                Log.getLogger().warn("Accessed the old ones");
+
             }
+
+            Log.getLogger().warn("Will access the last writes one");
 
             pastWrites.addAll(latestWriteSet.entrySet()
                     .stream()
@@ -94,9 +100,15 @@ public class ConflictHandler
                     .flatMap(List::stream)
                     .collect(Collectors.toList()));
 
+            Log.getLogger().warn("Accessed the last writes ones");
+
+
             List<IOperation> copy = new ArrayList<>(pastWrites);
 
             commit = readSetNode.isEmpty() || !copy.removeAll(readSetNode);
+
+            Log.getLogger().warn("Finished checking");
+
         }
 
         if (!commit)
@@ -117,6 +129,8 @@ public class ConflictHandler
             {
                 if (snapshotId <= writeSet.lastKey())
                 {
+                    Log.getLogger().warn("Will access the old ones");
+
                     pastWrites = writeSet.entrySet()
                             .stream()
                             .filter(id -> id.getKey() > snapshotId)
@@ -124,7 +138,11 @@ public class ConflictHandler
                             .map(Map.Entry::getValue)
                             .flatMap(List::stream)
                             .collect(Collectors.toList());
+                    Log.getLogger().warn("Accessed the old ones");
+
                 }
+
+                Log.getLogger().warn("Will access the last writes one");
 
                 pastWrites.addAll(latestWriteSet.entrySet()
                         .stream()
@@ -133,6 +151,8 @@ public class ConflictHandler
                         .map(Map.Entry::getValue)
                         .flatMap(List::stream)
                         .collect(Collectors.toList()));
+
+                Log.getLogger().warn("Accessed the last writes ones");
             }
             List<IOperation> copy = new ArrayList<>(pastWrites);
 
@@ -160,6 +180,8 @@ public class ConflictHandler
             {
                 if (snapshotId <= writeSet.lastKey())
                 {
+                    Log.getLogger().warn("Will access the old ones");
+
                     pastWrites = writeSet.entrySet()
                             .stream()
                             .filter(id -> id.getKey() > snapshotId)
@@ -167,7 +189,11 @@ public class ConflictHandler
                             .map(Map.Entry::getValue)
                             .flatMap(List::stream)
                             .collect(Collectors.toList());
+                    Log.getLogger().warn("Accessed the old ones");
+
                 }
+
+                Log.getLogger().warn("Will access the last writes one");
 
                 pastWrites.addAll(latestWriteSet.entrySet()
                         .stream()
@@ -176,6 +202,8 @@ public class ConflictHandler
                         .map(Map.Entry::getValue)
                         .flatMap(List::stream)
                         .collect(Collectors.toList()));
+
+                Log.getLogger().warn("Accessed the last writes ones");
             }
             List<IOperation> copy = new ArrayList<>(pastWrites);
 
