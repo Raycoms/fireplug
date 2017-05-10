@@ -502,4 +502,13 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     {
         return factory;
     }
+
+    /**
+     * Getter for the id.
+     * @return the id.
+     */
+    int getId()
+    {
+        return id;
+    }
 }

@@ -80,7 +80,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return temp;
     }
 
-    //Every byte array is one request.
+    /**
+     * Every byte array is one request.
+     * @param bytes the requests.
+     * @param messageContexts the contexts.
+     * @return the answers of all requests in this batch.
+     */
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
@@ -226,8 +231,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     Log.getLogger().warn(operation.toString());
                 }
-                Log.getLogger().warn("Global: " + map1.size());
-                Log.getLogger().warn("Latest: " + map2.size());
+                Log.getLogger().warn("Global: " + map1.size() + " id: " + super.getId());
+                Log.getLogger().warn("Latest: " + map2.size() + " id: " + super.getId());
             }
 
             //Send abort to client and abort
@@ -244,8 +249,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn(operation.toString());
             }
 
-            Log.getLogger().warn("Global: " + map1.size());
-            Log.getLogger().warn("Latest: " + map2.size());
+            Log.getLogger().warn("Global: " + map1.size() + " id: " + super.getId());
+            Log.getLogger().warn("Latest: " + map2.size() + " id: " + super.getId());
 
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
