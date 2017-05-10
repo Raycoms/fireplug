@@ -270,12 +270,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Handles the node read message and requests it to the database.
      *
      * @param input          get info from.
-     * @param messageContext additional context.
      * @param kryo           kryo object.
      * @param output         write info to.
      * @return output object to return to client.
      */
-    public Output handleNodeRead(Input input, MessageContext messageContext, Kryo kryo, Output output)
+    Output handleNodeRead(Input input, Kryo kryo, Output output)
     {
         long localSnapshotId = kryo.readObject(input, Long.class);
         NodeStorage identifier = kryo.readObject(input, NodeStorage.class);
@@ -299,12 +298,13 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
         }
-        catch (OutDatedDataException e)
+        catch (final OutDatedDataException e)
         {
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, localSnapshotId);
 
             Log.getLogger().warn("Transaction found conflict");
+            Log.getLogger().info("OutdatedData Exception thrown: ", e);
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
             return output;
@@ -313,12 +313,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         kryo.writeObject(output, Constants.CONTINUE);
         kryo.writeObject(output, localSnapshotId);
 
-        if (returnList != null)
-        {
-            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
-        }
 
-        if (returnList == null || returnList.isEmpty())
+        Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
+
+        if (returnList.isEmpty())
         {
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
@@ -353,7 +351,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * @param output write info to.
      * @return output object to return to client.
      */
-    public Output handleRelationshipRead(final Input input, final Kryo kryo, final Output output)
+    Output handleRelationshipRead(final Input input, final Kryo kryo, final Output output)
     {
         long localSnapshotId = kryo.readObject(input, Long.class);
         RelationshipStorage identifier = kryo.readObject(input, RelationshipStorage.class);
@@ -377,13 +375,13 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             returnList = new ArrayList<>((wrapper.getDataBaseAccess()).readObject(identifier, localSnapshotId));
         }
-        catch (OutDatedDataException e)
+        catch (final OutDatedDataException e)
         {
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, localSnapshotId);
 
             Log.getLogger().warn("Transaction found conflict");
-            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            Log.getLogger().info("OutdatedData Exception thrown: ", e);            kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
         }
         kryo.writeObject(output, Constants.CONTINUE);
@@ -423,7 +421,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @param localWriteSet the write set to execute.
      */
-    public void executeCommit(final List<IOperation> localWriteSet, final String location)
+    void executeCommit(final List<IOperation> localWriteSet)
     {
         synchronized (commitLock)
         {
@@ -452,7 +450,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return instance of the service replica
      */
-    public ServiceReplica getReplica()
+    ServiceReplica getReplica()
     {
         return replica;
     }
@@ -462,7 +460,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return the snapshot id.
      */
-    public long getGlobalSnapshotId()
+    long getGlobalSnapshotId()
     {
         return globalSnapshotId;
     }
@@ -472,7 +470,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return a hashmap of all the operations with their snapshotId.
      */
-    public Map<Long, List<IOperation>> getGlobalWriteSet()
+    Map<Long, List<IOperation>> getGlobalWriteSet()
     {
         return new TreeMap<>(globalWriteSet);
     }
@@ -482,7 +480,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return a hashmap of all the operations with their snapshotId.
      */
-    public Map<Long, List<IOperation>> getLatestWritesSet()
+    Map<Long, List<IOperation>> getLatestWritesSet()
     {
         return  new TreeMap<>(latestWritesSet.asMap());
     }
@@ -500,7 +498,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return the factory.
      */
-    public KryoFactory getFactory()
+    KryoFactory getFactory()
     {
         return factory;
     }

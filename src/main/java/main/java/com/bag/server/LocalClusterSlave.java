@@ -146,7 +146,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             case Constants.READ_MESSAGE:
                 Log.getLogger().info("Received Node read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
-                output = handleNodeRead(input, messageContext, kryo, output);
+                output = handleNodeRead(input, kryo, output);
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
                 Log.getLogger().info("Received Relationship read message");
@@ -462,13 +462,13 @@ public class LocalClusterSlave extends AbstractRecoverable
         if(lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
             Log.getLogger().info("Execute update on slave: " + snapShotId);
-            executeCommit(localWriteSet, "slave");
+            executeCommit(localWriteSet);
 
             long requiredKey = lastKey + 1;
             while(buffer.containsKey(requiredKey))
             {
                 Log.getLogger().info("Execute update on slave: " + snapShotId);
-                executeCommit(buffer.remove(requiredKey), "slave");
+                executeCommit(buffer.remove(requiredKey));
                 requiredKey++;
             }
 
