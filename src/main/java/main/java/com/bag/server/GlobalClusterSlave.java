@@ -203,8 +203,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
-                super.getLatestWritesSet(),
+        Map<Long, List<IOperation>> map1 = super.getGlobalWriteSet();
+        Map<Long, List<IOperation>> map2 = super.getLatestWritesSet();
+
+        if (!ConflictHandler.checkForConflict(map1,
+                map2,
                 new ArrayList<>(localWriteSet),
                 readSetNode,
                 readsSetRelationship,
@@ -227,16 +230,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     Log.getLogger().warn(operation.toString());
                 }
-
-                for(NodeStorage nodeStorage : readSetNode)
-                {
-                    Log.getLogger().warn(nodeStorage.toString());
-                }
-
-                for(RelationshipStorage nodeStorage : readsSetRelationship)
-                {
-                    Log.getLogger().warn(nodeStorage.toString());
-                }
+                Log.getLogger().warn("Global: " + map1.size());
+                Log.getLogger().warn("Latest: " + map2.size());
             }
 
             //Send abort to client and abort
@@ -253,21 +248,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn(operation.toString());
             }
 
-            String n = "";
-            for(NodeStorage nodeStorage : readSetNode)
-            {
-                n += " " + nodeStorage.toString();
-            }
-
-            Log.getLogger().warn(n);
-
-            int x = readsSetRelationship.size();
-            String n1 = "";
-            for(RelationshipStorage nodeStorage : readsSetRelationship)
-            {
-                n1 += " " + nodeStorage.toShortString();
-            }
-            Log.getLogger().warn(x + " :" + n1);
+            Log.getLogger().warn("Global: " + map1.size());
+            Log.getLogger().warn("Latest: " + map2.size());
 
             super.executeCommit(localWriteSet, "master");
             if (wrapper.getLocalCLuster() != null)
