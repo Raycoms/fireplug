@@ -82,8 +82,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     /**
      * Every byte array is one request.
-     *
-     * @param bytes           the requests.
+     * @param bytes the requests.
      * @param messageContexts the contexts.
      * @return the answers of all requests in this batch.
      */
@@ -223,9 +222,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
-            if (!localWriteSet.isEmpty())
+            if(!localWriteSet.isEmpty())
             {
                 Log.getLogger().warn("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
+                for(IOperation operation: localWriteSet)
+                {
+                    Log.getLogger().warn(operation.toString());
+                }
+                Log.getLogger().warn("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
+                Log.getLogger().warn("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
             }
 
             //Send abort to client and abort
@@ -236,6 +241,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (!localWriteSet.isEmpty())
         {
+            Log.getLogger().warn("Comitting: " + getGlobalSnapshotId()  + " localId: " + timeStamp);
+            for(IOperation operation: localWriteSet)
+            {
+                Log.getLogger().warn(operation.toString());
+            }
+
+            Log.getLogger().warn("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
+            Log.getLogger().warn("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
+
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
             {
