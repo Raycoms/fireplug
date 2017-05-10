@@ -168,6 +168,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         globalSnapshotId = kryo.readObject(input, Long.class);
         Log.getLogger().error("Install snapshot with old values!!!!: " + globalSnapshotId);
+        globalWriteSet.clear();
 
         while (input.canReadLong())
         {
@@ -178,7 +179,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 globalWriteSet.put(snapshotId, (List<IOperation>) object);
             }
         }
-        
+
+        latestWritesSet.cleanUp();
         while (input.canReadLong())
         {
             long snapshotId = kryo.readObject(input, Long.class);
