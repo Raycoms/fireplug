@@ -172,6 +172,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private synchronized byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
+        Log.getLogger().warn("Execute commit");
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
         final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
