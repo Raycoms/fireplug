@@ -93,7 +93,9 @@ public class ConflictHandler
                     .flatMap(List::stream)
                     .collect(Collectors.toList()));
 
-            commit = readSetNode.isEmpty() || !pastWrites.removeAll(readSetNode);
+            List<IOperation> copy = new ArrayList<>(pastWrites);
+
+            commit = readSetNode.isEmpty() || !copy.removeAll(readSetNode);
         }
 
         if (!commit)
@@ -128,7 +130,9 @@ public class ConflictHandler
                         .flatMap(List::stream)
                         .collect(Collectors.toList()));
             }
-            commit = readSetRelationship.isEmpty() || !pastWrites.removeAll(readSetRelationship);
+            List<IOperation> copy = new ArrayList<>(pastWrites);
+
+            commit = readSetRelationship.isEmpty() || !copy.removeAll(readSetRelationship);
         }
 
         if (!commit)
@@ -166,7 +170,9 @@ public class ConflictHandler
                         .flatMap(List::stream)
                         .collect(Collectors.toList()));
             }
-            commit = tempList.isEmpty() || !pastWrites.removeAll(tempList);
+            List<IOperation> copy = new ArrayList<>(pastWrites);
+
+            commit = tempList.isEmpty() || !copy.removeAll(tempList);
         }
         if (!commit)
         {
