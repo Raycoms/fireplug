@@ -86,6 +86,6 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
     @Override
     public String toString()
     {
-        return "Delete: " + key.toString() + " to " + value.toString();
+        return "Update: " + key.toString() + " to " + value.toString();
     }
 }
