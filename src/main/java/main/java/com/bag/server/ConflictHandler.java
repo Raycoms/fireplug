@@ -56,7 +56,7 @@ public class ConflictHandler
      * Checks if no changes have been made since the start of the transaction.
      *
      * @param writeSet            the node and relationship writeSet.
-     * @param latestWriteSet       the node and relationship write set of the transaction.
+     * @param latestWriteSet      the node and relationship write set of the transaction.
      * @param localWriteSet       the node and relationship writeSet of the transaction.
      * @param readSetNode         the node readSet.
      * @param readSetRelationship the relationship readSet
@@ -69,25 +69,13 @@ public class ConflictHandler
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
 
-        List<IOperation> pastWrites = null;
+        List<IOperation> pastWrites = new ArrayList<>();
 
         boolean commit = true;
         if (!readSetNode.isEmpty())
         {
-
-            if(snapshotId > writeSet.lastKey())
+            if (snapshotId <= writeSet.lastKey())
             {
-                pastWrites = latestWriteSet.entrySet()
-                        .stream()
-                        .filter(id -> id.getKey() > snapshotId)
-                        .filter(entry -> entry.getKey() > snapshotId)
-                        .map(Map.Entry::getValue)
-                        .flatMap(List::stream)
-                        .collect(Collectors.toList());
-            }
-            else
-            {
-                writeSet.putAll(latestWriteSet);
                 pastWrites = writeSet.entrySet()
                         .stream()
                         .filter(id -> id.getKey() > snapshotId)
@@ -96,6 +84,15 @@ public class ConflictHandler
                         .flatMap(List::stream)
                         .collect(Collectors.toList());
             }
+
+            pastWrites.addAll(latestWriteSet.entrySet()
+                    .stream()
+                    .filter(id -> id.getKey() > snapshotId)
+                    .filter(entry -> entry.getKey() > snapshotId)
+                    .map(Map.Entry::getValue)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList()));
+
             commit = readSetNode.isEmpty() || !pastWrites.removeAll(readSetNode);
         }
 
@@ -110,21 +107,10 @@ public class ConflictHandler
 
         if (!readSetRelationship.isEmpty())
         {
-            if (pastWrites == null)
+            if (pastWrites.isEmpty())
             {
-                if(snapshotId > writeSet.lastKey())
+                if (snapshotId <= writeSet.lastKey())
                 {
-                    pastWrites = latestWriteSet.entrySet()
-                            .stream()
-                            .filter(id -> id.getKey() > snapshotId)
-                            .filter(entry -> entry.getKey() > snapshotId)
-                            .map(Map.Entry::getValue)
-                            .flatMap(List::stream)
-                            .collect(Collectors.toList());
-                }
-                else
-                {
-                    writeSet.putAll(latestWriteSet);
                     pastWrites = writeSet.entrySet()
                             .stream()
                             .filter(id -> id.getKey() > snapshotId)
@@ -133,6 +119,14 @@ public class ConflictHandler
                             .flatMap(List::stream)
                             .collect(Collectors.toList());
                 }
+
+                pastWrites.addAll(latestWriteSet.entrySet()
+                        .stream()
+                        .filter(id -> id.getKey() > snapshotId)
+                        .filter(entry -> entry.getKey() > snapshotId)
+                        .map(Map.Entry::getValue)
+                        .flatMap(List::stream)
+                        .collect(Collectors.toList()));
             }
             commit = readSetRelationship.isEmpty() || !pastWrites.removeAll(readSetRelationship);
         }
@@ -151,21 +145,10 @@ public class ConflictHandler
 
         if (!tempList.isEmpty())
         {
-            if (pastWrites == null)
+            if (pastWrites.isEmpty())
             {
-                if(snapshotId > writeSet.lastKey())
+                if (snapshotId <= writeSet.lastKey())
                 {
-                    pastWrites = latestWriteSet.entrySet()
-                            .stream()
-                            .filter(id -> id.getKey() > snapshotId)
-                            .filter(entry -> entry.getKey() > snapshotId)
-                            .map(Map.Entry::getValue)
-                            .flatMap(List::stream)
-                            .collect(Collectors.toList());
-                }
-                else
-                {
-                    writeSet.putAll(latestWriteSet);
                     pastWrites = writeSet.entrySet()
                             .stream()
                             .filter(id -> id.getKey() > snapshotId)
@@ -174,10 +157,18 @@ public class ConflictHandler
                             .flatMap(List::stream)
                             .collect(Collectors.toList());
                 }
+
+                pastWrites.addAll(latestWriteSet.entrySet()
+                        .stream()
+                        .filter(id -> id.getKey() > snapshotId)
+                        .filter(entry -> entry.getKey() > snapshotId)
+                        .map(Map.Entry::getValue)
+                        .flatMap(List::stream)
+                        .collect(Collectors.toList()));
             }
             commit = tempList.isEmpty() || !pastWrites.removeAll(tempList);
         }
-        if(!commit)
+        if (!commit)
         {
             if (!localWriteSet.isEmpty())
             {
@@ -198,7 +189,7 @@ public class ConflictHandler
     private static boolean isCorrect(List<NodeStorage> readSetNode, List<RelationshipStorage> readSetRelationship, IDatabaseAccess access)
     {
         boolean eq = access.equalHash(readSetNode) && access.equalHash(readSetRelationship);
-        if(!eq)
+        if (!eq)
         {
             Log.getLogger().warn("Aborting because of incorrect read");
         }
