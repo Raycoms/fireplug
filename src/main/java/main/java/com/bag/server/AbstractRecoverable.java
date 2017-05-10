@@ -469,7 +469,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return a hashmap of all the operations with their snapshotId.
      */
-    Map<Long, List<IOperation>> getGlobalWriteSet()
+    ConcurrentSkipListMap<Long, List<IOperation>> getGlobalWriteSet()
     {
         return globalWriteSet;
     }
