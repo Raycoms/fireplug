@@ -99,7 +99,10 @@ public class ConflictHandler
 
         if (!commit)
         {
-            Log.getLogger().warn("Aborting because of writeSet containing node read");
+            if (!localWriteSet.isEmpty())
+            {
+                Log.getLogger().warn("Aborting because of writeSet containing node read");
+            }
             return false;
         }
 
@@ -134,7 +137,10 @@ public class ConflictHandler
 
         if (!commit)
         {
-            Log.getLogger().warn("Aborting because of writeSet containing rs read");
+            if (!localWriteSet.isEmpty())
+            {
+                Log.getLogger().warn("Aborting because of writeSet containing rs read");
+            }
             return false;
         }
 
@@ -171,7 +177,10 @@ public class ConflictHandler
         }
         if(!commit)
         {
-            Log.getLogger().warn("Aborting because of writeSet containing clashing operation");
+            if (!localWriteSet.isEmpty())
+            {
+                Log.getLogger().warn("Aborting because of writeSet containing clashing operation");
+            }
         }
 
         return commit;

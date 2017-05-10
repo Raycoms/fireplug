@@ -253,15 +253,18 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn(operation.toString());
             }
 
+            String n = "";
             for(NodeStorage nodeStorage : readSetNode)
             {
-                Log.getLogger().warn(nodeStorage.toString());
+                n += " " + nodeStorage.toString();
             }
 
-            for(RelationshipStorage nodeStorage : readsSetRelationship)
+            Log.getLogger().warn(n);
+
+            /*for(RelationshipStorage nodeStorage : readsSetRelationship)
             {
                 Log.getLogger().warn(nodeStorage.toString());
-            }
+            }*/
             super.executeCommit(localWriteSet, "master");
             if (wrapper.getLocalCLuster() != null)
             {
