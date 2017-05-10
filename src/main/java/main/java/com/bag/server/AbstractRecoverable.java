@@ -228,7 +228,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public byte[] getSnapshot()
     {
-        if (globalWriteSet == null || latestWritesSet == null || true)
+        if (globalWriteSet == null || latestWritesSet == null)
         {
             return new byte[] {0};
         }
@@ -238,10 +238,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         final Kryo kryo = pool.borrow();
 
         Output output = new Output(0, 200240);
-
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
+        kryo.writeObject(output, globalWriteSet);
+        kryo.writeObject(output, latestWritesSet.asMap());
+        /*for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());
@@ -251,7 +252,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             kryo.writeObject(output, writeSet.getKey());
             kryo.writeObject(output, writeSet.getValue());
-        }
+        }*/
 
         kryo.writeObject(output, id);
         IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
