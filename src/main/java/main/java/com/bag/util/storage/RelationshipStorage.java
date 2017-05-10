@@ -243,4 +243,15 @@ public class RelationshipStorage implements Serializable
 
         return outputStream.toByteArray();
     }
+
+    public String toShortString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        sb.append(startNode.toString());
+        sb.append(" " + id + " ");
+        sb.append(endNode.toString());
+        sb.append(")");
+        return sb.toString();
+    }
 }
