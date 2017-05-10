@@ -69,6 +69,7 @@ public class ConflictHandler
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
 
+        Log.getLogger().warn("Starting isUpToDate");
         List<IOperation> pastWrites = new ArrayList<>();
 
         boolean commit = true;
@@ -107,6 +108,9 @@ public class ConflictHandler
             return false;
         }
 
+        Log.getLogger().warn("No conflicts with nodes");
+
+
         if (!readSetRelationship.isEmpty())
         {
             if (pastWrites.isEmpty())
@@ -143,6 +147,9 @@ public class ConflictHandler
             }
             return false;
         }
+
+        Log.getLogger().warn("No conflicts with relationships");
+
 
         final List<IOperation> tempList = localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)
                 .collect(Collectors.toList());
@@ -181,6 +188,9 @@ public class ConflictHandler
                 Log.getLogger().warn("Aborting because of writeSet containing clashing operation");
             }
         }
+
+        Log.getLogger().warn("No conflicts with writes");
+
 
         return commit;
     }
