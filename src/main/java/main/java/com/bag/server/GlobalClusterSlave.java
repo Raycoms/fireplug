@@ -82,7 +82,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     /**
      * Every byte array is one request.
-     * @param bytes the requests.
+     *
+     * @param bytes           the requests.
      * @param messageContexts the contexts.
      * @return the answers of all requests in this batch.
      */
@@ -172,7 +173,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private synchronized byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
-        Log.getLogger().warn("Execute commit");
+        Log.getLogger().info("Execute commit");
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
         final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
@@ -205,19 +206,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        Log.getLogger().warn("Starting conflictHandler!");
-        final double time = System.nanoTime()/Constants.NANO_TIME_DIVIDER;
-
-        boolean noConflict = ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
                 readSetNode,
                 readsSetRelationship,
                 timeStamp,
-                wrapper.getDataBaseAccess());
-        Log.getLogger().warn("Ending conflictHandler!: " + ((System.nanoTime()/Constants.NANO_TIME_DIVIDER) - time));
-
-        if (!noConflict)
+                wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
 
@@ -228,15 +223,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
-            if(!localWriteSet.isEmpty())
+            if (!localWriteSet.isEmpty())
             {
                 Log.getLogger().warn("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
-                for(IOperation operation: localWriteSet)
-                {
-                    Log.getLogger().warn(operation.toString());
-                }
-                Log.getLogger().warn("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
-                Log.getLogger().warn("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
             }
 
             //Send abort to client and abort
@@ -247,15 +236,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (!localWriteSet.isEmpty())
         {
-            Log.getLogger().warn("Comitting: " + getGlobalSnapshotId()  + " localId: " + timeStamp);
-            for(IOperation operation: localWriteSet)
-            {
-                Log.getLogger().warn(operation.toString());
-            }
-
-            Log.getLogger().warn("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
-            Log.getLogger().warn("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
-
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
             {
