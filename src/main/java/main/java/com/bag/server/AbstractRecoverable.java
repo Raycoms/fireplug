@@ -422,7 +422,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     void executeCommit(final List<IOperation> localWriteSet)
     {
-        Log.getLogger().warn("Trying to enter lock!");
         synchronized (commitLock)
         {
             final long currentSnapshot = ++globalSnapshotId;
@@ -436,7 +435,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             this.putIntoWriteSet(currentSnapshot, localWriteSet);
             putIntoWriteSet(currentSnapshot, localWriteSet);
         }
-        Log.getLogger().warn("Leaving lock!");
 
         updateCounts(0, 0, 1, 0);
     }
