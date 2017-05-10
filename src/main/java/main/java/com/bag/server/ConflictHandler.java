@@ -75,8 +75,8 @@ public class ConflictHandler
         boolean commit = true;
         if (!readSetNode.isEmpty())
         {
-            Log.getLogger().warn("ReadSet node is not empty");
-            if (snapshotId <= writeSet.lastKey())
+            Log.getLogger().warn("ReadSet node is not empty, size: " + writeSet.size());
+            if (!writeSet.isEmpty() && snapshotId <= writeSet.lastKey())
             {
                 Log.getLogger().warn("Will access the old ones");
 
@@ -91,7 +91,7 @@ public class ConflictHandler
 
             }
 
-            Log.getLogger().warn("Will access the last writes one");
+            Log.getLogger().warn("Will access the last writes one, size: " + latestWriteSet.size());
 
             pastWrites.addAll(latestWriteSet.entrySet()
                     .stream()
@@ -126,13 +126,13 @@ public class ConflictHandler
 
         if (!readSetRelationship.isEmpty())
         {
-            Log.getLogger().warn("ReadSet rs is not empty");
+            Log.getLogger().warn("ReadSet rs is not empty, size: " + writeSet.size());
 
             if (pastWrites.isEmpty())
             {
                 Log.getLogger().warn("past writes is not empty");
 
-                if (snapshotId <= writeSet.lastKey())
+                if (!writeSet.isEmpty() && snapshotId <= writeSet.lastKey())
                 {
                     Log.getLogger().warn("Will access the old ones");
 
@@ -147,7 +147,7 @@ public class ConflictHandler
 
                 }
 
-                Log.getLogger().warn("Will access the last writes one");
+                Log.getLogger().warn("Will access the last writes one, size: " + latestWriteSet.size());
 
                 pastWrites.addAll(latestWriteSet.entrySet()
                         .stream()
@@ -181,13 +181,13 @@ public class ConflictHandler
 
         if (!tempList.isEmpty())
         {
-            Log.getLogger().warn("temp list is not empty");
+            Log.getLogger().warn("temp list is not empty, size: " + writeSet.size());
 
             if (pastWrites.isEmpty())
             {
                 Log.getLogger().warn("past writes is not empty");
 
-                if (snapshotId <= writeSet.lastKey())
+                if (!writeSet.isEmpty() && snapshotId <= writeSet.lastKey())
                 {
                     Log.getLogger().warn("Will access the old ones");
 
@@ -202,7 +202,7 @@ public class ConflictHandler
 
                 }
 
-                Log.getLogger().warn("Will access the last writes one");
+                Log.getLogger().warn("Will access the last writes one, size: " + latestWriteSet.size());
 
                 pastWrites.addAll(latestWriteSet.entrySet()
                         .stream()
