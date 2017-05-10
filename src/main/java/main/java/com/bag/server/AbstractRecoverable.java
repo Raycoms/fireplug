@@ -1,6 +1,5 @@
 package main.java.com.bag.server;
 
-import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.server.defaultservices.DefaultReplier;
@@ -472,7 +471,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     Map<Long, List<IOperation>> getGlobalWriteSet()
     {
-        return new TreeMap<>(globalWriteSet);
+        return globalWriteSet;
     }
 
     /**
@@ -482,7 +481,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     Map<Long, List<IOperation>> getLatestWritesSet()
     {
-        return  new TreeMap<>(latestWritesSet.asMap());
+        return latestWritesSet.asMap();
     }
 
     /**

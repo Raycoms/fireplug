@@ -204,11 +204,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        Map<Long, List<IOperation>> map1 = super.getGlobalWriteSet();
-        Map<Long, List<IOperation>> map2 = super.getLatestWritesSet();
-
-        if (!ConflictHandler.checkForConflict(map1,
-                map2,
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
                 readSetNode,
                 readsSetRelationship,
@@ -231,8 +228,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     Log.getLogger().warn(operation.toString());
                 }
-                Log.getLogger().warn("Global: " + map1.size() + " id: " + super.getId());
-                Log.getLogger().warn("Latest: " + map2.size() + " id: " + super.getId());
+                Log.getLogger().warn("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
+                Log.getLogger().warn("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
             }
 
             //Send abort to client and abort
@@ -249,8 +246,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn(operation.toString());
             }
 
-            Log.getLogger().warn("Global: " + map1.size() + " id: " + super.getId());
-            Log.getLogger().warn("Latest: " + map2.size() + " id: " + super.getId());
+            Log.getLogger().warn("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
+            Log.getLogger().warn("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
 
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)

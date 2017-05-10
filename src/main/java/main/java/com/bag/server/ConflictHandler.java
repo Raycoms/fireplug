@@ -9,6 +9,7 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +39,7 @@ public class ConflictHandler
      * @return true if no conflict has been found.
      */
     protected static boolean checkForConflict(
-            Map<Long, List<IOperation>> globalWriteSet,
+            ConcurrentSkipListMap<Long, List<IOperation>> globalWriteSet,
             Map<Long, List<IOperation>> latestWriteSet,
             List<IOperation> localWriteSet,
             List<NodeStorage> readSetNode,
@@ -63,7 +64,7 @@ public class ConflictHandler
      * @return true if data is up to date.
      */
     private static boolean isUpToDate(
-            Map<Long, List<IOperation>> writeSet, Map<Long, List<IOperation>> latestWriteSet, List<IOperation> localWriteSet,
+            ConcurrentSkipListMap<Long, List<IOperation>> writeSet, Map<Long, List<IOperation>> latestWriteSet, List<IOperation> localWriteSet,
             List<NodeStorage> readSetNode,
             List<RelationshipStorage> readSetRelationship, long snapshotId)
     {
@@ -73,7 +74,8 @@ public class ConflictHandler
         boolean commit = true;
         if (!readSetNode.isEmpty())
         {
-            if(latestWriteSet.containsKey(snapshotId))
+
+            if(snapshotId > writeSet.lastKey())
             {
                 pastWrites = latestWriteSet.entrySet()
                         .stream()
@@ -110,7 +112,7 @@ public class ConflictHandler
         {
             if (pastWrites == null)
             {
-                if(latestWriteSet.containsKey(snapshotId))
+                if(snapshotId > writeSet.lastKey())
                 {
                     pastWrites = latestWriteSet.entrySet()
                             .stream()
@@ -151,7 +153,7 @@ public class ConflictHandler
         {
             if (pastWrites == null)
             {
-                if(latestWriteSet.containsKey(snapshotId))
+                if(snapshotId > writeSet.lastKey())
                 {
                     pastWrites = latestWriteSet.entrySet()
                             .stream()
