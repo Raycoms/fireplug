@@ -187,7 +187,7 @@ public class RelationshipStorage implements Serializable
         sb.append("[");
         for (Map.Entry<String, Object> item : properties.entrySet())
         {
-            if(item.getKey().equals("hash") && item.getKey().equals("snapShotId"))
+            if(item.getKey().equals("hash") || item.getKey().equals("snapShotId"))
             {
                 continue;
             }

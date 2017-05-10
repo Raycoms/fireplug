@@ -148,6 +148,10 @@ public class NodeStorage implements Serializable
         sb.append("[");
         for (Map.Entry<String, Object> item : properties.entrySet())
         {
+            if(item.getKey().equals("hash") || item.getKey().equals("snapShotId"))
+            {
+                continue;
+            }
             sb.append(item.getKey());
             sb.append("=");
             sb.append(item.getValue());
