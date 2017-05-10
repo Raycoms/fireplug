@@ -75,6 +75,7 @@ public class ConflictHandler
         boolean commit = true;
         if (!readSetNode.isEmpty())
         {
+            Log.getLogger().warn("ReadSet node is not empty");
             if (snapshotId <= writeSet.lastKey())
             {
                 Log.getLogger().warn("Will access the old ones");
@@ -125,8 +126,12 @@ public class ConflictHandler
 
         if (!readSetRelationship.isEmpty())
         {
+            Log.getLogger().warn("ReadSet rs is not empty");
+
             if (pastWrites.isEmpty())
             {
+                Log.getLogger().warn("past writes is not empty");
+
                 if (snapshotId <= writeSet.lastKey())
                 {
                     Log.getLogger().warn("Will access the old ones");
@@ -176,8 +181,12 @@ public class ConflictHandler
 
         if (!tempList.isEmpty())
         {
+            Log.getLogger().warn("temp list is not empty");
+
             if (pastWrites.isEmpty())
             {
+                Log.getLogger().warn("past writes is not empty");
+
                 if (snapshotId <= writeSet.lastKey())
                 {
                     Log.getLogger().warn("Will access the old ones");
