@@ -224,13 +224,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if(!localWriteSet.isEmpty())
             {
-                Log.getLogger().warn("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
-                for(IOperation operation: localWriteSet)
-                {
-                    Log.getLogger().warn(operation.toString());
-                }
-                Log.getLogger().warn("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
-                Log.getLogger().warn("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
+                Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
+                //Log.getLogger().info("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
+                //Log.getLogger().info("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
             }
 
             //Send abort to client and abort
@@ -241,14 +237,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (!localWriteSet.isEmpty())
         {
-            Log.getLogger().warn("Comitting: " + getGlobalSnapshotId()  + " localId: " + timeStamp);
-            for(IOperation operation: localWriteSet)
-            {
-                Log.getLogger().warn(operation.toString());
-            }
-
-            Log.getLogger().warn("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
-            Log.getLogger().warn("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
+            Log.getLogger().info("Comitting: " + getGlobalSnapshotId()  + " localId: " + timeStamp);
+            //Log.getLogger().info("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
+            //Log.getLogger().info("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
 
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
