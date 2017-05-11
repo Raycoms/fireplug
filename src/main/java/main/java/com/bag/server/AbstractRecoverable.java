@@ -40,7 +40,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Keep the last x transaction in a separate list.
      */
-    public static final int KEEP_LAST_X = 500;
+    public static final int KEEP_LAST_X = 50;
 
     /**
      * Contains the local server replica.
