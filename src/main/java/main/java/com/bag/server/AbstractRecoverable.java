@@ -174,7 +174,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         final ArrayList<IOperation> localWriteSet;
 
         input.close();
-        Output output = new Output(128);
+        final Output output = new Output(128);
         kryo.writeObject(output, Constants.COMMIT_RESPONSE);
 
         try
@@ -529,13 +529,17 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 updateCounts(1, 0, 0, 0);
             }
             this.putIntoWriteSet(currentSnapshot, localWriteSet);
-            putIntoWriteSet(currentSnapshot, localWriteSet);
         }
 
         updateCounts(0, 0, 1, 0);
     }
 
-    private void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
+    /**
+     * Put certain writes into the writeSet.
+     * @param currentSnapshot the currentSnapshot.
+     * @param localWriteSet the local writeset.
+     */
+    public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
     {
         latestWritesSet.put(currentSnapshot, localWriteSet);
     }
@@ -605,5 +609,14 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     int getId()
     {
         return id;
+    }
+
+    /**
+     * Set the global snapshot id.
+     * @param globalSnapshotId the id to set.
+     */
+    public void setGlobalSnapshotId(final long globalSnapshotId)
+    {
+        this.globalSnapshotId = globalSnapshotId;
     }
 }

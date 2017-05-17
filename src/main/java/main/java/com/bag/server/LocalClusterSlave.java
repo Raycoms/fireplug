@@ -158,7 +158,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             case Constants.RELATIONSHIP_READ_MESSAGE:
                 Log.getLogger().warn("Received Relationship read message" + messageContext.getTimestamp());
                 kryo.writeObject(output, Constants.READ_MESSAGE);
-                if(wrapper.getGlobalCluster() != null)
+                if(wrapper.getGlobalCluster() == null)
                 {
                     output = handleRelationshipRead(input, kryo, output);
                 }
@@ -176,14 +176,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn("Received Commit message of client: " + messageContext.getTimestamp());
                 output.close();
                 byte[] result;
-                if(wrapper.getGlobalCluster() != null)
-                {
-                    result = wrapper.getGlobalCluster().handleReadOnlyCommit(input, kryo);
-                }
-                else
-                {
-                    result = handleReadOnlyCommit(input, kryo);
-                }
+                result = handleReadOnlyCommit(input, kryo);
                 input.close();
                 pool.release(kryo);
                 Log.getLogger().warn("Return it to client on local, size: " + result.length + " at: " + messageContext.getTimestamp());
@@ -393,6 +386,13 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, primaryId);
         }
         return output;
+    }
+
+    @Override
+    public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
+    {
+        super.setGlobalSnapshotId(currentSnapshot);
+        super.putIntoWriteSet(currentSnapshot, localWriteSet);
     }
 
     private void handleSlaveUpdateMessage(final Input input, final Output output, final Kryo kryo)
