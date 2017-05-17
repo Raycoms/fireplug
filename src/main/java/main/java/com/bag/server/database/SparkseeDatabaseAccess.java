@@ -410,10 +410,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
     {
-        Session sess = db.newSession();
-        Graph graph = sess.getGraph();
+        final Session sess = db.newSession();
+        final Graph graph = sess.getGraph();
 
-        List<Long> objs = loadNodesAsIdList(graph, key);
+        final List<Long> objs = loadNodesAsIdList(graph, key);
 
         for (long nodeId : objs)
         {
