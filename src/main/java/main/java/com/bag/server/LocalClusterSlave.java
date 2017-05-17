@@ -144,27 +144,27 @@ public class LocalClusterSlave extends AbstractRecoverable
         switch (reason)
         {
             case Constants.READ_MESSAGE:
-                Log.getLogger().info("Received Node read message");
+                Log.getLogger().warn("Received Node read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
-                if(wrapper.getGlobalCluster() != null)
-                {
-                    output = wrapper.getGlobalCluster().handleNodeRead(input, kryo, output);
-                }
-                else
+                if(wrapper.getGlobalCluster() == null)
                 {
                     output = handleNodeRead(input, kryo, output);
                 }
+                else
+                {
+                    output = wrapper.getGlobalCluster().handleNodeRead(input, kryo, output);
+                }
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
-                Log.getLogger().info("Received Relationship read message");
+                Log.getLogger().warn("Received Relationship read message" + messageContext.getTimestamp());
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 if(wrapper.getGlobalCluster() != null)
                 {
-                    output = wrapper.getGlobalCluster().handleRelationshipRead(input, kryo, output);
+                    output = handleRelationshipRead(input, kryo, output);
                 }
                 else
                 {
-                    output = handleRelationshipRead(input, kryo, output);
+                    output = wrapper.getGlobalCluster().handleRelationshipRead(input, kryo, output);
                 }
                 break;
             case Constants.GET_PRIMARY:
@@ -229,8 +229,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         byte[] returnValue = output.getBuffer();
 
-        Log.getLogger().warn("Return it to sender local, size: " + returnValue.length);
-
+        Log.getLogger().warn("Return it to sender local, size: " + returnValue.length + " ts: " + messageContext.getTimestamp());
         input.close();
         output.close();
         pool.release(kryo);

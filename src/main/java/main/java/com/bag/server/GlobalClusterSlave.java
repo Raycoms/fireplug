@@ -102,12 +102,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
-                    Log.getLogger().warn("Global ordered commit started");
                     final Long timeStamp = kryo.readObject(input, Long.class);
                     byte[] result = executeCommit(kryo, input, timeStamp);
                     pool.release(kryo);
                     allResults[i] = result;
-                    Log.getLogger().warn("Global ordered commit finished");
                 }
                 else
                 {
@@ -264,28 +262,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnBytes;
     }
 
-    private class SignatureThread extends Thread
-    {
-        final List<IOperation> localWriteSet;
-        final String           commit;
-        final long             globalSnapshotId;
-        final Kryo             kryo;
-
-        private SignatureThread(final List<IOperation> localWriteSet, final String commit, final long globalSnapshotId, final Kryo kryo)
-        {
-            this.localWriteSet = localWriteSet;
-            this.commit = commit;
-            this.globalSnapshotId = globalSnapshotId;
-            this.kryo = kryo;
-        }
-
-        @Override
-        public void run()
-        {
-            signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo);
-        }
-    }
-
     private void signCommitWithDecisionAndDistribute(final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo)
     {
         Log.getLogger().info("Sending signed commit to the other global replicas");
@@ -319,7 +295,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signatureStorage = signatureStorageCache.getIfPresent(getGlobalSnapshotId());
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
-                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: " + snapShotId);
+                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + " id: " + snapShotId);
             }
         }
         else
@@ -494,7 +470,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 pool.release(kryo);
                 return handleGlobalRegistryCheck(input, kryo);
             case Constants.COMMIT:
-                Log.getLogger().warn("Global Received commit message");
                 output.close();
                 byte[] result = handleReadOnlyCommit(input, kryo);
                 input.close();
