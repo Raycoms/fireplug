@@ -160,8 +160,9 @@ public class LocalClusterSlave extends AbstractRecoverable
                 break;
             case Constants.COMMIT:
                 Log.getLogger().info("Received Commit message");
-                output = handleCommitMessage(input, messageContext, kryo, output);
-                break;
+                final Long timeStamp = kryo.readObject(input, Long.class);
+                output.close();
+                return executeReadOnlyCommit(kryo, input, timeStamp);
             case Constants.PRIMARY_NOTICE:
                 Log.getLogger().info("Received Primary notice message");
                 output = handlePrimaryNoticeMessage(input, output, kryo);

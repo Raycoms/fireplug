@@ -154,6 +154,82 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         Log.getLogger().warn("Finished file writer instantiation.");
     }
 
+    /**
+     * Check for conflicts and unpack things for conflict handle check.
+     *
+     * @param kryo  the kryo instance.
+     * @param input the input.
+     * @return the response.
+     */
+    public byte[] executeReadOnlyCommit(final Kryo kryo, final Input input, final long timeStamp)
+    {
+        //Read the inputStream.
+        final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
+        final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
+        final List writeSetX = kryo.readObject(input, ArrayList.class);
+
+        //Create placeHolders.
+        ArrayList<NodeStorage> readSetNode;
+        ArrayList<RelationshipStorage> readsSetRelationship;
+        ArrayList<IOperation> localWriteSet;
+
+        input.close();
+        Output output = new Output(128);
+        kryo.writeObject(output, Constants.COMMIT_RESPONSE);
+
+        try
+        {
+            readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+            readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+            localWriteSet = (ArrayList<IOperation>) writeSetX;
+        }
+        catch (Exception e)
+        {
+            Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
+            kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, getGlobalSnapshotId());
+
+            //Send abort to client and abort
+            byte[] returnBytes = output.getBuffer();
+            output.close();
+            return returnBytes;
+        }
+
+        if (!ConflictHandler.checkForConflict(getGlobalWriteSet(),
+                getLatestWritesSet(),
+                localWriteSet,
+                readSetNode,
+                readsSetRelationship,
+                timeStamp,
+                wrapper.getDataBaseAccess()))
+        {
+            updateCounts(0, 0, 0, 1);
+
+            Log.getLogger()
+                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                            + localWriteSet.size()
+                            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+            kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, getGlobalSnapshotId());
+
+            //Send abort to client and abort
+            byte[] returnBytes = output.getBuffer();
+            output.close();
+            return returnBytes;
+        }
+
+        updateCounts(0, 0, 1, 0);
+
+        kryo.writeObject(output, Constants.COMMIT);
+        kryo.writeObject(output, getGlobalSnapshotId());
+
+        byte[] returnBytes = output.getBuffer();
+        output.close();
+        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
+
+        return returnBytes;
+    }
+
     public void updateCounts(int writes, int reads, int commits, int aborts)
     {
         instrumentation.updateCounts(writes, reads, commits, aborts);
