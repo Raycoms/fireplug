@@ -108,9 +108,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Creates an instance of the abstract recoverable.
-     * @param id with the id.
+     *
+     * @param id              with the id.
      * @param configDirectory the config directory.
-     * @param wrapper the overlying wrapper class.
+     * @param wrapper         the overlying wrapper class.
      * @param instrumentation the instrumentation for evaluation.
      */
     protected AbstractRecoverable(final int id, final String configDirectory, final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
@@ -233,8 +234,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Handle a read only commit.
+     *
      * @param input the data.
-     * @param kryo kryo instance.
+     * @param kryo  kryo instance.
      * @return the response data.
      */
     public byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
@@ -364,9 +366,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Handles the node read message and requests it to the database.
      *
-     * @param input          get info from.
-     * @param kryo           kryo object.
-     * @param output         write info to.
+     * @param input  get info from.
+     * @param kryo   kryo object.
+     * @param output write info to.
      * @return output object to return to client.
      */
     Output handleNodeRead(final Input input, final Kryo kryo, final Output output)
@@ -476,7 +478,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, localSnapshotId);
 
             Log.getLogger().warn("Transaction found conflict");
-            Log.getLogger().info("OutdatedData Exception thrown: ", e);            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            Log.getLogger().info("OutdatedData Exception thrown: ", e);
+            kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
         }
         kryo.writeObject(output, Constants.CONTINUE);
@@ -524,21 +527,15 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             //Execute the transaction.
             for (IOperation op : localWriteSet)
             {
-                boolean success = false;
+                boolean success;
                 do
                 {
-                    try
-                    {
-                        //Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
-                        op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
-                        success = true;
-                    }
-                    catch (final Exception e)
-                    {
-                        Log.getLogger().warn("Problem during execution retrying", e);
-                    }
+                    success = op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
                 }
-                while (!success);
+                while(!success);
+                //Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
+
+
                 updateCounts(1, 0, 0, 0);
             }
             this.putIntoWriteSet(currentSnapshot, localWriteSet);
@@ -549,8 +546,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Put certain writes into the writeSet.
+     *
      * @param currentSnapshot the currentSnapshot.
-     * @param localWriteSet the local writeset.
+     * @param localWriteSet   the local writeset.
      */
     public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
     {
@@ -617,6 +615,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Getter for the id.
+     *
      * @return the id.
      */
     int getId()
@@ -626,6 +625,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Set the global snapshot id.
+     *
      * @param globalSnapshotId the id to set.
      */
     public void setGlobalSnapshotId(final long globalSnapshotId)

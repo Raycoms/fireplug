@@ -13,7 +13,7 @@ public interface IOperation
      * @param access Database access.
      * @param snapshotId SnapshotId.
      */
-    abstract void apply(final IDatabaseAccess access, long snapshotId);
+    abstract boolean apply(final IDatabaseAccess access, long snapshotId);
 
     @Override
     abstract boolean equals(Object obj);

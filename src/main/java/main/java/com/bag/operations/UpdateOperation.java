@@ -27,20 +27,21 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId)
+    public boolean apply(final IDatabaseAccess access, long snapshotId)
     {
         if(key instanceof NodeStorage && value instanceof NodeStorage)
         {
-            access.applyUpdate((NodeStorage) key,(NodeStorage) value, snapshotId);
+            return access.applyUpdate((NodeStorage) key,(NodeStorage) value, snapshotId);
         }
         else if(key instanceof RelationshipStorage && value instanceof RelationshipStorage)
         {
-            access.applyUpdate((RelationshipStorage) key,(RelationshipStorage) value, snapshotId);
+            return access.applyUpdate((RelationshipStorage) key,(RelationshipStorage) value, snapshotId);
         }
         else
         {
             Log.getLogger().warn("Can't update Node with Relationship or vice versa.");
         }
+        return false;
     }
 
     /**

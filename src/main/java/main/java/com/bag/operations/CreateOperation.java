@@ -25,20 +25,21 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId)
+    public boolean apply(final IDatabaseAccess access, long snapshotId)
     {
         if(storage instanceof NodeStorage)
         {
-            access.applyCreate((NodeStorage) storage, snapshotId);
+            return access.applyCreate((NodeStorage) storage, snapshotId);
         }
         else if(storage instanceof RelationshipStorage)
         {
-            access.applyCreate((RelationshipStorage) storage, snapshotId);
+            return access.applyCreate((RelationshipStorage) storage, snapshotId);
         }
         else
         {
             Log.getLogger().warn("Trying to create incorrect type in the database.");
         }
+        return false;
     }
 
     /**

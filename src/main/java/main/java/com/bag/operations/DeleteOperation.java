@@ -26,20 +26,21 @@ public class DeleteOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(@NotNull final IDatabaseAccess access, long snapshotId)
+    public boolean apply(@NotNull final IDatabaseAccess access, long snapshotId)
     {
         if(storage instanceof NodeStorage)
         {
-            access.applyDelete((NodeStorage) storage, snapshotId);
+            return access.applyDelete((NodeStorage) storage, snapshotId);
         }
         else if(storage instanceof RelationshipStorage)
         {
-            access.applyDelete((RelationshipStorage) storage, snapshotId);
+            return access.applyDelete((RelationshipStorage) storage, snapshotId);
         }
         else
         {
             Log.getLogger().warn("Trying to delete incorrect type in the database.");
         }
+        return false;
     }
 
     /**
