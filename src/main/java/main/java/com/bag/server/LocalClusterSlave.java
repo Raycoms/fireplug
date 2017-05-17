@@ -144,7 +144,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         switch (reason)
         {
             case Constants.READ_MESSAGE:
-                Log.getLogger().warn("Received Node read message");
+                Log.getLogger().info("Received Node read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 if(wrapper.getGlobalCluster() == null)
                 {
@@ -156,7 +156,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
-                Log.getLogger().warn("Received Relationship read message" + messageContext.getTimestamp());
+                Log.getLogger().info("Received Relationship read message" + messageContext.getTimestamp());
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 if(wrapper.getGlobalCluster() == null)
                 {
@@ -173,13 +173,13 @@ public class LocalClusterSlave extends AbstractRecoverable
                 output = handleGetPrimaryMessage(messageContext, output, kryo);
                 break;
             case Constants.COMMIT:
-                Log.getLogger().warn("Received Commit message of client: " + messageContext.getTimestamp());
+                Log.getLogger().info("Received Commit message of client: " + messageContext.getTimestamp());
                 output.close();
                 byte[] result;
                 result = handleReadOnlyCommit(input, kryo);
                 input.close();
                 pool.release(kryo);
-                Log.getLogger().warn("Return it to client on local, size: " + result.length + " at: " + messageContext.getTimestamp());
+                Log.getLogger().info("Return it to client on local, size: " + result.length + " at: " + messageContext.getTimestamp());
                 return result;
             case Constants.PRIMARY_NOTICE:
                 Log.getLogger().info("Received Primary notice message");
@@ -222,7 +222,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         byte[] returnValue = output.getBuffer();
 
-        Log.getLogger().warn("Return it to sender local, size: " + returnValue.length + " ts: " + messageContext.getTimestamp());
+        Log.getLogger().info("Return it to sender local, size: " + returnValue.length + " ts: " + messageContext.getTimestamp());
         input.close();
         output.close();
         pool.release(kryo);

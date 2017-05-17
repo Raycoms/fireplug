@@ -195,7 +195,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             return returnBytes;
         }
 
-        Log.getLogger().warn("Search conflicts for readOnly commit with snapshot id: " + timeStamp);
+        Log.getLogger().info("Search conflicts for readOnly commit with snapshot id: " + timeStamp);
         if (!ConflictHandler.checkForConflict(getGlobalWriteSet(),
                 getLatestWritesSet(),
                 localWriteSet,
@@ -226,7 +226,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         byte[] returnBytes = output.getBuffer();
         output.close();
-        Log.getLogger().warn("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length + " and local id: " + timeStamp);
+        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length + " and local id: " + timeStamp);
 
         return returnBytes;
     }

@@ -429,8 +429,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if (readOnly)
         {
-            Log.getLogger().warn("Try Commit with snapshotId: " + this.localTimestamp);
-            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : this.invokeUnordered(bytes);
+            Log.getLogger().info("Try Commit with snapshotId: " + this.localTimestamp);
+            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : globalProxy.invokeUnordered(bytes);
             final Input input = new Input(answer);
 
             final String messageType = kryo.readObject(input, String.class);
@@ -450,7 +450,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 localTimestamp = kryo.readObject(input, Long.class);
                 resetSets();
                 firstRead = true;
-                Log.getLogger().warn(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+                Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                 return;
             }
 
