@@ -390,11 +390,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if(Constants.COMMIT.equals(decision))
         {
-            Log.getLogger().info("Transaction succesfully committed");
+            Log.getLogger().warn("Transaction succesfully committed");
         }
         else
         {
-            Log.getLogger().info("Transaction commit denied - transaction being aborted");
+            Log.getLogger().warn("Transaction commit denied - transaction being aborted");
         }
 
         resetSets();
