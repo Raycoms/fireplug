@@ -94,14 +94,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             if (messageContexts != null && messageContexts[i] != null)
             {
-                KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-                Kryo kryo = pool.borrow();
-                Input input = new Input(bytes[i]);
+                final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+                final Kryo kryo = pool.borrow();
+                final Input input = new Input(bytes[i]);
 
-                String type = kryo.readObject(input, String.class);
+                final String type = kryo.readObject(input, String.class);
 
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
+                    Log.getLogger().warn("Global ordered commit started");
                     final Long timeStamp = kryo.readObject(input, Long.class);
                     byte[] result = executeCommit(kryo, input, timeStamp);
                     pool.release(kryo);
@@ -492,7 +493,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 pool.release(kryo);
                 return handleGlobalRegistryCheck(input, kryo);
             case Constants.COMMIT:
-                Log.getLogger().info("Received commit message");
+                Log.getLogger().warn("Global Received commit message");
                 output.close();
                 byte[] result = handleReadOnlyCommit(input, kryo);
                 input.close();
