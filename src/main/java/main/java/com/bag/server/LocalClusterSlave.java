@@ -173,7 +173,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 output = handleGetPrimaryMessage(messageContext, output, kryo);
                 break;
             case Constants.COMMIT:
-                Log.getLogger().warn("Received Commit message of client: " + messageContext.getSender());
+                Log.getLogger().warn("Received Commit message of client: " + messageContext.getTimestamp());
                 output.close();
                 byte[] result;
                 if(wrapper.getGlobalCluster() != null)
@@ -186,7 +186,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
                 input.close();
                 pool.release(kryo);
-                Log.getLogger().warn("Return it to client on local, size: " + result.length);
+                Log.getLogger().warn("Return it to client on local, size: " + result.length + " at: " + messageContext.getTimestamp());
                 return result;
             case Constants.PRIMARY_NOTICE:
                 Log.getLogger().info("Received Primary notice message");
