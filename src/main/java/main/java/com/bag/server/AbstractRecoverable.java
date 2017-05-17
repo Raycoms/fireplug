@@ -106,18 +106,25 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         return kryo;
     };
 
-    protected AbstractRecoverable(int id, final String configDirectory, final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
+    /**
+     * Creates an instance of the abstract recoverable.
+     * @param id with the id.
+     * @param configDirectory the config directory.
+     * @param wrapper the overlying wrapper class.
+     * @param instrumentation the instrumentation for evaluation.
+     */
+    protected AbstractRecoverable(final int id, final String configDirectory, final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
         this.id = id;
         this.wrapper = wrapper;
         this.instrumentation = instrumentation;
         globalSnapshotId = 1;
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
-
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
+        Log.getLogger().warn("Instantiating abstract recoverable of id: " + id);
         //the default verifier is instantiated with null in the ServerReplica.
         this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());
-        Log.getLogger().warn("Instantiated abstract recoverable of id: " + id);
+        Log.getLogger().warn("Finished instantiating abstract recoverable of id: " + id);
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
@@ -156,7 +163,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     public void installSnapshot(final byte[] bytes)
     {
         Log.getLogger().warn("Install snapshot!");
-        if (bytes == null)
+        if (bytes == null || bytes.length <= 1)
         {
             return;
         }
