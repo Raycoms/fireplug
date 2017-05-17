@@ -169,9 +169,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         final List writeSetX = kryo.readObject(input, ArrayList.class);
 
         //Create placeHolders.
-        ArrayList<NodeStorage> readSetNode;
-        ArrayList<RelationshipStorage> readsSetRelationship;
-        ArrayList<IOperation> localWriteSet;
+        final ArrayList<NodeStorage> readSetNode;
+        final ArrayList<RelationshipStorage> readsSetRelationship;
+        final ArrayList<IOperation> localWriteSet;
 
         input.close();
         Output output = new Output(128);
@@ -206,7 +206,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
-                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                    .warn("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                             + localWriteSet.size()
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
@@ -225,7 +225,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         byte[] returnBytes = output.getBuffer();
         output.close();
-        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
+        Log.getLogger().warn("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
         return returnBytes;
     }
