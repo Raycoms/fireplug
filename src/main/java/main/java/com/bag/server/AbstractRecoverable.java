@@ -524,8 +524,21 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             //Execute the transaction.
             for (IOperation op : localWriteSet)
             {
-                //Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
-                op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
+                boolean success = false;
+                do
+                {
+                    try
+                    {
+                        //Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
+                        op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
+                        success = true;
+                    }
+                    catch (final Exception e)
+                    {
+                        Log.getLogger().warn("Problem during execution retrying", e);
+                    }
+                }
+                while (!success);
                 updateCounts(1, 0, 0, 0);
             }
             this.putIntoWriteSet(currentSnapshot, localWriteSet);
