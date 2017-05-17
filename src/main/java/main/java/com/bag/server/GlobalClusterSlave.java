@@ -107,6 +107,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     byte[] result = executeCommit(kryo, input, timeStamp);
                     pool.release(kryo);
                     allResults[i] = result;
+                    Log.getLogger().warn("Global ordered commit finished");
                 }
                 else
                 {

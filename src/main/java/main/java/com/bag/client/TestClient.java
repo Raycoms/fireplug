@@ -430,7 +430,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         if (readOnly)
         {
             Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
-            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : this.invokeUnordered(bytes);
+            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : globalProxy.invokeUnordered(bytes);
             final Input input = new Input(answer);
 
             final String messageType = kryo.readObject(input, String.class);
