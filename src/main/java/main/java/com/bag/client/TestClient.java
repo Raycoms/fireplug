@@ -450,11 +450,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 localTimestamp = kryo.readObject(input, Long.class);
                 resetSets();
                 firstRead = true;
-                Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+                Log.getLogger().warn(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                 return;
             }
 
-            Log.getLogger().info(String.format("Read-only Transaction with local transaction id: %d resend to the server", localTimestamp));
+            Log.getLogger().warn(String.format("Read-only Transaction with local transaction id: %d resend to the server", localTimestamp));
         }
 
         if (localClusterId == -1)
