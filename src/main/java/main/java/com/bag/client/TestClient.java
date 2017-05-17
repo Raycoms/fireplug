@@ -429,7 +429,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if (readOnly)
         {
-            Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn("Try Commit with snapshotId: " + this.localTimestamp);
             final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : this.invokeUnordered(bytes);
             final Input input = new Input(answer);
 
