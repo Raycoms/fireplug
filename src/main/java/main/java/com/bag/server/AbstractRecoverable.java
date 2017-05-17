@@ -230,6 +230,18 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         return returnBytes;
     }
 
+    /**
+     * Handle a read only commit.
+     * @param input the data.
+     * @param kryo kryo instance.
+     * @return the response data.
+     */
+    public byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
+    {
+        final Long timeStamp = kryo.readObject(input, Long.class);
+        return executeReadOnlyCommit(kryo, input, timeStamp);
+    }
+
     public void updateCounts(int writes, int reads, int commits, int aborts)
     {
         instrumentation.updateCounts(writes, reads, commits, aborts);

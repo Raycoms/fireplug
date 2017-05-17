@@ -174,15 +174,14 @@ public class LocalClusterSlave extends AbstractRecoverable
                 break;
             case Constants.COMMIT:
                 Log.getLogger().warn("Received Commit message");
-                final Long timeStamp = kryo.readObject(input, Long.class);
                 byte[] result;
                 if(wrapper.getGlobalCluster() != null)
                 {
-                    result = wrapper.getGlobalCluster().executeReadOnlyCommit(kryo, input, timeStamp);
+                    result = wrapper.getGlobalCluster().handleReadOnlyCommit(input, kryo);
                 }
                 else
                 {
-                    result = executeReadOnlyCommit(kryo, input, timeStamp);
+                    result = handleReadOnlyCommit(input, kryo);
                 }
                 input.close();
                 pool.release(kryo);

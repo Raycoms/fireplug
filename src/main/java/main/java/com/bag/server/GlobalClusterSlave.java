@@ -517,12 +517,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnValue;
     }
 
-    private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
-    {
-        final Long timeStamp = kryo.readObject(input, Long.class);
-        return executeReadOnlyCommit(kryo, input, timeStamp);
-    }
-
     /**
      * Handle the check for the global registering of a slave.
      *
