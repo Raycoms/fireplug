@@ -356,7 +356,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * @param output         write info to.
      * @return output object to return to client.
      */
-    Output handleNodeRead(Input input, Kryo kryo, Output output)
+    Output handleNodeRead(final Input input, final Kryo kryo, final Output output)
     {
         long localSnapshotId = kryo.readObject(input, Long.class);
         NodeStorage identifier = kryo.readObject(input, NodeStorage.class);
