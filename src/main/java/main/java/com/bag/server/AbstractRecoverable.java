@@ -40,7 +40,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Keep the last x transaction in a separate list.
      */
-    public static final int KEEP_LAST_X = 50;
+    private static final int KEEP_LAST_X = 50;
 
     /**
      * Contains the local server replica.
@@ -446,7 +446,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         updateCounts(0, 0, 1, 0);
     }
 
-    private void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
+    /**
+     * Put info in writeSet.
+     * @param currentSnapshot the current snapshot.
+     * @param localWriteSet data to add.
+     */
+    public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
     {
         latestWritesSet.put(currentSnapshot, localWriteSet);
     }
@@ -507,6 +512,15 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     KryoFactory getFactory()
     {
         return factory;
+    }
+
+    /**
+     * Set the globalSnapShotId to a certain value.
+     * @param globalSnapshotId the value to set.
+     */
+    public void setGlobalSnapshotId(final long globalSnapshotId)
+    {
+        this.globalSnapshotId = globalSnapshotId;
     }
 
     /**

@@ -541,6 +541,13 @@ public class LocalClusterSlave extends AbstractRecoverable
     }
 
     @Override
+    public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
+    {
+        super.putIntoWriteSet(currentSnapshot, localWriteSet);
+        setGlobalSnapshotId(currentSnapshot);
+    }
+
+    @Override
     void readSpecificData(final Input input, final Kryo kryo)
     {
         isPrimary = false;

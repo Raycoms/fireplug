@@ -746,6 +746,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
     }
 
+    @Override
+    public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
+    {
+        super.putIntoWriteSet(currentSnapshot, localWriteSet);
+        if(wrapper.getLocalCLuster() != null)
+        {
+            wrapper.getLocalCLuster().putIntoWriteSet(currentSnapshot, localWriteSet);
+        }
+    }
+
     /**
      * Invoke a message to the global cluster.
      *
