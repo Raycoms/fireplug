@@ -174,6 +174,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 break;
             case Constants.COMMIT:
                 Log.getLogger().warn("Received Commit message of client: " + messageContext.getSender());
+                output.close();
                 byte[] result;
                 if(wrapper.getGlobalCluster() != null)
                 {
