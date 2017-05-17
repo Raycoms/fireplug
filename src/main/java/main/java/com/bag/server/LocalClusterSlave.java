@@ -229,7 +229,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         byte[] returnValue = output.getBuffer();
 
-        Log.getLogger().warn("Return it to sender, size: " + returnValue.length);
+        Log.getLogger().warn("Return it to sender local, size: " + returnValue.length);
 
         input.close();
         output.close();
