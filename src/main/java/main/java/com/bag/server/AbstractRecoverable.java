@@ -258,6 +258,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         output = writeSpecificData(output, kryo);
 
+        Log.getLogger().warn("Finished snapshotting");
         byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
