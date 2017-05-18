@@ -398,6 +398,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             Log.getLogger().info("Transaction commit denied - transaction being aborted");
         }
 
+        Log.getLogger().warn("Reset after commit");
         resetSets();
 
         input.close();
@@ -465,7 +466,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
         else
         {
-            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
     }
