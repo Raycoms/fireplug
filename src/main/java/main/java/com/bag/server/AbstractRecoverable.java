@@ -440,7 +440,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 updateCounts(1, 0, 0, 0);
             }
             this.putIntoWriteSet(currentSnapshot, localWriteSet);
-            putIntoWriteSet(currentSnapshot, localWriteSet);
         }
 
         updateCounts(0, 0, 1, 0);
