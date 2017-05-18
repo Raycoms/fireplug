@@ -161,12 +161,12 @@ public class LocalClusterSlave extends AbstractRecoverable
                 output = handleGetPrimaryMessage(messageContext, output, kryo);
                 break;
             case Constants.COMMIT:
-                Log.getLogger().info("Received commit message");
+                Log.getLogger().warn("Received commit message");
                 output.close();
                 byte[] result = handleReadOnlyCommit(input, kryo);
                 input.close();
                 pool.release(kryo);
-                Log.getLogger().info("Return it to client, size: " + result.length);
+                Log.getLogger().warn("Return it to client, size: " + result.length);
                 return result;
             case Constants.PRIMARY_NOTICE:
                 Log.getLogger().info("Received Primary notice message");
@@ -266,7 +266,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        Log.getLogger().warn("Check conflict");
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
@@ -282,7 +281,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             output.close();
             return returnBytes;
         }
-        Log.getLogger().warn("Checked conflict");
 
         updateCounts(0, 0, 1, 0);
         kryo.writeObject(output, Constants.COMMIT);
