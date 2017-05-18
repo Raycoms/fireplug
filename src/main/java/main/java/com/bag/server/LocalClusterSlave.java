@@ -266,6 +266,11 @@ public class LocalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        if(!localWriteSet.isEmpty())
+        {
+            Log.getLogger().error("Not a read-only transaction!!!!");
+        }
+
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);

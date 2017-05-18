@@ -421,7 +421,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if (readOnly && !secureMode)
         {
-            Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
+            Log.getLogger().warn(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
             resetSets();
             return;
@@ -431,10 +431,10 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if (readOnly)
         {
-            Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn("Commit with snapshotId: " + this.localTimestamp);
             final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : this.invokeUnordered(bytes);
             final Input input = new Input(answer);
-
+            Log.getLogger().warn("Committed with snapshotId " + this.localTimestamp);
             final String messageType = kryo.readObject(input, String.class);
 
             if (!Constants.COMMIT_RESPONSE.equals(messageType))
