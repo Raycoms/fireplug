@@ -468,6 +468,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         else
         {
             Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            Log.getLogger().warn("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
     }
