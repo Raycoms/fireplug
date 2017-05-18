@@ -393,6 +393,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signatureStorage = signatureStorageCache.getIfPresent(getGlobalSnapshotId());
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
+                signatureStorage.setMessage(output.toBytes());
                 Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: " + snapShotId);
             }
         }
@@ -703,6 +704,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server "
                     + message.length + " ws: " + writeSet.size() + " id: " + snapShotId);
+            return;
         }
 
         if (!decision.equals(signatureStorage.getDecision()))

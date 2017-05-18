@@ -429,8 +429,8 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        boolean signatureMatches = true;
-        for(Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
+        int matchingSignatures = 0;
+        for(final Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
         {
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
             try
@@ -438,21 +438,20 @@ public class LocalClusterSlave extends AbstractRecoverable
                 if(!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
                 {
                     Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
-                    signatureMatches = false;
                 }
                 else
                 {
                     Log.getLogger().info("Signature matches of server: " + entry.getKey());
+                    matchingSignatures++;
                 }
             }
             catch (Exception e)
             {
-                signatureMatches = false;
                 Log.getLogger().warn("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
             }
         }
 
-        if(!signatureMatches)
+        if(matchingSignatures < 3)
         {
             Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
         }
