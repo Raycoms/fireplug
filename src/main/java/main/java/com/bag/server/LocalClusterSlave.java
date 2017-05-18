@@ -266,6 +266,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        Log.getLogger().warn("Check conflict");
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
@@ -281,6 +282,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             output.close();
             return returnBytes;
         }
+        Log.getLogger().warn("Checked conflict");
 
         updateCounts(0, 0, 1, 0);
         kryo.writeObject(output, Constants.COMMIT);
