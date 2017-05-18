@@ -273,6 +273,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     break;
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
+                    Log.getLogger().warn("Read only Commit return");
                     super.replyReceived(reply);
                     break;
                 default:
@@ -283,7 +284,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
         else if(reply.getReqType() == TOMMessageType.REPLY || reply.getReqType() == TOMMessageType.ORDERED_REQUEST)
         {
-            Log.getLogger().info("Commit return");
+            Log.getLogger().warn("Commit return" + reply.getReqType().name());
             processCommitReturn(reply.getContent());
         }
         else
