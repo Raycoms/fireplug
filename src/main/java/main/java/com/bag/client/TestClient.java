@@ -424,10 +424,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        final String com = kryo.readObject(input, String.class);
-        final boolean commit = Constants.COMMIT.equals(com);
-        Log.getLogger().warn("Decision: " + com);
-
+        final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
         if (commit)
         {
             localTimestamp = kryo.readObject(input, Long.class);
