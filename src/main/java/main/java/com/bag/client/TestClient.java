@@ -326,9 +326,14 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final List nodes = kryo.readObject(input, ArrayList.class);
         final List relationships = kryo.readObject(input, ArrayList.class);
 
+        if((nodes == null || nodes.isEmpty()) && (relationships ==  null || relationships.isEmpty()))
+        {
+            Log.getLogger().error("Empty ready return!!!!!!!!!!!!!!");
+        }
+
         if(nodes != null && !nodes.isEmpty() && nodes.get(0) instanceof NodeStorage)
         {
-            for (NodeStorage storage : (ArrayList<NodeStorage>) nodes)
+            for (final NodeStorage storage : (ArrayList<NodeStorage>) nodes)
             {
                 NodeStorage tempStorage = new NodeStorage(storage.getId(), storage.getProperties());
                 try
@@ -345,7 +350,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if(relationships != null && !relationships.isEmpty() && relationships.get(0) instanceof RelationshipStorage)
         {
-            for (RelationshipStorage storage : (ArrayList<RelationshipStorage>)relationships)
+            for (final RelationshipStorage storage : (ArrayList<RelationshipStorage>)relationships)
             {
                 RelationshipStorage tempStorage = new RelationshipStorage(storage.getId(), storage.getProperties(), storage.getStartNode(), storage.getEndNode());
                 try
