@@ -115,7 +115,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
-        System.out.println("Starting client " + processId);
+        Log.getLogger().warn("Starting client " + processId);
     }
 
     /**
@@ -480,7 +480,9 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             else
             {
                 //Normally its globaly.invokeUnordered
+                Log.getLogger().warn("Send: " + bytes.length);
                 this.invokeUnordered(bytes);
+                Log.getLogger().warn("Sent: " + bytes.length);
             }
             return;
         }
@@ -488,7 +490,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         if (localClusterId == -1)
         {
             Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
-            invokeOrdered(bytes);
+            this.invokeOrdered(bytes);
         }
         else
         {
