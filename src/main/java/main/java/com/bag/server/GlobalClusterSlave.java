@@ -205,6 +205,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        if(readSetNode.size() == 0 && readsSetRelationship.size() == 0 && localWriteSet.size() == 0)
+        {
+            Log.getLogger().error("Empty commit!!!!!!!");
+        }
+
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
