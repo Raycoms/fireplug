@@ -42,8 +42,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final int id;
 
-    private int empty = 0;
-
     /**
      * The id of the internal client used in this server
      */
@@ -207,15 +205,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if(readSetNode.isEmpty() && readsSetRelationship.isEmpty() && localWriteSet.isEmpty())
-        {
-            empty++;
-            if(empty%100 == 0)
-            {
-                Log.getLogger().error("Empty commit!!!!!!! " + empty);
-            }
-        }
-
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
@@ -312,15 +301,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             byte[] returnBytes = output.getBuffer();
             output.close();
             return returnBytes;
-        }
-
-        if(readSetNode.isEmpty() && readsSetRelationship.isEmpty() && localWriteSet.isEmpty())
-        {
-            empty++;
-            if(empty%100 == 0)
-            {
-                Log.getLogger().error("Empty commit!!!!!!! " + empty);
-            }
         }
 
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),

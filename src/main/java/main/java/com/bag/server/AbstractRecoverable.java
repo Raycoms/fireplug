@@ -325,7 +325,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         if (returnList.isEmpty())
         {
-            Log.getLogger().warn("Empty return list.");
+            Log.getLogger().warn("Empty return list." + wrapper.getDataBaseAccess().toString());
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
             return output;

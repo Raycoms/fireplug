@@ -25,6 +25,12 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
+    public String toString()
+    {
+        return "URG EMPTY Database!!!";
+    }
+
+    @Override
     public void terminate()
     {
         /*

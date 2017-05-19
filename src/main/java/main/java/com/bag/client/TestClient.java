@@ -326,15 +326,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final List nodes = kryo.readObject(input, ArrayList.class);
         final List relationships = kryo.readObject(input, ArrayList.class);
 
-        if((nodes == null || nodes.isEmpty()) && (relationships ==  null || relationships.isEmpty()))
-        {
-            Log.getLogger().error("Empty ready return!!!!!!!!!!!!!!");
-        }
-        else
-        {
-            Log.getLogger().error("Not empty read return!!!!");
-        }
-
         if(nodes != null && !nodes.isEmpty() && nodes.get(0) instanceof NodeStorage)
         {
             for (final NodeStorage storage : (ArrayList<NodeStorage>) nodes)
