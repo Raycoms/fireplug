@@ -283,7 +283,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
         else if(reply.getReqType() == TOMMessageType.REPLY || reply.getReqType() == TOMMessageType.ORDERED_REQUEST)
         {
-            Log.getLogger().warn("Commit return" + reply.getReqType().name());
+            Log.getLogger().info("Commit return" + reply.getReqType().name());
             processCommitReturn(reply.getContent());
         }
         else
@@ -398,7 +398,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             Log.getLogger().info("Transaction commit denied - transaction being aborted");
         }
 
-        Log.getLogger().warn("Reset after commit");
+        Log.getLogger().info("Reset after commit");
         resetSets();
 
         input.close();
@@ -413,7 +413,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private void handleReadOnlyCommit(final byte[] answer, final Kryo kryo)
     {
         final Input input = new Input(answer);
-        Log.getLogger().warn("Committed with snapshotId " + this.localTimestamp);
+        Log.getLogger().info("Committed with snapshotId " + this.localTimestamp);
         final String messageType = kryo.readObject(input, String.class);
 
         if (!Constants.COMMIT_RESPONSE.equals(messageType))
@@ -444,8 +444,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
         else
         {
-            Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
-            Log.getLogger().warn("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
+            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
             processCommitReturn(globalProxy.invokeOrdered(serializeAll()));
         }
     }
@@ -468,12 +468,12 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        Log.getLogger().warn("Starting commit process for: " + this.localTimestamp);
+        Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
         final byte[] bytes = serializeAll();
 
         if (readOnly)
         {
-            Log.getLogger().warn("Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
             if(localClusterId == -1)
             {
                 this.invokeUnordered(bytes);
@@ -493,8 +493,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
         else
         {
-            Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
-            Log.getLogger().warn("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
+            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
     }
