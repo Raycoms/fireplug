@@ -435,7 +435,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        Log.getLogger().info(String.format("Read-only Transaction with local transaction id: %d resend to the server", localTimestamp));
+        Log.getLogger().warn(String.format("Read-only Transaction with local transaction id: %d resend to the server as global", localTimestamp));
 
         if (localClusterId == -1)
         {
