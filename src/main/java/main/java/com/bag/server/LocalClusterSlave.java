@@ -288,7 +288,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         updateCounts(0, 0, 1, 0);
-        kryo.writeObject(output, Constants.COMMIT_RESPONSE);
+        kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
 
         byte[] returnBytes = output.getBuffer();
