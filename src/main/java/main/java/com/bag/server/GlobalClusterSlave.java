@@ -207,7 +207,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if(readSetNode.size() == 0 && readsSetRelationship.size() == 0 && localWriteSet.size() == 0)
+        if(readSetNode.isEmpty() && readsSetRelationship.isEmpty() && localWriteSet.isEmpty())
         {
             empty++;
             if(empty%100 == 0)
@@ -314,7 +314,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if(readSetNode.size() == 0 && readsSetRelationship.size() == 0 && localWriteSet.size() == 0)
+        if(readSetNode.isEmpty() && readsSetRelationship.isEmpty() && localWriteSet.isEmpty())
         {
             empty++;
             if(empty%100 == 0)

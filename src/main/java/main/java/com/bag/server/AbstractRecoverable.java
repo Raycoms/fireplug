@@ -283,7 +283,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     Output handleNodeRead(Input input, Kryo kryo, Output output)
     {
         long localSnapshotId = kryo.readObject(input, Long.class);
-        NodeStorage identifier = kryo.readObject(input, NodeStorage.class);
+        final NodeStorage identifier = kryo.readObject(input, NodeStorage.class);
         input.close();
 
         updateCounts(0, 1, 0, 0);
@@ -302,6 +302,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         try
         {
+            Log.getLogger().warn("Identifier: " + identifier.toString());
             returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
         }
         catch (final OutDatedDataException e)
@@ -324,14 +325,16 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         if (returnList.isEmpty())
         {
+            Log.getLogger().warn("Empty return list.");
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
             return output;
         }
+        Log.getLogger().warn("Return list not empty.");
 
-        ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
-        ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
-        for (Object obj : returnList)
+        final ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
+        final ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
+        for (final Object obj : returnList)
         {
             if (obj instanceof NodeStorage)
             {
