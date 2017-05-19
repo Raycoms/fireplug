@@ -486,7 +486,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             {
                 //Normally its globaly.invokeUnordered
                 Log.getLogger().warn("Send: " + readsSetRelationship.size() + " " + readsSetNode.size());
-                this.invokeUnordered(bytes);
+                globalProxy.invokeUnordered(bytes);
                 Log.getLogger().warn("Sent: " + readsSetRelationship.size() + " " + readsSetNode.size());
             }
             return;
