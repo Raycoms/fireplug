@@ -42,6 +42,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final int id;
 
+    private int empty = 0;
+
     /**
      * The id of the internal client used in this server
      */
@@ -207,7 +209,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if(readSetNode.size() == 0 && readsSetRelationship.size() == 0 && localWriteSet.size() == 0)
         {
-            Log.getLogger().error("Empty commit!!!!!!!");
+            empty++;
+            if(empty%100 == 0)
+            {
+                Log.getLogger().error("Empty commit!!!!!!! " + empty);
+            }
         }
 
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
