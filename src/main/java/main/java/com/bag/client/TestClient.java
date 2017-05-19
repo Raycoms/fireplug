@@ -330,6 +330,10 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             Log.getLogger().error("Empty ready return!!!!!!!!!!!!!!");
         }
+        else
+        {
+            Log.getLogger().error("Not empty read return!!!!");
+        }
 
         if(nodes != null && !nodes.isEmpty() && nodes.get(0) instanceof NodeStorage)
         {
