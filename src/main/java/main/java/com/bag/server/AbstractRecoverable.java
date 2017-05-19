@@ -302,7 +302,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         try
         {
-            Log.getLogger().warn("Identifier: " + identifier.toString());
             returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
         }
         catch (final OutDatedDataException e)
@@ -319,8 +318,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         kryo.writeObject(output, Constants.CONTINUE);
         kryo.writeObject(output, localSnapshotId);
-
-
         Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
 
         if (returnList.isEmpty())
@@ -330,7 +327,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
             return output;
         }
-        Log.getLogger().warn("Return list not empty.");
 
         final ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
         final ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
