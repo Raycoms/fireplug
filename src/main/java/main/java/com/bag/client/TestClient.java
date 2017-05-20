@@ -273,7 +273,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     break;
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
-                    handleReadOnlyCommit(reply.getContent(), kryo);
+                    super.replyReceived(reply);
                     break;
                 default:
                     Log.getLogger().info("Unexpected message type!");
@@ -403,31 +403,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         input.close();
         pool.release(kryo);
     }
-
-    /**
-     * Handles read only commit responses.
-     * @param answer the resulting string.
-     * @param kryo the kryo object for deserialization and serialization.
-     */
-    private void handleReadOnlyCommit(final byte[] answer, final Kryo kryo)
-    {
-
-
-        Log.getLogger().warn(String.format("Read-only Transaction with local transaction id: %d resend to the server as global", localTimestamp));
-
-        if (localClusterId == -1)
-        {
-            Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
-            invokeOrdered(serializeAll());
-        }
-        else
-        {
-            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
-            Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
-            processCommitReturn(globalProxy.invokeOrdered(serializeAll()));
-        }
-    }
-
+    
     /**
      * Commit reaches the server, if secure commit send to all, else only send to one
      */
