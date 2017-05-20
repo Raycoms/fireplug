@@ -322,7 +322,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-
         final List nodes = kryo.readObject(input, ArrayList.class);
         final List relationships = kryo.readObject(input, ArrayList.class);
 
@@ -412,27 +411,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      */
     private void handleReadOnlyCommit(final byte[] answer, final Kryo kryo)
     {
-        final Input input = new Input(answer);
-        Log.getLogger().info("Committed with snapshotId " + this.localTimestamp);
-        final String messageType = kryo.readObject(input, String.class);
 
-        if (!Constants.COMMIT_RESPONSE.equals(messageType))
-        {
-            Log.getLogger().warn("Incorrect response type to client from server!" + getProcessId());
-            resetSets();
-            firstRead = true;
-            return;
-        }
-
-        final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
-        if (commit)
-        {
-            localTimestamp = kryo.readObject(input, Long.class);
-            resetSets();
-            firstRead = true;
-            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
-            return;
-        }
 
         Log.getLogger().warn(String.format("Read-only Transaction with local transaction id: %d resend to the server as global", localTimestamp));
 
@@ -472,18 +451,33 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if (readOnly)
         {
-            Log.getLogger().info("Commit with snapshotId: " + this.localTimestamp);
-            if(localClusterId == -1)
+            final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+            final Kryo kryo = pool.borrow();
+            Log.getLogger().warn(getProcessId() + " Commit with snapshotId: " + this.localTimestamp);
+            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : this.invokeUnordered(bytes);
+            Log.getLogger().warn(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
+
+            final Input input = new Input(answer);
+            final String messageType = kryo.readObject(input, String.class);
+
+            if (!Constants.COMMIT_RESPONSE.equals(messageType))
             {
-                this.invokeUnordered(bytes);
+                Log.getLogger().warn("Incorrect response type to client from server!" + getProcessId());
+                resetSets();
+                firstRead = true;
+                return;
             }
-            else
+
+            final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
+            if (commit)
             {
-                //Normally its globally.invokeUnordered
-                Log.getLogger().warn("Send: " + readsSetRelationship.size() + " " + readsSetNode.size());
-                this.invokeUnordered(bytes);
-                Log.getLogger().warn("Sent: " + readsSetRelationship.size() + " " + readsSetNode.size());
+                localTimestamp = kryo.readObject(input, Long.class);
+                resetSets();
+                firstRead = true;
+                Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+                return;
             }
+
             return;
         }
 
