@@ -403,7 +403,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         input.close();
         pool.release(kryo);
     }
-    
+
     /**
      * Commit reaches the server, if secure commit send to all, else only send to one
      */

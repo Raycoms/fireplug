@@ -404,7 +404,7 @@ public class ClientWorkLoads
                 NodeStorage readNodeStorage = null;
                 IOperation operation = null;
 
-                if (isRead || this.percOfWrites == 0)
+                if (isRead || this.percOfWrites <= 0)
                 {
                     double randomNum = random.nextDouble() * 100 + 1;
                     if (randomNum <= 15.7)
