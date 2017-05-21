@@ -79,7 +79,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Lock to lock the update slave execution to order the execution correctly.
      */
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     /**
      * Public constructor used to create a local cluster slave.
@@ -130,6 +130,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
+        Log.getLogger().error("Receiving ordered request for some reason!");
         return new byte[0][];
     }
 
@@ -197,7 +198,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         //If primary changed ask new primary for his global cluster id.
-        if(messageContext.getLeader() != -1 && messageContext.getLeader() != primaryId)
+        /*if(messageContext.getLeader() != -1 && messageContext.getLeader() != primaryId)
         {
             Log.getLogger().info("Seemed like primary changed, checking on that! at slave: " + id);
             primaryId = messageContext.getLeader();
@@ -205,7 +206,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, Constants.ASK_PRIMARY);
             proxy.sendMessageToTargets(localOutput.getBuffer(), 0, new int[] {messageContext.getLeader()}, TOMMessageType.UNORDERED_REQUEST);
             localOutput.close();
-        }
+        }*/
 
         byte[] returnValue = output.getBuffer();
 
