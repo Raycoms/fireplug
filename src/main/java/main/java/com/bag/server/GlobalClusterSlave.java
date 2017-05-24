@@ -68,18 +68,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Turned on global cluster with id:" + id);
     }
 
-    private byte[] makeEmptyAbortResult()
-    {
-        final Output output = new Output(0, 128);
-        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-        final Kryo kryo = pool.borrow();
-        kryo.writeObject(output, Constants.ABORT);
-        byte[] temp = output.getBuffer();
-        output.close();
-        pool.release(kryo);
-        return temp;
-    }
-
     /**
      * Every byte array is one request.
      * @param bytes the requests.
@@ -428,15 +416,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         output.writeBytes(signature);
         proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         output.close();
-    }
-
-    private Output makeEmptyReadResponse(String message, Kryo kryo)
-    {
-        final Output output = new Output(0, 10240);
-        kryo.writeObject(output, message);
-        kryo.writeObject(output, new ArrayList<NodeStorage>());
-        kryo.writeObject(output, new ArrayList<RelationshipStorage>());
-        return output;
     }
 
     /**

@@ -100,7 +100,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      * Set the local cluster instance to primary.
      * @param isPrimary true if so.
      */
-    public void setPrimary(boolean isPrimary)
+    void setPrimary(final boolean isPrimary)
     {
         if(isPrimary)
         {
@@ -113,7 +113,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      * Set the id of the primary global cluster.
      * @param primaryGlobalClusterId the id.
      */
-    public void setPrimaryGlobalClusterId(final int primaryGlobalClusterId)
+    void setPrimaryGlobalClusterId(final int primaryGlobalClusterId)
     {
         this.primaryGlobalClusterId = primaryGlobalClusterId;
     }
@@ -122,7 +122,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      * Check if the local cluster slave is a primary.
      * @return true if so.
      */
-    public boolean isPrimary()
+    boolean isPrimary()
     {
         return isPrimary;
     }
@@ -130,8 +130,39 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
-        Log.getLogger().error("Receiving ordered request for some reason!");
-        return new byte[0][];
+        byte[][] allResults = new byte[bytes.length][];
+        for (int i = 0; i < bytes.length; ++i)
+        {
+            if (messageContexts != null && messageContexts[i] != null)
+            {
+                final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+                final Kryo kryo = pool.borrow();
+                final Input input = new Input(bytes[i]);
+
+                final String type = kryo.readObject(input, String.class);
+
+                if (Constants.COMMIT_MESSAGE.equals(type))
+                {
+                    byte[] result = handleReadOnlyCommit(input, kryo);
+                    pool.release(kryo);
+                    allResults[i] = result;
+                }
+                else
+                {
+                    Log.getLogger().error("Return empty bytes for message type: " + type);
+                    allResults[i] = makeEmptyAbortResult();
+                    updateCounts(0, 0, 0, 1);
+                }
+            }
+            else
+            {
+                Log.getLogger().error("Received message with empty context!");
+                allResults[i] = makeEmptyAbortResult();
+                updateCounts(0, 0, 0, 1);
+            }
+        }
+
+        return allResults;
     }
 
     @Override

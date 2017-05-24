@@ -348,6 +348,37 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     }
 
     /**
+     * Create an empty ready response.
+     * @param message the message to write.
+     * @param kryo the kryo instance.
+     * @return the generated output object.
+     */
+    Output makeEmptyReadResponse(final String message, final Kryo kryo)
+    {
+        final Output output = new Output(0, 10240);
+        kryo.writeObject(output, message);
+        kryo.writeObject(output, new ArrayList<NodeStorage>());
+        kryo.writeObject(output, new ArrayList<RelationshipStorage>());
+        return output;
+    }
+
+    /**
+     * Make an empty abort result.
+     * @return a byte array with it.
+     */
+    byte[] makeEmptyAbortResult()
+    {
+        final Output output = new Output(0, 128);
+        final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
+        final Kryo kryo = pool.borrow();
+        kryo.writeObject(output, Constants.ABORT);
+        byte[] temp = output.getBuffer();
+        output.close();
+        pool.release(kryo);
+        return temp;
+    }
+
+    /**
      * Handles the relationship read message and requests it to the database.
      *
      * @param input  get info from.
