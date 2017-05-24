@@ -45,7 +45,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Keep the last x transaction in a separate list.
      */
-    private static final int KEEP_LAST_X = 500;
+    private static final int KEEP_LAST_X = 1000;
 
     /**
      * The id of the internal client used in this server
