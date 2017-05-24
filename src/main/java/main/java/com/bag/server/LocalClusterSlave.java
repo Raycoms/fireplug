@@ -148,6 +148,18 @@ public class LocalClusterSlave extends AbstractRecoverable
                     pool.release(kryo);
                     allResults[i] = result;
                 }
+                else if ( Constants.UPDATE_SLAVE.equals(type))
+                {
+                    Output output = new Output(0, 1024);
+                    Log.getLogger().info("Received update slave message");
+                    synchronized (lock)
+                    {
+                        handleSlaveUpdateMessage(input, output, kryo);
+                    }
+                    allResults[i] = output.getBuffer();
+                    output.close();
+                    input.close();
+                }
                 else
                 {
                     Log.getLogger().error("Return empty bytes for message type: " + type);
@@ -623,7 +635,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         byte[] result = null;
         while(result == null)
         {
-            result = proxy.invokeUnordered(output.getBuffer());
+            result = proxy.invokeOrdered(output.getBuffer());
         }
 
         pool.release(kryo);
