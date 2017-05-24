@@ -243,7 +243,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        Output output = new Output(0, 800240);
+        Output output = new Output(0, 1000240);
         kryo.writeObject(output, getGlobalSnapshotId());
 
         for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
