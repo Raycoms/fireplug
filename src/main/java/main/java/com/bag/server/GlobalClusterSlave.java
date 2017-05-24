@@ -43,6 +43,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final int id;
 
     /**
+     * Keep the last x transaction in a separate list.
+     */
+    private static final int KEEP_LAST_X = 500;
+
+    /**
      * The id of the internal client used in this server
      */
     private final int idClient;
@@ -50,7 +55,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Cache which holds the signatureStorages for the consistency.
      */
-    private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
+    private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().maximumSize(KEEP_LAST_X).build();
 
     /**
      * The serviceProxy to establish communication with the other replicas.
@@ -414,10 +419,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
-
-        //wait until sent, try this here!
-        proxy.invokeUnordered(output.getBuffer());
-        /*proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);*/
+        proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         output.close();
     }
 

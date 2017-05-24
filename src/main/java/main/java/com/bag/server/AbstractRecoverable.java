@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public abstract class AbstractRecoverable extends DefaultRecoverable
 {
-
     /**
      * Keep the last x transaction in a separate list.
      */
