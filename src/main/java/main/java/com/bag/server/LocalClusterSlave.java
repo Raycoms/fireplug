@@ -130,7 +130,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
     {
-        Log.getLogger().warn("Unable in local, try ordered!");
         byte[][] allResults = new byte[bytes.length][];
         for (int i = 0; i < bytes.length; ++i)
         {
@@ -175,7 +174,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
         }
 
-        Log.getLogger().warn("Return results: " + allResults.length);
         return allResults;
     }
 
