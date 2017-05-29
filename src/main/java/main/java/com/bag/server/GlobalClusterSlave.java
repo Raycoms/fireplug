@@ -61,6 +61,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final ServiceProxy proxy;
 
     /**
+     * SignatureStorageCache lock to be sure that we compare correctly.
+     */
+    private static final Object lock = new Object();
+
+    /**
      * ThreadPool executor service.
      */
     private final ExecutorService pool = Executors.newFixedThreadPool(10);
@@ -390,39 +395,45 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final SignatureStorage signatureStorage;
 
 
-        if (slave.signatureStorageCache.getIfPresent(snapShotId) != null)
+        synchronized (lock)
         {
-            signatureStorage = slave.signatureStorageCache.getIfPresent(snapShotId);
-            if (signatureStorage.getMessage().length != output.toBytes().length)
+            if (slave.signatureStorageCache.getIfPresent(snapShotId) != null)
             {
-                signatureStorage.setMessage(output.toBytes());
-                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: " + snapShotId);
+                signatureStorage = slave.signatureStorageCache.getIfPresent(snapShotId);
+                if (signatureStorage.getMessage().length != output.toBytes().length)
+                {
+                    signatureStorage.setMessage(output.toBytes());
+                    Log.getLogger()
+                            .error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
+                                    + snapShotId);
+                }
             }
-        }
-        else
-        {
-            Log.getLogger().info("Size of message stored is: " + message.length);
-            signatureStorage = new SignatureStorage(slave.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
-            slave.signatureStorageCache.put(snapShotId, signatureStorage);
-        }
-
-        signatureStorage.setProcessed();
-        Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
-        signatureStorage.addSignatures(idClient, signature);
-        if (signatureStorage.hasEnough())
-        {
-            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-            slave.updateSlave(signatureStorage);
-            signatureStorage.setDistributed();
-
-            if (signatureStorage.hasAll())
+            else
             {
-                slave.signatureStorageCache.invalidate(snapShotId);
+                Log.getLogger().info("Size of message stored is: " + message.length);
+                signatureStorage = new SignatureStorage(slave.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
+                slave.signatureStorageCache.put(snapShotId, signatureStorage);
             }
-        }
-        else
-        {
-            slave.signatureStorageCache.put(snapShotId, signatureStorage);
+
+            signatureStorage.setProcessed();
+            Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+            signatureStorage.addSignatures(idClient, signature);
+            if (signatureStorage.hasEnough())
+            {
+                Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+                slave.updateSlave(signatureStorage);
+                signatureStorage.setDistributed();
+                slave.signatureStorageCache.put(snapShotId, signatureStorage);
+
+                if (signatureStorage.hasAll())
+                {
+                    slave.signatureStorageCache.invalidate(snapShotId);
+                }
+            }
+            else
+            {
+                slave.signatureStorageCache.put(snapShotId, signatureStorage);
+            }
         }
 
         kryo.writeObject(output, message.length);
@@ -463,7 +474,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
         }
-        catch (ClassCastException e)
+        catch (final ClassCastException e)
         {
             Log.getLogger().warn("Couldn't convert received signature message.", e);
             return;
@@ -688,50 +699,54 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final List<IOperation> writeSet)
     {
         final SignatureStorage signatureStorage;
-        if (signatureStorageCache.getIfPresent(snapShotId) == null)
-        {
-            signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
-            signatureStorageCache.put(snapShotId, signatureStorage);
-            Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
-        }
-        else
-        {
-            signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
-        }
 
-        if (signatureStorage.getMessage().length != message.length)
+        synchronized (lock)
         {
-            Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server "
-                    + message.length + " ws: " + writeSet.size() + " id: " + snapShotId);
-            return;
-        }
-
-        if (!decision.equals(signatureStorage.getDecision()))
-        {
-            Log.getLogger().warn("Replica: " + id + " did receive a different decision of replica: " + context.getSender() + ". Might be corrupted.");
-            return;
-        }
-        signatureStorage.addSignatures(context.getSender(), signature);
-
-        Log.getLogger().info("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
-                + " by: " + context.getSender());
-
-        if (signatureStorage.hasEnough())
-        {
-            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-            if (signatureStorage.isProcessed())
+            if (signatureStorageCache.getIfPresent(snapShotId) == null)
             {
-                updateSlave(signatureStorage);
-                signatureStorage.setDistributed();
+                signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
+                signatureStorageCache.put(snapShotId, signatureStorage);
+                Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
+            }
+            else
+            {
+                signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
             }
 
-            if (signatureStorage.hasAll() && signatureStorage.isDistributed())
+            if (signatureStorage.getMessage().length != message.length)
             {
-                signatureStorageCache.invalidate(snapShotId);
+                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server "
+                        + message.length + " ws: " + writeSet.size() + " id: " + snapShotId);
                 return;
             }
+
+            if (!decision.equals(signatureStorage.getDecision()))
+            {
+                Log.getLogger().warn("Replica: " + id + " did receive a different decision of replica: " + context.getSender() + ". Might be corrupted.");
+                return;
+            }
+            signatureStorage.addSignatures(context.getSender(), signature);
+
+            Log.getLogger().info("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
+                    + " by: " + context.getSender());
+
+            if (signatureStorage.hasEnough())
+            {
+                Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+                if (signatureStorage.isProcessed())
+                {
+                    updateSlave(signatureStorage);
+                    signatureStorage.setDistributed();
+                }
+
+                if (signatureStorage.hasAll() && signatureStorage.isDistributed())
+                {
+                    signatureStorageCache.invalidate(snapShotId);
+                    return;
+                }
+            }
+            signatureStorageCache.put(snapShotId, signatureStorage);
         }
-        signatureStorageCache.put(snapShotId, signatureStorage);
     }
 
     /**
