@@ -440,12 +440,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
 
-        byte[] bytes = null;
+        slave.proxy.sendMessageToTargets(output.getBuffer(), 0, slave.proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+
+        /**byte[] bytes = null;
         while(bytes == null)
         {
             bytes = slave.proxy.invokeUnordered(output.getBuffer());
-        }
-        //proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        }**/
+        //
         output.close();
     }
 
