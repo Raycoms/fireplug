@@ -21,6 +21,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Class handling server communication in the global cluster.
@@ -56,6 +59,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
+
+    /**
+     * ThreadPool executor service.
+     */
+    private final ExecutorService pool = Executors.newFixedThreadPool(10);
 
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
@@ -232,8 +240,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
             {
-                Thread t = new SignatureThread(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, this);
-                t.start();
+                Runnable t = new SignatureThread(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, this);
+                pool.execute(t);
                 //signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, this);
             }
         }
@@ -328,7 +336,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnBytes;
     }
 
-    private class SignatureThread extends Thread
+    private class SignatureThread implements Runnable
     {
         private final List<IOperation> localWriteSet;
         private final String           commit;
@@ -420,7 +428,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
-        slave.proxy.invokeUnordered(output.getBuffer());
+
+        byte[] bytes = null;
+        while(bytes == null)
+        {
+            bytes = slave.proxy.invokeUnordered(output.getBuffer());
+        }
         //proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         output.close();
     }
