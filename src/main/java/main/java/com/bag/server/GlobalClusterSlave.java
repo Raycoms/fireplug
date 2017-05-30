@@ -434,13 +434,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
             {
                 slave.signatureStorageCache.put(snapShotId, signatureStorage);
             }
-        }
+
 
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
 
         slave.proxy.sendMessageToTargets(output.getBuffer(), 0, slave.proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+
+        }
 
         /**byte[] bytes = null;
         while(bytes == null)
