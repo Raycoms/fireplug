@@ -83,7 +83,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     /**
      * Every byte array is one request.
-     * @param bytes the requests.
+     *
+     * @param bytes           the requests.
      * @param messageContexts the contexts.
      * @return the answers of all requests in this batch.
      */
@@ -223,7 +224,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
-            if(!localWriteSet.isEmpty())
+            if (!localWriteSet.isEmpty())
             {
                 Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
                 //Log.getLogger().info("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
@@ -238,7 +239,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (!localWriteSet.isEmpty())
         {
-            Log.getLogger().info("Comitting: " + getGlobalSnapshotId()  + " localId: " + timeStamp);
+            Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             //Log.getLogger().info("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
             //Log.getLogger().info("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
 
@@ -343,10 +344,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     private class SignatureThread implements Runnable
     {
-        private final List<IOperation> localWriteSet;
-        private final String           commit;
-        private final long             globalSnapshotId;
-        private final Kryo             kryo;
+        private final List<IOperation>   localWriteSet;
+        private final String             commit;
+        private final long               globalSnapshotId;
+        private final Kryo               kryo;
         @NotNull
         private final GlobalClusterSlave slave;
 
@@ -366,8 +367,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
     }
 
-    private static void signCommitWithDecisionAndDistribute(final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient,
-    @NotNull final GlobalClusterSlave slave)
+    private static void signCommitWithDecisionAndDistribute(
+            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient,
+            @NotNull final GlobalClusterSlave slave)
     {
         Log.getLogger().info("Sending signed commit to the other global replicas");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
@@ -393,64 +395,83 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         final SignatureStorage signatureStorage;
-
-
-        synchronized (lock)
+        if (slave.signatureStorageCache.getIfPresent(snapShotId) != null)
         {
-            if (slave.signatureStorageCache.getIfPresent(snapShotId) != null)
+            signatureStorage = slave.signatureStorageCache.getIfPresent(snapShotId);
+            if (signatureStorage.getMessage().length != output.toBytes().length)
             {
-                signatureStorage = slave.signatureStorageCache.getIfPresent(snapShotId);
-                if (signatureStorage.getMessage().length != output.toBytes().length)
-                {
-                    signatureStorage.setMessage(output.toBytes());
-                    Log.getLogger()
-                            .error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
-                                    + snapShotId);
-                }
+                signatureStorage.setMessage(output.toBytes());
+                Log.getLogger()
+                        .error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
+                                + snapShotId);
             }
-            else
-            {
-                Log.getLogger().info("Size of message stored is: " + message.length);
-                signatureStorage = new SignatureStorage(slave.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
-                slave.signatureStorageCache.put(snapShotId, signatureStorage);
-            }
+        }
+        else
+        {
+            Log.getLogger().info("Size of message stored is: " + message.length);
+            signatureStorage = new SignatureStorage(slave.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
+            slave.signatureStorageCache.put(snapShotId, signatureStorage);
+        }
 
-            signatureStorage.setProcessed();
-            Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
-            signatureStorage.addSignatures(idClient, signature);
-            if (signatureStorage.hasEnough())
-            {
-                Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-                slave.updateSlave(signatureStorage);
-                signatureStorage.setDistributed();
-                slave.signatureStorageCache.put(snapShotId, signatureStorage);
+        signatureStorage.setProcessed();
+        Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+        signatureStorage.addSignatures(idClient, signature);
+        if (signatureStorage.hasEnough())
+        {
+            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+            slave.updateSlave(signatureStorage);
+            signatureStorage.setDistributed();
+            slave.signatureStorageCache.put(snapShotId, signatureStorage);
 
-                if (signatureStorage.hasAll())
-                {
-                    slave.signatureStorageCache.invalidate(snapShotId);
-                }
-            }
-            else
+            if (signatureStorage.hasAll())
             {
-                slave.signatureStorageCache.put(snapShotId, signatureStorage);
+                slave.signatureStorageCache.invalidate(snapShotId);
             }
+        }
+        else
+        {
+            slave.signatureStorageCache.put(snapShotId, signatureStorage);
+        }
 
 
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
 
-        slave.proxy.sendMessageToTargets(output.getBuffer(), 0, slave.proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        //slave.proxy.sendMessageToTargets(output.getBuffer(), 0, slave.proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
 
-        }
+
+        final SenderThread thread = new SenderThread(output.getBuffer(), slave.proxy);
+        thread.start();
 
         /**byte[] bytes = null;
-        while(bytes == null)
-        {
-            bytes = slave.proxy.invokeUnordered(output.getBuffer());
-        }**/
+         while(bytes == null)
+         {
+         bytes = slave.proxy.invokeUnordered(output.getBuffer());
+         }**/
         //
         output.close();
+    }
+
+    private static class SenderThread extends Thread
+    {
+        private final byte[] bytes;
+        private final ServiceProxy proxy;
+        public SenderThread(final byte[] bytes, @NotNull final ServiceProxy proxy)
+        {
+            this.bytes = bytes;
+            this.proxy = proxy;
+        }
+
+        @Override
+        public void run()
+        {
+            byte[] respondBytes = null;
+            while(respondBytes == null)
+            {
+                respondBytes = proxy.invokeUnordered(bytes);
+            }
+        }
     }
 
     /**
@@ -770,7 +791,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
     {
         super.putIntoWriteSet(currentSnapshot, localWriteSet);
-        if(wrapper.getLocalCLuster() != null)
+        if (wrapper.getLocalCLuster() != null)
         {
             wrapper.getLocalCLuster().putIntoWriteSet(currentSnapshot, localWriteSet);
         }
