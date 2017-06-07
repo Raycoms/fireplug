@@ -2,6 +2,7 @@ package main.java.com.bag.server;
 
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
+import bftsmart.tom.core.messages.TOMMessageType;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -227,7 +228,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private void updateNextSlave(final byte[] buffer)
     {
         Log.getLogger().info("Notifying next cluster: ");
-        localProxy.invokeUnordered(buffer);
+        localProxy.sendMessageToTargets(buffer, 0, 0 , localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
     }
 
     /**
