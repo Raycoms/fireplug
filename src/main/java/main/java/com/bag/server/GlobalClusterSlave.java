@@ -23,7 +23,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Next proxy to deliver messages to.
      */
-    final ServiceProxy localProxy;
+    private final ServiceProxy localProxy;
 
     /**
      * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
@@ -45,33 +45,18 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final int id;
 
-    /**
-     * The id of the internal client used in this server
-     */
-    private final int idClient;
-
-    /**
-     * The serviceProxy to establish communication with the other replicas.
-     */
-    private final ServiceProxy proxy;
-
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
         super(id, GLOBAL_CONFIG_LOCATION, wrapper, instrumentation);
         this.id = id;
-        this.idClient = id + 1000;
         this.wrapper = wrapper;
-        Log.getLogger().info("Turning on client proxy with id:" + idClient);
-        this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
-        Log.getLogger().info("Turned on global cluster with id:" + id);
 
         int sendToId = id + 1;
         if(sendToId >= super.getReplica().getReplicaContext().getCurrentView().getN())
         {
             sendToId = 0;
         }
-        Log.getLogger().warn("Send also to: " + String.format(LOCAL_CONFIG_LOCATION, sendToId));
-        localProxy = new ServiceProxy(1100 + id, String.format(LOCAL_CONFIG_LOCATION, sendToId));
+        localProxy = new ServiceProxy(1100 + this.id, String.format(LOCAL_CONFIG_LOCATION, sendToId));
     }
 
     /**

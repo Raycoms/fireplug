@@ -138,7 +138,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     pool.release(kryo);
                     allResults[i] = result;
                 }
-                else if ( Constants.UPDATE_SLAVE.equals(type))
+                else if (Constants.UPDATE_SLAVE.equals(type))
                 {
                     Output output = new Output(0, 1024);
                     Log.getLogger().warn("Received update slave message but ordered, retry");
@@ -526,18 +526,22 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
+        Log.getLogger().warn(globalSnapShotId + " arrived from: " + sender);
 
         if(!preBuffer.containsKey(globalSnapShotId))
         {
+            Log.getLogger().warn(globalSnapShotId + " wasn't in the map.");
             preBuffer.put(globalSnapShotId, new SlaveUpdateStorage(sender, localWriteSet));
             return;
         }
 
         if(preBuffer.get(globalSnapShotId).getGlobalId() == sender)
         {
+            Log.getLogger().warn(globalSnapShotId + " has the equal sender: " + sender);
             return;
         }
 
+        Log.getLogger().warn("ready to execute write, remove from preBuffer.");
         preBuffer.remove(globalSnapShotId);
 
         if(lastKey + 1 == globalSnapShotId)
