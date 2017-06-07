@@ -20,6 +20,11 @@ import java.util.*;
 public class GlobalClusterSlave extends AbstractRecoverable
 {
     /**
+     * Next proxy to deliver messages to.
+     */
+    final ServiceProxy localProxy;
+
+    /**
      * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
      */
     private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
@@ -58,6 +63,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Turning on client proxy with id:" + idClient);
         this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
         Log.getLogger().info("Turned on global cluster with id:" + id);
+
+        int sendToId = id + 1;
+        if(sendToId >= super.getReplica().getReplicaContext().getCurrentView().getN())
+        {
+            sendToId = 0;
+        }
+        localProxy = new ServiceProxy(sendToId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
     }
 
     /**
@@ -196,7 +208,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 kryo.writeObject(slaveUpdateOutput, localSnapshotId);
                 kryo.writeObject(slaveUpdateOutput, localWriteSet);
                 updateSlave(slaveUpdateOutput.getBuffer());
-                updateNextSlave(slaveUpdateOutput.getBuffer(), id);
+                updateNextSlave(slaveUpdateOutput.getBuffer());
                 slaveUpdateOutput.close();
             }
         }
@@ -212,19 +224,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnBytes;
     }
 
-    private void updateNextSlave(final byte[] buffer, final int id)
+    private void updateNextSlave(final byte[] buffer)
     {
-        int sendToId = id + 1;
-        if(sendToId >= super.getReplica().getReplicaContext().getCurrentView().getN())
-        {
-            sendToId = 0;
-        }
-        Log.getLogger().warn("Notifying next cluster: " + sendToId);
-
-        final ServiceProxy localProxy = new ServiceProxy(sendToId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
-
+        Log.getLogger().info("Notifying next cluster: ");
         localProxy.invokeUnordered(buffer);
-        localProxy.close();
     }
 
     /**
@@ -427,14 +430,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final int newPrimary = kryo.readObject(input, Integer.class);
         final int oldPrimary = kryo.readObject(input, Integer.class);
 
-        final ServiceProxy localProxy = new ServiceProxy(1000 + oldPrimary, "local" + localClusterID);
+        final ServiceProxy tempProxy = new ServiceProxy(1000 + oldPrimary, "local" + localClusterID);
 
         final Output output = new Output(512);
 
         kryo.writeObject(output, Constants.REGISTER_GLOBALLY_CHECK);
         kryo.writeObject(output, newPrimary);
 
-        byte[] result = localProxy.invokeUnordered(output.getBuffer());
+        byte[] result = tempProxy.invokeUnordered(output.getBuffer());
 
 
         final Output nextOutput = new Output(512);
@@ -450,7 +453,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         nextOutput.close();
         answer.close();
-        localProxy.close();
+        tempProxy.close();
         output.close();
         return returnBuffer;
         //remove currentView and edit system.config
@@ -466,7 +469,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         if (this.wrapper.getLocalCLuster() != null)
         {
-            Log.getLogger().warn("Notifying local cluster!");
+            Log.getLogger().info("Notifying local cluster!");
             this.wrapper.getLocalCLuster().propagateUpdate(message);
         }
     }
