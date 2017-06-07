@@ -187,9 +187,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (wrapper.getLocalCLuster() != null)
             {
                 final Output slaveUpdateOutput = new Output(0,2056);
-                kryo.writeObject(output, Constants.UPDATE_SLAVE);
-                kryo.writeObject(output, localSnapshotId);
-                kryo.writeObject(output, localWriteSet);
+                kryo.writeObject(slaveUpdateOutput, Constants.UPDATE_SLAVE);
+                kryo.writeObject(slaveUpdateOutput, localSnapshotId);
+                kryo.writeObject(slaveUpdateOutput, localWriteSet);
                 updateSlave(slaveUpdateOutput.getBuffer());
                 updateNextSlave(slaveUpdateOutput.getBuffer(), id);
                 slaveUpdateOutput.close();
