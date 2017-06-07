@@ -69,7 +69,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             sendToId = 0;
         }
-        localProxy = new ServiceProxy(sendToId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
+        localProxy = new ServiceProxy(1100 + sendToId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
     }
 
     /**
