@@ -214,7 +214,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             sendToId = 0;
         }
-        final ServiceProxy localProxy = new ServiceProxy(1100 + id, "local" + sendToId);
+        Log.getLogger().warn("Notifying next cluster: " + sendToId);
+
+        final ServiceProxy localProxy = new ServiceProxy(sendToId, "local" + sendToId);
 
         localProxy.invokeUnordered(buffer);
         localProxy.close();
@@ -459,6 +461,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         if (this.wrapper.getLocalCLuster() != null)
         {
+            Log.getLogger().warn("Notifying local cluster!");
             this.wrapper.getLocalCLuster().propagateUpdate(message);
         }
     }
