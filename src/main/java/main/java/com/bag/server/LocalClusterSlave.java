@@ -500,7 +500,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         return output;
     }
 
-    private void handleSlaveUpdateMessage(final Input input, final Output output, final Kryo kryo)
+    private void handleSlaveUpdateMessage(final MessageContext messageContext, final Input input, final Output output, final Kryo kryo)
     {
         //Not required. Is primary already dealt with it.
         if(wrapper.getGlobalCluster() != null)
@@ -508,6 +508,11 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
+        //todo get from message:
+        //todo we need the sender, the decision, the snapshotId
+        //todo we will then add them to a map as well, if we have f+1 responses we add it to the buffer
+
+        messageContext.getSender();
         final String decision = kryo.readObject(input, String.class);
         final long snapShotId = kryo.readObject(input, Long.class);
         final long lastKey = getGlobalSnapshotId();
@@ -526,28 +531,10 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        final SignatureStorage storage;
-
-        try
-        {
-            storage = kryo.readObject(input, SignatureStorage.class);
-        }
-        catch (ClassCastException exp)
-        {
-            Log.getLogger().warn("Unable to cast to SignatureStorage, something went wrong badly.", exp);
-            return;
-        }
-
-        final Input messageInput = new Input(storage.getMessage());
-
-        kryo.readObject(messageInput, String.class);
-        kryo.readObject(messageInput, String.class);
-
-        kryo.readObject(messageInput, Long.class);
-        final List writeSet = kryo.readObject(messageInput, ArrayList.class);
+        final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<IOperation> localWriteSet;
 
-        messageInput.close();
+        input.close();
 
         try
         {
@@ -559,32 +546,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        int matchingSignatures = 0;
-        for(final Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
-        {
-            final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
-            try
-            {
-                if(!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
-                {
-                    Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
-                }
-                else
-                {
-                    Log.getLogger().info("Signature matches of server: " + entry.getKey());
-                    matchingSignatures++;
-                }
-            }
-            catch (Exception e)
-            {
-                Log.getLogger().warn("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
-            }
-        }
-
-        if(matchingSignatures < 3)
-        {
-            Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
-        }
 
         Log.getLogger().info("All signatures are correct, started to commit now!");
 
@@ -610,34 +571,15 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Send this update to all other replicas.
-     * @param storage the signatureStorage with message and signatures..
+     * @param message the message to propagate
      */
-    public void propagateUpdate(final SignatureStorage storage)
+    public void propagateUpdate(final byte[] message)
     {
-        final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
-        final Kryo kryo = pool.borrow();
-
-        final Input input = new Input(storage.getMessage());
-        kryo.readObject(input, String.class);
-
-        final String decision = kryo.readObject(input, String.class);
-        final Long snapShotId = kryo.readObject(input, Long.class);
-
-        final Output output = new Output(100096);
-
-        kryo.writeObject(output, Constants.UPDATE_SLAVE);
-        kryo.writeObject(output, decision);
-        kryo.writeObject(output, snapShotId);
-        kryo.writeObject(output, storage);
-
         byte[] result = null;
         while(result == null)
         {
-            result = proxy.invokeOrdered(output.getBuffer());
+            result = proxy.invokeUnordered(message);
         }
-
-        pool.release(kryo);
-        output.close();
     }
 
     /**
