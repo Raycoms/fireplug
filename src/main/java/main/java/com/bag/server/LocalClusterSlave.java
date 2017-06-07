@@ -1,10 +1,7 @@
 package main.java.com.bag.server;
 
-import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
-import bftsmart.tom.core.messages.TOMMessageType;
-import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -14,22 +11,16 @@ import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
-import main.java.com.bag.util.storage.SignatureStorage;
-import main.java.com.bag.util.storage.TransactionStorage;
+import main.java.com.bag.util.storage.SlaveUpdateStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 /**
- *
+ * The local cluster slave class. Responsible for interactions in-between the local cluster.
  */
 public class LocalClusterSlave extends AbstractRecoverable
 {
-    /**
-     * Name of the location of the global config.
-     */
-    private static final String GLOBAL_CONFIG_LOCATION = "global/config";
-
     /**
      * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
      */
@@ -68,13 +59,12 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Queue to catch messages out of order.
      */
-    private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
+    private final Map<Long, SlaveUpdateStorage> preBuffer = new TreeMap<>();
 
-    //todo maybe detect local transaction problems in the future.
     /**
-     * Contains all local transactions being executed on the server at the very moment.
+     * Queue to catch messages out of order.
      */
-    private HashMap<Integer, TransactionStorage> localTransactionList = new HashMap<>();
+    private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
 
     /**
      * Lock to lock the update slave execution to order the execution correctly.
@@ -153,7 +143,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().info("Received update slave message");
                     synchronized (lock)
                     {
-                        handleSlaveUpdateMessage(input, output, kryo);
+                        handleSlaveUpdateMessage(messageContexts[i], input, output, kryo);
                     }
                     allResults[i] = output.getBuffer();
                     output.close();
@@ -202,7 +192,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             case Constants.GET_PRIMARY:
                 Log.getLogger().info("Received GetPrimary message");
                 kryo.writeObject(output, Constants.GET_PRIMARY);
-                output = handleGetPrimaryMessage(messageContext, output, kryo);
+                output = handleGetPrimaryMessage(output, kryo);
                 break;
             case Constants.COMMIT:
                 Log.getLogger().info("Received commit message: " + input.getBuffer().length);
@@ -224,11 +214,11 @@ public class LocalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Received update slave message");
                 synchronized (lock)
                 {
-                    handleSlaveUpdateMessage(input, output, kryo);
+                    handleSlaveUpdateMessage(messageContext, input, output, kryo);
                 }
                 output.close();
                 input.close();
-                return new byte[0];
+                break;
             case Constants.ASK_PRIMARY:
                 Log.getLogger().info("Received Ask primary notice message");
                 notifyAllSlavesAboutNewPrimary(kryo);
@@ -398,7 +388,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     private Output handleCommitMessage(final Input input, final MessageContext messageContext, final Kryo kryo, final Output output)
     {
         kryo.writeObject(output, Constants.COMMIT);
-        //todo messageContext.getLeader() returning -1 ?
         if (messageContext.getLeader() == id)
         {
             if(!isPrimary || wrapper.getGlobalCluster() == null)
@@ -451,8 +440,6 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     private boolean requestRegistering(final ServiceProxy proxy, final Kryo kryo)
     {
-        final ServiceProxy globalProxy = new ServiceProxy(1000 + id , "global" + id);
-
         final Output output = new Output(0, 100240);
         kryo.writeObject(output, Constants.REGISTER_GLOBALLY_MESSAGE);
 
@@ -469,25 +456,22 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             notifyAllSlavesAboutNewPrimary(kryo);
             input.close();
-            globalProxy.close();
             output.close();
             return true;
         }
 
         input.close();
-        globalProxy.close();
         output.close();
         return false;
     }
 
     /**
      * Handles a get primary message.
-     * @param messageContext the message context.
      * @param output write info to.
      * @param kryo the kryo instance.
      * @return sends the primary to the people.
      */
-    private Output handleGetPrimaryMessage(final MessageContext messageContext, final Output output, final Kryo kryo)
+    private Output handleGetPrimaryMessage(final Output output, final Kryo kryo)
     {
         if(isPrimary())
         {
@@ -508,23 +492,18 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        //todo get from message:
-        //todo we need the sender, the decision, the snapshotId
-        //todo we will then add them to a map as well, if we have f+1 responses we add it to the buffer
-
-        messageContext.getSender();
-        final String decision = kryo.readObject(input, String.class);
-        final long snapShotId = kryo.readObject(input, Long.class);
+        final int sender = messageContext.getSender();
+        final long globalSnapShotId = kryo.readObject(input, Long.class);
         final long lastKey = getGlobalSnapshotId();
 
-        Log.getLogger().info("Received update slave message with decision: " + decision);
+        Log.getLogger().info("Received update slave message with decision commit");
 
-        if(lastKey > snapShotId)
+        if(lastKey > globalSnapShotId)
         {
             //Received a message which has been committed in the past already.
             return;
         }
-        else if(lastKey == snapShotId)
+        else if(lastKey == globalSnapShotId)
         {
             Log.getLogger().info("Received already committed transaction.");
             kryo.writeObject(output, true);
@@ -547,17 +526,28 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
 
-        Log.getLogger().info("All signatures are correct, started to commit now!");
-
-        if(lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
+        if(!preBuffer.containsKey(globalSnapShotId))
         {
-            Log.getLogger().info("Execute update on slave: " + snapShotId);
+            preBuffer.put(globalSnapShotId, new SlaveUpdateStorage(sender, localWriteSet));
+            return;
+        }
+
+        if(preBuffer.get(globalSnapShotId).getGlobalId() == sender)
+        {
+            return;
+        }
+
+        preBuffer.remove(globalSnapShotId);
+
+        if(lastKey + 1 == globalSnapShotId)
+        {
+            Log.getLogger().info("Execute update on slave: " + globalSnapShotId);
             executeCommit(localWriteSet);
 
             long requiredKey = lastKey + 1;
             while(buffer.containsKey(requiredKey))
             {
-                Log.getLogger().info("Execute update on slave: " + snapShotId);
+                Log.getLogger().info("Execute update on slave: " + globalSnapShotId);
                 executeCommit(buffer.remove(requiredKey));
                 requiredKey++;
             }
@@ -565,8 +555,8 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, true);
             return;
         }
-        buffer.put(snapShotId, localWriteSet);
-        Log.getLogger().warn("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
+        buffer.put(globalSnapShotId, localWriteSet);
+        Log.getLogger().warn("Something went wrong, missing a message: " + globalSnapShotId + " with decision: commit" + " lastKey: " + lastKey + " adding to buffer");
     }
 
     /**

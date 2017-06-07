@@ -11,7 +11,6 @@ import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
-import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
@@ -123,7 +122,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         ArrayList<IOperation> localWriteSet;
 
         input.close();
-        Output output = new Output(2056);
+        Output output = new Output(0, 2056);
         kryo.writeObject(output, Constants.COMMIT_RESPONSE);
 
         try
@@ -173,26 +172,27 @@ public class GlobalClusterSlave extends AbstractRecoverable
             output.close();
             return returnBytes;
         }
+        final long localSnapshotId = getGlobalSnapshotId();
 
         kryo.writeObject(output, Constants.COMMIT);
-        kryo.writeObject(output, getGlobalSnapshotId());
+        kryo.writeObject(output, localSnapshotId);
 
         if (!localWriteSet.isEmpty())
         {
-            Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
+            Log.getLogger().info("Comitting: " + localSnapshotId + " localId: " + timeStamp);
             //Log.getLogger().info("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
             //Log.getLogger().info("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
 
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
             {
-                //todo send to local cluster
-                //todo send to local cluster f+1!
-                updateSlave(output.getBuffer());
-                //todo I am primary, my id is my localCluster id.
-                //todo id+1 is the next.
-                //todo it starts at 0
-                //todo if id+1 > n then 0.
+                final Output slaveUpdateOutput = new Output(0,2056);
+                kryo.writeObject(output, Constants.UPDATE_SLAVE);
+                kryo.writeObject(output, localSnapshotId);
+                kryo.writeObject(output, localWriteSet);
+                updateSlave(slaveUpdateOutput.getBuffer());
+                updateNextSlave(slaveUpdateOutput.getBuffer(), id);
+                slaveUpdateOutput.close();
             }
         }
         else
@@ -205,6 +205,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
         return returnBytes;
+    }
+
+    private void updateNextSlave(final byte[] buffer, final int id)
+    {
+        int sendToId = id + 1;
+        if(sendToId >= super.getReplica().getReplicaContext().getCurrentView().getN())
+        {
+            sendToId = 0;
+        }
+        final ServiceProxy localProxy = new ServiceProxy(1100 + id, "local" + sendToId);
+
+        localProxy.invokeUnordered(buffer);
+        localProxy.close();
     }
 
     /**
@@ -446,7 +459,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         if (this.wrapper.getLocalCLuster() != null)
         {
-            this.wrapper.getLocalCLuster().propagateUpdate(new SignatureStorage(message));
+            this.wrapper.getLocalCLuster().propagateUpdate(message);
         }
     }
 
