@@ -471,7 +471,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (this.wrapper.getLocalCLuster() != null)
         {
             Log.getLogger().info("Notifying local cluster!");
-            //this.wrapper.getLocalCLuster().propagateUpdate(message);
+            this.wrapper.getLocalCLuster().propagateUpdate(message);
         }
     }
 
