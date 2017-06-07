@@ -228,7 +228,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private void updateNextSlave(final byte[] buffer)
     {
         Log.getLogger().info("Notifying next cluster: ");
-        //localProxy.sendMessageToTargets(buffer, 0, 0 , localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        localProxy.sendMessageToTargets(buffer, 0 , localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
     }
 
     /**
