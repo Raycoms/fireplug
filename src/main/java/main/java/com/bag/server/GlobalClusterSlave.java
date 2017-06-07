@@ -20,6 +20,11 @@ import java.util.*;
 public class GlobalClusterSlave extends AbstractRecoverable
 {
     /**
+     * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
+     */
+    private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
+
+    /**
      * Name of the location of the global config.
      */
     private static final String GLOBAL_CONFIG_LOCATION = "global/config";
@@ -216,7 +221,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         Log.getLogger().warn("Notifying next cluster: " + sendToId);
 
-        final ServiceProxy localProxy = new ServiceProxy(sendToId, "local" + sendToId);
+        final ServiceProxy localProxy = new ServiceProxy(sendToId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
 
         localProxy.invokeUnordered(buffer);
         localProxy.close();
