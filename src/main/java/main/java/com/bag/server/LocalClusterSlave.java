@@ -141,7 +141,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 else if ( Constants.UPDATE_SLAVE.equals(type))
                 {
                     Output output = new Output(0, 1024);
-                    Log.getLogger().info("Received update slave message");
+                    Log.getLogger().warn("Received update slave message but ordered, retry");
                     synchronized (lock)
                     {
                         handleSlaveUpdateMessage(messageContexts[i], input, output, kryo);
