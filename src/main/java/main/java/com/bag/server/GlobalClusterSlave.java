@@ -493,7 +493,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     Output invokeGlobally(final Input input)
     {
-        return new Output(proxy.invokeOrdered(input.getBuffer()));
+        return new Output();
     }
 
     /**
@@ -502,6 +502,5 @@ public class GlobalClusterSlave extends AbstractRecoverable
     public void close()
     {
         super.terminate();
-        proxy.close();
     }
 }
