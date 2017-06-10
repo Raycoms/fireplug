@@ -205,7 +205,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 final MessageThread runnable = new MessageThread(slaveUpdateOutput.getBuffer());
                 //updateSlave(slaveUpdateOutput.getBuffer());
                 //updateNextSlave(slaveUpdateOutput.getBuffer());
-                service.execute(runnable);
+                service.submit(runnable);
                 slaveUpdateOutput.close();
             }
         }
