@@ -523,11 +523,11 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        Log.getLogger().warn(globalSnapShotId + " arrived from: " + sender);
+        Log.getLogger().info(globalSnapShotId + " arrived from: " + sender);
 
         if(!preBuffer.containsKey(globalSnapShotId))
         {
-            Log.getLogger().warn(globalSnapShotId + " wasn't in the map.");
+            Log.getLogger().info(globalSnapShotId + " wasn't in the map.");
             preBuffer.put(globalSnapShotId, new SlaveUpdateStorage(sender, localWriteSet));
             return;
         }
@@ -538,7 +538,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        Log.getLogger().warn("ready to execute write, remove from preBuffer.");
+        Log.getLogger().info("ready to execute write, remove from preBuffer.");
         preBuffer.remove(globalSnapShotId);
 
         if(lastKey + 1 == globalSnapShotId)
