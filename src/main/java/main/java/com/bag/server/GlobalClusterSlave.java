@@ -14,6 +14,8 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Class handling server communication in the global cluster.
@@ -39,6 +41,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * The wrapper class instance. Used to access the global cluster if possible.
      */
     private final ServerWrapper wrapper;
+
+    /**
+     * Thread pool for message sending.
+     */
+    private final ExecutorService service = Executors.newSingleThreadExecutor();
 
     /**
      * The id of the local cluster.
@@ -194,8 +201,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 kryo.writeObject(slaveUpdateOutput, Constants.UPDATE_SLAVE);
                 kryo.writeObject(slaveUpdateOutput, localSnapshotId);
                 kryo.writeObject(slaveUpdateOutput, localWriteSet);
-                updateSlave(slaveUpdateOutput.getBuffer());
-                updateNextSlave(slaveUpdateOutput.getBuffer());
+
+                final MessageThread runnable = new MessageThread(slaveUpdateOutput.getBuffer());
+                //updateSlave(slaveUpdateOutput.getBuffer());
+                //updateNextSlave(slaveUpdateOutput.getBuffer());
+                service.execute(runnable);
                 slaveUpdateOutput.close();
             }
         }
@@ -211,10 +221,40 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnBytes;
     }
 
-    private void updateNextSlave(final byte[] buffer)
+    private class MessageThread implements Runnable
     {
-        Log.getLogger().info("Notifying next cluster: " + localProxy.getProcessId() + " processes: " + localProxy.getViewManager().getCurrentViewProcesses().length);
-        localProxy.sendMessageToTargets(buffer, 0 , localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.ORDERED_REQUEST);
+        private final byte[] message;
+        MessageThread(byte[] message)
+        {
+            this.message = message;
+        }
+
+        @Override
+        public void run()
+        {
+            updateSlave(message);
+            updateNextSlave(message);
+        }
+
+        private void updateNextSlave(final byte[] buffer)
+        {
+            Log.getLogger().warn("Notifying next cluster: " + localProxy.getProcessId() + " processes: " + localProxy.getViewManager().getCurrentViewProcesses().length);
+            localProxy.sendMessageToTargets(buffer, 0 , localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.ORDERED_REQUEST);
+        }
+
+        /**
+         * Update the slave with a transaction.
+         *
+         * @param message the message to propagate.
+         */
+        private void updateSlave(final byte[] message)
+        {
+            if (wrapper.getLocalCLuster() != null)
+            {
+                Log.getLogger().info("Notifying local cluster!");
+                wrapper.getLocalCLuster().propagateUpdate(message);
+            }
+        }
     }
 
     /**
@@ -445,20 +485,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnBuffer;
         //remove currentView and edit system.config
         //If alright send the result to all remaining global clusters so that they update themselves.
-    }
-
-    /**
-     * Update the slave with a transaction.
-     *
-     * @param message the message to propagate.
-     */
-    private void updateSlave(final byte[] message)
-    {
-        if (this.wrapper.getLocalCLuster() != null)
-        {
-            Log.getLogger().info("Notifying local cluster!");
-            this.wrapper.getLocalCLuster().propagateUpdate(message);
-        }
     }
 
     @Override
