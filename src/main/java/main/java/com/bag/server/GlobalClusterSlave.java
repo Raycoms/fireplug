@@ -13,6 +13,8 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
+import scala.collection.immutable.Stream;
+
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -121,7 +123,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private synchronized byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
-        Log.getLogger().info("Execute commit");
+        Log.getLogger().warn("Execute commit: " + timeStamp);
+        double currentTime = System.nanoTime() / Constants.NANO_TIME_DIVIDER;
+        double tempTime = System.nanoTime() / Constants.NANO_TIME_DIVIDER;
+
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
         final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
@@ -154,6 +159,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        tempTime = System.nanoTime() / Constants.NANO_TIME_DIVIDER;
+        Log.getLogger().warn("Unpacked message: " + (tempTime - currentTime));
+        currentTime = System.nanoTime() / Constants.NANO_TIME_DIVIDER;;
+
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
@@ -162,6 +171,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 timeStamp,
                 wrapper.getDataBaseAccess()))
         {
+            tempTime = System.nanoTime() / Constants.NANO_TIME_DIVIDER;
+            Log.getLogger().warn("Conflict found after: " + (tempTime - currentTime));
+
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
@@ -183,11 +195,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
             output.close();
             return returnBytes;
         }
+
+        tempTime = System.nanoTime() / Constants.NANO_TIME_DIVIDER;
+        Log.getLogger().warn("No conflict found after: " + (tempTime - currentTime));
+        currentTime = System.nanoTime() / Constants.NANO_TIME_DIVIDER;;
+
         final long localSnapshotId = getGlobalSnapshotId();
 
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, localSnapshotId);
-
         if (!localWriteSet.isEmpty())
         {
             Log.getLogger().info("Comitting: " + localSnapshotId + " localId: " + timeStamp);
@@ -213,6 +229,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             updateCounts(0, 0, 1, 0);
         }
+
+        tempTime = System.nanoTime() / Constants.NANO_TIME_DIVIDER;
+        Log.getLogger().warn("Noticed slaves after: " + (tempTime - currentTime));
 
         byte[] returnBytes = output.getBuffer();
         output.close();
