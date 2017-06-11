@@ -142,7 +142,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 {
                     Output output = new Output(0, 1024);
                     Log.getLogger().warn("Received update slave message but ordered, retry");
-                    handleSlaveUpdateMessage(messageContexts[i], input, output, kryo);
+                    handleSlaveUpdateMessage(messageContexts[i], input, kryo);
                     allResults[i] = output.getBuffer();
                     output.close();
                     input.close();
@@ -210,7 +210,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 break;
             case Constants.UPDATE_SLAVE:
                 Log.getLogger().info("Received update slave message");
-                handleSlaveUpdateMessage(messageContext, input, output, kryo);
+                handleSlaveUpdateMessage(messageContext, input, kryo);
                 break;
             case Constants.ASK_PRIMARY:
                 Log.getLogger().info("Received Ask primary notice message");
@@ -477,7 +477,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         return output;
     }
 
-    private void handleSlaveUpdateMessage(final MessageContext messageContext, final Input input, final Output output, final Kryo kryo)
+    private void handleSlaveUpdateMessage(final MessageContext messageContext, final Input input, final Kryo kryo)
     {
         //Not required. Is primary already dealt with it.
         if(wrapper.getGlobalCluster() != null)
@@ -499,15 +499,12 @@ public class LocalClusterSlave extends AbstractRecoverable
         else if(lastKey == globalSnapShotId)
         {
             Log.getLogger().info("Received already committed transaction.");
-            kryo.writeObject(output, true);
             return;
         }
 
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<IOperation> localWriteSet;
-
-        input.close();
-
+        
         try
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
@@ -549,7 +546,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                 requiredKey++;
             }
 
-            kryo.writeObject(output, true);
             return;
         }
         buffer.put(globalSnapShotId, localWriteSet);
