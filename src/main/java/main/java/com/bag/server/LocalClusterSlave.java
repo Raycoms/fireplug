@@ -211,8 +211,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             case Constants.UPDATE_SLAVE:
                 Log.getLogger().info("Received update slave message");
                 handleSlaveUpdateMessage(messageContext, input, output, kryo);
-                output.close();
-                input.close();
                 break;
             case Constants.ASK_PRIMARY:
                 Log.getLogger().info("Received Ask primary notice message");
