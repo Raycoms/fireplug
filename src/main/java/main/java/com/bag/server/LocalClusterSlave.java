@@ -210,10 +210,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 break;
             case Constants.UPDATE_SLAVE:
                 Log.getLogger().info("Received update slave message");
-                synchronized (lock)
-                {
-                    handleSlaveUpdateMessage(messageContext, input, output, kryo);
-                }
+                handleSlaveUpdateMessage(messageContext, input, output, kryo);
                 output.close();
                 input.close();
                 break;
