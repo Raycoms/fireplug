@@ -592,7 +592,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 sendToId = 0;
             }
 
-            localProxy = new ServiceProxy(500 + globalId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
+            localProxy = new ServiceProxy(1000 + globalId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
         }
         localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
     }
