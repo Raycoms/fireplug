@@ -23,6 +23,11 @@ import java.util.*;
 public class LocalClusterSlave extends AbstractRecoverable
 {
     /**
+     * Next proxy to deliver messages to.
+     */
+    private final ServiceProxy localProxy;
+
+    /**
      * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
      */
     private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
@@ -85,6 +90,13 @@ public class LocalClusterSlave extends AbstractRecoverable
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
+
+        int sendToId = id + 1;
+        if(sendToId >= super.getReplica().getReplicaContext().getCurrentView().getN())
+        {
+            sendToId = 0;
+        }
+        localProxy = new ServiceProxy(1100 + this.id, String.format(LOCAL_CONFIG_LOCATION, sendToId));
     }
 
     /**
@@ -553,12 +565,13 @@ public class LocalClusterSlave extends AbstractRecoverable
     }
 
     /**
-     * Send this update to all other replicas.
+     * Send this update to all other replicas and to replicas f+1.
      * @param message the message to propagate
      */
     public void propagateUpdate(final byte[] message)
     {
         proxy.sendMessageToTargets(message, 0, 0 , proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        localProxy.sendMessageToTargets(message, 0, 0 , proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
     }
 
     /**

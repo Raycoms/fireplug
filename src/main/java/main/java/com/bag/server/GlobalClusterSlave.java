@@ -2,7 +2,6 @@ package main.java.com.bag.server;
 
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
-import bftsmart.tom.core.messages.TOMMessageType;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -13,7 +12,6 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
-import scala.collection.immutable.Stream;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -24,16 +22,6 @@ import java.util.concurrent.Executors;
  */
 public class GlobalClusterSlave extends AbstractRecoverable
 {
-    /**
-     * Next proxy to deliver messages to.
-     */
-    private final ServiceProxy localProxy;
-
-    /**
-     * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
-     */
-    private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
-
     /**
      * Name of the location of the global config.
      */
@@ -59,13 +47,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         super(id, GLOBAL_CONFIG_LOCATION, wrapper, instrumentation);
         this.id = id;
         this.wrapper = wrapper;
-
-        int sendToId = id + 1;
-        if(sendToId >= super.getReplica().getReplicaContext().getCurrentView().getN())
-        {
-            sendToId = 0;
-        }
-        localProxy = new ServiceProxy(1100 + this.id, String.format(LOCAL_CONFIG_LOCATION, sendToId));
     }
 
     /**
@@ -235,14 +216,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         public void run()
         {
             updateSlave(message);
-            updateNextSlave(message);
-        }
-
-        private void updateNextSlave(final byte[] buffer)
-        {
-            Log.getLogger().info("Notifying next cluster: " + localProxy.getProcessId() + " processes: " + localProxy.getViewManager().getCurrentViewProcesses().length);
-            //localProxy.sendMessageToTargets(buffer, 0 , localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-            localProxy.invokeUnordered(buffer);
         }
 
         /**
