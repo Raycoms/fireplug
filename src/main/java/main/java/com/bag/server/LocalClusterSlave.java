@@ -91,7 +91,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         this.proxy = new ServiceProxy(1000 + id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
 
-        int sendToId = id + 1;
+        int sendToId = wrapper.getGlobalServerId() + 1;
         if(sendToId >= super.getReplica().getReplicaContext().getCurrentView().getN())
         {
             sendToId = 0;
