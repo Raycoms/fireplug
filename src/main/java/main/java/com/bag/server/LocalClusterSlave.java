@@ -28,6 +28,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
 
     /**
+     * Service proxy to communicate with f+1.
+     */
+    private ServiceProxy localProxy;
+
+    /**
      * The wrapper class instance. Used to access the global cluster if possible.
      */
     private final ServerWrapper wrapper;
@@ -74,8 +79,9 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Public constructor used to create a local cluster slave.
-     * @param id its unique id in the local cluster.
-     * @param wrapper its ordering wrapper.
+     *
+     * @param id             its unique id in the local cluster.
+     * @param wrapper        its ordering wrapper.
      * @param localClusterId the id of the cluster (the id of the starting primary in the global cluster).
      */
     public LocalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final int localClusterId, final ServerInstrumentation instrumentation)
@@ -83,18 +89,18 @@ public class LocalClusterSlave extends AbstractRecoverable
         super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation);
         this.id = id;
         this.wrapper = wrapper;
-        this.proxy = new ServiceProxy(1000 + id , String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
-
     }
 
     /**
      * Set the local cluster instance to primary.
+     *
      * @param isPrimary true if so.
      */
     void setPrimary(final boolean isPrimary)
     {
-        if(isPrimary)
+        if (isPrimary)
         {
             primaryId = id;
         }
@@ -103,6 +109,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Set the id of the primary global cluster.
+     *
      * @param primaryGlobalClusterId the id.
      */
     void setPrimaryGlobalClusterId(final int primaryGlobalClusterId)
@@ -112,6 +119,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Check if the local cluster slave is a primary.
+     *
      * @return true if so.
      */
     boolean isPrimary()
@@ -199,7 +207,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 byte[] result = handleReadOnlyCommit(input, kryo);
                 input.close();
                 pool.release(kryo);
-                Log.getLogger().info("Local cluster returning it to client: " + input.getBuffer().length  + ", size: " + result.length);
+                Log.getLogger().info("Local cluster returning it to client: " + input.getBuffer().length + ", size: " + result.length);
                 return result;
             case Constants.PRIMARY_NOTICE:
                 Log.getLogger().info("Received Primary notice message");
@@ -294,12 +302,18 @@ public class LocalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if(!localWriteSet.isEmpty())
+        if (!localWriteSet.isEmpty())
         {
             Log.getLogger().error("Not a read-only transaction!!!!");
         }
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                super.getLatestWritesSet(),
+                localWriteSet,
+                readSetNode,
+                readsSetRelationship,
+                timeStamp,
+                wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
 
@@ -328,10 +342,11 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Check if the primary is correct.
-     * @param input the input.
-     * @param output the presumed output.
+     *
+     * @param input          the input.
+     * @param output         the presumed output.
      * @param messageContext the message context.
-     * @param kryo the kryo object.
+     * @param kryo           the kryo object.
      * @return output obejct with decision.
      */
     private Output handleRegisterGloballyMessage(final Input input, final Output output, final MessageContext messageContext, final Kryo kryo)
@@ -340,7 +355,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         final int newPrimary = kryo.readObject(input, Integer.class);
 
         kryo.writeObject(output, Constants.REGISTER_GLOBALLY_REPLY);
-        if(messageContext.getLeader() == newPrimary)
+        if (messageContext.getLeader() == newPrimary)
         {
             kryo.writeObject(output, true);
         }
@@ -349,7 +364,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, false);
         }
 
-        if(messageContext.getLeader() == oldPrimary)
+        if (messageContext.getLeader() == oldPrimary)
         {
             Log.getLogger().warn("Slave: " + newPrimary + "tried to register as new primary.");
         }
@@ -358,9 +373,10 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Message to handle the primary notice.
-     * @param input the input message.
+     *
+     * @param input  the input message.
      * @param output the output object to return.
-     * @param kryo the kryo instance.
+     * @param kryo   the kryo instance.
      * @return an empty output message.
      */
     private Output handlePrimaryNoticeMessage(final Input input, final Output output, final Kryo kryo)
@@ -372,10 +388,11 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Handles a commit message on the client.
-     * @param input the incoming message.
+     *
+     * @param input          the incoming message.
      * @param messageContext the context.
-     * @param kryo the kryo object.
-     * @param output the output object, future response.
+     * @param kryo           the kryo object.
+     * @param output         the output object, future response.
      * @return the response in form of an Output object.
      */
     @NotNull
@@ -384,11 +401,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.COMMIT);
         if (messageContext.getLeader() == id)
         {
-            if(!isPrimary || wrapper.getGlobalCluster() == null)
+            if (!isPrimary || wrapper.getGlobalCluster() == null)
             {
                 Log.getLogger().info("Is primary but wasn't marked as one.");
                 isPrimary = true;
-                if(!requestRegistering(proxy, kryo))
+                if (!requestRegistering(proxy, kryo))
                 {
                     isPrimary = false;
                     kryo.writeObject(output, Constants.PENDING);
@@ -401,7 +418,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             return wrapper.getGlobalCluster().invokeGlobally(input);
         }
 
-        if(wrapper.getGlobalCluster() != null)
+        if (wrapper.getGlobalCluster() != null)
         {
             wrapper.terminateGlobalCluster();
         }
@@ -412,6 +429,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Notify the slaves about their new primary.
+     *
      * @param kryo the kryo instance.
      */
     private void notifyAllSlavesAboutNewPrimary(final Kryo kryo)
@@ -428,8 +446,9 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Request registering at the global cluster.
+     *
      * @param proxy the proxy to use.
-     * @param kryo the kryo object for serialization.
+     * @param kryo  the kryo object for serialization.
      * @return true if successful.
      */
     private boolean requestRegistering(final ServiceProxy proxy, final Kryo kryo)
@@ -446,7 +465,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         final Input input = new Input(result);
 
-        if(Constants.REGISTER_GLOBALLY_MESSAGE.equals(kryo.readObject(input, String.class)) && kryo.readObject(input, Boolean.class))
+        if (Constants.REGISTER_GLOBALLY_MESSAGE.equals(kryo.readObject(input, String.class)) && kryo.readObject(input, Boolean.class))
         {
             notifyAllSlavesAboutNewPrimary(kryo);
             input.close();
@@ -461,17 +480,18 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Handles a get primary message.
+     *
      * @param output write info to.
-     * @param kryo the kryo instance.
+     * @param kryo   the kryo instance.
      * @return sends the primary to the people.
      */
     private Output handleGetPrimaryMessage(final Output output, final Kryo kryo)
     {
-        if(isPrimary())
+        if (isPrimary())
         {
             kryo.writeObject(output, id);
         }
-        if(isPrimary())
+        if (isPrimary())
         {
             kryo.writeObject(output, primaryId);
         }
@@ -481,7 +501,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     private void handleSlaveUpdateMessage(final MessageContext messageContext, final Input input, final Kryo kryo)
     {
         //Not required. Is primary already dealt with it.
-        if(wrapper.getGlobalCluster() != null)
+        if (wrapper.getGlobalCluster() != null)
         {
             return;
         }
@@ -492,12 +512,12 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Received update slave message with decision commit");
 
-        if(lastKey > globalSnapShotId)
+        if (lastKey > globalSnapShotId)
         {
             //Received a message which has been committed in the past already.
             return;
         }
-        else if(lastKey == globalSnapShotId)
+        else if (lastKey == globalSnapShotId)
         {
             Log.getLogger().info("Received already committed transaction.");
             return;
@@ -505,7 +525,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<IOperation> localWriteSet;
-        
+
         try
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
@@ -518,14 +538,14 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info(globalSnapShotId + " arrived from: " + sender);
 
-        if(!preBuffer.containsKey(globalSnapShotId))
+        if (!preBuffer.containsKey(globalSnapShotId))
         {
             Log.getLogger().info(globalSnapShotId + " wasn't in the map.");
             preBuffer.put(globalSnapShotId, new SlaveUpdateStorage(sender, localWriteSet));
             return;
         }
 
-        if(preBuffer.get(globalSnapShotId).getGlobalId() == sender)
+        if (preBuffer.get(globalSnapShotId).getGlobalId() == sender)
         {
             Log.getLogger().warn(globalSnapShotId + " has the equal sender: " + sender);
             return;
@@ -534,13 +554,13 @@ public class LocalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("ready to execute write, remove from preBuffer.");
         preBuffer.remove(globalSnapShotId);
 
-        if(lastKey + 1 == globalSnapShotId)
+        if (lastKey + 1 == globalSnapShotId)
         {
             Log.getLogger().info("Execute update on slave: " + globalSnapShotId);
             executeCommit(localWriteSet);
 
             long requiredKey = lastKey + 1;
-            while(buffer.containsKey(requiredKey))
+            while (buffer.containsKey(requiredKey))
             {
                 Log.getLogger().info("Execute update on slave: " + globalSnapShotId);
                 executeCommit(buffer.remove(requiredKey));
@@ -555,29 +575,34 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Send this update to all other replicas and to replicas f+1.
-     * @param message the message to propagate
-     * @param n the amount of servers in the global clusters
+     *
+     * @param message  the message to propagate
+     * @param n        the amount of servers in the global clusters
      * @param globalId the id of the global cluster.
      */
     public void propagateUpdate(final byte[] message, final int n, final int globalId)
     {
-        proxy.sendMessageToTargets(message, 0, 0 , proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        proxy.sendMessageToTargets(message, 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
 
-        int sendToId = globalId + 1;
-        if(sendToId >= n)
+        if (localProxy == null)
         {
-            sendToId = 0;
+            int sendToId = globalId + 1;
+            if (sendToId >= n)
+            {
+                sendToId = 0;
+            }
+
+            localProxy = new ServiceProxy(500 + globalId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
         }
-        final ServiceProxy localProxy = new ServiceProxy(3000 + globalId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
-        localProxy.sendMessageToTargets(message, 0, 0 , localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-        localProxy.close();
+        localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
     }
 
     /**
      * Check if the oldPrimary switched to the newPrimary.
+     *
      * @param oldPrimary the old primary id.
      * @param newPrimary the new primary id.
-     * @param kryo the kryo instance.
+     * @param kryo       the kryo instance.
      * @return true if correct.
      */
     public boolean askIfIsPrimary(final int oldPrimary, final int newPrimary, final Kryo kryo)
@@ -591,7 +616,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         byte[] result = proxy.invokeUnordered(output.getBuffer());
 
         final Input input = new Input(result);
-        if(Constants.REGISTER_GLOBALLY_MESSAGE.equals(kryo.readObject(input, String.class)) && kryo.readObject(input, Boolean.class))
+        if (Constants.REGISTER_GLOBALLY_MESSAGE.equals(kryo.readObject(input, String.class)) && kryo.readObject(input, Boolean.class))
         {
             input.close();
             output.close();
