@@ -152,6 +152,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Output output = new Output(0, 1024);
                     Log.getLogger().warn("Received update slave message but ordered, retry");
                     handleSlaveUpdateMessage(messageContexts[i], input, kryo);
+                    output.writeByte(1);
                     allResults[i] = output.getBuffer();
                     output.close();
                     input.close();
@@ -220,6 +221,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             case Constants.UPDATE_SLAVE:
                 Log.getLogger().info("Received update slave message");
                 handleSlaveUpdateMessage(messageContext, input, kryo);
+                output.writeByte(1);
                 break;
             case Constants.ASK_PRIMARY:
                 Log.getLogger().info("Received Ask primary notice message");
@@ -231,6 +233,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 input.close();
                 return new byte[0];
         }
+
 
         //If primary changed ask new primary for his global cluster id.
         /*if(messageContext.getLeader() != -1 && messageContext.getLeader() != primaryId)
@@ -603,6 +606,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         //localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         while(localProxy.invokeUnordered(message) != null)
         {
+            localProxy.i
             /*
              * Intentionally left empty.
              */
