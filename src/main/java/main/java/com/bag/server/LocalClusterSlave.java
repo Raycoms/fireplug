@@ -583,7 +583,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void propagateUpdate(final byte[] message, final int n, final int globalId)
     {
-        Log.getLogger().info("Propagating update #1");
+        Log.getLogger().warn("Propagating updates");
 
         while(proxy.invokeUnordered(message) == null)
         {
@@ -612,7 +612,7 @@ public class LocalClusterSlave extends AbstractRecoverable
              * Intentionally left empty.
              */
         }
-        Log.getLogger().info("Done Propagating updates");
+        Log.getLogger().warn("Done Propagating updates");
 
     }
 
