@@ -606,7 +606,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         //localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         while(localProxy.invokeUnordered(message) != null)
         {
-            localProxy.i
             /*
              * Intentionally left empty.
              */
