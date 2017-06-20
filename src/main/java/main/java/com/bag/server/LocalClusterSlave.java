@@ -30,7 +30,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Service proxy to communicate with f+1.
      */
-    private ServiceProxy localProxy;
+    //private ServiceProxy localProxy;
 
     /**
      * The wrapper class instance. Used to access the global cluster if possible.
@@ -585,7 +585,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().warn("Propagating update #2");
 
-        if (localProxy == null)
+        /*if (localProxy == null)
         {
             int sendToId = globalId + 1;
             if (sendToId >= n)
@@ -595,7 +595,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             localProxy = new ServiceProxy(5000 + globalId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
         }
-        localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);*/
         Log.getLogger().warn("Done Propagating updates");
 
     }
