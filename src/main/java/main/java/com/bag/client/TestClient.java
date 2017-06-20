@@ -360,6 +360,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
         }
 
+        Log.getLogger().warn("Finished reading!");
         readQueue.add(FINISHED_READING);
         input.close();
         pool.release(kryo);
