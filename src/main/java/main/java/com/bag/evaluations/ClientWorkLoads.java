@@ -475,7 +475,7 @@ public class ClientWorkLoads
                     }
                 }
 
-                Log.getLogger().warn("Send to server from ClientWorkLoads");
+                Log.getLogger().info("Send to server from ClientWorkLoads");
                 if (isRead)
                 {
                     if (readNodeStorage != null)
