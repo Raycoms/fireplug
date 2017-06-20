@@ -195,7 +195,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn("Received Relationship read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleRelationshipRead(input, kryo, output);
-                Log.getLogger().warn("Responding Relationship read message");
                 break;
             case Constants.GET_PRIMARY:
                 Log.getLogger().info("Received GetPrimary message");
@@ -246,7 +245,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         byte[] returnValue = output.getBuffer();
 
-        Log.getLogger().info("Return it to sender, size: " + returnValue.length);
+        Log.getLogger().warn("Return it to sender, size: " + returnValue.length);
 
         input.close();
         output.close();

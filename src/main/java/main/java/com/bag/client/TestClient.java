@@ -306,6 +306,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             Log.getLogger().warn("TimeOut, Didn't receive an answer from the server!");
             return;
         }
+        Log.getLogger().warn("Received read return");
 
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
