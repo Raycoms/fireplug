@@ -585,7 +585,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         Log.getLogger().info("Propagating update #1");
 
-        while(proxy.invokeUnordered(message) != null)
+        while(proxy.invokeUnordered(message) == null)
         {
             /*
              * Intentionally left empty.
@@ -604,7 +604,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             localProxy = new ServiceProxy(5000 + globalId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
         }
         //localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-        while(localProxy.invokeUnordered(message) != null)
+        while(localProxy.invokeUnordered(message) == null)
         {
             /*
              * Intentionally left empty.
