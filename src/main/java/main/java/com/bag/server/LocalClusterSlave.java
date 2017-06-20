@@ -187,12 +187,12 @@ public class LocalClusterSlave extends AbstractRecoverable
         switch (reason)
         {
             case Constants.READ_MESSAGE:
-                Log.getLogger().info("Received Node read message");
+                Log.getLogger().warn("Received Node read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleNodeRead(input, kryo, output);
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
-                Log.getLogger().info("Received Relationship read message");
+                Log.getLogger().warn("Received Relationship read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleRelationshipRead(input, kryo, output);
                 break;
