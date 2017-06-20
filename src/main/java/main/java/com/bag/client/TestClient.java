@@ -429,7 +429,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
-            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : this.invokeUnordered(bytes);
+            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : globalProxy.invokeUnordered(bytes);
 
             final Input input = new Input(answer);
             final String messageType = kryo.readObject(input, String.class);
