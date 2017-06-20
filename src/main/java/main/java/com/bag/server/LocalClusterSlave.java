@@ -583,9 +583,12 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void propagateUpdate(final byte[] message, final int n, final int globalId)
     {
+        Log.getLogger().warn("Propagating update #1");
         proxy.sendMessageToTargets(message, 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
 
-        /*if (localProxy == null)
+        Log.getLogger().warn("Propagating update #2");
+
+        if (localProxy == null)
         {
             int sendToId = globalId + 1;
             if (sendToId >= n)
@@ -595,7 +598,9 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             localProxy = new ServiceProxy(5000 + globalId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
         }
-        localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);*/
+        localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        Log.getLogger().warn("Done Propagating updates");
+
     }
 
     /**
