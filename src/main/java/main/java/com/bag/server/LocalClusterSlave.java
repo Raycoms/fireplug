@@ -587,6 +587,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         while(proxy.invokeUnordered(message) == null)
         {
+            Log.getLogger().warn("Did null");
             /*
              * Intentionally left empty.
              */
@@ -606,6 +607,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         //localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         while(localProxy.invokeUnordered(message) == null)
         {
+            Log.getLogger().warn("Did null");
             /*
              * Intentionally left empty.
              */
