@@ -233,22 +233,19 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     {
         long timeStampToSend = firstRead ? -1 : localTimestamp;
 
+        Log.getLogger().warn("C:Send read message to: " + serverProcess + " for: "  + timeStampToSend);
+        Log.getLogger().warn("Address: " + this.getViewManager().getCurrentView().getAddress(serverProcess));
         for(final Object identifier: identifiers)
         {
             if (identifier instanceof NodeStorage)
             {
-                Log.getLogger().warn("C: Send node read message");
                 //this sends the message straight to server 0 not to the others.
                 sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
 
             }
             else if (identifier instanceof RelationshipStorage)
             {
-                Log.getLogger().warn("C:Serializing: " + serverProcess + " for: "  + timeStampToSend);
-                byte[] ser = this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier);
-                Log.getLogger().warn("C:Send rs read message to: " + serverProcess + " for: "  + timeStampToSend);
-
-                sendMessageToTargets(ser, 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
+                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
             }
             else
             {
