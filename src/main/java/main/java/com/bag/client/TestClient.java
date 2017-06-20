@@ -242,13 +242,16 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             else if (identifier instanceof RelationshipStorage)
             {
+                Log.getLogger().warn("Send read message");
                 sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
+                Log.getLogger().warn("Finished sending read message");
             }
             else
             {
                 Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
             }
         }
+        Log.getLogger().warn("Ending the reading process");
         firstRead = false;
     }
 
