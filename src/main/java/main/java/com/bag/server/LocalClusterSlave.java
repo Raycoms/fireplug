@@ -595,7 +595,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             localProxy = new ServiceProxy(5000 + globalId, String.format(LOCAL_CONFIG_LOCATION, sendToId));
         }
-        localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);*/
+        localProxy.sendMessageToTargets(message, 0, 0, localProxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         Log.getLogger().warn("Done Propagating updates");
 
     }
