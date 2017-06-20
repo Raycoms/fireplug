@@ -479,10 +479,7 @@ public class ClientWorkLoads
                 {
                     if (readNodeStorage != null)
                     {
-                        Log.getLogger().warn("Start node read!");
                         client.read(readNodeStorage);
-                        Log.getLogger().warn("End node read!");
-
                         try
                         {
                             while (client.getReadQueue().take() != TestClient.FINISHED_READING)
@@ -496,14 +493,11 @@ public class ClientWorkLoads
                                  * Intentionally left empty.
                                  */
                         }
-                        Log.getLogger().warn("End node blocking queue!");
                     }
 
                     if (readRelationship != null)
                     {
-                        Log.getLogger().warn("Start rs read!");
                         client.read(readRelationship);
-                        Log.getLogger().warn("End rs read!");
                         try
                         {
                             while (client.getReadQueue().take() != TestClient.FINISHED_READING)
@@ -517,7 +511,6 @@ public class ClientWorkLoads
                                  * Intentionally left empty.
                                  */
                         }
-                        Log.getLogger().warn("End rs blocking queue!");
                     }
                 }
                 else

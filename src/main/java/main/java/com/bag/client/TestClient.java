@@ -244,8 +244,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             else if (identifier instanceof RelationshipStorage)
             {
+                Log.getLogger().warn("C:Serializing: " + serverProcess + " for: "  + timeStampToSend);
+                byte[] ser = this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier);
                 Log.getLogger().warn("C:Send rs read message to: " + serverProcess + " for: "  + timeStampToSend);
-                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
+
+                sendMessageToTargets(ser, 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
             }
             else
             {
