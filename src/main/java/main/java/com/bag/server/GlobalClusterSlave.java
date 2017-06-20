@@ -227,8 +227,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             if (wrapper.getLocalCLuster() != null)
             {
-                Log.getLogger().warn("Notifying local cluster!");
-
+                Log.getLogger().info("Notifying local cluster!");
                 wrapper.getLocalCLuster().propagateUpdate(message, getReplica().getReplicaContext().getCurrentView().getN(), id);
             }
         }
