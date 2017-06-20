@@ -240,21 +240,19 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 Log.getLogger().warn("C: Send node read message");
                 //this sends the message straight to server 0 not to the others.
                 sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
-                Log.getLogger().warn("C:Finished node sending read message");
 
             }
             else if (identifier instanceof RelationshipStorage)
             {
-                Log.getLogger().warn("C:Send rs read message");
+                Log.getLogger().warn("C:Send rs read message to: " + serverProcess + " for: "  + timeStampToSend);
                 sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier), 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
-                Log.getLogger().warn("C:Finished rs sending read message");
             }
             else
             {
                 Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
             }
         }
-        Log.getLogger().warn("C:Ending the reading process");
+        Log.getLogger().warn("C: Ending the reading process to: " + serverProcess + " for: "  + timeStampToSend);
         firstRead = false;
     }
 
@@ -325,6 +323,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             input.close();
             pool.release(kryo);
             resetSets();
+            Log.getLogger().warn("Abort!!!!!!!!!!!!!!!!!!!!");
             readQueue.add(FINISHED_READING);
             return;
         }
@@ -366,7 +365,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
         }
 
-        Log.getLogger().warn("Finished reading!");
         readQueue.add(FINISHED_READING);
         input.close();
         pool.release(kryo);
