@@ -177,7 +177,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
     {
-        Log.getLogger().info("Received unordered message");
+        Log.getLogger().warn("Received unordered message");
         final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
         final Input input = new Input(bytes);
