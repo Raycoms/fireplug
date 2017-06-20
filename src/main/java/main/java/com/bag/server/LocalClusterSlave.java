@@ -30,7 +30,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Service proxy to communicate with f+1.
      */
-    //private ServiceProxy localProxy;
+    private ServiceProxy localProxy;
 
     /**
      * The wrapper class instance. Used to access the global cluster if possible.
@@ -177,7 +177,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
     {
-        Log.getLogger().warn("Received unordered message");
+        Log.getLogger().info("Received unordered message");
         final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
         final Input input = new Input(bytes);
@@ -585,7 +585,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().warn("Propagating update #2");
 
-        /*if (localProxy == null)
+        if (localProxy == null)
         {
             int sendToId = globalId + 1;
             if (sendToId >= n)

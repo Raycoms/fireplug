@@ -233,8 +233,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     {
         long timeStampToSend = firstRead ? -1 : localTimestamp;
 
-        Log.getLogger().warn("C:Send read message to: " + serverProcess + " for: "  + timeStampToSend);
-        Log.getLogger().warn("Address: " + this.getViewManager().getCurrentView().getAddress(serverProcess));
         for(final Object identifier: identifiers)
         {
             if (identifier instanceof NodeStorage)
@@ -252,7 +250,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
             }
         }
-        Log.getLogger().warn("C: Ending the reading process to: " + serverProcess + " for: "  + timeStampToSend);
         firstRead = false;
     }
 
@@ -310,7 +307,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             Log.getLogger().warn("TimeOut, Didn't receive an answer from the server!");
             return;
         }
-        Log.getLogger().warn("Received read return");
 
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
@@ -323,7 +319,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             input.close();
             pool.release(kryo);
             resetSets();
-            Log.getLogger().warn("Abort!!!!!!!!!!!!!!!!!!!!");
             readQueue.add(FINISHED_READING);
             return;
         }
@@ -418,7 +413,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     {
         firstRead = true;
         final boolean readOnly = isReadOnly();
-        Log.getLogger().warn("Starting commit");
+        Log.getLogger().info("Starting commit");
 
         if (readOnly && !secureMode)
         {
@@ -428,7 +423,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        Log.getLogger().warn("Starting commit process for: " + this.localTimestamp);
+        Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
         final byte[] bytes = serializeAll();
 
         if (readOnly)
