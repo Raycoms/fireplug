@@ -2,7 +2,6 @@ package main.java.com.bag.server;
 
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
-import bftsmart.tom.core.messages.TOMMessageType;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -71,11 +70,6 @@ public class LocalClusterSlave extends AbstractRecoverable
      * Queue to catch messages out of order.
      */
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
-
-    /**
-     * Lock to lock the update slave execution to order the execution correctly.
-     */
-    private final Object lock = new Object();
 
     /**
      * Public constructor used to create a local cluster slave.
@@ -152,7 +146,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Output output = new Output(0, 1024);
                     Log.getLogger().warn("Received update slave message but ordered, retry");
                     handleSlaveUpdateMessage(messageContexts[i], input, kryo);
-                    output.writeByte(1);
                     allResults[i] = output.getBuffer();
                     output.close();
                     input.close();
@@ -221,7 +214,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             case Constants.UPDATE_SLAVE:
                 Log.getLogger().info("Received update slave message");
                 handleSlaveUpdateMessage(messageContext, input, kryo);
-                output.writeByte(1);
                 break;
             case Constants.ASK_PRIMARY:
                 Log.getLogger().info("Received Ask primary notice message");
@@ -499,7 +491,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         return output;
     }
 
-    private void handleSlaveUpdateMessage(final MessageContext messageContext, final Input input, final Kryo kryo)
+    private synchronized void handleSlaveUpdateMessage(final MessageContext messageContext, final Input input, final Kryo kryo)
     {
         //Not required. Is primary already dealt with it.
         if (wrapper.getGlobalCluster() != null)
@@ -593,7 +585,6 @@ public class LocalClusterSlave extends AbstractRecoverable
              */
         }
         //proxy.sendMessageToTargets(message, 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-        Log.getLogger().info("Propagating update #2");
         if (localProxy == null)
         {
             int sendToId = globalId + 1;
@@ -612,8 +603,6 @@ public class LocalClusterSlave extends AbstractRecoverable
              * Intentionally left empty.
              */
         }
-        Log.getLogger().warn("Done Propagating updates");
-
     }
 
     /**
