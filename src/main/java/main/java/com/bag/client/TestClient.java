@@ -412,7 +412,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     {
         firstRead = true;
         final boolean readOnly = isReadOnly();
-        Log.getLogger().info("Starting commit");
+        Log.getLogger().warn("Starting commit");
 
         if (readOnly && !secureMode)
         {
