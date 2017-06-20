@@ -422,7 +422,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
+        Log.getLogger().warn("Starting commit process for: " + this.localTimestamp);
         final byte[] bytes = serializeAll();
 
         if (readOnly)
@@ -462,7 +462,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
         else
         {
-            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
             Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
