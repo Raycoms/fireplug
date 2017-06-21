@@ -151,7 +151,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         final List<Object> returnList = new ArrayList<>();
         returnList.add(identifier);
-
+        Log.getLogger().warn("THIS IS AN EMPTY DATABASE - READ, NOT GOOD FOR PRODUCTIVE MODE");
         try
         {
             Thread.sleep(100);
