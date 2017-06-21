@@ -237,11 +237,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             tx.success();
         }
 
-        if(returnStorage.size() == 0)
-        {
-            Log.getLogger().warn("This read returned empty, should that really happen?");
-        }
-
         return returnStorage;
     }
 
