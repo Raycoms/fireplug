@@ -234,11 +234,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public byte[] getSnapshot()
     {
+        Log.getLogger().warn("This is a Snapshot!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         if (globalWriteSet == null || latestWritesSet == null)
         {
             return new byte[] {0};
         }
-        Log.getLogger().warn("This is a Snapshot!");
         //Log.getLogger().warn("Get snapshot!!: " + globalWriteSet.size() + " + " + latestWritesSet.estimatedSize());
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
@@ -264,7 +264,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         output = writeSpecificData(output, kryo);
 
-        Log.getLogger().warn("Finished snapshotting!!!!!!");
+        Log.getLogger().warn("Finished snapshotting!!!!!!!!!!!!!!!!!!!!!!!");
         byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
