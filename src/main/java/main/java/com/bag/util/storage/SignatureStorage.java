@@ -19,7 +19,7 @@ public class SignatureStorage implements Serializable
     /**
      * The stored signatures.
      */
-    private final TreeMap<Integer, byte[]> signatures = new TreeMap<>();
+    private final Map<Integer, byte[]> signatures = new TreeMap<>();
 
     /**
      * The required amount to prove consistency.

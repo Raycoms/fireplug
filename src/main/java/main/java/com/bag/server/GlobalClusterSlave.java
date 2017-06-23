@@ -409,7 +409,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         else
         {
             Log.getLogger().info("Size of message stored is: " + message.length);
-            signatureStorage = new SignatureStorage(slave.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
+            signatureStorage = new SignatureStorage(slave.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
             slave.signatureStorageCache.put(snapShotId, signatureStorage);
         }
 
@@ -725,7 +725,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             if (signatureStorageCache.getIfPresent(snapShotId) == null)
             {
-                signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getN() - 1, message, decision);
+                signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
                 signatureStorageCache.put(snapShotId, signatureStorage);
                 Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
             }

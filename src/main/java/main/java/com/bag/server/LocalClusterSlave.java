@@ -581,7 +581,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
         }
 
-        if(matchingSignatures < 3)
+        if(matchingSignatures < 2)
         {
             Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
         }
