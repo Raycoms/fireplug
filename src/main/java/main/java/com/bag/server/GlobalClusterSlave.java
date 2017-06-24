@@ -23,7 +23,6 @@ import java.security.PublicKey;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Class handling server communication in the global cluster.
@@ -69,11 +68,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * Thread pool for message sending.
      */
     private final ExecutorService service = Executors.newSingleThreadExecutor();
-
-    /**
-     * ThreadPool executor service.
-     */
-    private final ExecutorService pool = Executors.newFixedThreadPool(1);
 
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
@@ -251,9 +245,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
             {
-                Runnable t = new SignatureThread(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, this);
-                pool.execute(t);
-                //signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, this);
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, this);
             }
         }
         else
@@ -345,31 +337,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
         return returnBytes;
-    }
-
-    private class SignatureThread implements Runnable
-    {
-        private final List<IOperation>   localWriteSet;
-        private final String             commit;
-        private final long               globalSnapshotId;
-        private final Kryo               kryo;
-        @NotNull
-        private final GlobalClusterSlave slave;
-
-        private SignatureThread(final List<IOperation> localWriteSet, final String commit, final long globalSnapshotId, final Kryo kryo, @NotNull final GlobalClusterSlave slave)
-        {
-            this.localWriteSet = localWriteSet;
-            this.commit = commit;
-            this.globalSnapshotId = globalSnapshotId;
-            this.kryo = kryo;
-            this.slave = slave;
-        }
-
-        @Override
-        public void run()
-        {
-            signCommitWithDecisionAndDistribute(localWriteSet, commit, globalSnapshotId, kryo, idClient, slave);
-        }
     }
 
     private void signCommitWithDecisionAndDistribute(
