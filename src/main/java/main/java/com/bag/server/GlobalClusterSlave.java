@@ -409,6 +409,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger()
                         .error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
                                 + snapShotId);
+                signatureStorage.setProcessed();
+                return;
             }
         }
         else
