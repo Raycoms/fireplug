@@ -66,6 +66,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private static final Object lock = new Object();
 
     /**
+     * Thread pool for message sending.
+     */
+    private final ExecutorService service = Executors.newSingleThreadExecutor();
+
+    /**
      * ThreadPool executor service.
      */
     private final ExecutorService pool = Executors.newFixedThreadPool(1);
@@ -367,7 +372,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
     }
 
-    private static void signCommitWithDecisionAndDistribute(
+    private void signCommitWithDecisionAndDistribute(
             final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient,
             @NotNull final GlobalClusterSlave slave)
     {
@@ -419,7 +424,20 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (signatureStorage.hasEnough())
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-            slave.updateSlave(signatureStorage);
+
+            final Output messageOutput = new Output(100096);
+
+            kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+            kryo.writeObject(messageOutput, decision);
+            kryo.writeObject(messageOutput, snapShotId);
+            kryo.writeObject(messageOutput, signatureStorage);
+
+            final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+            //updateSlave(slaveUpdateOutput.getBuffer());
+            //updateNextSlave(slaveUpdateOutput.getBuffer());
+            service.submit(runnable);
+            messageOutput.close();
+
             signatureStorage.setDistributed();
             slave.signatureStorageCache.put(snapShotId, signatureStorage);
 
@@ -756,7 +774,22 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
                 if (signatureStorage.isProcessed())
                 {
-                    updateSlave(signatureStorage);
+                    final Output messageOutput = new Output(100096);
+                    KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+                    Kryo kryo = pool.borrow();
+
+                    kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+                    kryo.writeObject(messageOutput, decision);
+                    kryo.writeObject(messageOutput, snapShotId);
+                    kryo.writeObject(messageOutput, signatureStorage);
+
+                    final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+                    //updateSlave(slaveUpdateOutput.getBuffer());
+                    //updateNextSlave(slaveUpdateOutput.getBuffer());
+                    service.submit(runnable);
+                    messageOutput.close();
+                    pool.release(kryo);
+
                     signatureStorage.setDistributed();
                 }
 
@@ -770,16 +803,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
     }
 
-    /**
-     * Update the slave with a transaction.
-     *
-     * @param signatureStorage the signatureStorage with message and signatures..
-     */
-    private void updateSlave(final SignatureStorage signatureStorage)
+    private void updateSlave(final byte[] message)
     {
-        if (this.wrapper.getLocalCLuster() != null)
+        if (wrapper.getLocalCLuster() != null)
         {
-            this.wrapper.getLocalCLuster().propagateUpdate(new SignatureStorage(signatureStorage));
+            Log.getLogger().info("Notifying local cluster!");
+            wrapper.getLocalCLuster().propagateUpdate(message);
         }
     }
 
@@ -811,5 +840,34 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         super.terminate();
         proxy.close();
+    }
+
+    private class MessageThread implements Runnable
+    {
+        private final byte[] message;
+        MessageThread(byte[] message)
+        {
+            this.message = message;
+        }
+
+        @Override
+        public void run()
+        {
+            updateSlave(message);
+        }
+
+        /**
+         * Update the slave with a transaction.
+         *
+         * @param message the message to propagate.
+         */
+        private void updateSlave(final byte[] message)
+        {
+            if (wrapper.getLocalCLuster() != null)
+            {
+                Log.getLogger().info("Notifying local cluster!");
+                wrapper.getLocalCLuster().propagateUpdate(message);
+            }
+        }
     }
 }

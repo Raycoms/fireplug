@@ -610,34 +610,17 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     /**
      * Send this update to all other replicas.
-     * @param storage the signatureStorage with message and signatures..
+     * @param message the message.
      */
-    public void propagateUpdate(final SignatureStorage storage)
+    public void propagateUpdate(final byte[] message)
     {
-        final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
-        final Kryo kryo = pool.borrow();
-
-        final Input input = new Input(storage.getMessage());
-        kryo.readObject(input, String.class);
-
-        final String decision = kryo.readObject(input, String.class);
-        final Long snapShotId = kryo.readObject(input, Long.class);
-
-        final Output output = new Output(100096);
-
-        kryo.writeObject(output, Constants.UPDATE_SLAVE);
-        kryo.writeObject(output, decision);
-        kryo.writeObject(output, snapShotId);
-        kryo.writeObject(output, storage);
-
-        byte[] result = null;
-        while(result == null)
+        while(proxy.invokeUnordered(message) == null)
         {
-            result = proxy.invokeOrdered(output.getBuffer());
+            Log.getLogger().warn("F Did null: ");
+            /*
+             * Intentionally left empty.
+             */
         }
-
-        pool.release(kryo);
-        output.close();
     }
 
     /**
