@@ -55,6 +55,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
 
     /**
+     * The last sent commit, do not put anything under this number in the signature cache.
+     */
+    private long lastSent = 0;
+
+    /**
      * The serviceProxy to establish communication with the other replicas.
      */
     private final ServiceProxy proxy;
@@ -67,7 +72,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Thread pool for message sending.
      */
-    private final ExecutorService service = Executors.newFixedThreadPool(1);
+    private final ExecutorService service = Executors.newSingleThreadExecutor();
 
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
@@ -366,13 +371,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        final SignatureStorage signatureStorage;
-        if (slave.signatureStorageCache.getIfPresent(snapShotId) != null)
+        SignatureStorage signatureStorage = slave.signatureStorageCache.getIfPresent(snapShotId);
+        if (signatureStorage != null)
         {
-            signatureStorage = slave.signatureStorageCache.getIfPresent(snapShotId);
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
-                signatureStorage.setMessage(output.toBytes());
                 Log.getLogger()
                         .error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
                                 + snapShotId);
@@ -409,11 +412,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             signatureStorage.setDistributed();
             slave.signatureStorageCache.put(snapShotId, signatureStorage);
-
-            if (signatureStorage.hasAll())
-            {
-                slave.signatureStorageCache.invalidate(snapShotId);
-            }
+            slave.signatureStorageCache.invalidate(snapShotId);
+            lastSent = snapShotId;
         }
         else
         {
@@ -477,6 +477,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<IOperation> localWriteSet;
+
+        if(snapShotId < lastSent)
+        {
+            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
+            if(tempStorage == null || tempStorage.isDistributed())
+            {
+                signatureStorageCache.invalidate(snapShotId);
+                return;
+            }
+        }
 
         try
         {
@@ -710,7 +720,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         synchronized (lock)
         {
-            if (signatureStorageCache.getIfPresent(snapShotId) == null)
+            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
+            if (tempStorage == null)
             {
                 signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
                 signatureStorageCache.put(snapShotId, signatureStorage);
@@ -718,7 +729,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
             else
             {
-                signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
+                signatureStorage = tempStorage;
             }
 
             if (signatureStorage.getMessage().length != message.length)
@@ -758,11 +769,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     service.submit(runnable);
                     messageOutput.close();
                     pool.release(kryo);
-
+                    lastSent = snapShotId;
                     signatureStorage.setDistributed();
                 }
 
-                if (signatureStorage.hasAll() && signatureStorage.isDistributed())
+                if (signatureStorage.isDistributed())
                 {
                     signatureStorageCache.invalidate(snapShotId);
                     return;
