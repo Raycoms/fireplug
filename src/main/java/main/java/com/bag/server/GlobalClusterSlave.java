@@ -67,7 +67,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Thread pool for message sending.
      */
-    private final ExecutorService service = Executors.newFixedThreadPool(3);
+    private final ExecutorService service = Executors.newFixedThreadPool(1);
 
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
