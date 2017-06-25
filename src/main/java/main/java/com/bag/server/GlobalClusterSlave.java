@@ -431,7 +431,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         output.writeBytes(signature);
 
         final Distributionthread runnable = new Distributionthread(output.getBuffer());
-        service.submit(runnable);
+        serviceEx.submit(runnable);
 
         output.close();
     }
