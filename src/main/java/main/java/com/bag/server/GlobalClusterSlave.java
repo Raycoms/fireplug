@@ -470,7 +470,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<IOperation> localWriteSet;
 
-        if(snapShotId < lastSent)
+        if(lastSent > snapShotId)
         {
             final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
             if(tempStorage == null || tempStorage.isDistributed())
@@ -713,10 +713,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         synchronized (lock)
         {
             final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
+            signatureStorageCache.invalidate(snapShotId);
             if (tempStorage == null)
             {
                 signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-                signatureStorageCache.put(snapShotId, signatureStorage);
                 Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
             }
             else
@@ -764,14 +764,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     lastSent = snapShotId;
                     signatureStorage.setDistributed();
                 }
-
-                if (signatureStorage.isDistributed())
-                {
-                    signatureStorageCache.invalidate(snapShotId);
-                    return;
-                }
             }
-            signatureStorageCache.put(snapShotId, signatureStorage);
+
+            if(!signatureStorage.isDistributed())
+            {
+                signatureStorageCache.put(snapShotId, signatureStorage);
+            }
         }
     }
 
