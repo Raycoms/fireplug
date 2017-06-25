@@ -52,7 +52,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Cache which holds the signatureStorages for the consistency.
      */
-    private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().maximumSize(1000).build();
+    private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
 
     /**
      * The serviceProxy to establish communication with the other replicas.
@@ -67,7 +67,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Thread pool for message sending.
      */
-    private final ExecutorService service = Executors.newFixedThreadPool(2);
+    private final ExecutorService service = Executors.newFixedThreadPool(3);
 
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
