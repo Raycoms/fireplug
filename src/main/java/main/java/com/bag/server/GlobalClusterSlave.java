@@ -74,11 +74,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final ExecutorService service = Executors.newSingleThreadExecutor();
 
-    /**
-     * Thread pool for message sending.
-     */
-    private final ExecutorService serviceEx = Executors.newSingleThreadExecutor();
-
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
         super(id, GLOBAL_CONFIG_LOCATION, wrapper, instrumentation);
@@ -255,7 +250,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             super.executeCommit(localWriteSet);
             if (wrapper.getLocalCLuster() != null)
             {
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, this);
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient);
             }
         }
         else
@@ -350,8 +345,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     }
 
     private void signCommitWithDecisionAndDistribute(
-            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient,
-            @NotNull final GlobalClusterSlave slave)
+            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient)
     {
         Log.getLogger().info("Sending signed commit to the other global replicas");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
@@ -372,11 +366,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Unable to sign message at server " + slave.getId(), e);
+            Log.getLogger().warn("Unable to sign message at server " + getId(), e);
             return;
         }
 
-        SignatureStorage signatureStorage = slave.signatureStorageCache.getIfPresent(snapShotId);
+        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
         if (signatureStorage != null)
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
@@ -391,8 +385,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         else
         {
             Log.getLogger().info("Size of message stored is: " + message.length);
-            signatureStorage = new SignatureStorage(slave.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            slave.signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
+            signatureStorageCache.put(snapShotId, signatureStorage);
         }
 
         signatureStorage.setProcessed();
@@ -416,23 +410,21 @@ public class GlobalClusterSlave extends AbstractRecoverable
             messageOutput.close();
 
             signatureStorage.setDistributed();
-            slave.signatureStorageCache.put(snapShotId, signatureStorage);
-            slave.signatureStorageCache.invalidate(snapShotId);
+            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.invalidate(snapShotId);
             lastSent = snapShotId;
         }
         else
         {
-            slave.signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(snapShotId, signatureStorage);
         }
 
 
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
-
-        final Distributionthread runnable = new Distributionthread(output.getBuffer());
-        serviceEx.submit(runnable);
-
+        proxy.sendMessageToTargets(output.getBuffer(), 0, slave.proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        
         output.close();
     }
 
@@ -848,37 +840,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Notifying local cluster!");
                 wrapper.getLocalCLuster().propagateUpdate(message);
             }
-        }
-    }
-
-    private class Distributionthread implements Runnable
-    {
-        private final byte[] message;
-        Distributionthread(byte[] message)
-        {
-            this.message = message;
-        }
-
-        @Override
-        public void run()
-        {
-            update(message);
-        }
-
-        /**
-         * Update the slave with a transaction.
-         *
-         * @param message the message to propagate.
-         */
-        private void update(final byte[] message)
-        {
-             while(proxy.invokeUnordered(message) == null)
-             {
-                 /**
-                  * Just continue.
-                  */
-             }
-
         }
     }
 }
