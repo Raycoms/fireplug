@@ -576,14 +576,14 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void propagateUpdate(final byte[] message, final int n, final int globalId)
     {
-        while(proxy.invokeUnordered(message) == null)
+        //while(proxy.invokeUnordered(message) == null)
         {
-            Log.getLogger().warn("F Did null: ");
+            //Log.getLogger().warn("F Did null: ");
             /*
              * Intentionally left empty.
              */
         }
-        //proxy.sendMessageToTargets(message, 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        proxy.sendMessageToTargets(message, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         if (localProxy == null)
         {
             int sendToId = globalId + 1;
