@@ -576,18 +576,14 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void propagateUpdate(final byte[] message, final int n, final int globalId)
     {
-        for(int i = 0; i < proxy.getViewManager().getCurrentViewN(); i++)
-        {
-            Log.getLogger().warn("This: " + proxy.getViewManager().getCurrentViewProcesses()[i]);
-        }
         int[] servers = new int[]{1,2};
-        //while(proxy.invokeUnordered(message) == null)
+        /*//while(proxy.invokeUnordered(message) == null)
         {
             //Log.getLogger().warn("F Did null: ");
             /*
              * Intentionally left empty.
-             */
-        }
+             *//*
+        }*/
         proxy.sendMessageToTargets(message, 0, servers, TOMMessageType.UNORDERED_REQUEST);
         if (localProxy == null)
         {
@@ -601,10 +597,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
         localProxy.sendMessageToTargets(message, 0, servers, TOMMessageType.UNORDERED_REQUEST);
 
-        for(int i = 0; i < localProxy.getViewManager().getCurrentViewN(); i++)
-        {
-            Log.getLogger().warn("This: " + localProxy.getViewManager().getCurrentViewProcesses()[i]);
-        }
         /*while(localProxy.invokeUnordered(message) == null)
         {
 
