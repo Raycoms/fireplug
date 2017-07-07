@@ -1,5 +1,6 @@
 package main.java.com.bag.operations;
 
+import bftsmart.reconfiguration.util.RSAKeyLoader;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -26,7 +27,7 @@ public class DeleteOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(@NotNull final IDatabaseAccess access, long snapshotId)
+    public void apply(@NotNull final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader)
     {
         if(storage instanceof NodeStorage)
         {

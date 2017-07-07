@@ -140,7 +140,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         Log.getLogger().info("Received message!");
         for (Object obj : returnValue) {
             if (obj instanceof IOperation) {
-                ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT);
+                ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, keyLoader);
                 instrumentation.updateCounts(1, 0, 0, 0);
                 writesPerformed += 1;
             } else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage) {

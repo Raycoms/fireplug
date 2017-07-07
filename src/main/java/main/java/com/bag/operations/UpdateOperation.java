@@ -1,5 +1,7 @@
 package main.java.com.bag.operations;
 
+import bftsmart.reconfiguration.util.RSAKeyLoader;
+import bftsmart.tom.util.TOMUtil;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -27,19 +29,33 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId)
+    public void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader)
     {
-        if(key instanceof NodeStorage && value instanceof NodeStorage)
+        final byte[] signature;
+        try
         {
-            access.applyUpdate((NodeStorage) key,(NodeStorage) value, snapshotId);
+            if (key instanceof NodeStorage)
+            {
+                final NodeStorage tempStorage = (NodeStorage) value;
+                signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                tempStorage.addProperty("signature", signature);
+                access.applyUpdate((NodeStorage) key, tempStorage, snapshotId);
+            }
+            else if (value instanceof RelationshipStorage)
+            {
+                final RelationshipStorage tempStorage = (RelationshipStorage) value;
+                signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                tempStorage.addProperty("signature", signature);
+                access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId);
+            }
+            else
+            {
+                Log.getLogger().warn("Trying to update incorrect type in the database.");
+            }
         }
-        else if(key instanceof RelationshipStorage && value instanceof RelationshipStorage)
+        catch (final Exception e)
         {
-            access.applyUpdate((RelationshipStorage) key,(RelationshipStorage) value, snapshotId);
-        }
-        else
-        {
-            Log.getLogger().warn("Can't update Node with Relationship or vice versa.");
+            Log.getLogger().warn("Unable to sign nodeStorage ", e);
         }
     }
 

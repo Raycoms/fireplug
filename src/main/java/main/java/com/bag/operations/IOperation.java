@@ -1,5 +1,6 @@
 package main.java.com.bag.operations;
 
+import bftsmart.reconfiguration.util.RSAKeyLoader;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 
 /**
@@ -12,8 +13,9 @@ public interface IOperation
      * Applies an operation to the database.
      * @param access Database access.
      * @param snapshotId SnapshotId.
+     * @param keyLoader
      */
-    abstract void apply(final IDatabaseAccess access, long snapshotId);
+    abstract void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader);
 
     @Override
     abstract boolean equals(Object obj);

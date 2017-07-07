@@ -1,8 +1,10 @@
 package main.java.com.bag.server;
 
+import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.server.defaultservices.DefaultReplier;
+import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -455,16 +457,17 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @param localWriteSet the write set to execute.
      */
-    void executeCommit(final List<IOperation> localWriteSet)
+    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader)
     {
         synchronized (commitLock)
         {
+            //First sign, then execute;
             final long currentSnapshot = ++globalSnapshotId;
             //Execute the transaction.
             for (IOperation op : localWriteSet)
             {
                 //Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
-                op.apply(wrapper.getDataBaseAccess(), globalSnapshotId);
+                op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, keyLoader);
                 updateCounts(1, 0, 0, 0);
             }
             this.putIntoWriteSet(currentSnapshot, localWriteSet);
