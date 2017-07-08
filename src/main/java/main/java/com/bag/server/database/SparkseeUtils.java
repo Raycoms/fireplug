@@ -3,6 +3,8 @@ package main.java.com.bag.server.database;
 import com.sparsity.sparksee.gdb.*;
 import main.java.com.bag.util.storage.NodeStorage;
 
+import java.util.Arrays;
+
 import static com.sparsity.sparksee.gdb.DataType.*;
 import static com.sparsity.sparksee.gdb.DataType.String;
 
@@ -62,6 +64,8 @@ public class SparkseeUtils
                 return v.setLong((java.lang.Long) obj);
             case Double:
                 return v.setDouble((java.lang.Double) obj);
+            case OID:
+                return v.setString(Arrays.toString((byte[]) obj));
             default:
                 return v.setString((java.lang.String) obj);
         }
@@ -89,6 +93,10 @@ public class SparkseeUtils
         else if (obj instanceof Double)
         {
             return Double;
+        }
+        else if(obj instanceof byte[])
+        {
+            return OID;
         }
 
         return String;
