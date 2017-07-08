@@ -8,6 +8,7 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Create command which may be sent to the database.
@@ -36,14 +37,14 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
             {
                 final NodeStorage tempStorage = (NodeStorage) storage;
                 signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature" + idClient, signature);
+                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
                 access.applyCreate( tempStorage, snapshotId);
             }
             else if (storage instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) storage;
                 signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature" + idClient, signature);
+                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
                 access.applyCreate( tempStorage, snapshotId);
             }
             else

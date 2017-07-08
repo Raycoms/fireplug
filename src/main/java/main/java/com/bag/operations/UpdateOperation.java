@@ -8,6 +8,7 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Update command which may be sent to the database.
@@ -38,14 +39,14 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
             {
                 final NodeStorage tempStorage = (NodeStorage) value;
                 signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature" + idClient, signature);
+                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
                 access.applyUpdate((NodeStorage) key, tempStorage, snapshotId);
             }
             else if (value instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) value;
                 signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature" + idClient, signature);
+                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
                 access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId);
             }
             else

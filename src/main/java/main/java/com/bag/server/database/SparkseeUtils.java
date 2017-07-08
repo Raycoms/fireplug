@@ -64,8 +64,6 @@ public class SparkseeUtils
                 return v.setLong((java.lang.Long) obj);
             case Double:
                 return v.setDouble((java.lang.Double) obj);
-            case OID:
-                return v.setString(Arrays.toString((byte[]) obj));
             default:
                 return v.setString((java.lang.String) obj);
         }
@@ -93,10 +91,6 @@ public class SparkseeUtils
         else if (obj instanceof Double)
         {
             return Double;
-        }
-        else if(obj instanceof byte[])
-        {
-            return OID;
         }
 
         return String;

@@ -495,7 +495,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 final RSAKeyLoader rsaLoader = new RSAKeyLoader(key, GLOBAL_CONFIG_LOCATION, false);
                 try
                 {
-                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getBytes(), (byte[]) entry.getValue()))
+                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getBytes(), ((String) entry.getValue()).getBytes("UTF-8")))
                     {
                         Log.getLogger().warn("Signature of server: " + key + " doesn't match");
                     }
@@ -526,7 +526,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 final RSAKeyLoader rsaLoader = new RSAKeyLoader(key, GLOBAL_CONFIG_LOCATION, false);
                 try
                 {
-                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getBytes(), (byte[]) entry.getValue()))
+                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getBytes(), ((String) entry.getValue()).getBytes("UTF-8")))
                     {
                         Log.getLogger().warn("Signature of server: " + key + " doesn't match");
                     }
