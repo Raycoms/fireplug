@@ -567,7 +567,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             {
                 if(!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
                 {
-                    Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
+                    Log.getLogger().info("Signature of server: " + entry.getKey() + " doesn't match");
                 }
                 else
                 {
@@ -583,7 +583,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if(matchingSignatures < 2)
         {
-            Log.getLogger().warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
+            Log.getLogger().info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
         }
 
         Log.getLogger().info("All signatures are correct, started to commit now!");

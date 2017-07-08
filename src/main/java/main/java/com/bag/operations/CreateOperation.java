@@ -43,8 +43,8 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
             else if (storage instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) storage;
-                signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
+                /*signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));*/
                 access.applyCreate( tempStorage, snapshotId);
             }
             else

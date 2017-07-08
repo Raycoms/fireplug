@@ -376,10 +376,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
                 Log.getLogger()
-                        .error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
+                        .info("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
                                 + snapShotId);
-                signatureStorage.setProcessed();
-                return;
+                //signatureStorage.setProcessed();
             }
         }
         else
@@ -520,14 +519,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
         System.arraycopy(buffer, 0, message, 0, messageLength);
 
         boolean signatureMatches = TOMUtil.verifySignature(key, message, signature);
-        if (signatureMatches)
+        //if (signatureMatches)
         {
 
             storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet);
             return;
         }
 
-        Log.getLogger().warn("Signature doesn't match of message, throwing message away.");
+        //Log.getLogger().warn("Signature doesn't match of message, throwing message away.");
     }
 
     @Override
