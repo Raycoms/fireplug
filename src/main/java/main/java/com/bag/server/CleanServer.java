@@ -1,5 +1,6 @@
 package main.java.com.bag.server;
 
+import bftsmart.reconfiguration.util.RSAKeyLoader;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -46,6 +47,11 @@ import java.util.concurrent.ThreadFactory;
  */
 public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
 {
+    /**
+     * Name of the location of the global config.
+     */
+    private static final String GLOBAL_CONFIG_LOCATION = "global/config";
+    
     /**
      * Create a threadsafe version of kryo.
      */
@@ -138,9 +144,11 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         List<Object> readObjects = new ArrayList<>();
         final List returnValue = kryo.readObject(input, ArrayList.class);
         Log.getLogger().info("Received message!");
+        final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
+
         for (Object obj : returnValue) {
             if (obj instanceof IOperation) {
-                ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, keyLoader, idClient);
+                ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, 0);
                 instrumentation.updateCounts(1, 0, 0, 0);
                 writesPerformed += 1;
             } else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage) {
