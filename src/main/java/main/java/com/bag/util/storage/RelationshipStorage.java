@@ -1,5 +1,8 @@
 package main.java.com.bag.util.storage;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import main.java.com.bag.util.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,7 +56,7 @@ public class RelationshipStorage implements Serializable
      * @param startNode node the relationship starts.
      * @param endNode   node the relationship ends.
      */
-    public RelationshipStorage(@NotNull String id, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
+    public RelationshipStorage(@NotNull final String id, @NotNull final NodeStorage startNode, @NotNull final NodeStorage endNode)
     {
         this.id = id;
         this.startNode = startNode;
@@ -68,7 +71,7 @@ public class RelationshipStorage implements Serializable
      * @param startNode  node the relationship starts.
      * @param endNode    node the relationship ends.
      */
-    public RelationshipStorage(@NotNull String id, @Nullable Map<String, Object> properties, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
+    public RelationshipStorage(@NotNull final String id, @Nullable final Map<String, Object> properties, @NotNull final NodeStorage startNode, @NotNull final NodeStorage endNode)
     {
         this(id, startNode, endNode);
         this.properties.putAll(properties);
@@ -212,6 +215,32 @@ public class RelationshipStorage implements Serializable
     public void removeProperty(String key)
     {
         properties.remove(key);
+    }
+
+    /**
+     * Get the kryo byte array of a relationship storage.
+     * @param kryo the kryo object.
+     * @return the byte array.
+     */
+    public byte[] getByteArray(final Kryo kryo)
+    {
+        final Output output = new Output(0, 100024);
+        kryo.writeObject(output, this);
+        byte[] bytes = output.getBuffer();
+        output.close();
+        return bytes;
+    }
+
+    /**
+     * Get the storage class from a byte array.
+     * @param kryo the kryo object.
+     * @param input the byte array.
+     * @return the storage.
+     */
+    public RelationshipStorage fromBytes(final Kryo kryo, final byte[] input)
+    {
+        final Input tempInput = new Input(input);
+        return kryo.readObject(tempInput, RelationshipStorage.class);
     }
 
     /**

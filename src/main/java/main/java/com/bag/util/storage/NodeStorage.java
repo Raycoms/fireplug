@@ -1,5 +1,8 @@
 package main.java.com.bag.util.storage;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -127,6 +130,32 @@ public class NodeStorage implements Serializable
     public int hashCode()
     {
         return 31 * (31 * getId().hashCode() + getProperties().hashCode());
+    }
+
+    /**
+     * Get the kryo byte array of a relationship storage.
+     * @param kryo the kryo object.
+     * @return the byte array.
+     */
+    public byte[] getByteArray(final Kryo kryo)
+    {
+        final Output output = new Output(0, 100024);
+        kryo.writeObject(output, this);
+        byte[] bytes = output.getBuffer();
+        output.close();
+        return bytes;
+    }
+
+    /**
+     * Get the storage class from a byte array.
+     * @param kryo the kryo object.
+     * @param input the byte array.
+     * @return the storage.
+     */
+    public RelationshipStorage fromBytes(final Kryo kryo, final byte[] input)
+    {
+        final Input tempInput = new Input(input);
+        return kryo.readObject(tempInput, RelationshipStorage.class);
     }
 
     /**

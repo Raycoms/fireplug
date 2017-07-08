@@ -13,9 +13,10 @@ public interface IOperation
      * Applies an operation to the database.
      * @param access Database access.
      * @param snapshotId SnapshotId.
-     * @param keyLoader
+     * @param keyLoader the key loader.
+     * @param idClient the client id.
      */
-    abstract void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader);
+    abstract void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient);
 
     @Override
     abstract boolean equals(Object obj);

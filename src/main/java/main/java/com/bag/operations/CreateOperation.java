@@ -27,7 +27,7 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader)
+    public void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
         final byte[] signature;
         try
@@ -36,14 +36,14 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
             {
                 final NodeStorage tempStorage = (NodeStorage) storage;
                 signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature", signature);
+                tempStorage.addProperty("signature" + idClient, signature);
                 access.applyCreate( tempStorage, snapshotId);
             }
             else if (storage instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) storage;
                 signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature", signature);
+                tempStorage.addProperty("signature" + idClient, signature);
                 access.applyCreate( tempStorage, snapshotId);
             }
             else

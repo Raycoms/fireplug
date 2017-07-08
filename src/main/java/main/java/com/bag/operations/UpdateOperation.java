@@ -29,7 +29,7 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader)
+    public void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
         final byte[] signature;
         try
@@ -38,14 +38,14 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
             {
                 final NodeStorage tempStorage = (NodeStorage) value;
                 signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature", signature);
+                tempStorage.addProperty("signature" + idClient, signature);
                 access.applyUpdate((NodeStorage) key, tempStorage, snapshotId);
             }
             else if (value instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) value;
                 signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature", signature);
+                tempStorage.addProperty("signature" + idClient, signature);
                 access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId);
             }
             else

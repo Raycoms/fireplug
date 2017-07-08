@@ -1,9 +1,11 @@
 package main.java.com.bag.client;
 
 import bftsmart.communication.client.ReplyReceiver;
+import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
+import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -32,7 +34,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     /**
      * Should the transaction runNetty in secure mode?
      */
-    private boolean secureMode = true;
+    private boolean secureMode = false;
 
     /**
      * The place the local config file is. This + the cluster id will contain the concrete cluster config location.
@@ -111,7 +113,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             globalProxy = new ServiceProxy(100 + getProcessId(), "global/config");
         }
 
-        secureMode = true;
+        secureMode = false;
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
@@ -416,6 +418,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if (readOnly && !secureMode)
         {
+            verifyReadSet();
             Log.getLogger().warn(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
             resetSets();
@@ -468,6 +471,78 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
+    }
+
+    /**
+     * Method verifies readSet signatures.
+     */
+    private void verifyReadSet()
+    {
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
+
+        for(final NodeStorage storage: readsSetNode)
+        {
+            for(final Map.Entry<String, Object> entry: storage.getProperties().entrySet())
+            {
+                if(!entry.getKey().contains("signature"))
+                {
+                    continue;
+                }
+                final int key = Integer.parseInt(entry.getKey().replace("signature",""));
+
+                Log.getLogger().warn("Verifying the keys of the nodes");
+                final RSAKeyLoader rsaLoader = new RSAKeyLoader(key, GLOBAL_CONFIG_LOCATION, false);
+                try
+                {
+                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getBytes(), (byte[]) entry.getValue()))
+                    {
+                        Log.getLogger().warn("Signature of server: " + key + " doesn't match");
+                    }
+                    else
+                    {
+                        Log.getLogger().info("Signature matches of server: " + entry.getKey());
+                    }
+                }
+                catch (final Exception e)
+                {
+                    Log.getLogger().error("Unable to load public key on client", e);
+                }
+            }
+        }
+
+        Log.getLogger().warn("Verifying the keys of the relationships");
+        for(final RelationshipStorage storage: readsSetRelationship)
+        {
+            for(final Map.Entry<String, Object> entry: storage.getProperties().entrySet())
+            {
+                if(!entry.getKey().contains("signature"))
+                {
+                    continue;
+                }
+                final int key = Integer.parseInt(entry.getKey().replace("signature",""));
+
+                Log.getLogger().warn("Verifying the keys of the nodes");
+                final RSAKeyLoader rsaLoader = new RSAKeyLoader(key, GLOBAL_CONFIG_LOCATION, false);
+                try
+                {
+                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getBytes(), (byte[]) entry.getValue()))
+                    {
+                        Log.getLogger().warn("Signature of server: " + key + " doesn't match");
+                    }
+                    else
+                    {
+                        Log.getLogger().info("Signature matches of server: " + entry.getKey());
+                    }
+                }
+                catch (final Exception e)
+                {
+                    Log.getLogger().error("Unable to load public key on client", e);
+                }
+            }
+        }
+
+        pool.release(kryo);
     }
 
     /**

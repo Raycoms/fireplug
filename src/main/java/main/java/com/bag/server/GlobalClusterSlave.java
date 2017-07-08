@@ -247,11 +247,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             //Log.getLogger().info("Global: " + super.getGlobalWriteSet().size() + " id: " + super.getId());
             //Log.getLogger().info("Latest: " + super.getLatestWritesSet().size() + " id: " + super.getId());
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
-            super.executeCommit(localWriteSet, rsaLoader);
-            if (wrapper.getLocalCLuster() != null)
+            super.executeCommit(localWriteSet, rsaLoader, idClient);
+            /*if (wrapper.getLocalCLuster() != null)
             {
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient);
-            }
+            }*/
         }
         else
         {

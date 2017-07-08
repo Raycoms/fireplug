@@ -591,13 +591,14 @@ public class LocalClusterSlave extends AbstractRecoverable
         if(lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
             Log.getLogger().info("Execute update on slave: " + snapShotId);
-            executeCommit(localWriteSet);
+            final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
+            executeCommit(localWriteSet, rsaLoader, id);
 
             long requiredKey = lastKey + 1;
             while(buffer.containsKey(requiredKey))
             {
                 Log.getLogger().info("Execute update on slave: " + snapShotId);
-                executeCommit(buffer.remove(requiredKey));
+                executeCommit(buffer.remove(requiredKey), rsaLoader, id);
                 requiredKey++;
             }
 

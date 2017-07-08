@@ -4,7 +4,6 @@ import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultRecoverable;
 import bftsmart.tom.server.defaultservices.DefaultReplier;
-import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -445,7 +444,6 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             }
         }
 
-        //todo problem returning the relationship here!
         kryo.writeObject(output, nodeStorage);
         kryo.writeObject(output, relationshipStorage);
 
@@ -456,18 +454,20 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Execute the commit on the replica.
      *
      * @param localWriteSet the write set to execute.
+     * @param keyLoader the key loader.
+     * @param idClient the id of the server.
      */
-    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader)
+    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient)
     {
         synchronized (commitLock)
         {
             //First sign, then execute;
             final long currentSnapshot = ++globalSnapshotId;
             //Execute the transaction.
-            for (IOperation op : localWriteSet)
+            for (final IOperation op : localWriteSet)
             {
                 //Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
-                op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, keyLoader);
+                op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, keyLoader, idClient);
                 updateCounts(1, 0, 0, 0);
             }
             this.putIntoWriteSet(currentSnapshot, localWriteSet);
