@@ -725,9 +725,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                Log.getLogger().error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server "
+                Log.getLogger().info("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server "
                         + message.length + " ws: " + writeSet.size() + " id: " + snapShotId);
-                return;
             }
 
             if (!decision.equals(signatureStorage.getDecision()))
