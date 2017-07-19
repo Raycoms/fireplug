@@ -218,7 +218,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch(TokenMgrError e)
         {
-            Log.getLogger().info(String.format("TokenMgrError: " + nodeStorage.toString(), e));
+            Log.getLogger().info("TokenMgrError: " + nodeStorage.toString(), e);
             return Collections.emptyList();
         }
     }
