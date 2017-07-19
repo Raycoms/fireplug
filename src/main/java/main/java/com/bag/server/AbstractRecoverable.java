@@ -121,9 +121,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         globalSnapshotId = 1;
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
-        Log.getLogger().warn("Instantiating abstract recoverable of id: " + id);
+        Log.getLogger().warn("Instantiating abstract recoverable of id: " + id + " at config directory: " + configDirectory);
         //the default verifier is instantiated with null in the ServerReplica.
         this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());
+
         Log.getLogger().warn("Finished instantiating abstract recoverable of id: " + id);
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);

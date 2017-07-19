@@ -55,7 +55,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(50);
+            Thread.sleep(120);
         }
         catch (InterruptedException e)
         {
@@ -71,7 +71,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(50);
+            Thread.sleep(30);
         }
         catch (InterruptedException e)
         {
@@ -87,7 +87,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(50);
+            Thread.sleep(20);
         }
         catch (InterruptedException e)
         {
@@ -103,7 +103,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(50);
+            Thread.sleep(120);
         }
         catch (InterruptedException e)
         {
@@ -119,7 +119,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(50);
+            Thread.sleep(60);
         }
         catch (InterruptedException e)
         {
@@ -135,7 +135,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(50);
+            Thread.sleep(10);
         }
         catch (InterruptedException e)
         {
@@ -154,7 +154,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
 
         try
         {
-            Thread.sleep(25);
+            Thread.sleep(5);
         }
         catch (InterruptedException e)
         {

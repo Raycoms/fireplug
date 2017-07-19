@@ -331,7 +331,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             for (final NodeStorage storage : (ArrayList<NodeStorage>) nodes)
             {
-                NodeStorage tempStorage = new NodeStorage(storage.getId(), storage.getProperties());
+                final NodeStorage tempStorage = new NodeStorage(storage.getId(), storage.getProperties());
                 try
                 {
                     tempStorage.addProperty("hash", HashCreator.sha1FromNode(storage));
@@ -348,7 +348,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             for (final RelationshipStorage storage : (ArrayList<RelationshipStorage>)relationships)
             {
-                RelationshipStorage tempStorage = new RelationshipStorage(storage.getId(), storage.getProperties(), storage.getStartNode(), storage.getEndNode());
+                final RelationshipStorage tempStorage = new RelationshipStorage(storage.getId(), storage.getProperties(), storage.getStartNode(), storage.getEndNode());
                 try
                 {
                     tempStorage.addProperty("hash", HashCreator.sha1FromRelationship(storage));
