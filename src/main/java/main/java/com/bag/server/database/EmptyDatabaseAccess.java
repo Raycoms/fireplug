@@ -8,13 +8,14 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Empty DatabaseAccess for testing only.
  */
 public class EmptyDatabaseAccess implements IDatabaseAccess
 {
-
+    final Random random = new Random();
     @Override
     public void start()
     {
@@ -55,7 +56,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(120);
+            Thread.sleep(random.nextInt(100));
         }
         catch (InterruptedException e)
         {
@@ -71,7 +72,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(30);
+            Thread.sleep(random.nextInt(100));
         }
         catch (InterruptedException e)
         {
@@ -87,7 +88,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(20);
+            Thread.sleep(random.nextInt(100));
         }
         catch (InterruptedException e)
         {
@@ -103,7 +104,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(120);
+            Thread.sleep(random.nextInt(100));
         }
         catch (InterruptedException e)
         {
@@ -119,7 +120,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(60);
+            Thread.sleep(random.nextInt(100));
         }
         catch (InterruptedException e)
         {
@@ -135,7 +136,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(10);
+            Thread.sleep(random.nextInt(100));
         }
         catch (InterruptedException e)
         {
@@ -154,7 +155,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
 
         try
         {
-            Thread.sleep(5);
+            Thread.sleep(random.nextInt(20));
         }
         catch (InterruptedException e)
         {
