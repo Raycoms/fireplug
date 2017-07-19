@@ -56,7 +56,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(random.nextInt(100));
+            Thread.sleep(random.nextInt(10));
         }
         catch (InterruptedException e)
         {
@@ -72,7 +72,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(random.nextInt(100));
+            Thread.sleep(random.nextInt(10));
         }
         catch (InterruptedException e)
         {
@@ -88,7 +88,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(random.nextInt(100));
+            Thread.sleep(random.nextInt(10));
         }
         catch (InterruptedException e)
         {
@@ -104,7 +104,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(random.nextInt(100));
+            Thread.sleep(random.nextInt(10));
         }
         catch (InterruptedException e)
         {
@@ -120,7 +120,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(random.nextInt(100));
+            Thread.sleep(random.nextInt(10));
         }
         catch (InterruptedException e)
         {
@@ -136,7 +136,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            Thread.sleep(random.nextInt(100));
+            Thread.sleep(random.nextInt(10));
         }
         catch (InterruptedException e)
         {
@@ -155,7 +155,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
 
         try
         {
-            Thread.sleep(random.nextInt(20));
+            Thread.sleep(random.nextInt(5));
         }
         catch (InterruptedException e)
         {
