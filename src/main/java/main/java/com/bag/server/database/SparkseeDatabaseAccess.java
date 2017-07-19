@@ -368,7 +368,12 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             {
                 final int attributeId = graph.findAttribute(Type.GlobalType, key);
 
-                if (objects == null || objects.isEmpty() && attributeId != Attribute.InvalidAttribute)
+                if(attributeId == Attribute.InvalidAttribute)
+                {
+                    continue;
+                }
+
+                if (objects == null || objects.isEmpty())
                 {
                     if(objects != null)
                     {
