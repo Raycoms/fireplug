@@ -140,7 +140,7 @@ public class ConflictHandler
         {
             if (!localWriteSet.isEmpty())
             {
-                Log.getLogger().warn("Aborting because of writeSet containing rs read");
+                Log.getLogger().info("Aborting because of writeSet containing rs read");
             }
             return false;
         }
