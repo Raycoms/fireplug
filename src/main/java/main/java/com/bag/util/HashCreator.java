@@ -29,7 +29,6 @@ public class HashCreator
             sb.append(Integer.toString((aResult & 0xff) + 0x100, 16).substring(1));
         }
 
-        Log.getLogger().warn(sb.toString());
         return sb.toString();
     }
 
