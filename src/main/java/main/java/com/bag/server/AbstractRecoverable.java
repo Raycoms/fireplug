@@ -162,7 +162,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public void installSnapshot(final byte[] bytes)
     {
-        Log.getLogger().warn("Install snapshot!");
+        /*Log.getLogger().warn("Install snapshot!");
         if (bytes == null || bytes.length <= 1)
         {
             return;
@@ -213,7 +213,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         kryo.register(UpdateOperation.class, 350);
 
         input.close();
-        pool.release(kryo);
+        pool.release(kryo);*/
     }
 
     /**
@@ -235,7 +235,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public byte[] getSnapshot()
     {
-        if (globalWriteSet == null || latestWritesSet == null)
+        /*if (globalWriteSet == null || latestWritesSet == null)
         {
             return new byte[] {0};
         }
@@ -268,8 +268,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         Log.getLogger().warn("Finished snapshotting");
         byte[] bytes = output.getBuffer();
         output.close();
-        pool.release(kryo);
-        return bytes;
+        pool.release(kryo);*/
+        return new byte[]{0, 1};
     }
 
     /**

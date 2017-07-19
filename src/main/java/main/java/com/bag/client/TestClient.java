@@ -433,7 +433,33 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
             Log.getLogger().warn(getProcessId() + " Commit with snapshotId: " + this.localTimestamp);
-            final byte[] answer = localClusterId == -1 ? this.invokeUnordered(bytes) : globalProxy.invokeUnordered(bytes);
+
+            final byte[] answer;
+            if(localClusterId == -1)
+            {
+                answer = this.invokeUnordered(bytes);
+
+                final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
+                final int[] servers = new int[3];
+                final int spare = servers[new Random().nextInt(currentViewProcesses.length)];
+
+                int i = 0;
+                for(final int processI : currentViewProcesses)
+                {
+                    if(spare != processI)
+                    {
+                        servers[i] = processI;
+                        i++;
+                    }
+                }
+
+
+                sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);
+            }
+            else
+            {
+                answer = globalProxy.invokeUnordered(bytes);
+            }
             Log.getLogger().warn(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
 
             final Input input = new Input(answer);
