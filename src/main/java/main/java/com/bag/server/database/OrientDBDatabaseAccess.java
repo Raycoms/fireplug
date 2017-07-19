@@ -1,6 +1,7 @@
 package main.java.com.bag.server.database;
 
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.sql.parser.TokenMgrError;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -213,6 +214,11 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         catch (OQueryParsingException e)
         {
             Log.getLogger().info(String.format("Class %s doesn't exist.", nodeStorage.getId()), e);
+            return Collections.emptyList();
+        }
+        catch(TokenMgrError e)
+        {
+            Log.getLogger().info(String.format("TokenMgrError: " + nodeStorage.toString(), e));
             return Collections.emptyList();
         }
     }
