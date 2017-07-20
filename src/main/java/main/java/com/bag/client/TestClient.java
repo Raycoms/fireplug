@@ -437,8 +437,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             final byte[] answer;
             if(localClusterId == -1)
             {
-                answer = this.invokeUnordered(bytes);
-
                 final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
                 final int[] servers = new int[3];
                 final int spare = servers[new Random().nextInt(currentViewProcesses.length)];
@@ -452,9 +450,9 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                         i++;
                     }
                 }
-
-
+                
                 sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);
+                return;
             }
             else
             {
