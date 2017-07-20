@@ -38,15 +38,15 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
             if (key instanceof NodeStorage)
             {
                 final NodeStorage tempStorage = (NodeStorage) value;
-                signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
+                //signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                //tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
                 access.applyUpdate((NodeStorage) key, tempStorage, snapshotId);
             }
             else if (value instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) value;
-                signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
+                //signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                //tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
                 access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId);
             }
             else
