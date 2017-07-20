@@ -275,6 +275,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     break;
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
+                    processCommitReturn(reply.getContent());
                     super.replyReceived(reply);
                     break;
                 default:
@@ -450,7 +451,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                         i++;
                     }
                 }
-                
+
                 sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);
                 return;
             }
