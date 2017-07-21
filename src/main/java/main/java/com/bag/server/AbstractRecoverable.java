@@ -241,7 +241,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     {
         if(!clients.isEmpty())
         {
-            long smallestSnapshot = -1;
+            long smallestSnapshot = Long.MAX_VALUE;
             for(final Map.Entry<Integer, Long> entry : clients.entrySet())
             {
                 if(entry.getValue() < smallestSnapshot)
