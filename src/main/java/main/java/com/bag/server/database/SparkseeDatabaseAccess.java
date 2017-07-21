@@ -273,7 +273,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         final List<Long> objsStart = loadNodesAsIdList(graph, startNode);
         final List<Long> objsEnd = loadNodesAsIdList(graph, endNode);
 
-        if (objsStart.size() == 0 || objsEnd.size() == 0)
+        if (objsStart.isEmpty() || objsEnd.isEmpty())
         {
             sess.close();
             return false;
@@ -282,7 +282,16 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         final int relationshipTypeId = graph.findType(storage.getId());
         try
         {
-            long oId = graph.findEdge(relationshipTypeId, objsStart.get(0), objsEnd.get(0));
+            long start = objsStart.get(0);
+            long end = objsEnd.get(0);
+
+            if (start == 0 || end == 0)
+            {
+                sess.close();
+                return false;
+            }
+
+            long oId = graph.findEdge(relationshipTypeId, start, end);
             if (oId == 0)
                 return false;
             return HashCreator.sha1FromRelationship(storage).equals(graph.getAttribute(oId, graph.findAttribute(Type.getGlobalType(), "hash")).getString());
