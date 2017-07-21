@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Super class of local or global cluster.
@@ -55,6 +57,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Unique Id of the server.
      */
     private int id;
+
+    /**
+     * Lock for cleanUp.
+     */
+    final Lock lock = new ReentrantLock();
 
     /**
      * List of clients with the last snapshotId they read..
@@ -112,9 +119,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Creates an instance of the abstract recoverable.
-     * @param id with the id.
+     *
+     * @param id              with the id.
      * @param configDirectory the config directory.
-     * @param wrapper the overlying wrapper class.
+     * @param wrapper         the overlying wrapper class.
      * @param instrumentation the instrumentation for evaluation.
      */
     protected AbstractRecoverable(final int id, final String configDirectory, final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
@@ -239,18 +247,18 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     private void shortCleanUp()
     {
-        if(!clients.isEmpty())
+        if (!clients.isEmpty() && lock.tryLock())
         {
             long smallestSnapshot = Long.MAX_VALUE;
-            for(final Map.Entry<Integer, Long> entry : clients.entrySet())
+            for (final Map.Entry<Integer, Long> entry : clients.entrySet())
             {
-                if(entry.getValue() < smallestSnapshot)
+                if (entry.getValue() < smallestSnapshot)
                 {
                     smallestSnapshot = entry.getValue();
                 }
             }
 
-            if(smallestSnapshot > 0)
+            if (smallestSnapshot > 0)
             {
                 final long end = globalWriteSet.firstKey();
                 Log.getLogger().warn("Global size; " + globalWriteSet.size() + " deleting from: " + smallestSnapshot + " to: " + end);
@@ -260,8 +268,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                     globalWriteSet.remove(i);
                 }
                 Log.getLogger().warn("Global size now; " + globalWriteSet.size());
-
             }
+            lock.unlock();
         }
     }
 
@@ -303,16 +311,16 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);*/
-        return new byte[]{0, 1};
+        return new byte[] {0, 1};
     }
 
     /**
      * Handles the node read message and requests it to the database.
      *
-     * @param input          get info from.
-     * @param kryo           kryo object.
-     * @param output         write info to.
-     * @param clientId       the id of the reading client.
+     * @param input    get info from.
+     * @param kryo     kryo object.
+     * @param output   write info to.
+     * @param clientId the id of the reading client.
      * @return output object to return to client.
      */
     Output handleNodeRead(final Input input, final Kryo kryo, final Output output, final int clientId)
@@ -330,10 +338,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             transaction.addReadSetNodes(identifier);
             //localTransactionList.put(messageContext.getSender(), transaction);
             localSnapshotId = getGlobalSnapshotId();
-            if(!clients.containsKey(clientId) || clients.get(clientId) < localSnapshotId)
+            if (!clients.containsKey(clientId) || clients.get(clientId) < localSnapshotId)
             {
                 clients.put(clientId, localSnapshotId);
-                if(localSnapshotId % 1000 == 0)
+                if (localSnapshotId % 1000 == 0)
                 {
                     shortCleanUp();
                 }
@@ -392,8 +400,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Create an empty ready response.
+     *
      * @param message the message to write.
-     * @param kryo the kryo instance.
+     * @param kryo    the kryo instance.
      * @return the generated output object.
      */
     Output makeEmptyReadResponse(final String message, final Kryo kryo)
@@ -407,6 +416,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Make an empty abort result.
+     *
      * @return a byte array with it.
      */
     byte[] makeEmptyAbortResult()
@@ -424,9 +434,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Handles the relationship read message and requests it to the database.
      *
-     * @param input  get info from.
-     * @param kryo   kryo object.
-     * @param output write info to.
+     * @param input    get info from.
+     * @param kryo     kryo object.
+     * @param output   write info to.
      * @param clientId the id of the reading client.
      * @return output object to return to client.
      */
@@ -445,7 +455,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             transaction.addReadSetRelationship(identifier);
             //localTransactionList.put(messageContext.getSender(), transaction);
             localSnapshotId = getGlobalSnapshotId();
-            if(!clients.containsKey(clientId) || clients.get(clientId) < localSnapshotId)
+            if (!clients.containsKey(clientId) || clients.get(clientId) < localSnapshotId)
             {
                 clients.put(clientId, localSnapshotId);
             }
@@ -464,7 +474,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             kryo.writeObject(output, localSnapshotId);
 
             Log.getLogger().info("Transaction found conflict");
-            Log.getLogger().info("OutdatedData Exception thrown: ", e);            kryo.writeObject(output, new ArrayList<NodeStorage>());
+            Log.getLogger().info("OutdatedData Exception thrown: ", e);
+            kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
         }
         kryo.writeObject(output, Constants.CONTINUE);
@@ -502,12 +513,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Execute the commit on the replica.
      *
      * @param localWriteSet the write set to execute.
-     * @param keyLoader the key loader.
-     * @param idClient the id of the server.
+     * @param keyLoader     the key loader.
+     * @param idClient      the id of the server.
      */
     void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient, final long clientSnapshot)
     {
-        if(!clients.containsKey(idClient) || clients.get(idClient) < clientSnapshot)
+        if (!clients.containsKey(idClient) || clients.get(idClient) < clientSnapshot)
         {
             clients.put(idClient, clientSnapshot);
         }
@@ -531,8 +542,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Put info in writeSet.
+     *
      * @param currentSnapshot the current snapshot.
-     * @param localWriteSet data to add.
+     * @param localWriteSet   data to add.
      */
     public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
     {
@@ -599,6 +611,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Set the globalSnapShotId to a certain value.
+     *
      * @param globalSnapshotId the value to set.
      */
     public void setGlobalSnapshotId(final long globalSnapshotId)
@@ -608,6 +621,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Getter for the id.
+     *
      * @return the id.
      */
     int getId()
