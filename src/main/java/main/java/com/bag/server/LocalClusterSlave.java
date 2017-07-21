@@ -592,13 +592,13 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Execute update on slave: " + snapShotId);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
-            executeCommit(localWriteSet, rsaLoader, id);
+            executeCommit(localWriteSet, rsaLoader, id, snapShotId);
 
             long requiredKey = lastKey + 1;
             while(buffer.containsKey(requiredKey))
             {
                 Log.getLogger().info("Execute update on slave: " + snapShotId);
-                executeCommit(buffer.remove(requiredKey), rsaLoader, id);
+                executeCommit(buffer.remove(requiredKey), rsaLoader, id, snapShotId);
                 requiredKey++;
             }
 

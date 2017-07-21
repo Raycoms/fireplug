@@ -505,8 +505,13 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * @param keyLoader the key loader.
      * @param idClient the id of the server.
      */
-    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient)
+    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient, final long clientSnapshot)
     {
+        if(!clients.containsKey(idClient) || clients.get(idClient) < clientSnapshot)
+        {
+            clients.put(idClient, clientSnapshot);
+        }
+
         synchronized (commitLock)
         {
             //First sign, then execute;
