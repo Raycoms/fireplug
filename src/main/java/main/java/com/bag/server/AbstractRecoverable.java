@@ -261,13 +261,13 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             if (smallestSnapshot > 0)
             {
                 final long end = globalWriteSet.firstKey();
-                Log.getLogger().warn("Global size; " + globalWriteSet.size() + " deleting from: " + smallestSnapshot + " to: " + end);
+                Log.getLogger().info("Global size; " + globalWriteSet.size() + " deleting from: " + smallestSnapshot + " to: " + end);
 
                 for (long i = end; i < smallestSnapshot; i++)
                 {
                     globalWriteSet.remove(i);
                 }
-                Log.getLogger().warn("Global size now; " + globalWriteSet.size());
+                Log.getLogger().info("Global size now; " + globalWriteSet.size());
             }
             lock.unlock();
         }
