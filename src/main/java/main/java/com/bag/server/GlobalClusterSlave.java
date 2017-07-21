@@ -547,7 +547,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 try
                 {
                     kryo.writeObject(output, Constants.READ_MESSAGE);
-                    output = handleNodeRead(input, kryo, output);
+                    output = handleNodeRead(input, kryo, output, messageContext.getSender());
                 }
                 catch (Exception t)
                 {
@@ -561,7 +561,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 try
                 {
                     kryo.writeObject(output, Constants.READ_MESSAGE);
-                    output = handleRelationshipRead(input, kryo, output);
+                    output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
                 }
                 catch (Exception t)
                 {
