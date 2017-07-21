@@ -237,14 +237,8 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     abstract Output writeSpecificData(final Output output, final Kryo kryo);
 
-    @Override
-    public byte[] getSnapshot()
+    private void shortCleanUp()
     {
-        if (globalWriteSet == null || latestWritesSet == null)
-        {
-            return new byte[] {0};
-        }
-
         if(!clients.isEmpty())
         {
             long smallestSnapshot = -1;
@@ -269,6 +263,15 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
             }
         }
+    }
+
+    @Override
+    public byte[] getSnapshot()
+    {
+        /*if (globalWriteSet == null || latestWritesSet == null)
+        {
+            return new byte[] {0};
+        }*/
 
         /*Log.getLogger().warn("Snapshot!");
         //Log.getLogger().warn("Get snapshot!!: " + globalWriteSet.size() + " + " + latestWritesSet.estimatedSize());
@@ -330,6 +333,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             if(!clients.containsKey(clientId) || clients.get(clientId) < localSnapshotId)
             {
                 clients.put(clientId, localSnapshotId);
+                if(localSnapshotId % 1000 == 0)
+                {
+                    shortCleanUp();
+                }
             }
         }
         ArrayList<Object> returnList = null;
