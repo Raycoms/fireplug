@@ -192,12 +192,12 @@ public class LocalClusterSlave extends AbstractRecoverable
             case Constants.READ_MESSAGE:
                 Log.getLogger().info("Received Node read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
-                output = handleNodeRead(input, kryo, output);
+                output = handleNodeRead(input, kryo, output, messageContext.getSender());
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
                 Log.getLogger().info("Received Relationship read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
-                output = handleRelationshipRead(input, kryo, output);
+                output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
                 break;
             case Constants.GET_PRIMARY:
                 Log.getLogger().info("Received GetPrimary message");
