@@ -300,6 +300,10 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         {
             Log.getLogger().warn("Couldn't execute SHA1 for node", e);
         }
+        catch (RuntimeException e)
+        {
+            Log.getLogger().warn("Couldn't execute the query, return false");
+        }
         finally
         {
             sess.close();
