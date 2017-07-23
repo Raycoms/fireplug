@@ -285,7 +285,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             long start = objsStart.get(0);
             long end = objsEnd.get(0);
 
-            if (start == 0 || end == 0)
+            if (start <= 0 || end <= 0)
             {
                 sess.close();
                 return false;
