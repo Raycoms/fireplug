@@ -439,8 +439,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             if(localClusterId == -1)
             {
                 final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
-                final int[] servers = new int[3];
-                final int spare = servers[new Random().nextInt(currentViewProcesses.length)];
+                final int[] servers = new int[2];
+                final int spare = servers[new Random().nextInt(currentViewProcesses.length-1)];
 
                 int i = 0;
                 for(final int processI : currentViewProcesses)
