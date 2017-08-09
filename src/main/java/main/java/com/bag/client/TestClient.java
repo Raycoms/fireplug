@@ -438,14 +438,16 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             final byte[] answer;
             if(localClusterId == -1)
             {
+                //List of all view processes
                 final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
-                final int[] servers = new int[2];
-                final int spare = servers[new Random().nextInt(currentViewProcesses.length-1)];
+                //The servers we will actually contact
+                final int[] servers = new int[3];
+                //final int spare = servers[new Random().nextInt(currentViewProcesses.length)];
 
                 int i = 0;
                 for(final int processI : currentViewProcesses)
                 {
-                    if(spare != processI)
+                    if(i < servers.length)
                     {
                         servers[i] = processI;
                         i++;
