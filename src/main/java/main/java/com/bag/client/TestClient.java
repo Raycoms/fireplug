@@ -34,7 +34,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     /**
      * Should the transaction runNetty in secure mode?
      */
-    private boolean secureMode = false;
+    private boolean secureMode = true;
 
     /**
      * The place the local config file is. This + the cluster id will contain the concrete cluster config location.
@@ -113,7 +113,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             globalProxy = new ServiceProxy(100 + getProcessId(), "global/config");
         }
 
-        secureMode = false;
+        secureMode = true;
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
@@ -419,7 +419,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         if (readOnly && !secureMode)
         {
-            verifyReadSet();
+            //verifyReadSet();
             Log.getLogger().warn(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
             resetSets();
@@ -462,7 +462,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             {
                 answer = globalProxy.invokeUnordered(bytes);
             }
-            Log.getLogger().warn(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
+            Log.getLogger().info(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
 
             final Input input = new Input(answer);
             final String messageType = kryo.readObject(input, String.class);
