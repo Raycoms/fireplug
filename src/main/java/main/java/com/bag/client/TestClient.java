@@ -454,6 +454,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     }
                 }
 
+                Log.getLogger().warn("Sending to: " + Arrays.toString(servers));
                 sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);
                 return;
             }
