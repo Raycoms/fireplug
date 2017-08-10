@@ -56,6 +56,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private ArrayList<IOperation> writeSet;
 
     /**
+     * Amount of responses.
+     */
+    private int responses = 0;
+
+    /**
      * Defines if the client is currently committing.
      */
     private boolean isCommitting = false;
@@ -409,7 +414,10 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
 
         Log.getLogger().info("Reset after commit");
-        resetSets();
+        if(++responses >= 3)
+        {
+            resetSets();
+        }
 
         input.close();
         pool.release(kryo);
@@ -664,6 +672,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
         isCommitting = false;
+        responses = 0;
     }
 
     /**
