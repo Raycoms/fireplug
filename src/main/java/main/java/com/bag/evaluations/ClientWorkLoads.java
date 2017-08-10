@@ -534,14 +534,6 @@ public class ClientWorkLoads
                     client.commit();
                     while(client.isCommitting())
                     {
-                        try
-                        {
-                            Thread.sleep(1);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
                         /*
                          * Wait until the commit finished.
                          */
