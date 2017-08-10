@@ -537,7 +537,7 @@ public class ClientWorkLoads
                         /*
                          * Wait until the commit finished.
                          */
-                        Log.getLogger().warn("Commit not finished yet");
+                        Log.getLogger().info("Commit not finished yet");
                     }
                     commits += 1;
                 }
