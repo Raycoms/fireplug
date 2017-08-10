@@ -392,7 +392,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final String decision = kryo.readObject(input, String.class);
         localTimestamp = kryo.readObject(input, Long.class);
 
-        Log.getLogger().warn("Processing commit return: " + localTimestamp);
+        Log.getLogger().info("Processing commit return: " + localTimestamp);
 
         if(Constants.COMMIT.equals(decision))
         {
@@ -457,7 +457,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     }
                 }
 
-                Log.getLogger().warn("Sending to: " + Arrays.toString(servers));
+                Log.getLogger().info("Sending to: " + Arrays.toString(servers));
                 sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);
                 return;
             }
