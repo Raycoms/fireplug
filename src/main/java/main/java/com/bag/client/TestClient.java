@@ -309,6 +309,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
+        Log.getLogger().warn("Process read return!");
+
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
@@ -389,6 +391,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         final String decision = kryo.readObject(input, String.class);
         localTimestamp = kryo.readObject(input, Long.class);
+
+        Log.getLogger().warn("Processing commit return: " + localTimestamp);
 
         if(Constants.COMMIT.equals(decision))
         {
