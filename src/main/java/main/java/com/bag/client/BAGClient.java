@@ -28,4 +28,10 @@ public interface BAGClient {
      * Commit reaches the server, if secure commit send to all, else only send to one
      */
     public void commit();
+
+    /**
+     * Check if the client is comitting.
+     * @return true if so.
+     */
+    public boolean isCommitting();
 }

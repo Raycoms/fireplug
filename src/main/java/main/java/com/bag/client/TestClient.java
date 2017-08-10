@@ -56,6 +56,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private ArrayList<IOperation> writeSet;
 
     /**
+     * Defines if the client is currently committing.
+     */
+    private boolean isCommitting = false;
+
+    /**
      * Local timestamp of the current transaction.
      */
     private long localTimestamp = -1;
@@ -457,6 +462,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     }
                 }
 
+                isCommitting = true;
                 Log.getLogger().info("Sending to: " + Arrays.toString(servers));
                 sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);
                 return;
@@ -657,6 +663,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         readsSetNode = new ArrayList<>();
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
+        isCommitting = false;
     }
 
     /**
@@ -666,6 +673,12 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private boolean isReadOnly()
     {
         return writeSet.isEmpty();
+    }
+
+    @Override
+    public boolean isCommitting()
+    {
+        return isCommitting;
     }
 
     /**

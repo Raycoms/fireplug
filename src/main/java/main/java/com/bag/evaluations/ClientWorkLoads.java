@@ -532,6 +532,12 @@ public class ClientWorkLoads
                 if (i % commitAfter == 0)
                 {
                     client.commit();
+                    while(client.isCommitting())
+                    {
+                        /*
+                         * Wait until the commit finished.
+                         */
+                    }
                     commits += 1;
                 }
 

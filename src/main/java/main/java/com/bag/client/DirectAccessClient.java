@@ -247,4 +247,9 @@ public class DirectAccessClient implements BAGClient {
         }
     }
 
+    @Override
+    public boolean isCommitting()
+    {
+        return false;
+    }
 }
