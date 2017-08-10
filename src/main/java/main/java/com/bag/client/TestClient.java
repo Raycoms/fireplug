@@ -276,7 +276,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
                     processCommitReturn(reply.getContent());
-                    super.replyReceived(reply);
                     break;
                 default:
                     Log.getLogger().info("Unexpected message type!");
