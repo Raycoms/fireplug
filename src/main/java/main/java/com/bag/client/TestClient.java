@@ -414,10 +414,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
 
         Log.getLogger().info("Reset after commit");
-        if(++responses >= 3)
-        {
-            resetSets();
-        }
+        resetSets();
 
         input.close();
         pool.release(kryo);
@@ -454,7 +451,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             final byte[] answer;
             if(localClusterId == -1)
             {
-                //List of all view processes
+                /*//List of all view processes
                 final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
                 //The servers we will actually contact
                 final int[] servers = new int[3];
@@ -472,8 +469,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
                 isCommitting = true;
                 Log.getLogger().info("Sending to: " + Arrays.toString(servers));
-                sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);
-                return;
+                sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);*/
+                answer = invokeUnordered(bytes);
             }
             else
             {
