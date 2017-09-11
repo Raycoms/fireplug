@@ -54,7 +54,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     {
         Log.getLogger().warn("Starting OrientDB database service on " + this.id);
 
-        factory = new OrientGraphFactory(BASE_PATH + this.id).setupPool(1, 10);
+        factory = new OrientGraphFactory(BASE_PATH + this.id);
     }
 
     /**
