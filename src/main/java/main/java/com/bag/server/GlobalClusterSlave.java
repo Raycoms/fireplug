@@ -12,6 +12,7 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import main.java.com.bag.operations.IOperation;
+import main.java.com.bag.server.database.SparkseeDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -590,7 +591,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
             case Constants.COMMIT:
                 Log.getLogger().info("Received commit message");
                 output.close();
-                byte[] result = handleReadOnlyCommit(input, kryo);
+                byte[] result;
+                if(wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
+                {
+                    result = new byte[]{0};
+                }
+                else
+                {
+                    result = handleReadOnlyCommit(input, kryo);
+                }
                 input.close();
                 pool.release(kryo);
                 Log.getLogger().info("Return it to client, size: " + result.length);
