@@ -452,7 +452,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             if(localClusterId == -1)
             {
                 //List of all view processes
-                final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
+                /*final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
                 //The servers we will actually contact
                 final int[] servers = new int[3];
                 //final int spare = servers[new Random().nextInt(currentViewProcesses.length)];
@@ -469,12 +469,13 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
                 isCommitting = true;
                 Log.getLogger().info("Sending to: " + Arrays.toString(servers));
-                sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);
-                //answer = invokeUnordered(bytes);
-                return;
+                //sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);*/
+                answer = invokeUnordered(bytes);
             }
-
-            answer = globalProxy.invokeUnordered(bytes);
+            else
+            {
+                answer = globalProxy.invokeUnordered(bytes);
+            }
 
             Log.getLogger().info(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
 
