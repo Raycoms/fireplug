@@ -302,7 +302,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         catch (RuntimeException e)
         {
-            Log.getLogger().warn("Couldn't execute the query, return false");
+            Log.getLogger().warn("Couldn't execute the query, return false", e);
         }
         finally
         {
