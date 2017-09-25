@@ -57,6 +57,16 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         factory = new OrientGraphFactory(BASE_PATH + this.id);
     }
 
+    @Override
+    public boolean shouldFollow(final int sequence)
+    {
+        if(sequence >= 6 && sequence < 9)
+        {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Creates a transaction which will get a list of nodes.
      *

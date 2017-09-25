@@ -145,4 +145,11 @@ public interface IDatabaseAccess
      * @return list of objects.
      */
     List<Object> readObject(Object identifier, long localSnapshotId) throws OutDatedDataException;
+
+    /**
+     * Checks if this db should try to check requests with this sequence number.
+     * @param sequence the sequence number.
+     * @return true if so.
+     */
+    boolean shouldFollow(int sequence);
 }

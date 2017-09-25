@@ -166,4 +166,10 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
 
         return returnList;
     }
+
+    @Override
+    public boolean shouldFollow(final int sequence)
+    {
+        return true;
+    }
 }

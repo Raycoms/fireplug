@@ -239,6 +239,16 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         return returnStorage;
     }
 
+    @Override
+    public boolean shouldFollow(final int sequence)
+    {
+        if(sequence == 9)
+        {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Transforms a map of properties to a map of params for neo4j.
      *

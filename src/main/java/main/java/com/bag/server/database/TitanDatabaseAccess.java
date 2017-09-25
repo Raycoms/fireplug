@@ -59,6 +59,16 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         mg.commit();
     }
 
+    @Override
+    public boolean shouldFollow(final int sequence)
+    {
+        if(sequence <= 2)
+        {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Creates a transaction which will get a list of nodes.
      *

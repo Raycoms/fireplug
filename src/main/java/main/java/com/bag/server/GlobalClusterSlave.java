@@ -590,15 +590,23 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 pool.release(kryo);
                 return handleGlobalRegistryCheck(input, kryo);
             case Constants.COMMIT:
-                Log.getLogger().error("Received commit message: " + input.getBuffer().length + "seq: " + messageContext.getSequence()
-                        + " Consensus id: " + messageContext.getConsensusId() + " seed: " + messageContext.getSeed() + " regency: " + messageContext.getRegency() + " nonces: " + messageContext.getNumOfNonces());
+                Log.getLogger().info("Received commit message: " + input.getBuffer().length);
+
+                final int sequence = messageContext.getSequence();
                 output.close();
+
+                if(!wrapper.getDataBaseAccess().shouldFollow(sequence%10))
+                {
+                    input.close();
+                    pool.release(kryo);
+                    return new byte[]{0};
+                }
+
                 byte[] result;
 
                 result = handleReadOnlyCommit(input, kryo);
 
-                input.close();
-                pool.release(kryo);
+
                 Log.getLogger().info("Return it to client, size: " + result.length);
                 return result;
             default:

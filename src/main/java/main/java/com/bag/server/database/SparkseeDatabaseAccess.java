@@ -263,6 +263,16 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
+    public boolean shouldFollow(final int sequence)
+    {
+        if(sequence >= 3 && sequence < 5)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public boolean compareRelationship(final RelationshipStorage storage)
     {
         final Session sess = db.newSession();
