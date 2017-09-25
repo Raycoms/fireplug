@@ -45,8 +45,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final int id;
 
-     * The id of t
-    /**he internal client used in this server
+
+    /**
+     * The internal client used in this server
      */
     private final int idClient;
 
