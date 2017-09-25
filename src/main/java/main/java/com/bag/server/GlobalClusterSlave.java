@@ -592,11 +592,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
             case Constants.COMMIT:
                 Log.getLogger().info("Received commit message: " + input.getBuffer().length);
 
-                final int sequence = messageContext.getSequence();
+                final int sequence = input.hashCode();
                 output.close();
 
-                if(!wrapper.getDataBaseAccess().shouldFollow(input.hashCode()%10))
+                if(!wrapper.getDataBaseAccess().shouldFollow(sequence%10))
                 {
+                    Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + messageContext.getSequence());
                     input.close();
                     pool.release(kryo);
                     return new byte[]{0};
