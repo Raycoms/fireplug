@@ -318,7 +318,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        Log.getLogger().warn("Process read return!");
+        Log.getLogger().info("Process read return!");
 
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
