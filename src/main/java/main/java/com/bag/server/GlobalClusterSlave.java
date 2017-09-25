@@ -592,7 +592,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             case Constants.COMMIT:
                 Log.getLogger().error("Received commit message: " + input.getBuffer().length + "seq: " + messageContext.getSequence()
                         + " Consensus id: " + messageContext.getConsensusId() + " seed: " + messageContext.getSeed() + " regency: " + messageContext.getRegency() + " nonces: " + messageContext.getNumOfNonces());
-                doutput.close();
+                output.close();
                 byte[] result;
 
                 result = handleReadOnlyCommit(input, kryo);
