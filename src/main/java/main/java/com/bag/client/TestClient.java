@@ -225,7 +225,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      */
     private void handleDeleteRequest(Object identifier)
     {
-        //todo we can delete creates here.
         if(identifier instanceof NodeStorage)
         {
             writeSet.add(new DeleteOperation<>((NodeStorage) identifier));
