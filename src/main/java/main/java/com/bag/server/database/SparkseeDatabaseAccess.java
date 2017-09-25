@@ -265,7 +265,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean shouldFollow(final int sequence)
     {
-        if(sequence >= 3 && sequence < 5)
+        if(sequence >= 3 && sequence < 6)
         {
             return false;
         }
