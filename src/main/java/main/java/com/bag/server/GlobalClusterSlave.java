@@ -597,7 +597,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 if(!wrapper.getDataBaseAccess().shouldFollow(sequence%10))
                 {
-                    Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + messageContext.getSequence());
+                    Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + sequence);
                     input.close();
                     pool.release(kryo);
                     return new byte[]{0};
