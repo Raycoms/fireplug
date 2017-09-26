@@ -111,7 +111,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
                     final Long timeStamp = kryo.readObject(input, Long.class);
-                    byte[] result = makeEmptyAbortResult();
+                    byte[] result = executeCommit(kryo, input, timeStamp);
                     pool.release(kryo);
                     allResults[i] = result;
                 }
@@ -548,12 +548,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Received Node read message");
                 try
                 {
-                    Log.getLogger().warn("Starting node-read");
                     kryo.writeObject(output, Constants.READ_MESSAGE);
-                    updateCounts(0, 1, 0, 0);
-                    //output = handleNodeRead(input, kryo, output, messageContext.getSender());
-                    Log.getLogger().warn("Returning node-read");
-                    return makeEmptyAbortResult();
+                    output = handleNodeRead(input, kryo, output, messageContext.getSender());
                 }
                 catch (Exception t)
                 {
@@ -566,11 +562,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Received Relationship read message");
                 try
                 {
-                    Log.getLogger().warn("Starting rs-read");
                     kryo.writeObject(output, Constants.READ_MESSAGE);
-                    //output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
-                    Log.getLogger().warn("Returning rs-read");
-                    return makeEmptyAbortResult();
+                    output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
                 }
                 catch (Exception t)
                 {
@@ -598,10 +591,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 return handleGlobalRegistryCheck(input, kryo);
             case Constants.COMMIT:
                 Log.getLogger().info("Received commit message: " + input.getBuffer().length);
-
-                final int sequence = input.hashCode();
-                output.close();
-
                 /*if(!wrapper.getDataBaseAccess().shouldFollow(sequence%10))
                 {
                     Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + sequence);
@@ -611,11 +600,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }*/
 
                 byte[] result;
-
-                result = makeEmptyAbortResult();
+                result = handleReadOnlyCommit(input, kryo);
                 input.close();
                 pool.release(kryo);
-
                 Log.getLogger().info("Return it to client, size: " + result.length);
                 return result;
             default:
