@@ -691,8 +691,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 serverProcess = 3;
             }
         }
-
-        serverProcess = 1;
     }
 
     /**
