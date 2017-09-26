@@ -312,7 +312,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         catch (RuntimeException e)
         {
-            Log.getLogger().warn("Couldn't execute the query, return false", e);
+            Log.getLogger().warn("Couldn't execute the query, return false at sparksee");
         }
         finally
         {
@@ -363,7 +363,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     private List<String> reorderKeysToPutIdxFirst(Map<String, Object> map)
     {
         List<String> keys = new ArrayList<>(map.keySet());
-        if (keys.size() <= 0)
+        if (keys.isEmpty())
             return keys;
 
         if (keys.get(0).equals("idx"))
