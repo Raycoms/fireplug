@@ -73,7 +73,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     /**
      * The id of the local server process the client is communicating with.
      */
-    private final int serverProcess;
+    private int serverProcess;
 
     /**
      * Lock object to let the thread wait for a read return.
@@ -300,7 +300,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         else
         {
             Log.getLogger().info("Receiving other type of request." + reply.getReqType().name());
-
         }
         pool.release(kryo);
         super.replyReceived(reply);
@@ -670,6 +669,30 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         writeSet = new ArrayList<>();
         isCommitting = false;
         responses = 0;
+        final Random random = new Random();
+        int randomNumber = random.nextInt(4);
+
+        if(randomNumber <= 1)
+        {
+            serverProcess = 0;
+        }
+        else if(randomNumber == 2)
+        {
+            serverProcess = 1;
+        }
+        else if(randomNumber == 3)
+        {
+            if(random.nextInt(1) == 0)
+            {
+                serverProcess = 2;
+            }
+            else
+            {
+                serverProcess = 3;
+            }
+        }
+
+        serverProcess = 1;
     }
 
     /**
