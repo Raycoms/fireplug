@@ -548,8 +548,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Received Node read message");
                 try
                 {
+                    Log.getLogger().warn("Starting node-read");
                     kryo.writeObject(output, Constants.READ_MESSAGE);
                     output = handleNodeRead(input, kryo, output, messageContext.getSender());
+                    Log.getLogger().warn("Returning node-read");
                 }
                 catch (Exception t)
                 {
@@ -562,8 +564,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Received Relationship read message");
                 try
                 {
+                    Log.getLogger().warn("Starting rs-read");
                     kryo.writeObject(output, Constants.READ_MESSAGE);
                     output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
+                    Log.getLogger().warn("Returning rs-read");
                 }
                 catch (Exception t)
                 {
