@@ -111,7 +111,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
                     final Long timeStamp = kryo.readObject(input, Long.class);
-                    byte[] result = executeCommit(kryo, input, timeStamp);
+                    byte[] result = makeEmptyAbortResult();
                     pool.release(kryo);
                     allResults[i] = result;
                 }
@@ -605,7 +605,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 byte[] result;
 
-                result = handleReadOnlyCommit(input, kryo);
+                result = makeEmptyAbortResult();
                 input.close();
                 pool.release(kryo);
 
