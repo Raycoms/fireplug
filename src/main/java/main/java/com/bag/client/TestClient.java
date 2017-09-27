@@ -670,28 +670,28 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         isCommitting = false;
         responses = 0;
         final Random random = new Random();
-        int randomNumber = random.nextInt(4);
+        int randomNumber = random.nextInt(10);
 
-        if(randomNumber <= 1)
+        if(randomNumber < 5)
         {
             serverProcess = 0;
             return;
         }
 
-        if(randomNumber == 2)
+        if(randomNumber <= 7)
         {
             serverProcess = 1;
             return;
         }
 
 
-        if(random.nextInt(2) == 0)
+        if(randomNumber <= 8)
         {
             serverProcess = 2;
             return;
         }
 
-        serverProcess = 1;
+        serverProcess = 3;
     }
 
     /**
