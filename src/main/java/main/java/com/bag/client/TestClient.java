@@ -675,22 +675,23 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         if(randomNumber <= 1)
         {
             serverProcess = 0;
+            return;
         }
-        else if(randomNumber == 2)
+
+        if(randomNumber == 2)
         {
             serverProcess = 1;
+            return;
         }
-        else if(randomNumber == 3)
+
+
+        if(random.nextInt(2) == 0)
         {
-            if(random.nextInt(2) == 0)
-            {
-                serverProcess = 2;
-            }
-            else
-            {
-                serverProcess = 3;
-            }
+            serverProcess = 2;
+            return;
         }
+
+        serverProcess = 1;
     }
 
     /**
