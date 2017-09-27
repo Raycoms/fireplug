@@ -672,7 +672,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final Random random = new Random();
         int randomNumber = random.nextInt(10);
 
-        if(randomNumber <= 6)
+        if(randomNumber <= 7)
         {
             serverProcess = 0;
             return;
