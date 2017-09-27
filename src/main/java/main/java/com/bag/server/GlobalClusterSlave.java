@@ -591,13 +591,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 return handleGlobalRegistryCheck(input, kryo);
             case Constants.COMMIT:
                 Log.getLogger().info("Received commit message: " + input.getBuffer().length);
-                /*if(!wrapper.getDataBaseAccess().shouldFollow(sequence%10))
+                if(wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
                 {
-                    Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + sequence);
+                    //Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + sequence);
                     input.close();
                     pool.release(kryo);
                     return new byte[]{0};
-                }*/
+                }
 
                 byte[] result;
                 result = handleReadOnlyCommit(input, kryo);
