@@ -678,11 +678,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        if(randomNumber <= 997)
+        if(randomNumber <= 998)
         {
             serverProcess = 1;
         }
-        else if(randomNumber <= 998)
+        else
         {
             serverProcess = 3;
         }
