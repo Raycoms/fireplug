@@ -302,11 +302,13 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 {
                     start = objsStart.get(checkedIndex);
                 }
-                else if(graph.getObjectType(end) != Type.getNodesType())
+
+                if(graph.getObjectType(end) != Type.getNodesType())
                 {
                     end = objsStart.get(checkedIndex);
                 }
-                else
+
+                if(graph.getObjectType(end) != Type.getNodesType() && graph.getObjectType(start) != Type.getNodesType())
                 {
                     break;
                 }
