@@ -677,7 +677,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         int randomNumber = random.nextInt(100000);
 
-        if(randomNumber <= 65000)
+        if(randomNumber <= 70000)
         {
             serverProcess = 0;
             return;
@@ -689,7 +689,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             return;
         }
 
-        if(randomNumber <= 99998)
+        if(randomNumber <= 99999)
         {
             serverProcess = 3;
             return;
