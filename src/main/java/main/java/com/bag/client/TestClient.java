@@ -71,6 +71,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private long localTimestamp = -1;
 
     /**
+     * Random var, instantiated only once!
+     */
+    final Random random = new Random();
+
+    /**
      * The id of the local server process the client is communicating with.
      */
     private int serverProcess;
@@ -669,16 +674,16 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         writeSet = new ArrayList<>();
         isCommitting = false;
         responses = 0;
-        final Random random = new Random();
-        int randomNumber = random.nextInt(1000);
 
-        if(randomNumber <= 650)
+        //int randomNumber = random.nextInt(1000);
+
+        /*if(randomNumber <= 650)
         {
             serverProcess = 0;
             return;
         }
 
-        serverProcess = 1;
+        serverProcess = 1;*/
     }
 
     /**
