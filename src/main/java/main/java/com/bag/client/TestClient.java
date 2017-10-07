@@ -677,12 +677,12 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         /*int randomNumber = random.nextInt(100);
 
-        if(randomNumber <= 33)
+        if(randomNumber <= 50)
         {
             serverProcess = 1;
             return;
         }
-        else if(randomNumber <= 66)
+        else if(randomNumber <= 80)
         {
             serverProcess = 2;
             return;
