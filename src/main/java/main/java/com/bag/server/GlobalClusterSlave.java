@@ -13,7 +13,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.server.database.SparkseeDatabaseAccess;
-import main.java.com.bag.server.database.TitanDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -194,10 +193,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         input.close();
 
-        /*if(wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess && writeSetX.isEmpty())
+        if(wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess && writeSetX.isEmpty())
         {
             return new byte[]{0};
-        }*/
+        }
 
         Output output = new Output(128);
         kryo.writeObject(output, Constants.COMMIT_RESPONSE);
@@ -598,13 +597,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 return handleGlobalRegistryCheck(input, kryo);
             case Constants.COMMIT:
                 Log.getLogger().info("Received commit message: " + input.getBuffer().length);
-                /*if(wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
+                if(wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
                 {
                     //Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + sequence);
                     input.close();
                     pool.release(kryo);
                     return new byte[]{0};
-                }*/
+                }
 
                 byte[] result;
                 result = handleReadOnlyCommit(input, kryo);
