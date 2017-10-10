@@ -295,7 +295,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             long start = objsStart.get(0);
             long end = objsEnd.get(0);
 
-            int checkedIndex = 0;
+            int checkedIndex = 1;
             while(objsEnd.size() >= checkedIndex)
             {
                 if(graph.getObjectType(start) != Type.getNodesType())
@@ -308,7 +308,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                     end = objsStart.get(checkedIndex);
                 }
 
-                if(graph.getObjectType(end) != Type.getNodesType() && graph.getObjectType(start) != Type.getNodesType())
+                if(graph.getObjectType(end) == Type.getNodesType() && graph.getObjectType(start) == Type.getNodesType())
                 {
                     break;
                 }
