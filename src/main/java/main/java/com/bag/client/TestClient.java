@@ -477,7 +477,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             else
             {
-                answer = invokeUnordered(bytes);
+                answer = globalProxy.invokeUnordered(bytes);
             }
 
             Log.getLogger().info(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
@@ -502,25 +502,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                 return;
             }
-            else
-            {
-                Log.getLogger().error("Fallback!!!!!!!!!!!!!!!!");
-                resetSets();
-                firstRead = true;
-                //Fallback!
-                byte[] newAnswer = globalProxy.invokeUnordered(bytes);
-                Input theInput = new Input(newAnswer);
-                boolean newCommit = Constants.COMMIT.equals(kryo.readObject(theInput, String.class));
-                if (newCommit)
-                {
-                    localTimestamp = kryo.readObject(input, Long.class);
-                    resetSets();
-                    firstRead = true;
-                    Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
-                    return;
-                }
-            }
-
             return;
         }
 
