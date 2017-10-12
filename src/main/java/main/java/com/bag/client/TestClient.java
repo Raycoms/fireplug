@@ -477,7 +477,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             else
             {
-                answer = globalProxy.invokeUnordered(bytes);
+                answer = invokeUnordered(bytes);
             }
 
             Log.getLogger().info(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
