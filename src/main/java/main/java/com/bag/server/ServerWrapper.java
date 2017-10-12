@@ -85,7 +85,7 @@ public class ServerWrapper
         if(localClusterSlaveId != -1)
         {
             Log.getLogger().warn("Start local cluster slave with id: "  + localClusterSlaveId);
-            localCluster = new LocalClusterSlave(localClusterSlaveId, this, isPrimary ? globalServerId : initialLeaderId, instrumentation);
+            localCluster = new LocalClusterSlave(localClusterSlaveId, this, initialLeaderId, instrumentation);
             localCluster.setPrimaryGlobalClusterId(initialLeaderId);
             Log.getLogger().warn("Finished turning on local cluster slave with id: " + localClusterSlaveId);
 

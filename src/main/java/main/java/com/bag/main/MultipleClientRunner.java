@@ -131,7 +131,7 @@ public class MultipleClientRunner
     {
         if (args.length < 5)
         {
-            System.out.println("Usage - BAG: MultipleClientRunner bag processId numOfClientsToRun percOfWrites numOfServers");
+            System.out.println("Usage - BAG: MultipleClientRunner bag processId numOfClientsToRun percOfWrites numOfServers localClusterId");
             System.out.println("Usage - Direct: MultipleClientRunner bag processId numOfClientsToRun percOfWrites numOfServers addressesSeparatedByCommas");
             System.out.println("Each process should have an unique processId. The ids of the clients will be generated according to the processId");
         }
