@@ -504,8 +504,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             else
             {
+                Log.getLogger().error("Fallback!!!!!!!!!!!!!!!!");
+                resetSets();
+                firstRead = true;
                 //Fallback!
-                byte[] newAnswer = globalProxy.invokeUnordered(bytes);
+                /*byte[] newAnswer = globalProxy.invokeUnordered(bytes);
                 Input theInput = new Input(newAnswer);
                 boolean newCommit = Constants.COMMIT.equals(kryo.readObject(theInput, String.class));
                 if (newCommit)
@@ -515,7 +518,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     firstRead = true;
                     Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                     return;
-                }
+                }*/
             }
 
             return;
