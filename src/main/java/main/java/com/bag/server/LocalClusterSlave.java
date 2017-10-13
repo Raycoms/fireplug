@@ -190,12 +190,12 @@ public class LocalClusterSlave extends AbstractRecoverable
         switch (reason)
         {
             case Constants.READ_MESSAGE:
-                Log.getLogger().info("Received Node read message");
+                Log.getLogger().warn("Received Node read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleNodeRead(input, kryo, output, messageContext.getSender());
                 break;
             case Constants.RELATIONSHIP_READ_MESSAGE:
-                Log.getLogger().info("Received Relationship read message");
+                Log.getLogger().warn("Received Relationship read message");
                 kryo.writeObject(output, Constants.READ_MESSAGE);
                 output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
                 break;
@@ -205,12 +205,12 @@ public class LocalClusterSlave extends AbstractRecoverable
                 output = handleGetPrimaryMessage(messageContext, output, kryo);
                 break;
             case Constants.COMMIT:
-                Log.getLogger().warn("Received commit message: " + input.getBuffer().length);
+                Log.getLogger().info("Received commit message: " + input.getBuffer().length);
                 output.close();
                 byte[] result = handleReadOnlyCommit(input, kryo);
                 input.close();
                 pool.release(kryo);
-                Log.getLogger().warn("Return it to client: " + input.getBuffer().length  + ", size: " + result.length);
+                Log.getLogger().info("Return it to client: " + input.getBuffer().length  + ", size: " + result.length);
                 return result;
             case Constants.PRIMARY_NOTICE:
                 Log.getLogger().info("Received Primary notice message");
