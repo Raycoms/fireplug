@@ -290,7 +290,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
                     super.replyReceived(reply);
-                    //processCommitReturn(reply.getContent());
+                    processCommitReturn(reply.getContent());
                     break;
                 default:
                     Log.getLogger().info("Unexpected message type!");
@@ -302,7 +302,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             super.replyReceived(reply);
             Log.getLogger().info("Commit return" + reply.getReqType().name());
-            //processCommitReturn(reply.getContent());
+            processCommitReturn(reply.getContent());
         }
         else
         {
@@ -479,7 +479,10 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             else
             {
+                Log.getLogger().warn("Sending");
                 answer = invokeUnordered(bytes);
+                Log.getLogger().warn("Waiting");
+
             }
 
             Log.getLogger().info(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
