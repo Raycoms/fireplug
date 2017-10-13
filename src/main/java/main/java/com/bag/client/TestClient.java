@@ -479,9 +479,9 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             else
             {
-                Log.getLogger().warn("Sending");
-                answer = invokeUnordered(bytes);
-                Log.getLogger().warn("Waiting");
+                //Log.getLogger().warn("Sending");
+                answer = globalProxy.invokeUnordered(bytes);
+                //Log.getLogger().warn("Waiting");
 
             }
 
