@@ -289,6 +289,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     break;
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
+                    super.replyReceived(reply);
                     //processCommitReturn(reply.getContent());
                     break;
                 default:
@@ -299,8 +300,9 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
         else if(reply.getReqType() == TOMMessageType.REPLY || reply.getReqType() == TOMMessageType.ORDERED_REQUEST)
         {
+            super.replyReceived(reply);
             Log.getLogger().info("Commit return" + reply.getReqType().name());
-            processCommitReturn(reply.getContent());
+            //processCommitReturn(reply.getContent());
         }
         else
         {
