@@ -265,7 +265,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
     {
         final Long timeStamp = kryo.readObject(input, Long.class);
-        return executeCommit(kryo, input, timeStamp);
+        return executeReadOnlyCommit(kryo, input, timeStamp);
     }
 
     /**
@@ -275,7 +275,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      * @param input the input.
      * @return the response.
      */
-    private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp)
+    public byte[] executeReadOnlyCommit(final Kryo kryo, final Input input, final long timeStamp)
     {
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -284,8 +284,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         //Create placeHolders.
         ArrayList<NodeStorage> readSetNode;
-        ArrayList<RelationshipStorage
-                > readsSetRelationship;
+        ArrayList<RelationshipStorage> readsSetRelationship;
         ArrayList<IOperation> localWriteSet;
 
         input.close();
@@ -310,17 +309,19 @@ public class LocalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if(!localWriteSet.isEmpty())
-        {
-            Log.getLogger().error("Not a read-only transaction!!!!");
-        }
-
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(), super.getLatestWritesSet(), localWriteSet, readSetNode, readsSetRelationship, timeStamp, wrapper.getDataBaseAccess()))
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                super.getLatestWritesSet(),
+                localWriteSet,
+                readSetNode,
+                readsSetRelationship,
+                timeStamp,
+                wrapper.getDataBaseAccess()))
         {
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
-                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: " + localWriteSet.size()
+                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                            + localWriteSet.size()
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
@@ -332,6 +333,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         updateCounts(0, 0, 1, 0);
+
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
 
