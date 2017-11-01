@@ -451,7 +451,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
-            Log.getLogger().warn(getProcessId() + " Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn(getProcessId() + " Read-only Commit with snapshotId: " + this.localTimestamp);
 
             final byte[] answer;
             if(localClusterId == -1)
@@ -480,6 +480,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             else
             {
                 //Log.getLogger().warn("Sending");
+
                 answer = globalProxy.invokeUnordered(bytes);
                 //Log.getLogger().warn("Waiting");
 
@@ -519,6 +520,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
             Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
+            Log.getLogger().warn(getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
+
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
     }
