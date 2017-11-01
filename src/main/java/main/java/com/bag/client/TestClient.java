@@ -391,6 +391,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         if(result == null)
         {
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");
+            resetSets();
             return;
         }
 
@@ -401,6 +402,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             Log.getLogger().warn("Incorrect response to commit message");
             input.close();
+            resetSets();
             return;
         }
 
@@ -508,6 +510,8 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                 return;
             }
+
+            resetSets();
             return;
         }
 
