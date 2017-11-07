@@ -193,11 +193,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         input.close();
 
-        if(wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess && writeSetX.isEmpty())
-        {
-            return new byte[]{0};
-        }
-
         Output output = new Output(128);
         kryo.writeObject(output, Constants.COMMIT_RESPONSE);
 
