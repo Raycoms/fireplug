@@ -1,5 +1,6 @@
 package main.java.com.bag.operations;
 
+import bftsmart.reconfiguration.util.RSAKeyLoader;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -11,7 +12,7 @@ import java.io.Serializable;
 /**
  * Delete command which may be sent to the database.
  */
-public class DeleteOperation<S extends Serializable> implements Operation, Serializable
+public class DeleteOperation<S extends Serializable> implements IOperation, Serializable
 {
     private final S storage;
 
@@ -26,7 +27,7 @@ public class DeleteOperation<S extends Serializable> implements Operation, Seria
     }
 
     @Override
-    public void apply(@NotNull final IDatabaseAccess access, long snapshotId)
+    public void apply(@NotNull final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
         if(storage instanceof NodeStorage)
         {
@@ -40,6 +41,15 @@ public class DeleteOperation<S extends Serializable> implements Operation, Seria
         {
             Log.getLogger().warn("Trying to delete incorrect type in the database.");
         }
+    }
+
+    /**
+     * Get the Storage object.
+     * @return it.
+     */
+    public Object getObject()
+    {
+        return storage;
     }
 
     @Override
@@ -60,5 +70,11 @@ public class DeleteOperation<S extends Serializable> implements Operation, Seria
             return storage.equals(((RelationshipStorage) e).getStartNode()) || storage.equals(((RelationshipStorage) e).getEndNode());
         }
         return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Delete: " + storage.toString();
     }
 }

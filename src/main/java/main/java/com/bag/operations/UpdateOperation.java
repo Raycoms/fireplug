@@ -1,16 +1,19 @@
 package main.java.com.bag.operations;
 
+import bftsmart.reconfiguration.util.RSAKeyLoader;
+import bftsmart.tom.util.TOMUtil;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Update command which may be sent to the database.
  */
-public class UpdateOperation<S extends Serializable> implements Operation, Serializable
+public class UpdateOperation<S extends Serializable> implements IOperation, Serializable
 {
     private final S key;
     private final S value;
@@ -27,20 +30,52 @@ public class UpdateOperation<S extends Serializable> implements Operation, Seria
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId)
+    public void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
-        if(key instanceof NodeStorage && value instanceof NodeStorage)
+        final byte[] signature;
+        try
         {
-            access.applyUpdate((NodeStorage) key,(NodeStorage) value, snapshotId);
+            if (key instanceof NodeStorage)
+            {
+                final NodeStorage tempStorage = (NodeStorage) value;
+                //signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                //tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
+                access.applyUpdate((NodeStorage) key, tempStorage, snapshotId);
+            }
+            else if (value instanceof RelationshipStorage)
+            {
+                final RelationshipStorage tempStorage = (RelationshipStorage) value;
+                //signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                //tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
+                access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId);
+            }
+            else
+            {
+                Log.getLogger().warn("Trying to update incorrect type in the database.");
+            }
         }
-        else if(key instanceof RelationshipStorage && value instanceof RelationshipStorage)
+        catch (final Exception e)
         {
-            access.applyUpdate((RelationshipStorage) key,(RelationshipStorage) value, snapshotId);
+            Log.getLogger().warn("Unable to sign nodeStorage ", e);
         }
-        else
-        {
-            Log.getLogger().warn("Can't update Node with Relationship or vice versa.");
-        }
+    }
+
+    /**
+     * Get the Storage object.
+     * @return it.
+     */
+    public Object getKey()
+    {
+        return key;
+    }
+
+    /**
+     * Get the Storage object.
+     * @return it.
+     */
+    public Object getValue()
+    {
+        return value;
     }
 
     @Override
@@ -63,5 +98,11 @@ public class UpdateOperation<S extends Serializable> implements Operation, Seria
             return key.equals(((RelationshipStorage) e).getStartNode()) || key.equals(((RelationshipStorage) e).getEndNode());
         }
         return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Update: " + key.toString() + " to " + value.toString();
     }
 }

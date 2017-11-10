@@ -3,6 +3,8 @@ package main.java.com.bag.server.database;
 import com.sparsity.sparksee.gdb.*;
 import main.java.com.bag.util.storage.NodeStorage;
 
+import java.util.Arrays;
+
 import static com.sparsity.sparksee.gdb.DataType.*;
 import static com.sparsity.sparksee.gdb.DataType.String;
 
@@ -118,12 +120,13 @@ public class SparkseeUtils
      * @param graph graph object.
      * @return id of the type.
      */
-    public static int createOrFindAttributeType(String key, Object value, int nodeTypeId, Graph graph)
+    public static int createOrFindAttributeType(final String key, final Object value, final int nodeTypeId, final Graph graph)
     {
         int attributeId = graph.findAttribute(nodeTypeId, key);
         if (Attribute.InvalidAttribute == attributeId)
         {
-            attributeId = graph.newAttribute(Type.getGlobalType(), key, SparkseeUtils.getDataTypeFromObject(value), AttributeKind.Indexed);
+            final AttributeKind kind = "idx".equals(key) ? AttributeKind.Indexed : AttributeKind.Basic;
+            attributeId = graph.newAttribute(Type.getGlobalType(), key, SparkseeUtils.getDataTypeFromObject(value), kind);
         }
         return attributeId;
     }

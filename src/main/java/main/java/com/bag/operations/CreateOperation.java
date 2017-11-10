@@ -1,23 +1,26 @@
 package main.java.com.bag.operations;
 
+import bftsmart.reconfiguration.util.RSAKeyLoader;
+import bftsmart.tom.util.TOMUtil;
 import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Create command which may be sent to the database.
  */
-public class CreateOperation<S extends Serializable> implements Operation, Serializable
+public class CreateOperation<S extends Serializable> implements IOperation, Serializable
 {
     private final S storage;
 
     /**
      * Default constructor for kryo.
      */
-    public CreateOperation(){ storage = null;}
+    public CreateOperation() { storage = null;}
 
     public CreateOperation(final S key)
     {
@@ -25,20 +28,44 @@ public class CreateOperation<S extends Serializable> implements Operation, Seria
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId)
+    public void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
-        if(storage instanceof NodeStorage)
+        final byte[] signature;
+        try
         {
-            access.applyCreate((NodeStorage) storage, snapshotId);
+            if (storage instanceof NodeStorage)
+            {
+                final NodeStorage tempStorage = (NodeStorage) storage;
+                //signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                //tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
+                access.applyCreate( tempStorage, snapshotId);
+            }
+            else if (storage instanceof RelationshipStorage)
+            {
+                final RelationshipStorage tempStorage = (RelationshipStorage) storage;
+                /*signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
+                tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));*/
+                access.applyCreate( tempStorage, snapshotId);
+            }
+            else
+            {
+                Log.getLogger().warn("Trying to create incorrect type in the database.");
+            }
         }
-        else if(storage instanceof RelationshipStorage)
+        catch (final Exception e)
         {
-            access.applyCreate((RelationshipStorage) storage, snapshotId);
+            Log.getLogger().warn("Unable to sign nodeStorage ", e);
         }
-        else
-        {
-            Log.getLogger().warn("Trying to create incorrect type in the database.");
-        }
+    }
+
+    /**
+     * Get the Storage object.
+     *
+     * @return it.
+     */
+    public Object getObject()
+    {
+        return storage;
     }
 
     @Override
@@ -50,14 +77,20 @@ public class CreateOperation<S extends Serializable> implements Operation, Seria
     @Override
     public boolean equals(Object e)
     {
-        if((storage instanceof NodeStorage && e instanceof NodeStorage) || (storage instanceof RelationshipStorage && e instanceof RelationshipStorage))
+        if ((storage instanceof NodeStorage && e instanceof NodeStorage) || (storage instanceof RelationshipStorage && e instanceof RelationshipStorage))
         {
             return storage.equals(e);
         }
-        else if(storage instanceof NodeStorage && e instanceof RelationshipStorage)
+        else if (storage instanceof NodeStorage && e instanceof RelationshipStorage)
         {
             return storage.equals(((RelationshipStorage) e).getStartNode()) || storage.equals(((RelationshipStorage) e).getEndNode());
         }
         return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Create: " + storage.toString();
     }
 }

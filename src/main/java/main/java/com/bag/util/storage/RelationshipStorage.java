@@ -1,5 +1,8 @@
 package main.java.com.bag.util.storage;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import main.java.com.bag.util.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,8 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 /**
@@ -25,8 +27,8 @@ public class RelationshipStorage implements Serializable
     /**
      * The properties of the relationship, may be empty as well.
      */
-    @Nullable
-    private Map<String, Object> properties;
+    @NotNull
+    private Map<String, Object> properties = new TreeMap<>();
 
     /**
      * The node the relationship starts.
@@ -42,8 +44,8 @@ public class RelationshipStorage implements Serializable
 
     public RelationshipStorage()
     {
-        startNode = null;
-        endNode = null;
+        startNode = new NodeStorage();
+        endNode = new NodeStorage();
         id = "";
     }
 
@@ -54,7 +56,7 @@ public class RelationshipStorage implements Serializable
      * @param startNode node the relationship starts.
      * @param endNode   node the relationship ends.
      */
-    public RelationshipStorage(@NotNull String id, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
+    public RelationshipStorage(@NotNull final String id, @NotNull final NodeStorage startNode, @NotNull final NodeStorage endNode)
     {
         this.id = id;
         this.startNode = startNode;
@@ -64,43 +66,15 @@ public class RelationshipStorage implements Serializable
     /**
      * Simple nodeStorage constructor.
      *
-     * @param id        string identifier of the node.
-     * @param type      type of the node.
-     * @param startNode node the relationship starts.
-     * @param endNode   node the relationship ends.
-     */
-    public RelationshipStorage(@NotNull String id, @Nullable String type, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
-    {
-        this(id, startNode, endNode);
-    }
-
-    /**
-     * Simple nodeStorage constructor.
-     *
      * @param id         string identifier of the node.
      * @param properties properties of the node.
      * @param startNode  node the relationship starts.
      * @param endNode    node the relationship ends.
      */
-    public RelationshipStorage(@NotNull String id, @Nullable Map<String, Object> properties, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
+    public RelationshipStorage(@NotNull final String id, @Nullable final Map<String, Object> properties, @NotNull final NodeStorage startNode, @NotNull final NodeStorage endNode)
     {
         this(id, startNode, endNode);
-        this.properties = properties;
-    }
-
-    /**
-     * Simple nodeStorage constructor.
-     *
-     * @param id         string identifier of the node.
-     * @param type       type of the node.
-     * @param properties properties of the node.
-     * @param startNode  node the relationship starts.
-     * @param endNode    node the relationship ends.
-     */
-    public RelationshipStorage(@NotNull String id, @Nullable String type, @Nullable HashMap properties, @NotNull NodeStorage startNode, @NotNull NodeStorage endNode)
-    {
-        this(id, startNode, endNode);
-        this.properties = properties;
+        this.properties.putAll(properties);
     }
 
     /**
@@ -108,6 +82,7 @@ public class RelationshipStorage implements Serializable
      *
      * @return string description of the node.
      */
+    @NotNull
     public String getId()
     {
         return this.id;
@@ -121,7 +96,7 @@ public class RelationshipStorage implements Serializable
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? Collections.emptyMap() : new HashMap<>(properties);
+        return new TreeMap<>(properties);
     }
 
     /**
@@ -129,16 +104,9 @@ public class RelationshipStorage implements Serializable
      *
      * @param properties a property map.
      */
-    public void setProperties(@NotNull final HashMap<String, Object> properties)
+    public void setProperties(@NotNull final Map<String, Object> properties)
     {
-        if (this.properties == null)
-        {
-            this.properties = properties;
-        }
-        else
-        {
-            this.properties.putAll(properties);
-        }
+        this.properties.putAll(properties);
     }
 
     /**
@@ -149,15 +117,12 @@ public class RelationshipStorage implements Serializable
      */
     public void addProperty(String description, Object value)
     {
-        if (this.properties == null)
-        {
-            this.properties = new HashMap<>();
-        }
         this.properties.put(description, value);
     }
 
     /**
      * Getter of the start node.
+     *
      * @return NodeStorage of start node.
      */
     @NotNull
@@ -168,6 +133,7 @@ public class RelationshipStorage implements Serializable
 
     /**
      * Getter of the end node.
+     *
      * @return NodeStorage of end node.
      */
     @NotNull
@@ -211,20 +177,75 @@ public class RelationshipStorage implements Serializable
                 + getStartNode().hashCode()) + getEndNode().hashCode());
     }
 
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+
+        sb.append(startNode.toString());
+        sb.append(") <-- ");
+        sb.append(id);
+
+        sb.append("[");
+        for (Map.Entry<String, Object> item : properties.entrySet())
+        {
+            if(item.getKey().equals("hash") || item.getKey().equals("snapShotId"))
+            {
+                continue;
+            }
+            sb.append(item.getKey());
+            sb.append("=");
+            sb.append(item.getValue());
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("] --> (");
+        sb.append(endNode.toString());
+
+        sb.append(")");
+        return sb.toString();
+    }
+
     /**
      * Remove a certain property from the properties.
+     *
      * @param key the key of the property which should be removed.
      */
     public void removeProperty(String key)
     {
-        if(properties != null)
-        {
-            properties.remove(key);
-        }
+        properties.remove(key);
+    }
+
+    /**
+     * Get the kryo byte array of a relationship storage.
+     * @param kryo the kryo object.
+     * @return the byte array.
+     */
+    public byte[] getByteArray(final Kryo kryo)
+    {
+        final Output output = new Output(0, 100024);
+        kryo.writeObject(output, this);
+        byte[] bytes = output.getBuffer();
+        output.close();
+        return bytes;
+    }
+
+    /**
+     * Get the storage class from a byte array.
+     * @param kryo the kryo object.
+     * @param input the byte array.
+     * @return the storage.
+     */
+    public RelationshipStorage fromBytes(final Kryo kryo, final byte[] input)
+    {
+        final Input tempInput = new Input(input);
+        return kryo.readObject(tempInput, RelationshipStorage.class);
     }
 
     /**
      * Returns a byte representation of the nodeStorage.
+     *
      * @return a byte array.
      */
     public byte[] getBytes()
@@ -232,25 +253,21 @@ public class RelationshipStorage implements Serializable
         StringBuilder sb = new StringBuilder();
         sb.append(id);
 
-        if (properties != null)
+        for (Map.Entry<String, Object> entry : properties.entrySet())
         {
-            for(Map.Entry<String, Object> entry: properties.entrySet())
-            {
-                sb.append(entry.getKey()).append(entry.getValue());
-            }
+            sb.append(entry.getKey()).append(entry.getValue());
         }
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try
         {
-            outputStream.write( sb.toString().getBytes() );
-            outputStream.write( startNode.getBytes() );
-            outputStream.write( endNode.getBytes() );
-
+            outputStream.write(sb.toString().getBytes());
+            outputStream.write(startNode.getBytes());
+            outputStream.write(endNode.getBytes());
         }
         catch (IOException e)
         {
-            Log.getLogger().info(e.getMessage());
+            Log.getLogger().info(e.getMessage(), e);
         }
 
         return outputStream.toByteArray();

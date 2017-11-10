@@ -23,7 +23,7 @@ public class HashCreator
 
         byte[] result = mDigest.digest(node.getBytes());
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (final byte aResult : result)
         {
             sb.append(Integer.toString((aResult & 0xff) + 0x100, 16).substring(1));

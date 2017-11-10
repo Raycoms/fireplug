@@ -1,11 +1,12 @@
 package main.java.com.bag.util.storage;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 /**
@@ -22,37 +23,48 @@ public class NodeStorage implements Serializable
     /**
      * The properties of the node, may be empty as well.
      */
-    @Nullable
-    private Map<String, Object> properties;
+    @NotNull
+    private Map<String, Object> properties = new TreeMap<>();
 
     public NodeStorage()
     {
-        id = "";
+        id = "Node";
     }
 
     /**
      * Simple nodeStorage constructor.
+     *
      * @param id string identifier of the node.
      */
     public NodeStorage(@NotNull String id)
     {
-        this.id = id;
+        this.id = "Node";
+        this.properties = new TreeMap<>();
+        this.properties.put("idx", id);
     }
 
     /**
      * Simple nodeStorage constructor.
-     * @param id string identifier of the node.
+     *
+     * @param id         string identifier of the node.
      * @param properties properties of the node.
      */
-    public NodeStorage(@NotNull String id, @Nullable Map properties)
+    public NodeStorage(@NotNull String id, @NotNull Map<String, Object> properties)
     {
-        this.id = id;
-        this.properties = properties;
+        this.id = "Node";
+        this.properties.putAll(properties);
+        if (!properties.containsKey("idx"))
+        {
+            this.properties.put("idx", id);
+        }
     }
+
     /**
      * Getter of the id.
+     *
      * @return string description of the node.
      */
+    @NotNull
     public String getId()
     {
         return this.id;
@@ -60,44 +72,35 @@ public class NodeStorage implements Serializable
 
     /**
      * Getter of the properties.
+     *
      * @return unmodifiable map of the properties.
      */
     @NotNull
     public Map<String, Object> getProperties()
     {
-        return properties == null ? Collections.emptyMap() : new HashMap<>(properties);
+        return new TreeMap<>(properties);
     }
 
     /**
      * Sets or adds new properties.
+     *
      * @param properties a property map.
      */
-    public void setProperties(@NotNull final HashMap<String, Object> properties)
+    public void setProperties(@NotNull final Map<String, Object> properties)
     {
-        if(this.properties == null)
-        {
-            this.properties = properties;
-        }
-        else
-        {
-            this.properties.putAll(properties);
-        }
+        this.properties.putAll(properties);
     }
 
     /**
      * Add a new property to the properties.
+     *
      * @param description description of the property.
-     * @param value value of the property.
+     * @param value       value of the property.
      */
     public void addProperty(String description, Object value)
     {
-        if(this.properties == null)
-        {
-            this.properties = new HashMap<>();
-        }
         this.properties.put(description, value);
     }
-
 
     @Override
     public boolean equals(final Object o)
@@ -130,32 +133,81 @@ public class NodeStorage implements Serializable
     }
 
     /**
+     * Get the kryo byte array of a relationship storage.
+     * @param kryo the kryo object.
+     * @return the byte array.
+     */
+    public byte[] getByteArray(final Kryo kryo)
+    {
+        final Output output = new Output(0, 100024);
+        kryo.writeObject(output, this);
+        byte[] bytes = output.getBuffer();
+        output.close();
+        return bytes;
+    }
+
+    /**
+     * Get the storage class from a byte array.
+     * @param kryo the kryo object.
+     * @param input the byte array.
+     * @return the storage.
+     */
+    public RelationshipStorage fromBytes(final Kryo kryo, final byte[] input)
+    {
+        final Input tempInput = new Input(input);
+        return kryo.readObject(tempInput, RelationshipStorage.class);
+    }
+
+    /**
      * Remove a certain property from the properties.
+     *
      * @param key the key of the property which should be removed.
      */
     public void removeProperty(String key)
     {
-        if(properties != null)
+        properties.remove(key);
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(id);
+
+        sb.append("[");
+        for (Map.Entry<String, Object> item : properties.entrySet())
         {
-            properties.remove(key);
+            if(item.getKey().equals("hash") || item.getKey().equals("snapShotId"))
+            {
+                continue;
+            }
+            sb.append(item.getKey());
+            sb.append("=");
+            sb.append(item.getValue());
+            sb.append(",");
         }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("]");
+
+
+        return sb.toString();
     }
 
     /**
      * Returns a byte representation of the nodeStorage.
+     *
      * @return a byte array.
      */
     public byte[] getBytes()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(id);
-        if (properties != null)
+
+        for (Map.Entry<String, Object> entry : properties.entrySet())
         {
-            for(Map.Entry<String, Object> entry: properties.entrySet())
-            {
-                sb.append(entry.getKey()).append(entry.getValue());
-            }
+            sb.append(entry.getKey()).append(entry.getValue());
         }
+
         return sb.toString().getBytes();
     }
 }
