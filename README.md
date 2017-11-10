@@ -1,20 +1,11 @@
-BAG - Byzantine fault-tolerant Architecture for Graph database
+Fireplug - Byzantine fault-tolerant Architecture for Graph database
 
+Fireplug is a flexible architecture to build robust geo-replicated graph databases. 
+It can be configured to tolerate from crash to Byzantine faults, both within and across different datacenters. 
+Furthermore, Fireplug is robust to bugs in existing graph database implementations, as it allows to combine multiple graph databases instances in a cohesive manner. 
+Thus, Fireplug can support many different deployments, according to the performance/robustness tradeoffs imposed by the target application. 
+Our evaluation shows that it can implement Byzantine fault tolerance in geo-replicated scenarios and still outperform the built-in replication mechanism of Neo4j, 
+which only supports crash faults.
 
-Setup:
+Currently, offering support for Neo4j, Titan, SparkSee and OrientDB
 
-global:
-
-idInGlobal  instance  idInLocal idOfPrimaryInGlobal  isPrimary
-0           titan       0           0                   true
-1           Neo4j       0           1                   true
-2           orientdb    0           2                   true
-3           sparksee    0           3                   true
-
-
-4           Neo4j       1           1                   false
-5           Neo4j       2           1                   false
-
-
-
-Client: 1 1
