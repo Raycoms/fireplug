@@ -46,7 +46,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      */
     private static final String GLOBAL_CONFIG_LOCATION = "global/config";
 
-
     /**
      * Sets to log reads, updates, deletes and node creations.
      */
@@ -123,7 +122,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     {
         super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId));
 
-        if(localClusterId != -1)
+        if (localClusterId != -1)
         {
             globalProxy = new ServiceProxy(100 + getProcessId(), "global/config");
         }
@@ -133,14 +132,14 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         this.localClusterId = localClusterId;
         initClient();
         super.setComparator((o1, o2) -> {
-            if(Arrays.equals(o1, o2))
+            if (Arrays.equals(o1, o2))
             {
                 return 0;
             }
 
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
-            try(final Input input1 = new Input(o1); final Input input2 = new Input(o2))
+            try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
             {
                 final String messageType1 = kryo.readObject(input1, String.class);
                 final String messageType2 = kryo.readObject(input2, String.class);
@@ -151,7 +150,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     return -1;
                 }
 
-                if(messageType1.equals(Constants.COMMIT_RESPONSE))
+                if (messageType1.equals(Constants.COMMIT_RESPONSE))
                 {
                     final String commit1 = kryo.readObject(input1, String.class);
                     final String commit2 = kryo.readObject(input1, String.class);
@@ -167,9 +166,9 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     System.out.println("Something went, those messages are no commit responses: " + messageType1);
                 }
             }
-            catch(final Exception e)
+            catch (final Exception e)
             {
-                System.out.println("Something went wrong deserializing:" +  e.getMessage());
+                System.out.println("Something went wrong deserializing:" + e.getMessage());
                 return -1;
             }
             finally
@@ -193,6 +192,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Get the blocking queue.
+     *
      * @return the queue.
      */
     @Override
@@ -207,21 +207,21 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     @Override
     public void write(final Object identifier, final Object value)
     {
-        if(identifier == null && value == null)
+        if (identifier == null && value == null)
         {
             Log.getLogger().warn("Unsupported write operation");
             return;
         }
 
         //Must be a create request.
-        if(identifier == null)
+        if (identifier == null)
         {
             handleCreateRequest(value);
             return;
         }
 
         //Must be a delete request.
-        if(value == null)
+        if (value == null)
         {
             handleDeleteRequest(identifier);
             return;
@@ -232,19 +232,20 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Fills the updateSet in the case of an update request.
+     *
      * @param identifier the value to write to.
-     * @param value what should be written.
+     * @param value      what should be written.
      */
     private void handleUpdateRequest(Object identifier, Object value)
     {
         //todo edit create request if equal.
-        if(identifier instanceof NodeStorage && value instanceof NodeStorage)
+        if (identifier instanceof NodeStorage && value instanceof NodeStorage)
         {
-            writeSet.add(new UpdateOperation<>((NodeStorage) identifier,(NodeStorage) value));
+            writeSet.add(new UpdateOperation<>((NodeStorage) identifier, (NodeStorage) value));
         }
-        else if(identifier instanceof RelationshipStorage && value instanceof RelationshipStorage)
+        else if (identifier instanceof RelationshipStorage && value instanceof RelationshipStorage)
         {
-            writeSet.add(new UpdateOperation<>((RelationshipStorage) identifier,(RelationshipStorage) value));
+            writeSet.add(new UpdateOperation<>((RelationshipStorage) identifier, (RelationshipStorage) value));
         }
         else
         {
@@ -254,15 +255,16 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Fills the createSet in the case of a create request.
+     *
      * @param value object to fill in the createSet.
      */
     private void handleCreateRequest(Object value)
     {
-        if(value instanceof NodeStorage)
+        if (value instanceof NodeStorage)
         {
             writeSet.add(new CreateOperation<>((NodeStorage) value));
         }
-        else if(value instanceof RelationshipStorage)
+        else if (value instanceof RelationshipStorage)
         {
             readsSetNode.add(((RelationshipStorage) value).getStartNode());
             readsSetNode.add(((RelationshipStorage) value).getEndNode());
@@ -272,15 +274,16 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Fills the deleteSet in the case of a delete requests and deletes the node also from the create set and updateSet.
+     *
      * @param identifier the object to delete.
      */
     private void handleDeleteRequest(Object identifier)
     {
-        if(identifier instanceof NodeStorage)
+        if (identifier instanceof NodeStorage)
         {
             writeSet.add(new DeleteOperation<>((NodeStorage) identifier));
         }
-        else if(identifier instanceof RelationshipStorage)
+        else if (identifier instanceof RelationshipStorage)
         {
             writeSet.add(new DeleteOperation<>((RelationshipStorage) identifier));
         }
@@ -288,14 +291,15 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * ReadRequests.(Directly read database) send the request to the db.
+     *
      * @param identifiers list of objects which should be read, may be NodeStorage or RelationshipStorage
      */
     @Override
-    public void read(final Object...identifiers)
+    public void read(final Object... identifiers)
     {
         long timeStampToSend = firstRead ? -1 : localTimestamp;
 
-        for(final Object identifier: identifiers)
+        for (final Object identifier : identifiers)
         {
             if (identifier instanceof NodeStorage)
             {
@@ -304,7 +308,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             else if (identifier instanceof RelationshipStorage)
             {
-                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier), 0, 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
+                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier),
+                        0,
+                        0,
+                        new int[] {serverProcess},
+                        TOMMessageType.UNORDERED_REQUEST);
             }
             else
             {
@@ -314,8 +322,119 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         firstRead = false;
     }
 
+    /*public void OrginalReplyReceived(TOMMessage reply)
+    {
+        try
+        {
+            canReceiveLock.lock();
+            if (reqId == -1)
+            {//no message being expected
+                canReceiveLock.unlock();
+                return;
+            }
+
+            int pos = getViewManager().getCurrentViewPos(reply.getSender());
+
+            if (pos < 0)
+            { //ignore messages that don't come from replicas
+                canReceiveLock.unlock();
+                return;
+            }
+
+            int sameContent = 1;
+            if (reply.getSequence() == reqId && reply.getReqType() == requestType)
+            {
+
+                if (requestType == TOMMessageType.UNORDERED_HASHED_REQUEST)
+                {
+                    response = hashResponseController.getResponse(pos, reply);
+                    if (response != null)
+                    {
+                        reqId = -1;
+                        this.sm.release(); // resumes the thread that is executing the "invoke" method
+                        canReceiveLock.unlock();
+                        return;
+                    }
+                }
+                else
+                {
+                    if (replies[pos] == null)
+                    {
+                        receivedReplies++;
+                    }
+                    replies[pos] = reply;
+
+                    // Compare the reply just received, to the others
+
+                    for (int i = 0; i < replies.length; i++)
+                    {
+                        if ((i != pos || getViewManager().getCurrentViewN() == 1) && replies[i] != null)
+                        {
+
+                            if (comparator.compare(replies[i].getContent(), reply.getContent()) != 0)
+                            {
+                                System.out.println("Something went incredibly wrong, there is a byzantine error happening! Printing both message arrays!");
+                                System.out.println(Arrays.toString(reply.getContent()));
+                                System.out.println(Arrays.toString(replies[i].getContent()));
+                                continue;
+                            }
+
+                            sameContent++;
+                            if (sameContent >= replyQuorum)
+                            {
+                                response = extractor.extractResponse(replies, sameContent, pos);
+                                reqId = -1;
+                                this.sm.release(); // resumes the thread that is executing the "invoke" method
+                                canReceiveLock.unlock();
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                if (response == null)
+                {
+                    if (requestType.equals(TOMMessageType.ORDERED_REQUEST))
+                    {
+                        if (receivedReplies == getViewManager().getCurrentViewN())
+                        {
+                            reqId = -1;
+                            this.sm.release(); // resumes the thread that is executing the "invoke" method
+                        }
+                    }
+                    else if (requestType.equals(TOMMessageType.UNORDERED_HASHED_REQUEST))
+                    {
+                        if (hashResponseController.getNumberReplies() == getViewManager().getCurrentViewN())
+                        {
+                            reqId = -1;
+                            this.sm.release(); // resumes the thread that is executing the "invoke" method
+                        }
+                    }
+                    else
+                    {  // UNORDERED
+                        if (receivedReplies != sameContent)
+                        {
+                            reqId = -1;
+                            this.sm.release(); // resumes the thread that is executing the "invoke" method
+                        }
+                    }
+                }
+            }
+
+            // Critical section ends here. The semaphore can be released
+            canReceiveLock.unlock();
+        }
+        catch (Exception ex)
+        {
+            System.out.println("Problem at ServiceProxy.ReplyReceived()");
+            ex.printStackTrace();
+            canReceiveLock.unlock();
+        }
+    }*/
+
     /**
      * Receiving read requests replies here
+     *
      * @param reply the received message.
      */
     @Override
@@ -325,10 +444,10 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final Kryo kryo = pool.borrow();
 
         Log.getLogger().info("reply");
-        if(reply.getReqType() == TOMMessageType.UNORDERED_REQUEST)
+        if (reply.getReqType() == TOMMessageType.UNORDERED_REQUEST)
         {
             final Input input = new Input(reply.getContent());
-            switch(kryo.readObject(input, String.class))
+            switch (kryo.readObject(input, String.class))
             {
                 case Constants.READ_MESSAGE:
                     processReadReturn(input);
@@ -336,7 +455,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
                     super.replyReceived(reply);
-                    processCommitReturn(reply.getContent());
                     break;
                 default:
                     Log.getLogger().info("Unexpected message type!");
@@ -344,11 +462,10 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             input.close();
         }
-        else if(reply.getReqType() == TOMMessageType.REPLY || reply.getReqType() == TOMMessageType.ORDERED_REQUEST)
+        else if (reply.getReqType() == TOMMessageType.REPLY || reply.getReqType() == TOMMessageType.ORDERED_REQUEST)
         {
             super.replyReceived(reply);
             Log.getLogger().info("Commit return" + reply.getReqType().name());
-            processCommitReturn(reply.getContent());
         }
         else
         {
@@ -360,11 +477,12 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Processes the return of a read request. Filling the readsets.
+     *
      * @param input the received bytes in an input..
      */
     private void processReadReturn(final Input input)
     {
-        if(input == null)
+        if (input == null)
         {
             Log.getLogger().warn("TimeOut, Didn't receive an answer from the server!");
             return;
@@ -378,7 +496,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final String result = kryo.readObject(input, String.class);
         this.localTimestamp = kryo.readObject(input, Long.class);
 
-        if(Constants.ABORT.equals(result))
+        if (Constants.ABORT.equals(result))
         {
             input.close();
             pool.release(kryo);
@@ -390,7 +508,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final List nodes = kryo.readObject(input, ArrayList.class);
         final List relationships = kryo.readObject(input, ArrayList.class);
 
-        if(nodes != null && !nodes.isEmpty() && nodes.get(0) instanceof NodeStorage)
+        if (nodes != null && !nodes.isEmpty() && nodes.get(0) instanceof NodeStorage)
         {
             for (final NodeStorage storage : (ArrayList<NodeStorage>) nodes)
             {
@@ -407,9 +525,9 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
         }
 
-        if(relationships != null && !relationships.isEmpty() && relationships.get(0) instanceof RelationshipStorage)
+        if (relationships != null && !relationships.isEmpty() && relationships.get(0) instanceof RelationshipStorage)
         {
-            for (final RelationshipStorage storage : (ArrayList<RelationshipStorage>)relationships)
+            for (final RelationshipStorage storage : (ArrayList<RelationshipStorage>) relationships)
             {
                 final RelationshipStorage tempStorage = new RelationshipStorage(storage.getId(), storage.getProperties(), storage.getStartNode(), storage.getEndNode());
                 try
@@ -434,7 +552,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        if(result == null)
+        if (result == null)
         {
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");
             resetSets();
@@ -444,7 +562,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final Input input = new Input(result);
         final String type = kryo.readObject(input, String.class);
 
-        if(!Constants.COMMIT_RESPONSE.equals(type))
+        if (!Constants.COMMIT_RESPONSE.equals(type))
         {
             Log.getLogger().warn("Incorrect response to commit message");
             input.close();
@@ -457,7 +575,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
         Log.getLogger().info("Processing commit return: " + localTimestamp);
 
-        if(Constants.COMMIT.equals(decision))
+        if (Constants.COMMIT.equals(decision))
         {
             Log.getLogger().info("Transaction succesfully committed");
         }
@@ -502,7 +620,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             Log.getLogger().warn(getProcessId() + " Read-only Commit with snapshotId: " + this.localTimestamp);
 
             final byte[] answer;
-            if(localClusterId == -1)
+            if (localClusterId == -1)
             {
                 //List of all view processes
                 /*final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
@@ -584,15 +702,15 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        for(final NodeStorage storage: readsSetNode)
+        for (final NodeStorage storage : readsSetNode)
         {
-            for(final Map.Entry<String, Object> entry: storage.getProperties().entrySet())
+            for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
             {
-                if(!entry.getKey().contains("signature"))
+                if (!entry.getKey().contains("signature"))
                 {
                     continue;
                 }
-                final int key = Integer.parseInt(entry.getKey().replace("signature",""));
+                final int key = Integer.parseInt(entry.getKey().replace("signature", ""));
 
                 Log.getLogger().warn("Verifying the keys of the nodes");
                 final RSAKeyLoader rsaLoader = new RSAKeyLoader(key, GLOBAL_CONFIG_LOCATION, false);
@@ -615,15 +733,15 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         }
 
         Log.getLogger().warn("Verifying the keys of the relationships");
-        for(final RelationshipStorage storage: readsSetRelationship)
+        for (final RelationshipStorage storage : readsSetRelationship)
         {
-            for(final Map.Entry<String, Object> entry: storage.getProperties().entrySet())
+            for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
             {
-                if(!entry.getKey().contains("signature"))
+                if (!entry.getKey().contains("signature"))
                 {
                     continue;
                 }
-                final int key = Integer.parseInt(entry.getKey().replace("signature",""));
+                final int key = Integer.parseInt(entry.getKey().replace("signature", ""));
 
                 Log.getLogger().warn("Verifying the keys of the nodes");
                 final RSAKeyLoader rsaLoader = new RSAKeyLoader(key, GLOBAL_CONFIG_LOCATION, false);
@@ -650,6 +768,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Serializes the data and returns it in byte format.
+     *
      * @return the data in byte format.
      */
     private byte[] serialize(@NotNull String request)
@@ -668,9 +787,10 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Serializes the data and returns it in byte format.
+     *
      * @return the data in byte format.
      */
-    private byte[] serialize(@NotNull String reason, long localTimestamp, final Object...args)
+    private byte[] serialize(@NotNull String reason, long localTimestamp, final Object... args)
     {
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
@@ -679,9 +799,9 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         kryo.writeObject(output, reason);
         kryo.writeObject(output, localTimestamp);
 
-        for(final Object identifier: args)
+        for (final Object identifier : args)
         {
-            if(identifier instanceof NodeStorage || identifier instanceof RelationshipStorage)
+            if (identifier instanceof NodeStorage || identifier instanceof RelationshipStorage)
             {
                 kryo.writeObject(output, identifier);
             }
@@ -695,6 +815,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Serializes all sets and returns it in byte format.
+     *
      * @return the data in byte format.
      */
     private byte[] serializeAll()
@@ -747,6 +868,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Checks if the transaction has made any changes to the update sets.
+     *
      * @return true if not.
      */
     private boolean isReadOnly()
@@ -762,13 +884,14 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     /**
      * Get the primary of the cluster.
+     *
      * @param kryo the kryo instance.
      * @return the primary id.
      */
     private int getPrimary(final Kryo kryo)
     {
         byte[] response = invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
-        if(response == null)
+        if (response == null)
         {
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");
             return -1;
