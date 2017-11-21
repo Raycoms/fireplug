@@ -132,7 +132,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
-        setComparator((o1, o2) -> {
+        super.setComparator((o1, o2) -> {
             if(Arrays.equals(o1, o2))
             {
                 return 0;
@@ -169,8 +169,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             catch(final Exception e)
             {
-                System.out.println("Something went wrong deserializing");
-                e.printStackTrace();
+                System.out.println("Something went wrong deserializing:" +  e.getMessage());
                 return -1;
             }
             finally
