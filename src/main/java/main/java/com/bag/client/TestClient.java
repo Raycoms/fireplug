@@ -132,6 +132,53 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
+        setComparator((o1, o2) -> {
+            if(Arrays.equals(o1, o2))
+            {
+                return 0;
+            }
+
+            final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+            final Kryo kryo = pool.borrow();
+            try(final Input input1 = new Input(o1); final Input input2 = new Input(o2))
+            {
+                final String messageType1 = kryo.readObject(input1, String.class);
+                final String messageType2 = kryo.readObject(input2, String.class);
+
+                if (!messageType1.equals(messageType2))
+                {
+                    System.out.println("Message types differ: " + messageType1 + " : " + messageType2);
+                    return -1;
+                }
+
+                if(messageType1.equals(Constants.COMMIT_RESPONSE))
+                {
+                    final String commit1 = kryo.readObject(input1, String.class);
+                    final String commit2 = kryo.readObject(input1, String.class);
+
+                    if (!commit1.equals(commit2))
+                    {
+                        System.out.println("Commit responses differ: " + commit1 + " : " + commit2);
+                        return -1;
+                    }
+                }
+                else
+                {
+                    System.out.println("Something went, those messages are no commit responses: " + messageType1);
+                }
+            }
+            catch(final Exception e)
+            {
+                System.out.println("Something went wrong deserializing");
+                e.printStackTrace();
+                return -1;
+            }
+            finally
+            {
+                pool.release(kryo);
+            }
+            return 0;
+        });
         Log.getLogger().warn("Starting client " + processId);
     }
 
