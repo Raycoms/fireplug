@@ -95,7 +95,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @return the answers of all requests in this batch.
      */
     @Override
-    public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts)
+    public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts, final boolean noop)
     {
         byte[][] allResults = new byte[bytes.length][];
         for (int i = 0; i < bytes.length; ++i)
@@ -425,7 +425,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
-        proxy.sendMessageToTargets(output.getBuffer(), 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        proxy.sendMessageToTargets(output.getBuffer(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
 
         output.close();
     }
@@ -542,76 +542,83 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final String messageType = kryo.readObject(input, String.class);
         Output output = new Output(1, 804800);
+        byte[] returnValue;
 
-        switch (messageType)
+        try
         {
-            case Constants.READ_MESSAGE:
-                Log.getLogger().info("Received Node read message");
-                try
-                {
-                    kryo.writeObject(output, Constants.READ_MESSAGE);
-                    output = handleNodeRead(input, kryo, output, messageContext.getSender());
-                }
-                catch (Exception t)
-                {
-                    Log.getLogger().error("Error on " + Constants.READ_MESSAGE + ", returning empty read", t);
+            switch (messageType)
+            {
+                case Constants.READ_MESSAGE:
+                    Log.getLogger().info("Received Node read message");
+                    try
+                    {
+                        kryo.writeObject(output, Constants.READ_MESSAGE);
+                        output = handleNodeRead(input, kryo, output, messageContext.getSender());
+                    }
+                    catch (Exception t)
+                    {
+                        Log.getLogger().error("Error on " + Constants.READ_MESSAGE + ", returning empty read", t);
+                        output.close();
+                        output = makeEmptyReadResponse(Constants.READ_MESSAGE, kryo);
+                    }
+                    break;
+                case Constants.RELATIONSHIP_READ_MESSAGE:
+                    Log.getLogger().info("Received Relationship read message");
+                    try
+                    {
+                        kryo.writeObject(output, Constants.READ_MESSAGE);
+                        output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
+                    }
+                    catch (Exception t)
+                    {
+                        Log.getLogger().error("Error on " + Constants.RELATIONSHIP_READ_MESSAGE + ", returning empty read", t);
+                        output = makeEmptyReadResponse(Constants.RELATIONSHIP_READ_MESSAGE, kryo);
+                    }
+                    break;
+                case Constants.SIGNATURE_MESSAGE:
+                    if (wrapper.getLocalCLuster() != null)
+                    {
+                        handleSignatureMessage(input, messageContext, kryo);
+                    }
+                    break;
+                case Constants.REGISTER_GLOBALLY_MESSAGE:
+                    Log.getLogger().info("Received register globally message");
                     output.close();
-                    output = makeEmptyReadResponse(Constants.READ_MESSAGE, kryo);
-                }
-                break;
-            case Constants.RELATIONSHIP_READ_MESSAGE:
-                Log.getLogger().info("Received Relationship read message");
-                try
-                {
-                    kryo.writeObject(output, Constants.READ_MESSAGE);
-                    output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
-                }
-                catch (Exception t)
-                {
-                    Log.getLogger().error("Error on " + Constants.RELATIONSHIP_READ_MESSAGE + ", returning empty read", t);
-                    output = makeEmptyReadResponse(Constants.RELATIONSHIP_READ_MESSAGE, kryo);
-                }
-                break;
-            case Constants.SIGNATURE_MESSAGE:
-                if (wrapper.getLocalCLuster() != null)
-                {
-                    handleSignatureMessage(input, messageContext, kryo);
-                }
-                break;
-            case Constants.REGISTER_GLOBALLY_MESSAGE:
-                Log.getLogger().info("Received register globally message");
-                output.close();
-                input.close();
-                pool.release(kryo);
-                return handleRegisteringSlave(input, kryo);
-            case Constants.REGISTER_GLOBALLY_CHECK:
-                Log.getLogger().info("Received globally check message");
-                output.close();
-                input.close();
-                pool.release(kryo);
-                return handleGlobalRegistryCheck(input, kryo);
-            case Constants.COMMIT:
-                Log.getLogger().info("Received commit message: " + input.getBuffer().length);
-                if(wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
-                {
-                    //Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + sequence);
                     input.close();
                     pool.release(kryo);
-                    return new byte[]{0};
-                }
+                    return handleRegisteringSlave(input, kryo);
+                case Constants.REGISTER_GLOBALLY_CHECK:
+                    Log.getLogger().info("Received globally check message");
+                    output.close();
+                    input.close();
+                    pool.release(kryo);
+                    return handleGlobalRegistryCheck(input, kryo);
+                case Constants.COMMIT:
+                    Log.getLogger().info("Received commit message: " + input.getBuffer().length);
+                    if (wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
+                    {
+                        //Log.getLogger().warn(wrapper.getDataBaseAccess().getClass().getName() + " Shouldn't follow: " + sequence);
+                        input.close();
+                        pool.release(kryo);
+                        return new byte[] {0};
+                    }
 
-                byte[] result;
-                result = handleReadOnlyCommit(input, kryo);
-                input.close();
-                pool.release(kryo);
-                Log.getLogger().info("Return it to client, size: " + result.length);
-                return result;
-            default:
-                Log.getLogger().warn("Incorrect operation sent unordered to the server");
-                break;
+                    byte[] result;
+                    result = handleReadOnlyCommit(input, kryo);
+                    input.close();
+                    pool.release(kryo);
+                    Log.getLogger().info("Return it to client, size: " + result.length);
+                    return result;
+                default:
+                    Log.getLogger().warn("Incorrect operation sent unordered to the server");
+                    break;
+            }
+            returnValue = output.getBuffer();
         }
-
-        byte[] returnValue = output.getBuffer();
+        finally
+        {
+            output.close();
+        }
 
         Log.getLogger().info("Return it to client, size: " + returnValue.length);
 
