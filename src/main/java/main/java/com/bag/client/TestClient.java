@@ -5,6 +5,7 @@ import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
+import bftsmart.tom.util.Extractor;
 import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -107,7 +108,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     /**
      * Custom comparator for messages.
      */
-    private Comparator<byte[]> fireplugComparator = new Comparator<byte[]>()
+    private static Comparator<byte[]> fireplugComparator = new Comparator<byte[]>()
     {
         @Override
         public int compare(byte[] o1, byte[] o2)
@@ -171,7 +172,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     public TestClient(final int processId, final int serverId, final int localClusterId)
     {
-        super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), fireplugComparator, (Extractor)null);
 
         if (localClusterId != -1)
         {
@@ -606,7 +607,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     @Override
     public void commit()
     {
-        super.setComparator(fireplugComparator);
         firstRead = true;
         final boolean readOnly = isReadOnly();
         Log.getLogger().info("Starting commit");
