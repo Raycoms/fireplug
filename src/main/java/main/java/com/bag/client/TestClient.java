@@ -131,14 +131,13 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
-        /*super.setComparator((o1, o2) -> {
+        super.setComparator((o1, o2) -> {
             if (Arrays.equals(o1, o2))
             {
                 return 0;
             }
 
-            final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-            final Kryo kryo = pool.borrow();
+            final Kryo kryo = new Kryo();
             try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
             {
                 final String messageType1 = kryo.readObject(input1, String.class);
@@ -171,12 +170,9 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 System.out.println("Something went wrong deserializing:" + e.getMessage());
                 return -1;
             }
-            finally
-            {
-                pool.release(kryo);
-            }
+
             return 0;
-        });*/
+        });
         Log.getLogger().warn("Starting client " + processId);
     }
 
@@ -322,8 +318,10 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         firstRead = false;
     }
 
-    /*public void OrginalReplyReceived(TOMMessage reply)
+    /*public void orginalReplyReceived(TOMMessage reply)
     {
+        int reqId = reply.getReqType().toInt();
+        reply.getReqType();
         try
         {
             canReceiveLock.lock();
