@@ -104,7 +104,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      * The proxy to use during communication with the globalCluster.
      */
     private ServiceProxy globalProxy;
-    
+
     /**
      * Create a threadsafe version of kryo.
      */
@@ -190,7 +190,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         readsSetNode = new ArrayList<>();
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
-        super.setComparator(fireplugComparator);
     }
 
     /**
