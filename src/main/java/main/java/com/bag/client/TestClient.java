@@ -105,6 +105,57 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private ServiceProxy globalProxy;
 
     /**
+     * Custom comparator for messages.
+     */
+    private Comparator<byte[]> fireplugComparator = new Comparator<byte[]>()
+    {
+        @Override
+        public int compare(byte[] o1, byte[] o2)
+        {
+            if (Arrays.equals(o1, o2))
+            {
+                return 0;
+            }
+
+            final Kryo kryo = new Kryo();
+            try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
+            {
+                final String messageType1 = kryo.readObject(input1, String.class);
+                final String messageType2 = kryo.readObject(input2, String.class);
+
+                if (!messageType1.equals(messageType2))
+                {
+                    System.out.println("Message types differ: " + messageType1 + " : " + messageType2);
+                    return -1;
+                }
+
+                if (messageType1.equals(Constants.COMMIT_RESPONSE))
+                {
+                    final String commit1 = kryo.readObject(input1, String.class);
+                    final String commit2 = kryo.readObject(input1, String.class);
+
+                    if (!commit1.equals(commit2))
+                    {
+                        System.out.println("Commit responses differ: " + commit1 + " : " + commit2);
+                        return -1;
+                    }
+                }
+                else
+                {
+                    System.out.println("Something went wrong, those messages are no commit responses: " + messageType1);
+                }
+            }
+            catch (final Exception e)
+            {
+                System.out.println("Something went wrong deserializing:" + e.getMessage());
+                return -1;
+            }
+
+            return 0;
+        }
+    };
+
+    /**
      * Create a threadsafe version of kryo.
      */
     private KryoFactory factory = () ->
@@ -131,53 +182,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
-        super.setComparator(new Comparator<byte[]>()
-        {
-            @Override
-            public int compare(byte[] o1, byte[] o2)
-            {
-                if (Arrays.equals(o1, o2) || true)
-                {
-                    return 0;
-                }
-
-                final Kryo kryo = new Kryo();
-                try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
-                {
-                    final String messageType1 = kryo.readObject(input1, String.class);
-                    final String messageType2 = kryo.readObject(input2, String.class);
-
-                    if (!messageType1.equals(messageType2))
-                    {
-                        System.out.println("Message types differ: " + messageType1 + " : " + messageType2);
-                        return -1;
-                    }
-
-                    if (messageType1.equals(Constants.COMMIT_RESPONSE))
-                    {
-                        final String commit1 = kryo.readObject(input1, String.class);
-                        final String commit2 = kryo.readObject(input1, String.class);
-
-                        if (!commit1.equals(commit2))
-                        {
-                            System.out.println("Commit responses differ: " + commit1 + " : " + commit2);
-                            return -1;
-                        }
-                    }
-                    else
-                    {
-                        System.out.println("Something went wrong, those messages are no commit responses: " + messageType1);
-                    }
-                }
-                catch (final Exception e)
-                {
-                    System.out.println("Something went wrong deserializing:" + e.getMessage());
-                    return -1;
-                }
-
-                return 0;
-            }
-        });
 
         Log.getLogger().warn("Starting client " + processId);
     }
@@ -190,6 +194,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         readsSetNode = new ArrayList<>();
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
+        super.setComparator(fireplugComparator);
     }
 
     /**
@@ -601,6 +606,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     @Override
     public void commit()
     {
+        super.setComparator(fireplugComparator);
         firstRead = true;
         final boolean readOnly = isReadOnly();
         Log.getLogger().info("Starting commit");
