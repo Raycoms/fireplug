@@ -131,7 +131,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
-        super.setComparator((o1, o2) -> {
+        /*super.setComparator((o1, o2) -> {
             if (Arrays.equals(o1, o2))
             {
                 return 0;
@@ -176,7 +176,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 pool.release(kryo);
             }
             return 0;
-        });
+        });*/
         Log.getLogger().warn("Starting client " + processId);
     }
 
