@@ -121,52 +121,50 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     public TestClient(final int processId, final int serverId, final int localClusterId)
     {
-        super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), new Comparator<byte[]>()
+        super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), (o1, o2) ->
         {
-            @Override
-            public int compare(byte[] o1, byte[] o2)
+            System.out.println("Testing message!!!");
+
+            if (Arrays.equals(o1, o2))
             {
-                if (Arrays.equals(o1, o2) || true)
+                return 0;
+            }
+
+            final Kryo kryo = new Kryo();
+            try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
+            {
+                final String messageType1 = kryo.readObject(input1, String.class);
+                final String messageType2 = kryo.readObject(input2, String.class);
+
+                if (!messageType1.equals(messageType2))
                 {
-                    return 0;
-                }
-
-                final Kryo kryo = new Kryo();
-                try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
-                {
-                    final String messageType1 = kryo.readObject(input1, String.class);
-                    final String messageType2 = kryo.readObject(input2, String.class);
-
-                    if (!messageType1.equals(messageType2))
-                    {
-                        System.out.println("Message types differ: " + messageType1 + " : " + messageType2);
-                        return -1;
-                    }
-
-                    if (messageType1.equals(Constants.COMMIT_RESPONSE))
-                    {
-                        final String commit1 = kryo.readObject(input1, String.class);
-                        final String commit2 = kryo.readObject(input1, String.class);
-
-                        if (!commit1.equals(commit2))
-                        {
-                            System.out.println("Commit responses differ: " + commit1 + " : " + commit2);
-                            return -1;
-                        }
-                    }
-                    else
-                    {
-                        System.out.println("Something went wrong, those messages are no commit responses: " + messageType1);
-                    }
-                }
-                catch (final Exception e)
-                {
-                    System.out.println("Something went wrong deserializing:" + e.getMessage());
+                    System.out.println("Message types differ: " + messageType1 + " : " + messageType2);
                     return -1;
                 }
 
-                return 0;
+                if (messageType1.equals(Constants.COMMIT_RESPONSE))
+                {
+                    final String commit1 = kryo.readObject(input1, String.class);
+                    final String commit2 = kryo.readObject(input1, String.class);
+
+                    if (!commit1.equals(commit2))
+                    {
+                        System.out.println("Commit responses differ: " + commit1 + " : " + commit2);
+                        return -1;
+                    }
+                }
+                else
+                {
+                    System.out.println("Something went wrong, those messages are no commit responses: " + messageType1);
+                }
             }
+            catch (final Exception e)
+            {
+                System.out.println("Something went wrong deserializing:" + e.getMessage());
+                return -1;
+            }
+
+            return 0;
         }, null);
 
         if (localClusterId != -1)
@@ -240,7 +238,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      */
     private void handleUpdateRequest(Object identifier, Object value)
     {
-        //todo edit create request if equal.
         if (identifier instanceof NodeStorage && value instanceof NodeStorage)
         {
             writeSet.add(new UpdateOperation<>((NodeStorage) identifier, (NodeStorage) value));
@@ -459,7 +456,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
                     super.replyReceived(reply);
-                    break;
+                    return;
                 default:
                     Log.getLogger().info("Unexpected message type!");
                     break;
@@ -470,6 +467,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             super.replyReceived(reply);
             Log.getLogger().info("Commit return" + reply.getReqType().name());
+            return;
         }
         else
         {
