@@ -99,6 +99,52 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      */
     private ServiceProxy globalProxy;
 
+    private static final Comparator<byte[]> comparator = (o1, o2) ->
+    {
+        Log.getLogger().error("Testing message!!!");
+
+        if (Arrays.equals(o1, o2))
+        {
+            return 0;
+        }
+
+        final Kryo kryo = new Kryo();
+        try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
+        {
+            final String messageType1 = kryo.readObject(input1, String.class);
+            final String messageType2 = kryo.readObject(input2, String.class);
+
+            if (!messageType1.equals(messageType2))
+            {
+                Log.getLogger().error("Message types differ: " + messageType1 + " : " + messageType2);
+                return -1;
+            }
+
+            if (messageType1.equals(Constants.COMMIT_RESPONSE))
+            {
+                final String commit1 = kryo.readObject(input1, String.class);
+                final String commit2 = kryo.readObject(input1, String.class);
+
+                if (!commit1.equals(commit2))
+                {
+                    Log.getLogger().error("Commit responses differ: " + commit1 + " : " + commit2);
+                    return -1;
+                }
+            }
+            else
+            {
+                Log.getLogger().error("Something went wrong, those messages are no commit responses: " + messageType1);
+            }
+        }
+        catch (final Exception e)
+        {
+            Log.getLogger().error("Something went wrong deserializing:" + e.getMessage());
+            return -1;
+        }
+
+        return 0;
+    };
+
     /**
      * Create a threadsafe version of kryo.
      */
@@ -115,51 +161,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     public TestClient(final int processId, final int serverId, final int localClusterId)
     {
-        super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), (o1, o2) ->
-        {
-            Log.getLogger().error("Testing message!!!");
-
-            if (Arrays.equals(o1, o2))
-            {
-                return 0;
-            }
-
-            final Kryo kryo = new Kryo();
-            try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
-            {
-                final String messageType1 = kryo.readObject(input1, String.class);
-                final String messageType2 = kryo.readObject(input2, String.class);
-
-                if (!messageType1.equals(messageType2))
-                {
-                    Log.getLogger().error("Message types differ: " + messageType1 + " : " + messageType2);
-                    return -1;
-                }
-
-                if (messageType1.equals(Constants.COMMIT_RESPONSE))
-                {
-                    final String commit1 = kryo.readObject(input1, String.class);
-                    final String commit2 = kryo.readObject(input1, String.class);
-
-                    if (!commit1.equals(commit2))
-                    {
-                        Log.getLogger().error("Commit responses differ: " + commit1 + " : " + commit2);
-                        return -1;
-                    }
-                }
-                else
-                {
-                    Log.getLogger().error("Something went wrong, those messages are no commit responses: " + messageType1);
-                }
-            }
-            catch (final Exception e)
-            {
-                Log.getLogger().error("Something went wrong deserializing:" + e.getMessage());
-                return -1;
-            }
-
-            return 0;
-        }, null);
+        super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
 
         if (localClusterId != -1)
         {
