@@ -5,7 +5,6 @@ import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
-import bftsmart.tom.util.Extractor;
 import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -54,11 +53,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     private ArrayList<RelationshipStorage> readsSetRelationship;
 
     private ArrayList<IOperation> writeSet;
-
-    /**
-     * Amount of responses.
-     */
-    private int responses = 0;
 
     /**
      * Defines if the client is currently committing.
@@ -123,7 +117,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
     {
         super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), (o1, o2) ->
         {
-            System.out.println("Testing message!!!");
+            Log.getLogger().error("Testing message!!!");
 
             if (Arrays.equals(o1, o2))
             {
@@ -138,7 +132,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
                 if (!messageType1.equals(messageType2))
                 {
-                    System.out.println("Message types differ: " + messageType1 + " : " + messageType2);
+                    Log.getLogger().error("Message types differ: " + messageType1 + " : " + messageType2);
                     return -1;
                 }
 
@@ -149,18 +143,18 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
                     if (!commit1.equals(commit2))
                     {
-                        System.out.println("Commit responses differ: " + commit1 + " : " + commit2);
+                        Log.getLogger().error("Commit responses differ: " + commit1 + " : " + commit2);
                         return -1;
                     }
                 }
                 else
                 {
-                    System.out.println("Something went wrong, those messages are no commit responses: " + messageType1);
+                    Log.getLogger().error("Something went wrong, those messages are no commit responses: " + messageType1);
                 }
             }
             catch (final Exception e)
             {
-                System.out.println("Something went wrong deserializing:" + e.getMessage());
+                Log.getLogger().error("Something went wrong deserializing:" + e.getMessage());
                 return -1;
             }
 
@@ -853,7 +847,6 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
         isCommitting = false;
-        responses = 0;
 
         /*int randomNumber = random.nextInt(100);
 
