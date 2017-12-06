@@ -1,7 +1,9 @@
 package main.java.com.bag.client;
 
-import bftsmart.communication.client.ReplyReceiver;
+import bftsmart.communication.client.ReplyListener;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
+import bftsmart.tom.AsynchServiceProxy;
+import bftsmart.tom.RequestContext;
 import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
@@ -20,7 +22,6 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Closeable;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -29,7 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Class handling the client.
  */
-public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver, Closeable, AutoCloseable
+public class TestClient implements BAGClient, ReplyListener
 {
     /**
      * Should the transaction runNetty in secure mode?
@@ -99,6 +100,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      */
     private ServiceProxy globalProxy;
 
+    /**
+     * The proxy to use during communication with the globalCluster.
+     */
+    private ServiceProxy localProxy;
+
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
         Log.getLogger().error("Testing message!!!");
@@ -161,11 +167,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
     public TestClient(final int processId, final int serverId, final int localClusterId)
     {
-        super(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
+        localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
 
         if (localClusterId != -1)
         {
-            globalProxy = new ServiceProxy(100 + getProcessId(), "global/config");
+            globalProxy = new ServiceProxy(100 + processId, "global/config");
         }
 
         secureMode = true;
@@ -299,11 +305,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             if (identifier instanceof NodeStorage)
             {
                 //this sends the message straight to server 0 not to the others.
-                sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier), 0, 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
+                localProxy.sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier), 0, 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
             }
             else if (identifier instanceof RelationshipStorage)
             {
-                sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier),
+                localProxy.sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier),
                         0,
                         0,
                         new int[] {serverProcess},
@@ -317,133 +323,16 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         firstRead = false;
     }
 
-    /*public void orginalReplyReceived(TOMMessage reply)
-    {
-        int reqId = reply.getReqType().toInt();
-        reply.getReqType();
-        try
-        {
-            canReceiveLock.lock();
-            if (reqId == -1)
-            {//no message being expected
-                canReceiveLock.unlock();
-                return;
-            }
-
-            int pos = getViewManager().getCurrentViewPos(reply.getSender());
-
-            if (pos < 0)
-            { //ignore messages that don't come from replicas
-                canReceiveLock.unlock();
-                return;
-            }
-
-            int sameContent = 1;
-            if (reply.getSequence() == reqId && reply.getReqType() == requestType)
-            {
-
-                if (requestType == TOMMessageType.UNORDERED_HASHED_REQUEST)
-                {
-                    response = hashResponseController.getResponse(pos, reply);
-                    if (response != null)
-                    {
-                        reqId = -1;
-                        this.sm.release(); // resumes the thread that is executing the "invoke" method
-                        canReceiveLock.unlock();
-                        return;
-                    }
-                }
-                else
-                {
-                    if (replies[pos] == null)
-                    {
-                        receivedReplies++;
-                    }
-                    replies[pos] = reply;
-
-                    // Compare the reply just received, to the others
-
-                    for (int i = 0; i < replies.length; i++)
-                    {
-                        if ((i != pos || getViewManager().getCurrentViewN() == 1) && replies[i] != null)
-                        {
-
-                            if (comparator.compare(replies[i].getContent(), reply.getContent()) != 0)
-                            {
-                                System.out.println("Something went incredibly wrong, there is a byzantine error happening! Printing both message arrays!");
-                                System.out.println(Arrays.toString(reply.getContent()));
-                                System.out.println(Arrays.toString(replies[i].getContent()));
-                                continue;
-                            }
-
-                            sameContent++;
-                            if (sameContent >= replyQuorum)
-                            {
-                                response = extractor.extractResponse(replies, sameContent, pos);
-                                reqId = -1;
-                                this.sm.release(); // resumes the thread that is executing the "invoke" method
-                                canReceiveLock.unlock();
-                                return;
-                            }
-                        }
-                    }
-                }
-
-                if (response == null)
-                {
-                    if (requestType.equals(TOMMessageType.ORDERED_REQUEST))
-                    {
-                        if (receivedReplies == getViewManager().getCurrentViewN())
-                        {
-                            reqId = -1;
-                            this.sm.release(); // resumes the thread that is executing the "invoke" method
-                        }
-                    }
-                    else if (requestType.equals(TOMMessageType.UNORDERED_HASHED_REQUEST))
-                    {
-                        if (hashResponseController.getNumberReplies() == getViewManager().getCurrentViewN())
-                        {
-                            reqId = -1;
-                            this.sm.release(); // resumes the thread that is executing the "invoke" method
-                        }
-                    }
-                    else
-                    {  // UNORDERED
-                        if (receivedReplies != sameContent)
-                        {
-                            reqId = -1;
-                            this.sm.release(); // resumes the thread that is executing the "invoke" method
-                        }
-                    }
-                }
-            }
-
-            // Critical section ends here. The semaphore can be released
-            canReceiveLock.unlock();
-        }
-        catch (Exception ex)
-        {
-            System.out.println("Problem at ServiceProxy.ReplyReceived()");
-            ex.printStackTrace();
-            canReceiveLock.unlock();
-        }
-    }*/
-
-    /**
-     * Receiving read requests replies here
-     *
-     * @param reply the received message.
-     */
     @Override
-    public void replyReceived(final TOMMessage reply)
+    public void replyReceived(final RequestContext requestContext, final TOMMessage tomMessage)
     {
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
         Log.getLogger().info("reply");
-        if (reply.getReqType() == TOMMessageType.UNORDERED_REQUEST)
+        if (tomMessage.getReqType() == TOMMessageType.UNORDERED_REQUEST)
         {
-            final Input input = new Input(reply.getContent());
+            final Input input = new Input(tomMessage.getContent());
             switch (kryo.readObject(input, String.class))
             {
                 case Constants.READ_MESSAGE:
@@ -451,7 +340,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                     break;
                 case Constants.GET_PRIMARY:
                 case Constants.COMMIT_RESPONSE:
-                    super.replyReceived(reply);
+                    pool.release(kryo);
                     return;
                 default:
                     Log.getLogger().info("Unexpected message type!");
@@ -459,18 +348,17 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
             }
             input.close();
         }
-        else if (reply.getReqType() == TOMMessageType.REPLY || reply.getReqType() == TOMMessageType.ORDERED_REQUEST)
+        else if (tomMessage.getReqType() == TOMMessageType.REPLY || tomMessage.getReqType() == TOMMessageType.ORDERED_REQUEST)
         {
-            super.replyReceived(reply);
-            Log.getLogger().info("Commit return" + reply.getReqType().name());
+            pool.release(kryo);
+            Log.getLogger().info("Commit return" + tomMessage.getReqType().name());
             return;
         }
         else
         {
-            Log.getLogger().info("Receiving other type of request." + reply.getReqType().name());
+            Log.getLogger().info("Receiving other type of request." + tomMessage.getReqType().name());
         }
         pool.release(kryo);
-        super.replyReceived(reply);
     }
 
     /**
@@ -615,7 +503,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
-            Log.getLogger().warn(getProcessId() + " Read-only Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + this.localTimestamp);
 
             final byte[] answer;
             if (localClusterId == -1)
@@ -639,7 +527,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
                 isCommitting = true;
                 Log.getLogger().info("Sending to: " + Arrays.toString(servers));
                 //sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);*/
-                answer = invokeUnordered(bytes);
+                answer = localProxy.invokeUnordered(bytes);
             }
             else
             {
@@ -650,14 +538,14 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
 
             }
 
-            Log.getLogger().info(getProcessId() + "Committed with snapshotId " + this.localTimestamp);
+            Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + this.localTimestamp);
 
             final Input input = new Input(answer);
             final String messageType = kryo.readObject(input, String.class);
 
             if (!Constants.COMMIT_RESPONSE.equals(messageType))
             {
-                Log.getLogger().warn("Incorrect response type to client from server!" + getProcessId());
+                Log.getLogger().warn("Incorrect response type to client from server!" + localProxy.getProcessId());
                 resetSets();
                 firstRead = true;
                 return;
@@ -680,13 +568,13 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         if (localClusterId == -1)
         {
             Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
-            this.invokeOrdered(bytes);
+            localProxy.invokeOrdered(bytes);
         }
         else
         {
             Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
             Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
-            Log.getLogger().warn(getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
 
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
@@ -887,7 +775,7 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
      */
     private int getPrimary(final Kryo kryo)
     {
-        byte[] response = invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
+        byte[] response = localProxy.invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
         if (response == null)
         {
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");
@@ -903,5 +791,11 @@ public class TestClient extends ServiceProxy implements BAGClient, ReplyReceiver
         input.close();
 
         return primaryId;
+    }
+
+    @Override
+    public void reset()
+    {
+
     }
 }
