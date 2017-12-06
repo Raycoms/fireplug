@@ -490,7 +490,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
 
         sess.close();
-        return false;
+        return true;
     }
 
     @Override

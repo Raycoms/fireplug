@@ -134,7 +134,7 @@ public class RunTests
                 e.printStackTrace();
             }
         }
-        client1.close();
+        client1.reset();
     }
 
     private static void writeSomeNodes(final TestClient client1)
