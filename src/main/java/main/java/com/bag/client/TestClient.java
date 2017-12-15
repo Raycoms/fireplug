@@ -66,11 +66,6 @@ public class TestClient implements BAGClient, ReplyListener
     private long localTimestamp = -1;
 
     /**
-     * Random var, instantiated only once!
-     */
-    final Random random = new Random();
-
-    /**
      * The id of the local server process the client is communicating with.
      */
     private int serverProcess;
@@ -103,7 +98,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * The proxy to use during communication with the globalCluster.
      */
-    private ServiceProxy localProxy;
+    private AsynchServiceProxy localProxy;
 
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
@@ -305,14 +300,13 @@ public class TestClient implements BAGClient, ReplyListener
             if (identifier instanceof NodeStorage)
             {
                 //this sends the message straight to server 0 not to the others.
-                localProxy.sendMessageToTargets(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier), 0, 0, new int[] {serverProcess}, TOMMessageType.UNORDERED_REQUEST);
+                localProxy.invokeAsynchRequest(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier),  new int[] {serverProcess}, this, TOMMessageType.UNORDERED_REQUEST);
             }
             else if (identifier instanceof RelationshipStorage)
             {
-                localProxy.sendMessageToTargets(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier),
-                        0,
-                        0,
+                localProxy.invokeAsynchRequest(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier),
                         new int[] {serverProcess},
+                        this,
                         TOMMessageType.UNORDERED_REQUEST);
             }
             else
