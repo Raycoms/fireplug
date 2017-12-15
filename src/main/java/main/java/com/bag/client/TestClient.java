@@ -166,7 +166,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (localClusterId != -1)
         {
-            globalProxy = new ServiceProxy(100 + processId, "global/config");
+            globalProxy = new ServiceProxy(100 + processId, "global/config", comparator, null);
         }
 
         secureMode = true;
