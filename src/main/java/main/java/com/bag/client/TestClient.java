@@ -109,10 +109,13 @@ public class TestClient implements BAGClient, ReplyListener
 
         Log.getLogger().error("Testing message!!!");
 
+        final byte[] array1 = Arrays.copyOf(o1, o1.length);
+        final byte[] array2 = Arrays.copyOf(o2, o2.length);
+
         final Kryo kryo = new Kryo();
-        try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
+        try (final Input input1 = new Input(array1); final Input input2 = new Input(array2))
         {
-            if(o1.length == 0 || o2.length == 0)
+            if(array1.length == 0 || array2.length == 0)
             {
                 Log.getLogger().error("WOW, 1 of the messages has 0 length");
                 return 0;
@@ -120,6 +123,8 @@ public class TestClient implements BAGClient, ReplyListener
 
             final String messageType1 = kryo.readObject(input1, String.class);
             final String messageType2 = kryo.readObject(input2, String.class);
+
+            Log.getLogger().error("Message types: " + messageType1 + " " + messageType2);
 
             if (!messageType1.equals(messageType2))
             {
