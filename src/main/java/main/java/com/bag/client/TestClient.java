@@ -328,7 +328,7 @@ public class TestClient implements BAGClient, ReplyListener
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        Log.getLogger().warn("reply");
+        Log.getLogger().info("reply");
         if (tomMessage.getReqType() == TOMMessageType.UNORDERED_REQUEST)
         {
             final Input input = new Input(tomMessage.getContent());
