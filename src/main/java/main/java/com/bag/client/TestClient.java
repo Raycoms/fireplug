@@ -112,6 +112,12 @@ public class TestClient implements BAGClient, ReplyListener
         final Kryo kryo = new Kryo();
         try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
         {
+            if(o1.length == 0 || o2.length == 0)
+            {
+                Log.getLogger().error("WOW, 1 of the messages has 0 length");
+                return 0;
+            }
+
             final String messageType1 = kryo.readObject(input1, String.class);
             final String messageType2 = kryo.readObject(input2, String.class);
 
@@ -139,8 +145,7 @@ public class TestClient implements BAGClient, ReplyListener
         }
         catch (final Exception e)
         {
-            Log.getLogger().error("Something went wrong deserializing:" + e.getMessage());
-            e.printStackTrace();
+            Log.getLogger().error("Something went wrong deserializing:" + e.toString());
             return -1;
         }
 
