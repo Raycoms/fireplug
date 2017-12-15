@@ -106,9 +106,7 @@ public class TestClient implements BAGClient, ReplyListener
         {
             return 0;
         }
-
-        Log.getLogger().error("Testing message!!!");
-
+        
         final Kryo kryo = new Kryo();
         try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
         {
@@ -121,7 +119,6 @@ public class TestClient implements BAGClient, ReplyListener
             final String messageType1 = kryo.readObject(input1, String.class);
             final String messageType2 = kryo.readObject(input2, String.class);
 
-            Log.getLogger().error("Message types: " + messageType1 + " " + messageType2);
 
             if (!messageType1.equals(messageType2))
             {
