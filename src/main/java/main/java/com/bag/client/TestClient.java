@@ -102,12 +102,12 @@ public class TestClient implements BAGClient, ReplyListener
 
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
-        Log.getLogger().error("Testing message!!!");
-
         if (Arrays.equals(o1, o2))
         {
             return 0;
         }
+
+        Log.getLogger().error("Testing message!!!");
 
         final Kryo kryo = new Kryo();
         try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
@@ -134,12 +134,13 @@ public class TestClient implements BAGClient, ReplyListener
             }
             else
             {
-                Log.getLogger().error("Something went wrong, those messages are no commit responses: " + messageType1);
+                Log.getLogger().error("Something went wrong, those messages are no commit responses: " + messageType1 + " " + messageType2);
             }
         }
         catch (final Exception e)
         {
             Log.getLogger().error("Something went wrong deserializing:" + e.getMessage());
+            e.printStackTrace();
             return -1;
         }
 
