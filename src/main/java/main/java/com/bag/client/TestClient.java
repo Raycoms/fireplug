@@ -1,13 +1,11 @@
 package main.java.com.bag.client;
 
 import bftsmart.communication.client.ReplyListener;
-import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.AsynchServiceProxy;
 import bftsmart.tom.RequestContext;
 import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
-import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -488,7 +486,6 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (readOnly && !secureMode)
         {
-            //verifyReadSet();
             Log.getLogger().warn(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
             resetSets();
@@ -507,34 +504,19 @@ public class TestClient implements BAGClient, ReplyListener
             final byte[] answer;
             if (localClusterId == -1)
             {
-                //List of all view processes
-                /*final int[] currentViewProcesses = this.getViewManager().getCurrentViewProcesses();
-                //The servers we will actually contact
-                final int[] servers = new int[3];
-                //final int spare = servers[new Random().nextInt(currentViewProcesses.length)];
-
-                int i = 0;
-                for(final int processI : currentViewProcesses)
-                {
-                    if(i < servers.length)
-                    {
-                        servers[i] = processI;
-                        i++;
-                    }
-                }
-
-                isCommitting = true;
-                Log.getLogger().info("Sending to: " + Arrays.toString(servers));
-                //sendMessageToTargets(bytes, 0, servers, TOMMessageType.UNORDERED_REQUEST);*/
                 answer = localProxy.invokeUnordered(bytes);
             }
             else
             {
-                //Log.getLogger().warn("Sending");
-
-                answer = globalProxy.invokeUnordered(bytes);
-                //Log.getLogger().warn("Waiting");
-
+                //Do it in optimistic mode in local cluster (if >= 4 replicas)
+                if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4)
+                {
+                    answer = localProxy.invokeUnordered(bytes);
+                }
+                else
+                {
+                    answer = globalProxy.invokeUnordered(bytes);
+                }
             }
 
             Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + this.localTimestamp);
@@ -577,78 +559,6 @@ public class TestClient implements BAGClient, ReplyListener
 
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
-    }
-
-    /**
-     * Method verifies readSet signatures.
-     */
-    private void verifyReadSet()
-    {
-        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        final Kryo kryo = pool.borrow();
-
-        for (final NodeStorage storage : readsSetNode)
-        {
-            for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
-            {
-                if (!entry.getKey().contains("signature"))
-                {
-                    continue;
-                }
-                final int key = Integer.parseInt(entry.getKey().replace("signature", ""));
-
-                Log.getLogger().warn("Verifying the keys of the nodes");
-                final RSAKeyLoader rsaLoader = new RSAKeyLoader(key, GLOBAL_CONFIG_LOCATION, false);
-                try
-                {
-                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getBytes(), ((String) entry.getValue()).getBytes("UTF-8")))
-                    {
-                        Log.getLogger().warn("Signature of server: " + key + " doesn't match");
-                    }
-                    else
-                    {
-                        Log.getLogger().info("Signature matches of server: " + entry.getKey());
-                    }
-                }
-                catch (final Exception e)
-                {
-                    Log.getLogger().error("Unable to load public key on client", e);
-                }
-            }
-        }
-
-        Log.getLogger().warn("Verifying the keys of the relationships");
-        for (final RelationshipStorage storage : readsSetRelationship)
-        {
-            for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
-            {
-                if (!entry.getKey().contains("signature"))
-                {
-                    continue;
-                }
-                final int key = Integer.parseInt(entry.getKey().replace("signature", ""));
-
-                Log.getLogger().warn("Verifying the keys of the nodes");
-                final RSAKeyLoader rsaLoader = new RSAKeyLoader(key, GLOBAL_CONFIG_LOCATION, false);
-                try
-                {
-                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getBytes(), ((String) entry.getValue()).getBytes("UTF-8")))
-                    {
-                        Log.getLogger().warn("Signature of server: " + key + " doesn't match");
-                    }
-                    else
-                    {
-                        Log.getLogger().info("Signature matches of server: " + entry.getKey());
-                    }
-                }
-                catch (final Exception e)
-                {
-                    Log.getLogger().error("Unable to load public key on client", e);
-                }
-            }
-        }
-
-        pool.release(kryo);
     }
 
     /**
@@ -738,15 +648,11 @@ public class TestClient implements BAGClient, ReplyListener
         isCommitting = false;
 
         /*int randomNumber = random.nextInt(100);
-
-
         if(randomNumber <= 40)
         {
             serverProcess = 0;
             return;
         }
-
-
         serverProcess = 3;*/
     }
 
@@ -795,6 +701,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void reset()
     {
-
+        localProxy.close();
+        globalProxy.close();
     }
 }
