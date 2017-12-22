@@ -499,7 +499,7 @@ public class TestClient implements BAGClient, ReplyListener
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
-            Log.getLogger().warn(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().info(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + this.localTimestamp);
 
             final byte[] answer;
             if (localClusterId == -1)
@@ -511,7 +511,7 @@ public class TestClient implements BAGClient, ReplyListener
                 //Do it in optimistic mode in local cluster (if >= 4 replicas)
                 if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4)
                 {
-                    Log.getLogger().warn("To Local proxy:");
+                    Log.getLogger().info("To Local proxy:");
                     answer = localProxy.invokeUnordered(bytes);
                 }
                 else
