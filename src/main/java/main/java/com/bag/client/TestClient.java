@@ -556,7 +556,7 @@ public class TestClient implements BAGClient, ReplyListener
         {
             Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
             Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
-            Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().info(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
 
             processCommitReturn(globalProxy.invokeOrdered(bytes));
         }
