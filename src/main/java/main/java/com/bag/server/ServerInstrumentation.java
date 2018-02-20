@@ -80,13 +80,13 @@ public class ServerInstrumentation {
                         final BufferedWriter bw = new BufferedWriter(file);
                         final PrintWriter out = new PrintWriter(bw))
                     {
-                        out.print(elapsed + ";");
-                        out.print(abortedTransactions.get() + ";");
-                        out.print(committedTransactions.get() + ";");
-                        out.print(readsPerformed.get() + ";");
-                        out.print(writesPerformed.get() + ";");
-                        out.print(readsPerformed.get() + writesPerformed.get() + ";");
-                        out.println();
+                        //out.print(elapsed + ";");
+                        //out.print(abortedTransactions.get() + ";");
+                        //out.print(committedTransactions.get() + ";");
+                        //out.print(readsPerformed.get() + ";");
+                        //out.print(writesPerformed.get() + ";");
+                        out.println(readsPerformed.get() + writesPerformed.get() + ";");
+                        //out.println();
 
                         System.out.println(String.format("Elapsed: %.3fs (%d minutes)\nAborted: %d\nCommited: %d\nReads: %d\nWrites: %d\nThroughput: %d\n\n",
                                 elapsed, minutesElapsed, abortedTransactions.get(), committedTransactions.get(), readsPerformed.get(),
