@@ -511,9 +511,9 @@ public class TestClient implements BAGClient, ReplyListener
             else
             {
                 //Do it in optimistic mode in local cluster (if >= 4 replicas)
-                if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4)
+                if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && false)
                 {
-                    Log.getLogger().error("To Local proxy:");
+                    Log.getLogger().info("To Local proxy:");
                     answer = localProxy.invokeUnordered(bytes);
                 }
                 else
