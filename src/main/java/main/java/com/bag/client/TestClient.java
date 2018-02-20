@@ -93,6 +93,8 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private ServiceProxy globalProxy;
 
+    private final Random random = new Random();
+
     /**
      * The proxy to use during communication with the globalCluster.
      */
@@ -647,14 +649,7 @@ public class TestClient implements BAGClient, ReplyListener
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
         isCommitting = false;
-
-        /*int randomNumber = random.nextInt(100);
-        if(randomNumber <= 40)
-        {
-            serverProcess = 0;
-            return;
-        }
-        serverProcess = 3;*/
+        serverProcess = random.nextInt(4);
     }
 
     /**
