@@ -649,7 +649,7 @@ public class TestClient implements BAGClient, ReplyListener
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
         isCommitting = false;
-        serverProcess = random.nextInt(4);
+        //serverProcess = random.nextInt(4);
     }
 
     /**
