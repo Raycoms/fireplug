@@ -71,7 +71,7 @@ public class BAGReplyListener implements ReplyListener
                 testClient.resetSets();
                 testClient.setFirstRead(true);
                 pool.release(kryo);
-                Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", testClient.getLocalTimestamp()));
+                Log.getLogger().warn(String.format("Transaction with local transaction id: %d successfully committed", testClient.getLocalTimestamp()));
                 return;
             }
             globalResult = result;
