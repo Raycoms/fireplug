@@ -3,7 +3,6 @@ package main.java.com.bag.client;
 import bftsmart.communication.client.ReplyListener;
 import bftsmart.tom.AsynchServiceProxy;
 import bftsmart.tom.RequestContext;
-import bftsmart.tom.ServiceProxy;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
 import com.esotericsoftware.kryo.Kryo;
@@ -522,15 +521,13 @@ public class TestClient implements BAGClient, ReplyListener
                 if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && false)
                 {
                     final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                    final int rand1 = random.nextInt(viewProcesses.length);
-                    int rand2 = random.nextInt(viewProcesses.length);
-
-                    while (rand1 == rand2)
+                    int rand = random.nextInt(viewProcesses.length);
+                    while (serverProcess == rand)
                     {
-                        rand2 = random.nextInt(viewProcesses.length);
+                        rand = random.nextInt(viewProcesses.length);
                     }
 
-                    localProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                    localProxy.invokeAsynchRequest(bytes, new int[]{serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                     return;
                     //Log.getLogger().info("To Local proxy:");
                     //answer = localProxy.invokeUnordered(bytes);
@@ -538,15 +535,13 @@ public class TestClient implements BAGClient, ReplyListener
                 else
                 {
                     final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
-                    final int rand1 = random.nextInt(viewProcesses.length);
-                    int rand2 = random.nextInt(viewProcesses.length);
-
-                    while (rand1 == rand2)
+                    int rand = random.nextInt(viewProcesses.length);
+                    while (serverProcess == rand)
                     {
-                        rand2 = random.nextInt(viewProcesses.length);
+                        rand = random.nextInt(viewProcesses.length);
                     }
 
-                    globalProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                    globalProxy.invokeAsynchRequest(bytes, new int[]{serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                     return;
                     //answer = globalProxy.invokeUnordered(bytes);
                 }
