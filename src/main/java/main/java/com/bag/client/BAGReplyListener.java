@@ -30,7 +30,7 @@ public class BAGReplyListener implements ReplyListener
     @Override
     public void replyReceived(final RequestContext requestContext, final TOMMessage tomMessage)
     {
-        final byte[] answer = tomMessage.serializedMessage;
+        final byte[] answer = tomMessage.getContent();
         final KryoPool pool = new KryoPool.Builder(testClient.factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
