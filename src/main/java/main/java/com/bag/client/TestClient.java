@@ -90,19 +90,19 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * The proxy to use during communication with the globalCluster.
      */
-    private AsynchServiceProxy globalProxy;
+    private final AsynchServiceProxy globalProxy;
 
     private final Random random = new Random();
 
     /**
      * The proxy to use during communication with the globalCluster.
      */
-    private AsynchServiceProxy localProxy;
+    private final AsynchServiceProxy localProxy;
 
     /**
      * The reply listener for aynch requests.
      */
-    private ReplyListener bagReplyListener;
+    private final ReplyListener bagReplyListener;
 
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
@@ -177,6 +177,10 @@ public class TestClient implements BAGClient, ReplyListener
         if (localClusterId != -1)
         {
             globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
+        }
+        else
+        {
+            globalProxy = null;
         }
 
         secureMode = true;
@@ -518,7 +522,7 @@ public class TestClient implements BAGClient, ReplyListener
             {
                 //TODO test with 2 and three (three is odd one out, only needs one random call)
                 //Do it in optimistic mode in local cluster (if >= 4 replicas)
-                if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && false)
+                if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4)
                 {
                     final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                     int rand = random.nextInt(viewProcesses.length);
