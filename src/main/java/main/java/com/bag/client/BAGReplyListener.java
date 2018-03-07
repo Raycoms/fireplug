@@ -47,11 +47,13 @@ public class BAGReplyListener implements ReplyListener
             return;
         }
 
+        Log.getLogger().warn("Received message");
         final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
         final int result = commit ? 1 : 0;
         if(globalResult == -1 || globalResult == result)
         {
             resultsReceived++;
+            Log.getLogger().warn("Received messages: " + resultsReceived);
         }
         else
         {
@@ -62,6 +64,7 @@ public class BAGReplyListener implements ReplyListener
             return;
         }
 
+        Log.getLogger().warn("Going for commit: " + resultsReceived);
         if(resultsReceived == 2)
         {
             if (commit)
