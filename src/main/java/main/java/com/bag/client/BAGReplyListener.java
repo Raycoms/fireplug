@@ -30,7 +30,7 @@ public class BAGReplyListener implements ReplyListener
     @Override
     public void replyReceived(final RequestContext requestContext, final TOMMessage tomMessage)
     {
-        final byte[] answer = requestContext.getRequest();
+        final byte[] answer = tomMessage.serializedMessage;
         final KryoPool pool = new KryoPool.Builder(testClient.factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
@@ -39,7 +39,8 @@ public class BAGReplyListener implements ReplyListener
 
         if (!Constants.COMMIT_RESPONSE.equals(messageType))
         {
-            Log.getLogger().warn("Incorrect response type to client from server! ReqId: " + requestContext.getReqId() + "type: " + messageType + " " + Constants.COMMIT.equals(kryo.readObject(input, String.class)) + " ");
+            Log.getLogger()
+                        .warn("Incorrect response type to client from server! ReqId: " + tomMessage.destination + "type: " + messageType + " ");
             testClient.resetSets();
             testClient.setFirstRead(true);
             pool.release(kryo);
@@ -54,7 +55,7 @@ public class BAGReplyListener implements ReplyListener
         }
         else
         {
-            Log.getLogger().warn("Two different responses to client from servers! ReqId: " + requestContext.getReqId());
+            Log.getLogger().warn("Two different responses to client from servers! ReqId: " + tomMessage.destination);
             testClient.resetSets();
             testClient.setFirstRead(true);
             pool.release(kryo);
