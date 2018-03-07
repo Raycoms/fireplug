@@ -39,7 +39,7 @@ public class BAGReplyListener implements ReplyListener
 
         if (!Constants.COMMIT_RESPONSE.equals(messageType))
         {
-            Log.getLogger().warn("Incorrect response type to client from server! ReqId: " + requestContext.getReqId());
+            Log.getLogger().warn("Incorrect response type to client from server! ReqId: " + requestContext.getReqId() + "type: " + messageType);
             testClient.resetSets();
             testClient.setFirstRead(true);
             pool.release(kryo);
