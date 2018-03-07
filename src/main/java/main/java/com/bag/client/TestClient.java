@@ -522,12 +522,13 @@ public class TestClient implements BAGClient, ReplyListener
                 {
                     final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                     int rand = random.nextInt(viewProcesses.length);
-                    while (serverProcess == rand)
+                    while (0 == rand)
                     {
                         rand = random.nextInt(viewProcesses.length);
                     }
 
-                    localProxy.invokeAsynchRequest(bytes, new int[]{serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                    Log.getLogger().warn("Send to local Cluster to: " + 0 + " and: " + rand);
+                    localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                     return;
                     //Log.getLogger().info("To Local proxy:");
                     //answer = localProxy.invokeUnordered(bytes);
@@ -541,6 +542,7 @@ public class TestClient implements BAGClient, ReplyListener
                         rand = random.nextInt(viewProcesses.length);
                     }
 
+                    Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
                     globalProxy.invokeAsynchRequest(bytes, new int[]{serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                     return;
                     //answer = globalProxy.invokeUnordered(bytes);
