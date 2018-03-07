@@ -501,7 +501,7 @@ public class TestClient implements BAGClient, ReplyListener
             return;
         }
 
-        Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
+        //Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
         final byte[] bytes = serializeAll();
 
         if (readOnly)
@@ -525,7 +525,7 @@ public class TestClient implements BAGClient, ReplyListener
                     final int rand1 = random.nextInt(viewProcesses.length);
                     int rand2 = random.nextInt(viewProcesses.length);
 
-                    while (rand1 != rand2)
+                    while (rand1 == rand2)
                     {
                         rand2 = random.nextInt(viewProcesses.length);
                     }
@@ -541,7 +541,7 @@ public class TestClient implements BAGClient, ReplyListener
                     final int rand1 = random.nextInt(viewProcesses.length);
                     int rand2 = random.nextInt(viewProcesses.length);
 
-                    while (rand1 != rand2)
+                    while (rand1 == rand2)
                     {
                         rand2 = random.nextInt(viewProcesses.length);
                     }
@@ -552,7 +552,7 @@ public class TestClient implements BAGClient, ReplyListener
                 }
             }
 
-            Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + this.localTimestamp);
+            //Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + this.localTimestamp);
 
             final Input input = new Input(answer);
             final String messageType = kryo.readObject(input, String.class);
