@@ -39,21 +39,19 @@ public class BAGReplyListener implements ReplyListener
 
         if (!Constants.COMMIT_RESPONSE.equals(messageType))
         {
-            Log.getLogger()
-                        .warn("Incorrect response type to client from server! ReqId: " + tomMessage.destination + "type: " + messageType + " ");
+            Log.getLogger().warn("Incorrect response type to client from server! ReqId: " + tomMessage.destination + "type: " + messageType + " ");
             testClient.resetSets();
             testClient.setFirstRead(true);
             pool.release(kryo);
             return;
         }
 
-        Log.getLogger().warn("Received message");
         final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
         final int result = commit ? 1 : 0;
         if(globalResult == -1 || globalResult == result)
         {
             resultsReceived++;
-            Log.getLogger().warn("Received messages: " + resultsReceived);
+            Log.getLogger().info("Received messages: " + resultsReceived);
         }
         else
         {
@@ -64,7 +62,7 @@ public class BAGReplyListener implements ReplyListener
             return;
         }
 
-        Log.getLogger().warn("Going for commit: " + resultsReceived);
+        Log.getLogger().info("Going for commit: " + resultsReceived);
         if(resultsReceived == 2)
         {
             if (commit)
@@ -74,10 +72,10 @@ public class BAGReplyListener implements ReplyListener
                 testClient.resetSets();
                 testClient.setFirstRead(true);
                 pool.release(kryo);
-                Log.getLogger().warn(String.format("Transaction with local transaction id: %d successfully committed", testClient.getLocalTimestamp()));
+                Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", testClient.getLocalTimestamp()));
                 return;
             }
-            Log.getLogger().warn(String.format("Transaction with local transaction id: %d successfully aborted", testClient.getLocalTimestamp()));
+            Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully aborted", testClient.getLocalTimestamp()));
 
             globalResult = result;
             testClient.resetSets();
