@@ -532,8 +532,8 @@ public class TestClient implements BAGClient, ReplyListener
 
                     localProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                     return;
-                    Log.getLogger().info("To Local proxy:");
-                    answer = localProxy.invokeUnordered(bytes);
+                    //Log.getLogger().info("To Local proxy:");
+                    //answer = localProxy.invokeUnordered(bytes);
                 }
                 else
                 {
