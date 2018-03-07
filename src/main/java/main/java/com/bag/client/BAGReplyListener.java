@@ -49,7 +49,7 @@ public class BAGReplyListener implements ReplyListener
 
         final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
         final int result = commit ? 1 : 0;
-        if(globalResult != -1 && globalResult ==result)
+        if(globalResult == -1 || globalResult == result)
         {
             resultsReceived++;
         }
