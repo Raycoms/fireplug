@@ -100,6 +100,11 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private AsynchServiceProxy localProxy;
 
+    /**
+     * The reply listener for aynch requests.
+     */
+    private ReplyListener bagReplyListener;
+
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
         if (Arrays.equals(o1, o2))
@@ -154,7 +159,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * Create a threadsafe version of kryo.
      */
-    private KryoFactory factory = () ->
+    public KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
         kryo.register(NodeStorage.class, 100);
@@ -167,6 +172,7 @@ public class TestClient implements BAGClient, ReplyListener
 
     public TestClient(final int processId, final int serverId, final int localClusterId)
     {
+        super();
         localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
 
         if (localClusterId != -1)
@@ -178,6 +184,7 @@ public class TestClient implements BAGClient, ReplyListener
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
+        bagReplyListener = new BAGReplyListener(this);
 
         Log.getLogger().warn("Starting client " + processId);
     }
@@ -510,14 +517,41 @@ public class TestClient implements BAGClient, ReplyListener
             }
             else
             {
+                //TODO test with 2 and three (three is odd one out, only needs one random call)
                 //Do it in optimistic mode in local cluster (if >= 4 replicas)
                 if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && false)
                 {
+                    /*
+                    final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
+                    final int rand1 = random.nextInt(viewProcesses.length);
+                    int rand2 = random.nextInt(viewProcesses.length);
+
+                    while (rand1 != rand2)
+                    {
+                        rand2 = random.nextInt(viewProcesses.length);
+                    }
+
+                    localProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, this, TOMMessageType.UNORDERED_REQUEST);
+                    return;
+                    */
                     Log.getLogger().info("To Local proxy:");
                     answer = localProxy.invokeUnordered(bytes);
                 }
                 else
                 {
+                     /*
+                    final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
+                    final int rand1 = random.nextInt(viewProcesses.length);
+                    int rand2 = random.nextInt(viewProcesses.length);
+
+                    while (rand1 != rand2)
+                    {
+                        rand2 = random.nextInt(viewProcesses.length);
+                    }
+
+                    globalProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, this, TOMMessageType.UNORDERED_REQUEST);
+                    return;
+                    */
                     answer = globalProxy.invokeUnordered(bytes);
                 }
             }
@@ -532,6 +566,7 @@ public class TestClient implements BAGClient, ReplyListener
                 Log.getLogger().warn("Incorrect response type to client from server!" + localProxy.getProcessId());
                 resetSets();
                 firstRead = true;
+                pool.release(kryo);
                 return;
             }
 
@@ -542,9 +577,11 @@ public class TestClient implements BAGClient, ReplyListener
                 resetSets();
                 firstRead = true;
                 Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+                pool.release(kryo);
                 return;
             }
 
+            pool.release(kryo);
             resetSets();
             return;
         }
@@ -643,12 +680,13 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * Resets all the read and write sets.
      */
-    private void resetSets()
+    public void resetSets()
     {
         readsSetNode = new ArrayList<>();
         readsSetRelationship = new ArrayList<>();
         writeSet = new ArrayList<>();
         isCommitting = false;
+        bagReplyListener.reset();
         //serverProcess = random.nextInt(4);
     }
 
@@ -699,5 +737,32 @@ public class TestClient implements BAGClient, ReplyListener
     {
         localProxy.close();
         globalProxy.close();
+    }
+
+    /**
+     * Set the first read of the first read param. (Resetting it for next commit).
+     * @param firstRead the var to set.
+     */
+    public void setFirstRead(final boolean firstRead)
+    {
+        this.firstRead = firstRead;
+    }
+
+    /**
+     * Getter for the local timeStamp.
+     * @return the long representing it.
+     */
+    public long getLocalTimestamp()
+    {
+        return localTimestamp;
+    }
+
+    /**
+     * Setter for the local timeStamp.
+     * @param localTimestamp the value to set.
+     */
+    public void setLocalTimestamp(final long localTimestamp)
+    {
+        this.localTimestamp = localTimestamp;
     }
 }
