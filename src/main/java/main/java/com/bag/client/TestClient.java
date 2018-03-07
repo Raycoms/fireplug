@@ -91,7 +91,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * The proxy to use during communication with the globalCluster.
      */
-    private ServiceProxy globalProxy;
+    private AsynchServiceProxy globalProxy;
 
     private final Random random = new Random();
 
@@ -177,7 +177,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (localClusterId != -1)
         {
-            globalProxy = new ServiceProxy(100 + processId, "global/config", comparator, null);
+            globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
         }
 
         secureMode = true;
@@ -521,7 +521,6 @@ public class TestClient implements BAGClient, ReplyListener
                 //Do it in optimistic mode in local cluster (if >= 4 replicas)
                 if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && false)
                 {
-                    /*
                     final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                     final int rand1 = random.nextInt(viewProcesses.length);
                     int rand2 = random.nextInt(viewProcesses.length);
@@ -531,15 +530,13 @@ public class TestClient implements BAGClient, ReplyListener
                         rand2 = random.nextInt(viewProcesses.length);
                     }
 
-                    localProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, this, TOMMessageType.UNORDERED_REQUEST);
+                    localProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                     return;
-                    */
                     Log.getLogger().info("To Local proxy:");
                     answer = localProxy.invokeUnordered(bytes);
                 }
                 else
                 {
-                     /*
                     final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
                     final int rand1 = random.nextInt(viewProcesses.length);
                     int rand2 = random.nextInt(viewProcesses.length);
@@ -549,10 +546,9 @@ public class TestClient implements BAGClient, ReplyListener
                         rand2 = random.nextInt(viewProcesses.length);
                     }
 
-                    globalProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, this, TOMMessageType.UNORDERED_REQUEST);
+                    globalProxy.invokeAsynchRequest(bytes, new int[]{rand1, rand2}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                     return;
-                    */
-                    answer = globalProxy.invokeUnordered(bytes);
+                    //answer = globalProxy.invokeUnordered(bytes);
                 }
             }
 
