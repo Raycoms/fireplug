@@ -1,5 +1,6 @@
 package main.java.com.bag.server;
 
+import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.server.database.Neo4jDatabaseAccess;
 import main.java.com.bag.server.database.OrientDBDatabaseAccess;
 import main.java.com.bag.server.database.SparkseeDatabaseAccess;
@@ -11,8 +12,6 @@ import main.java.com.bag.util.Log;
 import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Scanner;
 
 /**
  * Server wrapper class which will contain the instance of the local cluster and global cluster.
