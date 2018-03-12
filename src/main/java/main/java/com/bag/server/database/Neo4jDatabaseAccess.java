@@ -41,7 +41,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     /**
      * If we're running a direct access client, has Neo4j's database address
      */
-    private String haAddresses;
+    private final String haAddresses;
 
     /**
      * String used to match key value pairs.
@@ -55,7 +55,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      *
      * @param id, id of the server.
      */
-    public Neo4jDatabaseAccess(int id, String haAddresses)
+    public Neo4jDatabaseAccess(final int id, final String haAddresses)
     {
         this.id = id;
         this.haAddresses = haAddresses;
@@ -64,7 +64,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        File dbPath = new File(BASE_PATH + id);
+        final File dbPath = new File(BASE_PATH + id);
         Log.getLogger().warn("Starting neo4j database service on " + id);
 
         if (haAddresses == null)
@@ -79,10 +79,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         else
         {
-            GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath);
-            String[] addresses = haAddresses.split(";");
-            List<String> initialHosts = new ArrayList<String>();
-            List<String> servers = new ArrayList<String>();
+            final GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath);
+            final String[] addresses = haAddresses.split(";");
+            final  List<String> initialHosts = new ArrayList<String>();
+            final List<String> servers = new ArrayList<String>();
             for (int i = 0; i < addresses.length; i++)
             {
                 initialHosts.add(String.format("%s:500%d", addresses[i], (i + 1)));
@@ -102,10 +102,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     @Override
                     public void run()
                     {
-                        System.out.println("Ping...");
-                    }
+                        Log.getLogger().warn("Ping...");
 
-                    ;
+                    }
                 }, 0, 60000);
             }
         }
@@ -121,9 +120,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     /**
      * Starts the graph database in readOnly mode.
      */
-    public void startReadOnly(int id)
+    public void startReadOnly(final int id)
     {
-        File dbPath = new File(BASE_PATH + id);
+        final File dbPath = new File(BASE_PATH + id);
 
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath)
                 .setConfig(GraphDatabaseSettings.read_only, "true")
@@ -137,8 +136,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
-    public List<Object> readObject(@NotNull Object identifier, long snapshotId) throws OutDatedDataException
+    public List<Object> readObject(@NotNull final Object identifier, final long snapshotId) throws OutDatedDataException
     {
+        //TODO: Multi -Versioning: Retrieve all versions but only return the newest ones!
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage = null;
 
@@ -162,11 +162,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
 
         //We only support 1 label each node/vertex because of compatibility with our graph dbs.
-        ArrayList<Object> returnStorage = new ArrayList<>();
+        final ArrayList<Object> returnStorage = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx())
         {
-            StringBuilder builder = new StringBuilder(MATCH);
-            Map<String, Object> properties;
+            final StringBuilder builder = new StringBuilder(MATCH);
+            final Map<String, Object> properties;
 
             if (nodeStorage == null)
             {
@@ -195,20 +195,20 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             Log.getLogger().info("To database: " + builder.toString());
 
-            Result result = graphDb.execute(builder.toString(), properties);
+            final Result result = graphDb.execute(builder.toString(), properties);
             while (result.hasNext())
             {
-                Map<String, Object> value = result.next();
+                final Map<String, Object> value = result.next();
 
-                for (Map.Entry<String, Object> entry : value.entrySet())
+                for (final Map.Entry<String, Object> entry : value.entrySet())
                 {
                     if (entry.getValue() instanceof NodeProxy)
                     {
-                        NodeProxy n = (NodeProxy) entry.getValue();
-                        NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                        final NodeProxy n = (NodeProxy) entry.getValue();
+                        final NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
                         if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                         {
-                            Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                             OutDatedDataException.checkSnapshotId(sId, snapshotId);
                             temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
@@ -217,15 +217,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
                     else if (entry.getValue() instanceof RelationshipProxy)
                     {
-                        RelationshipProxy r = (RelationshipProxy) entry.getValue();
-                        NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
-                        NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
+                        final RelationshipProxy r = (RelationshipProxy) entry.getValue();
+                        final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
+                        final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
 
-                        RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
+                        final RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
                         returnStorage.add(temp);
                         if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                         {
-                            Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                             OutDatedDataException.checkSnapshotId(sId, snapshotId);
                             temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
@@ -242,11 +242,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean shouldFollow(final int sequence)
     {
-        if(sequence == 9)
-        {
-            return false;
-        }
-        return true;
+        return sequence != 9;
     }
 
     /**
@@ -256,7 +252,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * @param id  the id to add.
      * @return the transformed map.
      */
-    private Map<String, Object> transFormToPropertyMap(Map<String, Object> map, String id)
+    private Map<String, Object> transFormToPropertyMap(final Map<String, Object> map, final String id)
     {
         return map.entrySet().stream()
                 .collect(Collectors.toMap(
@@ -284,7 +280,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      */
     private String buildPureRelationshipString(final RelationshipStorage relationshipStorage)
     {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
 
         builder.append("-[r");
 
@@ -296,11 +292,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         if (!relationshipStorage.getProperties().isEmpty())
         {
             builder.append(" {");
-            Iterator<Map.Entry<String, Object>> iterator = relationshipStorage.getProperties().entrySet().iterator();
+            final Iterator<Map.Entry<String, Object>> iterator = relationshipStorage.getProperties().entrySet().iterator();
 
             while (iterator.hasNext())
             {
-                Map.Entry<String, Object> currentProperty = iterator.next();
+                final Map.Entry<String, Object> currentProperty = iterator.next();
                 builder.append(String.format(KEY_VALUE_PAIR, currentProperty.getKey(), currentProperty.getKey().toUpperCase()));
 
                 if (iterator.hasNext())
@@ -322,9 +318,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * @param n           optional identifier in the query.
      * @return a string which may be sent with cypher to neo4j.
      */
-    private String buildNodeString(NodeStorage nodeStorage, String n)
+    private String buildNodeString(final NodeStorage nodeStorage, final String n)
     {
-        StringBuilder builder = new StringBuilder("(n").append(n);
+        final StringBuilder builder = new StringBuilder("(n").append(n);
         if (!nodeStorage.getId().isEmpty())
         {
             builder.append(String.format(":%s", nodeStorage.getId()));
@@ -361,19 +357,19 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
 
         final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
-        Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
+        final Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
 
         final Result result = graphDb.execute(builder, properties);
 
         //Assuming we only get one node in return.
         if (result.hasNext())
         {
-            Map<String, Object> value = result.next();
-            for (Map.Entry<String, Object> entry : value.entrySet())
+            final Map<String, Object> value = result.next();
+            for (final Map.Entry<String, Object> entry : value.entrySet())
             {
                 if (entry.getValue() instanceof NodeProxy)
                 {
-                    NodeProxy n = (NodeProxy) entry.getValue();
+                    final NodeProxy n = (NodeProxy) entry.getValue();
 
                     try
                     {
@@ -397,6 +393,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
+            //TODO: Multi versioning: This will be harder, will have to take the old nodes relationships and have all them as well!
             graphDb.beginTx();
             final Map<String, Object> tempProperties = transFormToPropertyMap(key.getProperties(), "");
             final Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n", tempProperties);
@@ -410,7 +407,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     if (entry.getValue() instanceof NodeProxy)
                     {
                         final NodeProxy proxy = (NodeProxy) entry.getValue();
-                        for (Map.Entry<String, Object> properties : value.getProperties().entrySet())
+                        for (final Map.Entry<String, Object> properties : value.getProperties().entrySet())
                         {
                             proxy.setProperty(properties.getKey(), properties.getValue());
                         }
@@ -421,7 +418,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 }
             }
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
             return false;
@@ -438,7 +435,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final Label label = storage::getId;
             final Node myNode = graphDb.createNode(label);
 
-            for (Map.Entry<String, Object> entry : storage.getProperties().entrySet())
+            for (final Map.Entry<String, Object> entry : storage.getProperties().entrySet())
             {
                 myNode.setProperty(entry.getKey(), entry.getValue());
             }
@@ -447,7 +444,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             tx.success();
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
             return false;
@@ -459,6 +456,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyDelete(final NodeStorage storage, final long snapshotId)
     {
+        //TODO: Multi - Versioning - Delete?
         try
         {
             final Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
@@ -466,7 +464,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final String cypher = MATCH + buildNodeString(storage, "") + " DETACH DELETE n";
             graphDb.execute(cypher, properties);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
             return false;
@@ -480,6 +478,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
+            //TODO Multi - versioning: This will be easy, just add a version to it, it will connect the nodes already!!
             //Transform relationship params.
             final Map<String, Object> propertyMap = transFormToPropertyMap(key.getProperties(), "");
 
@@ -490,21 +489,21 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final Result result = graphDb.execute(MATCH + buildRelationshipString(key) + " RETURN r", propertyMap);
             while (result.hasNext())
             {
-                Map<String, Object> relValue = result.next();
+                final Map<String, Object> relValue = result.next();
 
-                for (Map.Entry<String, Object> entry : relValue.entrySet())
+                for (final Map.Entry<String, Object> entry : relValue.entrySet())
                 {
                     if (entry.getValue() instanceof RelationshipProxy)
                     {
-                        RelationshipProxy proxy = (RelationshipProxy) entry.getValue();
+                        final RelationshipProxy proxy = (RelationshipProxy) entry.getValue();
 
-                        for (Map.Entry<String, Object> properties : value.getProperties().entrySet())
+                        for (final Map.Entry<String, Object> properties : value.getProperties().entrySet())
                         {
                             proxy.setProperty(properties.getKey(), properties.getValue());
                         }
 
-                        NodeStorage start = new NodeStorage(proxy.getStartNode().getLabels().iterator().next().name(), proxy.getStartNode().getAllProperties());
-                        NodeStorage end = new NodeStorage(proxy.getEndNode().getLabels().iterator().next().name(), proxy.getEndNode().getAllProperties());
+                        final NodeStorage start = new NodeStorage(proxy.getStartNode().getLabels().iterator().next().name(), proxy.getStartNode().getAllProperties());
+                        final NodeStorage end = new NodeStorage(proxy.getEndNode().getLabels().iterator().next().name(), proxy.getEndNode().getAllProperties());
 
                         proxy.setProperty(Constants.TAG_HASH,
                                 HashCreator.sha1FromRelationship(new RelationshipStorage(proxy.getType().name(), proxy.getAllProperties(), start, end)));
@@ -513,7 +512,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 }
             }
         }
-        catch (NoSuchAlgorithmException e)
+        catch (final NoSuchAlgorithmException e)
         {
             Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
@@ -539,7 +538,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     "(n2)";
 
             //Transform relationship params.
-            Map<String, Object> properties = transFormToPropertyMap(tempStorage.getProperties(), "");
+            final Map<String, Object> properties = transFormToPropertyMap(tempStorage.getProperties(), "");
 
             //Adds also params of start and end node.
             properties.putAll(transFormToPropertyMap(tempStorage.getStartNode().getProperties(), "1"));
@@ -547,7 +546,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             graphDb.execute(builder, properties);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
             return false;
@@ -562,11 +561,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
+            //TODO: Multi - Versioning - Delete?
             //Delete relationship
             final String cypher = MATCH + buildRelationshipString(storage) + " DELETE r";
 
             //Transform relationship params.
-            Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
+            final Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
 
             //Adds also params of start and end node.
             properties.putAll(transFormToPropertyMap(storage.getStartNode().getProperties(), "1"));
@@ -574,7 +574,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             graphDb.execute(cypher, properties);
         }
-        catch (Exception e)
+        catch (final Exception e)
         {
             Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
             return false;
@@ -589,29 +589,29 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         final String builder = MATCH + buildRelationshipString(relationshipStorage) + " RETURN r";
 
         //Contains params of relationshipStorage.
-        Map<String, Object> properties = transFormToPropertyMap(relationshipStorage.getProperties(), "");
+        final Map<String, Object> properties = transFormToPropertyMap(relationshipStorage.getProperties(), "");
 
         //Adds also params of start and end node.
         properties.putAll(transFormToPropertyMap(relationshipStorage.getStartNode().getProperties(), "1"));
         properties.putAll(transFormToPropertyMap(relationshipStorage.getEndNode().getProperties(), "2"));
 
-        Result result = graphDb.execute(builder, properties);
+        final Result result = graphDb.execute(builder, properties);
 
         //Assuming we only get one node in return.
         if (result.hasNext())
         {
-            Map<String, Object> value = result.next();
-            for (Map.Entry<String, Object> entry : value.entrySet())
+            final Map<String, Object> value = result.next();
+            for (final Map.Entry<String, Object> entry : value.entrySet())
             {
                 if (entry.getValue() instanceof NodeProxy)
                 {
-                    NodeProxy n = (NodeProxy) entry.getValue();
+                    final NodeProxy n = (NodeProxy) entry.getValue();
 
                     try
                     {
                         return HashCreator.sha1FromRelationship(relationshipStorage).equals(n.getProperty(Constants.TAG_HASH));
                     }
-                    catch (NoSuchAlgorithmException e)
+                    catch (final NoSuchAlgorithmException e)
                     {
                         Log.getLogger().warn("Couldn't execute SHA1 for relationship", e);
                     }
