@@ -302,7 +302,7 @@ public class ServerWrapper
      * Get an instance of the local cluster.
      * @return the local cluster instance.
      */
-    public LocalClusterSlave getLocalCLuster()
+    public LocalClusterSlave getLocalCluster()
     {
         return localCluster;
     }

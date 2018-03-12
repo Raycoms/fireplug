@@ -16,6 +16,7 @@ import java.util.Random;
 public class EmptyDatabaseAccess implements IDatabaseAccess
 {
     final Random random = new Random();
+
     @Override
     public void start()
     {
@@ -58,7 +59,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
         {
             Thread.sleep(random.nextInt(10));
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             /*
              * Ignore this.
@@ -74,7 +75,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
         {
             Thread.sleep(random.nextInt(10));
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             /*
              * Ignore this.
@@ -90,7 +91,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
         {
             Thread.sleep(random.nextInt(10));
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             /*
              * Ignore this.
@@ -106,7 +107,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
         {
             Thread.sleep(random.nextInt(10));
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             /*
              * Ignore this.
@@ -122,7 +123,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
         {
             Thread.sleep(random.nextInt(10));
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             /*
              * Ignore this.
@@ -138,7 +139,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
         {
             Thread.sleep(random.nextInt(10));
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             /*
              * Ignore this.
@@ -157,7 +158,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
         {
             Thread.sleep(random.nextInt(5));
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             /*
              * Ignore this.

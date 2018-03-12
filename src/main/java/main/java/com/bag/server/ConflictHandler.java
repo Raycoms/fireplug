@@ -39,16 +39,15 @@ public class ConflictHandler
      * @return true if no conflict has been found.
      */
     protected static boolean checkForConflict(
-            ConcurrentSkipListMap<Long, List<IOperation>> globalWriteSet,
-            Map<Long, List<IOperation>> latestWriteSet,
-            List<IOperation> localWriteSet,
-            List<NodeStorage> readSetNode,
-            List<RelationshipStorage> readSetRelationship,
-            long snapshotId,
-            IDatabaseAccess access)
+            final ConcurrentSkipListMap<Long, List<IOperation>> globalWriteSet,
+            final Map<Long, List<IOperation>> latestWriteSet,
+            final List<IOperation> localWriteSet,
+            final List<NodeStorage> readSetNode,
+            final List<RelationshipStorage> readSetRelationship,
+            final long snapshotId,
+            final IDatabaseAccess access)
     {
         //Commented out during first experiments because implementation is buggy
-        //TODO check this, is throwing ClassCastException...
         return isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
@@ -64,9 +63,9 @@ public class ConflictHandler
      * @return true if data is up to date.
      */
     private static boolean isUpToDate(
-            ConcurrentSkipListMap<Long, List<IOperation>> writeSet, Map<Long, List<IOperation>> latestWriteSet, List<IOperation> localWriteSet,
-            List<NodeStorage> readSetNode,
-            List<RelationshipStorage> readSetRelationship, long snapshotId)
+            final ConcurrentSkipListMap<Long, List<IOperation>> writeSet, final Map<Long, List<IOperation>> latestWriteSet, final List<IOperation> localWriteSet,
+            final List<NodeStorage> readSetNode,
+            final List<RelationshipStorage> readSetRelationship, final long snapshotId)
     {
 
         List<IOperation> pastWrites = new ArrayList<>();
@@ -84,9 +83,8 @@ public class ConflictHandler
                         .map(Map.Entry::getValue)
                         .flatMap(List::stream)
                         .collect(Collectors.toList());
-
             }
-            
+
             pastWrites.addAll(latestWriteSet.entrySet()
                     .stream()
                     .filter(id -> id.getKey() > snapshotId)
@@ -95,7 +93,7 @@ public class ConflictHandler
                     .flatMap(List::stream)
                     .collect(Collectors.toList()));
 
-            List<IOperation> copy = new ArrayList<>(pastWrites);
+            final List<IOperation> copy = new ArrayList<>(pastWrites);
             commit = readSetNode.isEmpty() || !copy.removeAll(readSetNode);
         }
 
@@ -121,7 +119,6 @@ public class ConflictHandler
                             .map(Map.Entry::getValue)
                             .flatMap(List::stream)
                             .collect(Collectors.toList());
-
                 }
                 pastWrites.addAll(latestWriteSet.entrySet()
                         .stream()
@@ -130,9 +127,8 @@ public class ConflictHandler
                         .map(Map.Entry::getValue)
                         .flatMap(List::stream)
                         .collect(Collectors.toList()));
-
             }
-            List<IOperation> copy = new ArrayList<>(pastWrites);
+            final List<IOperation> copy = new ArrayList<>(pastWrites);
             commit = readSetRelationship.isEmpty() || !copy.removeAll(readSetRelationship);
         }
 
@@ -171,7 +167,7 @@ public class ConflictHandler
                         .flatMap(List::stream)
                         .collect(Collectors.toList()));
             }
-            List<IOperation> copy = new ArrayList<>(pastWrites);
+            final List<IOperation> copy = new ArrayList<>(pastWrites);
 
             commit = tempList.isEmpty() || !copy.removeAll(tempList);
         }
@@ -190,9 +186,9 @@ public class ConflictHandler
      * @param readSetRelationship the relationship readSet
      * @return true if correct.
      */
-    private static boolean isCorrect(List<NodeStorage> readSetNode, List<RelationshipStorage> readSetRelationship, IDatabaseAccess access)
+    private static boolean isCorrect(final List<NodeStorage> readSetNode, final List<RelationshipStorage> readSetRelationship, final IDatabaseAccess access)
     {
-        boolean eq = access.equalHash(readSetNode) && access.equalHash(readSetRelationship);
+        final boolean eq = access.equalHash(readSetNode) && access.equalHash(readSetRelationship);
         if (!eq)
         {
             Log.getLogger().warn("Aborting because of incorrect read");

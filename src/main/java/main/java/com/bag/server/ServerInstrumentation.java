@@ -12,7 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Used to report performance information on the server
  */
-public class ServerInstrumentation {
+public class ServerInstrumentation
+{
     /**
      * Amount of aborts since last reset.
      */
@@ -41,44 +42,57 @@ public class ServerInstrumentation {
     /**
      * Lock used to synchronize writes to the results file.
      */
-    private Object resultsFileLock = new Object();
+    private final Object resultsFileLock = new Object();
 
     /**
      * Server's id
      */
-    private int id;
+    private final int id;
 
     /**
      * Minutes elapsed since the start.
      */
     private int minutesElapsed;
 
-    public ServerInstrumentation(int id) {
+    public ServerInstrumentation(final int id)
+    {
         this.id = id;
         lastCommit = System.nanoTime();
         minutesElapsed = 0;
     }
 
-    public void updateCounts(int writes, int reads, int commits, int aborts) {
+    public void updateCounts(final int writes, final int reads, final int commits, final int aborts)
+    {
         if (writes > 0)
+        {
             writesPerformed.addAndGet(writes);
+        }
         if (reads > 0)
+        {
             readsPerformed.addAndGet(reads);
+        }
         if (commits > 0)
+        {
             committedTransactions.addAndGet(commits);
+        }
         if (aborts > 0)
+        {
             abortedTransactions.addAndGet(aborts);
+        }
 
-        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 60.0) {
-            synchronized (resultsFileLock) {
-                double elapsed = ((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER);
-                if (elapsed >= 60.0) {
+        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 60.0)
+        {
+            synchronized (resultsFileLock)
+            {
+                final double elapsed = ((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER);
+                if (elapsed >= 60.0)
+                {
                     lastCommit = System.nanoTime();
                     minutesElapsed += 1;
 
-                    try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
-                        final BufferedWriter bw = new BufferedWriter(file);
-                        final PrintWriter out = new PrintWriter(bw))
+                    try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
+                         final BufferedWriter bw = new BufferedWriter(file);
+                         final PrintWriter out = new PrintWriter(bw))
                     {
                         //out.print(elapsed + ";");
                         //out.print(abortedTransactions.get() + ";");
@@ -97,7 +111,7 @@ public class ServerInstrumentation {
                         readsPerformed = new AtomicInteger(0);
                         writesPerformed = new AtomicInteger(0);
                     }
-                    catch (IOException e)
+                    catch (final IOException e)
                     {
                         Log.getLogger().info("Problem while writing to file!", e);
                     }
