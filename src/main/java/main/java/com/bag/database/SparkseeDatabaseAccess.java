@@ -1,9 +1,9 @@
-package main.java.com.bag.server.database;
+package main.java.com.bag.database;
 
 import com.sparsity.sparksee.gdb.*;
 import com.sparsity.sparksee.gdb.Objects;
 import main.java.com.bag.exceptions.OutDatedDataException;
-import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.HashCreator;
 import main.java.com.bag.util.Log;

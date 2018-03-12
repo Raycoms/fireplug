@@ -1,9 +1,7 @@
-package main.java.com.bag.server.database;
+package main.java.com.bag.database;
 
 import com.sparsity.sparksee.gdb.*;
 import main.java.com.bag.util.storage.NodeStorage;
-
-import java.util.Arrays;
 
 import static com.sparsity.sparksee.gdb.DataType.*;
 import static com.sparsity.sparksee.gdb.DataType.String;

@@ -1,7 +1,7 @@
 package main.java.com.bag.operations;
 
 import bftsmart.reconfiguration.util.RSAKeyLoader;
-import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;

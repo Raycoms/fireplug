@@ -1,4 +1,4 @@
-package main.java.com.bag.server.database.interfaces;
+package main.java.com.bag.database.interfaces;
 
 
 import main.java.com.bag.exceptions.OutDatedDataException;

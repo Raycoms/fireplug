@@ -1,10 +1,10 @@
 package main.java.com.bag.main;
 
-import main.java.com.bag.server.database.Neo4jDatabaseAccess;
-import main.java.com.bag.server.database.OrientDBDatabaseAccess;
-import main.java.com.bag.server.database.SparkseeDatabaseAccess;
-import main.java.com.bag.server.database.TitanDatabaseAccess;
-import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.database.Neo4jDatabaseAccess;
+import main.java.com.bag.database.OrientDBDatabaseAccess;
+import main.java.com.bag.database.SparkseeDatabaseAccess;
+import main.java.com.bag.database.TitanDatabaseAccess;
+import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
