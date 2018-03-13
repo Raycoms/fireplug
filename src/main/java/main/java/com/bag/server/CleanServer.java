@@ -17,14 +17,11 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
+import main.java.com.bag.main.DatabaseLoader;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
-import main.java.com.bag.database.Neo4jDatabaseAccess;
-import main.java.com.bag.database.OrientDBDatabaseAccess;
-import main.java.com.bag.database.SparkseeDatabaseAccess;
-import main.java.com.bag.database.TitanDatabaseAccess;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.server.nettyhandlers.BAGMessage;
 import main.java.com.bag.server.nettyhandlers.BAGMessageDecoder;
@@ -209,25 +206,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
 
         final ServerInstrumentation instrumentation = new ServerInstrumentation(id);
 
-        final IDatabaseAccess access;
-
-        if (tempInstance.toLowerCase().contains("titan"))
-        {
-            access = new TitanDatabaseAccess(id);
-        }
-        else if (tempInstance.toLowerCase().contains("orientdb"))
-        {
-            access = new OrientDBDatabaseAccess(id);
-        }
-        else if (tempInstance.toLowerCase().contains("sparksee"))
-        {
-            access = new SparkseeDatabaseAccess(id);
-        }
-        else
-        {
-            access = new Neo4jDatabaseAccess(id, haAddresses);
-        }
-
+        final IDatabaseAccess access = DatabaseLoader.instantiateDBAccess(tempInstance.toLowerCase(), id, false);
         if (args.length >= 4)
         {
             final boolean useLogging = Boolean.parseBoolean(args[3]);

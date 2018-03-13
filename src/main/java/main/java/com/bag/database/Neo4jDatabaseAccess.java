@@ -26,7 +26,25 @@ import java.util.stream.Collectors;
  */
 public class Neo4jDatabaseAccess implements IDatabaseAccess
 {
+    /**
+     * Base path location of the Neo4j database.
+     */
     private static final String BASE_PATH = System.getProperty("user.home") + "/Neo4jDB";
+
+    /**
+     * String used to match key value pairs.
+     */
+    private static final String KEY_VALUE_PAIR = "%s: {%s}";
+
+    /**
+     * String used to match keys.
+     */
+    private static final String MATCH = "MATCH ";
+
+    /**
+     * If the DB runs in multi-version mode.
+     */
+    private final boolean multiVersion;
 
     /**
      * The graphDB object.
@@ -44,21 +62,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     private final String haAddresses;
 
     /**
-     * String used to match key value pairs.
-     */
-    private static final String KEY_VALUE_PAIR = "%s: {%s}";
-
-    private static final String MATCH = "MATCH ";
-
-    /**
      * Public constructor.
      *
      * @param id, id of the server.
      */
-    public Neo4jDatabaseAccess(final int id, final String haAddresses)
+    public Neo4jDatabaseAccess(final int id, final String haAddresses, final boolean multiVersion)
     {
         this.id = id;
         this.haAddresses = haAddresses;
+        this.multiVersion = multiVersion;
     }
 
     @Override
@@ -81,8 +93,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         {
             final GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath);
             final String[] addresses = haAddresses.split(";");
-            final  List<String> initialHosts = new ArrayList<String>();
-            final List<String> servers = new ArrayList<String>();
+            final  List<String> initialHosts = new ArrayList<>();
+            final List<String> servers = new ArrayList<>();
             for (int i = 0; i < addresses.length; i++)
             {
                 initialHosts.add(String.format("%s:500%d", addresses[i], (i + 1)));
@@ -115,18 +127,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         Log.getLogger().info("Shutting down Neo4j manually");
         graphDb.shutdown();
-    }
-
-    /**
-     * Starts the graph database in readOnly mode.
-     */
-    public void startReadOnly(final int id)
-    {
-        final File dbPath = new File(BASE_PATH + id);
-
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath)
-                .setConfig(GraphDatabaseSettings.read_only, "true")
-                .newGraphDatabase();
     }
 
     /**

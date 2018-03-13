@@ -1,12 +1,8 @@
 package main.java.com.bag.server;
 
 import main.java.com.bag.instrumentations.ServerInstrumentation;
-import main.java.com.bag.database.Neo4jDatabaseAccess;
-import main.java.com.bag.database.OrientDBDatabaseAccess;
-import main.java.com.bag.database.SparkseeDatabaseAccess;
-import main.java.com.bag.database.TitanDatabaseAccess;
-import main.java.com.bag.database.EmptyDatabaseAccess;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.main.DatabaseLoader;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import org.apache.log4j.Level;
@@ -63,15 +59,16 @@ public class ServerWrapper
      * @param isPrimary checks if it is a primary.
      * @param localClusterSlaveId the id of it in the local cluster.
      * @param initialLeaderId the id of its leader in the global cluster.
+     * @param multiVersion if multi-version mode.
      */
-    public ServerWrapper(final int globalServerId, @NotNull final String instance, final boolean isPrimary, final int localClusterSlaveId, final int initialLeaderId)
+    public ServerWrapper(final int globalServerId, @NotNull final String instance, final boolean isPrimary, final int localClusterSlaveId, final int initialLeaderId, final boolean multiVersion)
     {
         final ServerInstrumentation instrumentation = new ServerInstrumentation(globalServerId);
         this.globalServerId = globalServerId;
         this.instance = instance;
         this.localClusterSlaveId = localClusterSlaveId;
 
-        databaseAccess = instantiateDBAccess(instance, globalServerId);
+        databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion);
         databaseAccess.start();
 
         if(isPrimary)
@@ -109,31 +106,6 @@ public class ServerWrapper
     public synchronized IDatabaseAccess getDataBaseAccess()
     {
         return this.databaseAccess;
-    }
-
-    /**
-     * Instantiate the Database access classes depending on the String instance.
-     *
-     * @param instance the string describing which to use.
-     * @return the databaseAccess for the instance.
-     */
-    @NotNull
-    public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId)
-    {
-        switch (instance)
-        {
-            case Constants.NEO4J:
-                return new Neo4jDatabaseAccess(globalServerId, null);
-            case Constants.TITAN:
-                return new TitanDatabaseAccess(globalServerId);
-            case Constants.SPARKSEE:
-                return  new SparkseeDatabaseAccess(globalServerId);
-            case Constants.ORIENTDB:
-                return new OrientDBDatabaseAccess(globalServerId);
-            default:
-                Log.getLogger().warn("Empty databaseAccess");
-                return new EmptyDatabaseAccess();
-        }
     }
 
     /**
@@ -269,7 +241,13 @@ public class ServerWrapper
             }
         }
 
-        @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary);
+        boolean multiVersion = false;
+        if(args.length>=7)
+        {
+            multiVersion = Boolean.parseBoolean(args[5]);
+        }
+
+        @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary, multiVersion);
 
         /*final Scanner reader = new Scanner(System.in);  // Reading from System.in
         Log.getLogger().info("Write anything to the console to kill this process");
