@@ -183,7 +183,7 @@ public class TestClient implements BAGClient, ReplyListener
             globalProxy = null;
         }
 
-        secureMode = false;
+        secureMode = true;
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();

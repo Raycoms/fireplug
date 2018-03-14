@@ -10,7 +10,6 @@ import org.neo4j.cluster.ClusterSettings;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.kernel.ha.HaSettings;
 import org.neo4j.kernel.impl.core.NodeProxy;
@@ -20,6 +19,9 @@ import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static main.java.com.bag.util.Constants.TAG_PRE;
+import static main.java.com.bag.util.Constants.TAG_VERSION;
 
 /**
  * Class created to handle access to the neo4j database.
@@ -138,7 +140,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @NotNull
     public List<Object> readObject(@NotNull final Object identifier, final long snapshotId) throws OutDatedDataException
     {
-        //TODO: Multi -Versioning: Retrieve all versions but only return the newest ones!
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage = null;
 
@@ -213,6 +214,25 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         temp.removeProperty(Constants.TAG_HASH);
+
+                        if (multiVersion)
+                        {
+                           // If the version int is < 0, it means it is outdated and we don't need it.
+                           final Object propPre = temp.getProperty(TAG_PRE);
+                           if(propPre instanceof NodeProxy)
+                           {
+                               temp.removeProperty(TAG_PRE);
+                           }
+                           final Object propV = temp.getProperty(TAG_VERSION);
+                           if(propV instanceof Integer)
+                           {
+                               if((Integer) propV < 0)
+                               {
+                                   continue;
+                               }
+                               temp.removeProperty(TAG_VERSION);
+                           }
+                        }
                         returnStorage.add(temp);
                     }
                     else if (entry.getValue() instanceof RelationshipProxy)
@@ -222,7 +242,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
 
                         final RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
-                        returnStorage.add(temp);
                         if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                         {
                             final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
@@ -230,6 +249,25 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         temp.removeProperty(Constants.TAG_HASH);
+                        if (multiVersion)
+                        {
+                            // If the version int is < 0, it means it is outdated and we don't need it.
+                            final Object propPre = temp.getProperty(TAG_PRE);
+                            if(propPre instanceof RelationshipProxy)
+                            {
+                                temp.removeProperty(TAG_PRE);
+                            }
+                            final Object propV = temp.getProperty(TAG_VERSION);
+                            if(propV instanceof Integer)
+                            {
+                                if((Integer) propV < 0)
+                                {
+                                    continue;
+                                }
+                                temp.removeProperty(TAG_VERSION);
+                            }
+                        }
+                        returnStorage.add(temp);
                     }
                 }
             }
@@ -393,7 +431,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            //TODO: Multi versioning: This will be harder, will have to take the old nodes relationships and have all them as well!
             graphDb.beginTx();
             final Map<String, Object> tempProperties = transFormToPropertyMap(key.getProperties(), "");
             final Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n", tempProperties);
@@ -407,6 +444,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     if (entry.getValue() instanceof NodeProxy)
                     {
                         final NodeProxy proxy = (NodeProxy) entry.getValue();
+                        if(multiVersion)
+                        {
+                            final Object obj = proxy.getProperty(TAG_VERSION);
+                            proxy.setProperty(TAG_PRE, proxy);
+                            proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
+
+                        }
                         for (final Map.Entry<String, Object> properties : value.getProperties().entrySet())
                         {
                             proxy.setProperty(properties.getKey(), properties.getValue());
@@ -442,6 +486,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             myNode.setProperty(Constants.TAG_HASH, HashCreator.sha1FromNode(storage));
             myNode.setProperty(Constants.TAG_SNAPSHOT_ID, snapshotId);
 
+            if (multiVersion)
+            {
+                myNode.setProperty(TAG_VERSION, null);
+                myNode.setProperty(TAG_PRE, null);
+            }
+
             tx.success();
         }
         catch (final Exception e)
@@ -456,13 +506,21 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyDelete(final NodeStorage storage, final long snapshotId)
     {
-        //TODO: Multi - Versioning - Delete?
-        try
+         try
         {
-            final Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
+            if(multiVersion)
+            {
+                final NodeStorage value = new NodeStorage(storage);
+                value.addProperty(TAG_VERSION, -1);
+                applyUpdate(storage, value, snapshotId);
+            }
+            else
+            {
+                final Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
 
-            final String cypher = MATCH + buildNodeString(storage, "") + " DETACH DELETE n";
-            graphDb.execute(cypher, properties);
+                final String cypher = MATCH + buildNodeString(storage, "") + " DETACH DELETE n";
+                graphDb.execute(cypher, properties);
+            }
         }
         catch (final Exception e)
         {
@@ -478,7 +536,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            //TODO Multi - versioning: This will be easy, just add a version to it, it will connect the nodes already!!
             //Transform relationship params.
             final Map<String, Object> propertyMap = transFormToPropertyMap(key.getProperties(), "");
 
@@ -496,6 +553,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     if (entry.getValue() instanceof RelationshipProxy)
                     {
                         final RelationshipProxy proxy = (RelationshipProxy) entry.getValue();
+                        if(multiVersion)
+                        {
+                            final Object obj = proxy.getProperty(TAG_VERSION);
+                            proxy.setProperty(TAG_PRE, proxy);
+                            proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
+                        }
 
                         for (final Map.Entry<String, Object> properties : value.getProperties().entrySet())
                         {
@@ -537,6 +600,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     buildPureRelationshipString(tempStorage) +
                     "(n2)";
 
+            if (multiVersion)
+            {
+               tempStorage.addProperty(TAG_VERSION,null);
+                tempStorage.addProperty(TAG_PRE,null);
+            }
+
             //Transform relationship params.
             final Map<String, Object> properties = transFormToPropertyMap(tempStorage.getProperties(), "");
 
@@ -561,18 +630,26 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         try
         {
-            //TODO: Multi - Versioning - Delete?
-            //Delete relationship
-            final String cypher = MATCH + buildRelationshipString(storage) + " DELETE r";
+            if(multiVersion)
+            {
+                final RelationshipStorage value = new RelationshipStorage(storage);
+                value.addProperty(TAG_VERSION, -1);
+                applyUpdate(storage, value, snapshotId);
+            }
+            else
+            {
+                //Delete relationship
+                final String cypher = MATCH + buildRelationshipString(storage) + " DELETE r";
 
-            //Transform relationship params.
-            final Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
+                //Transform relationship params.
+                final Map<String, Object> properties = transFormToPropertyMap(storage.getProperties(), "");
 
-            //Adds also params of start and end node.
-            properties.putAll(transFormToPropertyMap(storage.getStartNode().getProperties(), "1"));
-            properties.putAll(transFormToPropertyMap(storage.getEndNode().getProperties(), "2"));
+                //Adds also params of start and end node.
+                properties.putAll(transFormToPropertyMap(storage.getStartNode().getProperties(), "1"));
+                properties.putAll(transFormToPropertyMap(storage.getEndNode().getProperties(), "2"));
 
-            graphDb.execute(cypher, properties);
+                graphDb.execute(cypher, properties);
+            }
         }
         catch (final Exception e)
         {

@@ -6,8 +6,14 @@ import com.esotericsoftware.kryo.io.Output;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map;
+
+import static main.java.com.bag.util.Constants.TAG_HASH;
+import static main.java.com.bag.util.Constants.TAG_SNAPSHOT_ID;
+import static main.java.com.bag.util.Constants.TAG_VERSION;
 
 /**
  * Class used to store Nodes locally for a limited amount of time.
@@ -29,6 +35,17 @@ public class NodeStorage implements Serializable
     public NodeStorage()
     {
         id = "Node";
+    }
+
+    /**
+     * NodeStorage copy constructor.
+     *
+     * @param copy the storage to copy.
+     */
+    public NodeStorage(@NotNull final NodeStorage copy)
+    {
+        this.id = copy.getId();
+        this.properties.putAll(copy.getProperties());
     }
 
     /**
@@ -102,6 +119,16 @@ public class NodeStorage implements Serializable
         this.properties.put(description, value);
     }
 
+    /**
+     * Getter for a certain property from the properties.
+     *
+     * @param key the key of the property which should be get.
+     */
+    public Object getProperty(final String key)
+    {
+        return properties.get(key);
+    }
+
     @Override
     public boolean equals(final Object o)
     {
@@ -121,9 +148,12 @@ public class NodeStorage implements Serializable
         {
             return false;
         }
-        //todo is the same if valid subset in whatEver direction.
-        return this.getProperties().entrySet().containsAll(that.getProperties().entrySet())
-                || that.getProperties().entrySet().containsAll(this.getProperties().entrySet());
+
+        final Map<String, Object> thatMap = that.getProperties();
+        final Map<String, Object> thisMap = this.getProperties();
+
+        return thisMap.entrySet().containsAll(thatMap.entrySet())
+                || thatMap.entrySet().containsAll(thisMap.entrySet());
     }
 
     @Override
@@ -177,7 +207,7 @@ public class NodeStorage implements Serializable
         sb.append("[");
         for (Map.Entry<String, Object> item : properties.entrySet())
         {
-            if(item.getKey().equals("hash") || item.getKey().equals("snapShotId"))
+            if(item.getKey().equals(TAG_HASH) || item.getKey().equals(TAG_SNAPSHOT_ID) || item.getKey().equals(TAG_VERSION))
             {
                 continue;
             }

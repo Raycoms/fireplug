@@ -6,6 +6,9 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static main.java.com.bag.util.Constants.TAG_PRE;
+import static main.java.com.bag.util.Constants.TAG_VERSION;
+
 /**
  * Class used to create a Hash out of a node or relationship.
  */
@@ -17,11 +20,15 @@ public class HashCreator
      * @return the return string (hash-sum)
      * @throws NoSuchAlgorithmException possible exception.
      */
-    public static String sha1FromNode(NodeStorage node) throws NoSuchAlgorithmException
+    public static String sha1FromNode(final NodeStorage node) throws NoSuchAlgorithmException
     {
+        final NodeStorage copy = new NodeStorage(node);
+        copy.removeProperty(TAG_VERSION);
+        copy.removeProperty(TAG_PRE);
+
         MessageDigest mDigest = MessageDigest.getInstance("SHA1");
 
-        byte[] result = mDigest.digest(node.getBytes());
+        byte[] result = mDigest.digest(copy.getBytes());
 
         final StringBuilder sb = new StringBuilder();
         for (final byte aResult : result)
@@ -38,11 +45,15 @@ public class HashCreator
      * @return the return string (hash-sum)
      * @throws NoSuchAlgorithmException possible exception.
      */
-    public static String sha1FromRelationship(RelationshipStorage relationShip) throws NoSuchAlgorithmException
+    public static String sha1FromRelationship(final RelationshipStorage relationShip) throws NoSuchAlgorithmException
     {
+        final RelationshipStorage copy = new RelationshipStorage(relationShip);
+        copy.removeProperty(TAG_VERSION);
+        copy.removeProperty(TAG_PRE);
+
         MessageDigest mDigest = MessageDigest.getInstance("SHA1");
 
-        byte[] result = mDigest.digest(relationShip.getBytes());
+        byte[] result = mDigest.digest(copy.getBytes());
 
         StringBuilder sb = new StringBuilder();
         for (final byte aResult : result)

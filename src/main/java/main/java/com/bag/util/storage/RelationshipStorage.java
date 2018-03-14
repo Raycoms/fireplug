@@ -13,6 +13,10 @@ import java.io.Serializable;
 import java.util.TreeMap;
 import java.util.Map;
 
+import static main.java.com.bag.util.Constants.TAG_HASH;
+import static main.java.com.bag.util.Constants.TAG_SNAPSHOT_ID;
+import static main.java.com.bag.util.Constants.TAG_VERSION;
+
 /**
  * Class used to store Relationships locally for a limited amount of time.
  */
@@ -47,6 +51,19 @@ public class RelationshipStorage implements Serializable
         startNode = new NodeStorage();
         endNode = new NodeStorage();
         id = "";
+    }
+
+    /**
+     * RelationshipStorage copy constructor.
+     *
+     * @param copy the storage to copy.
+     */
+    public RelationshipStorage(@NotNull final RelationshipStorage copy)
+    {
+        this.id = copy.getId();
+        this.startNode = copy.startNode;
+        this.endNode = copy.endNode;
+        this.properties.putAll(copy.getProperties());
     }
 
     /**
@@ -161,11 +178,15 @@ public class RelationshipStorage implements Serializable
             return false;
         }
 
-        if (!(this.getProperties().entrySet().containsAll(that.getProperties().entrySet())
-                || that.getProperties().entrySet().containsAll(this.getProperties().entrySet())))
+        final Map<String, Object> thatMap = that.getProperties();
+        final Map<String, Object> thisMap = this.getProperties();
+
+        if(!thisMap.entrySet().containsAll(thatMap.entrySet())
+                && !thatMap.entrySet().containsAll(thisMap.entrySet()))
         {
             return false;
         }
+
         return getStartNode().equals(that.getStartNode()) && getEndNode().equals(that.getEndNode());
     }
 
@@ -190,7 +211,7 @@ public class RelationshipStorage implements Serializable
         sb.append("[");
         for (Map.Entry<String, Object> item : properties.entrySet())
         {
-            if(item.getKey().equals("hash") || item.getKey().equals("snapShotId"))
+            if(item.getKey().equals(TAG_HASH) || item.getKey().equals(TAG_SNAPSHOT_ID) || item.getKey().equals(TAG_VERSION))
             {
                 continue;
             }
@@ -212,9 +233,19 @@ public class RelationshipStorage implements Serializable
      *
      * @param key the key of the property which should be removed.
      */
-    public void removeProperty(String key)
+    public void removeProperty(final String key)
     {
         properties.remove(key);
+    }
+
+    /**
+     * Getter for a certain property from the properties.
+     *
+     * @param key the key of the property which should be get.
+     */
+    public Object getProperty(final String key)
+    {
+        return properties.get(key);
     }
 
     /**
