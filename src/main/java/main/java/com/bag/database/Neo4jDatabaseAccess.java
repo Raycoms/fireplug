@@ -512,7 +512,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             {
                 final NodeStorage value = new NodeStorage(storage);
                 value.addProperty(TAG_VERSION, -1);
-                applyUpdate(storage, value, snapshotId);
+                return applyUpdate(storage, value, snapshotId);
             }
             else
             {
@@ -634,7 +634,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             {
                 final RelationshipStorage value = new RelationshipStorage(storage);
                 value.addProperty(TAG_VERSION, -1);
-                applyUpdate(storage, value, snapshotId);
+                return applyUpdate(storage, value, snapshotId);
             }
             else
             {

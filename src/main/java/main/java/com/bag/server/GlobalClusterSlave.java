@@ -221,7 +221,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 readSetNode,
                 readsSetRelationship,
                 timeStamp,
-                wrapper.getDataBaseAccess()))
+                wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
         {
             updateCounts(0, 0, 0, 1);
 
@@ -315,7 +315,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 readSetNode,
                 readsSetRelationship,
                 timeStamp,
-                wrapper.getDataBaseAccess()))
+                wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
         {
             updateCounts(0, 0, 0, 1);
 

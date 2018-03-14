@@ -20,6 +20,11 @@ public class ServerWrapper
     private static final String INVALID_ARGUMENTS = "Invalid program arguments, terminating server";
 
     /**
+     * If the server operates under multiVersion mode or not.
+     */
+    private final boolean multiVersion;
+
+    /**
      * The instance of the server which responds to the global cluster.
      * If null -> only slave of local cluster.
      */
@@ -97,6 +102,8 @@ public class ServerWrapper
         {
             localCluster.setPrimary(true);
         }
+
+        this.multiVersion = multiVersion;
     }
 
     /**
@@ -116,6 +123,15 @@ public class ServerWrapper
     public GlobalClusterSlave getGlobalCluster()
     {
         return this.globalCluster;
+    }
+
+    /**
+     * Getter to check if multiVersion.
+     * @return true if so.
+     */
+    public boolean isMultiVersion()
+    {
+        return multiVersion;
     }
 
     /**

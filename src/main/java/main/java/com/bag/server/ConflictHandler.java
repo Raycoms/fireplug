@@ -36,6 +36,7 @@ public class ConflictHandler
      * @param readSetNode         the node readSet.
      * @param readSetRelationship the relationship readSet
      * @param snapshotId          the snapShotId of the transaction.
+     * @param multiVersion        if multiVersion mode.
      * @return true if no conflict has been found.
      */
     protected static boolean checkForConflict(
@@ -45,10 +46,11 @@ public class ConflictHandler
             final List<NodeStorage> readSetNode,
             final List<RelationshipStorage> readSetRelationship,
             final long snapshotId,
-            final IDatabaseAccess access)
+            final IDatabaseAccess access,
+            final boolean multiVersion)
     {
         //Commented out during first experiments because implementation is buggy
-        return isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId) && isCorrect(readSetNode, readSetRelationship, access);
+        return isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId, multiVersion) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
     /**
@@ -60,16 +62,16 @@ public class ConflictHandler
      * @param readSetNode         the node readSet.
      * @param readSetRelationship the relationship readSet
      * @param snapshotId          the snapShotId of the transaction.
+     * @param multiVersion        if multiVersion mode.
      * @return true if data is up to date.
      */
     private static boolean isUpToDate(
             final ConcurrentSkipListMap<Long, List<IOperation>> writeSet, final Map<Long, List<IOperation>> latestWriteSet, final List<IOperation> localWriteSet,
             final List<NodeStorage> readSetNode,
-            final List<RelationshipStorage> readSetRelationship, final long snapshotId)
+            final List<RelationshipStorage> readSetRelationship, final long snapshotId, final boolean multiVersion)
     {
 
         List<IOperation> pastWrites = new ArrayList<>();
-
         boolean commit = true;
         if (!readSetNode.isEmpty())
         {
@@ -139,6 +141,12 @@ public class ConflictHandler
                 Log.getLogger().info("Aborting because of writeSet containing rs read");
             }
             return false;
+        }
+
+        // If multiVersion then skip the operation clashes, just make new version.
+        if (multiVersion)
+        {
+            return true;
         }
 
         final List<IOperation> tempList = localWriteSet.stream().filter(operation -> operation instanceof DeleteOperation || operation instanceof UpdateOperation)

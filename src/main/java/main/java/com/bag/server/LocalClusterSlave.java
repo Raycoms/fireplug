@@ -306,7 +306,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 readSetNode,
                 readsSetRelationship,
                 timeStamp,
-                wrapper.getDataBaseAccess()))
+                wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
         {
             updateCounts(0, 0, 0, 1);
 
