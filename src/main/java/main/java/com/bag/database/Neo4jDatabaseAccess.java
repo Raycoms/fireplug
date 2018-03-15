@@ -206,11 +206,18 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     if (entry.getValue() instanceof NodeProxy)
                     {
                         final NodeProxy n = (NodeProxy) entry.getValue();
-                        final NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                        NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
                         if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                         {
                             final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                            OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                            if (multiVersion)
+                            {
+                                temp = OutDatedDataException.getCorrectNodeStorage(sId, snapshotId, temp);
+                            }
+                            else
+                            {
+                                OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                            }
                             temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         temp.removeProperty(Constants.TAG_HASH);
@@ -241,11 +248,18 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
                         final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
 
-                        final RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
+                        RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
                         if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                         {
                             final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                            OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                            if (multiVersion)
+                            {
+                                temp = OutDatedDataException.getCorrectRSStorage(sId, snapshotId, temp);
+                            }
+                            else
+                            {
+                                OutDatedDataException.checkSnapshotId(sId, snapshotId);
+                            }
                             temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         temp.removeProperty(Constants.TAG_HASH);
