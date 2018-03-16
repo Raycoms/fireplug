@@ -2,6 +2,8 @@ package main.java.com.bag.exceptions;
 
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import org.neo4j.kernel.impl.core.NodeProxy;
+import org.neo4j.kernel.impl.core.RelationshipProxy;
 
 import static main.java.com.bag.util.Constants.TAG_PRE;
 import static main.java.com.bag.util.Constants.TAG_SNAPSHOT_ID;
@@ -88,10 +90,11 @@ public class OutDatedDataException extends Exception
         NodeStorage tempStorage = storage;
         if(tempSnapshotId > snapshotId && snapshotId != IGNORE_SNAPSHOT)
         {
-            Object sId = storage.getProperties().get(TAG_SNAPSHOT_ID);
-            while(sId instanceof Long && (long) sId < tempSnapshotId && storage.getProperty(TAG_PRE) instanceof NodeStorage)
+            final Object sId = storage.getProperties().get(TAG_SNAPSHOT_ID);
+            while(sId instanceof Long && (long) sId < tempSnapshotId && storage.getProperty(TAG_PRE) instanceof NodeProxy)
             {
-                tempStorage = (NodeStorage) tempStorage.getProperty(TAG_PRE);
+                final NodeProxy n = (NodeProxy) storage.getProperty(TAG_PRE);
+                tempStorage = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
             }
         }
         return tempStorage;
@@ -120,10 +123,14 @@ public class OutDatedDataException extends Exception
         RelationshipStorage tempStorage = storage;
         if(tempSnapshotId > snapshotId && snapshotId != IGNORE_SNAPSHOT)
         {
-            Object sId = storage.getProperties().get(TAG_SNAPSHOT_ID);
-            while(sId instanceof Long && (long) sId < tempSnapshotId && storage.getProperty(TAG_PRE) instanceof RelationshipStorage)
+            final Object sId = storage.getProperties().get(TAG_SNAPSHOT_ID);
+            while(sId instanceof Long && (long) sId < tempSnapshotId && storage.getProperty(TAG_PRE) instanceof RelationshipProxy)
             {
-                tempStorage = (RelationshipStorage) tempStorage.getProperty(TAG_PRE);
+                final RelationshipProxy r = (RelationshipProxy) storage.getProperty(TAG_PRE);
+                final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
+                final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
+
+                tempStorage = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
             }
         }
         return tempStorage;

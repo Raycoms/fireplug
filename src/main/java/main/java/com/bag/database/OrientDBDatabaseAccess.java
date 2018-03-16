@@ -195,9 +195,9 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
      * @param tempVertex the base vertex.
      * @return the nodeStorage.
      */
-    private NodeStorage getNodeStorageFromVertex(Vertex tempVertex)
+    private NodeStorage getNodeStorageFromVertex(final Vertex tempVertex)
     {
-        final NodeStorage temp = new NodeStorage(tempVertex.getProperty("idx"));
+        final NodeStorage temp = new NodeStorage(tempVertex.getProperty("idx") + "");
         for (final String key : tempVertex.getPropertyKeys())
         {
             temp.addProperty(key, tempVertex.getProperty(key));

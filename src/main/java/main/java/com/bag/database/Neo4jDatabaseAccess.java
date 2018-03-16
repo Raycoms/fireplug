@@ -427,7 +427,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     {
                         return HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH));
                     }
-                    catch (NoSuchAlgorithmException e)
+                    catch (final NoSuchAlgorithmException e)
                     {
                         Log.getLogger().warn("Couldn't execute SHA1 for node", e);
                     }
