@@ -72,7 +72,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         this.id = id;
         this.haAddresses = haAddresses;
-        this.multiVersion = true;
+        this.multiVersion = multiVersion;
     }
 
     @Override
