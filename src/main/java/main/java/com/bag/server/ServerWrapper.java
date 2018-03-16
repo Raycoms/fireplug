@@ -242,7 +242,7 @@ public class ServerWrapper
             actsInGlobalCluster = Boolean.parseBoolean(args[4]);
         }
 
-        if(args.length>=5)
+        if(args.length>=6)
         {
             boolean useLogging = Boolean.parseBoolean(args[5]);
             if(!useLogging)
@@ -252,9 +252,9 @@ public class ServerWrapper
         }
 
         boolean multiVersion = false;
-        if(args.length>=6)
+        if(args.length>=7)
         {
-            multiVersion = Boolean.parseBoolean(args[5]);
+            multiVersion = Boolean.parseBoolean(args[6]);
             Log.getLogger().warn("Starting server with multiVersion: " + multiVersion);
         }
 
