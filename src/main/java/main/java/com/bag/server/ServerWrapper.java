@@ -41,11 +41,6 @@ public class ServerWrapper
     private final int globalServerId;
 
     /**
-     * The String instance of the database.
-     */
-    private final String instance;
-
-    /**
      * The id of the server in the local cluster.
      */
     private final int localClusterSlaveId;
@@ -70,7 +65,6 @@ public class ServerWrapper
     {
         final ServerInstrumentation instrumentation = new ServerInstrumentation(globalServerId);
         this.globalServerId = globalServerId;
-        this.instance = instance;
         this.localClusterSlaveId = localClusterSlaveId;
 
         databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion);
@@ -261,6 +255,7 @@ public class ServerWrapper
         if(args.length>=7)
         {
             multiVersion = Boolean.parseBoolean(args[5]);
+            Log.getLogger().warn("Starting server with multiVersion: " + multiVersion);
         }
 
         @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary, multiVersion);
