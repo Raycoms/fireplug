@@ -462,7 +462,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         if(multiVersion)
                         {
                             final Object obj = proxy.getProperty(TAG_VERSION);
-                            proxy.setProperty(TAG_PRE, proxy);
+                            NodeStorage temp = new NodeStorage(proxy.getLabels().iterator().next().name(), proxy.getAllProperties());
+                            proxy.setProperty(TAG_PRE, temp);
                             proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
 
                         }
@@ -570,7 +571,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         if(multiVersion)
                         {
                             final Object obj = proxy.getProperty(TAG_VERSION);
-                            proxy.setProperty(TAG_PRE, proxy);
+                            final NodeStorage start = new NodeStorage(proxy.getStartNode().getLabels().iterator().next().name(), proxy.getStartNode().getAllProperties());
+                            final NodeStorage end = new NodeStorage(proxy.getEndNode().getLabels().iterator().next().name(), proxy.getEndNode().getAllProperties());
+
+                            RelationshipStorage temp = new RelationshipStorage(proxy.getType().name(), proxy.getAllProperties(), start, end);
+                            proxy.setProperty(TAG_PRE, temp);
                             proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
                         }
 
