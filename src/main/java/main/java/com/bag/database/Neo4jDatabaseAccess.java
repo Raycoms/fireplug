@@ -80,6 +80,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     {
         final File dbPath = new File(BASE_PATH + id);
         Log.getLogger().warn("Starting neo4j database service on " + id);
+        Log.getLogger().warn("Starting neo4j database with multiVersion " + multiVersion);
 
         if (haAddresses == null)
         {
