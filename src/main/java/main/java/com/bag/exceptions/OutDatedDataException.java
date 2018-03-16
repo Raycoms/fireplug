@@ -1,5 +1,7 @@
 package main.java.com.bag.exceptions;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.neo4j.kernel.impl.core.NodeProxy;
@@ -74,7 +76,7 @@ public class OutDatedDataException extends Exception
      * @param storage the storage object.
      * @throws OutDatedDataException exception to throw if not valid.
      */
-    public static NodeStorage getCorrectNodeStorage(final Object input, final long snapshotId, final NodeStorage storage)
+    public static NodeStorage getCorrectNodeStorage(final Object input, final long snapshotId, final NodeStorage storage, final Kryo kryo)
     {
         long tempSnapshotId = 0;
 
@@ -90,11 +92,12 @@ public class OutDatedDataException extends Exception
         NodeStorage tempStorage = storage;
         if(tempSnapshotId > snapshotId && snapshotId != IGNORE_SNAPSHOT)
         {
-            final Object sId = storage.getProperties().get(TAG_SNAPSHOT_ID);
-            while(sId instanceof Long && (long) sId < tempSnapshotId && storage.getProperty(TAG_PRE) instanceof NodeProxy)
+            Object sId = storage.getProperties().get(TAG_SNAPSHOT_ID);
+            while(sId instanceof Long && (long) sId < tempSnapshotId && storage.getProperty(TAG_PRE) instanceof byte[])
             {
-                final NodeProxy n = (NodeProxy) storage.getProperty(TAG_PRE);
-                tempStorage = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                final Input inputStream = new Input((byte[]) storage.getProperty(TAG_PRE));
+                tempStorage = kryo.readObject(inputStream, NodeStorage.class);
+                sId = tempStorage.getProperty(TAG_SNAPSHOT_ID);
             }
         }
         return tempStorage;
@@ -107,7 +110,7 @@ public class OutDatedDataException extends Exception
      * @param storage the storage object.
      * @throws OutDatedDataException exception to throw if not valid.
      */
-    public static RelationshipStorage getCorrectRSStorage(final Object input, final long snapshotId, final RelationshipStorage storage)
+    public static RelationshipStorage getCorrectRSStorage(final Object input, final long snapshotId, final RelationshipStorage storage, final Kryo kryo)
     {
         long tempSnapshotId = 0;
 
@@ -123,14 +126,12 @@ public class OutDatedDataException extends Exception
         RelationshipStorage tempStorage = storage;
         if(tempSnapshotId > snapshotId && snapshotId != IGNORE_SNAPSHOT)
         {
-            final Object sId = storage.getProperties().get(TAG_SNAPSHOT_ID);
+            Object sId = storage.getProperties().get(TAG_SNAPSHOT_ID);
             while(sId instanceof Long && (long) sId < tempSnapshotId && storage.getProperty(TAG_PRE) instanceof RelationshipProxy)
             {
-                final RelationshipProxy r = (RelationshipProxy) storage.getProperty(TAG_PRE);
-                final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
-                final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
-
-                tempStorage = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
+                final Input inputStream = new Input((byte[]) storage.getProperty(TAG_PRE));
+                tempStorage = kryo.readObject(inputStream, RelationshipStorage.class);
+                sId = tempStorage.getProperty(TAG_SNAPSHOT_ID);
             }
         }
         return tempStorage;

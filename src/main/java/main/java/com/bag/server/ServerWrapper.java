@@ -1,5 +1,7 @@
 package main.java.com.bag.server;
 
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.main.DatabaseLoader;
@@ -67,9 +69,6 @@ public class ServerWrapper
         this.globalServerId = globalServerId;
         this.localClusterSlaveId = localClusterSlaveId;
 
-        databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion);
-        databaseAccess.start();
-
         if(isPrimary)
         {
             Log.getLogger().warn("Turn on global cluster with id: " + globalServerId);
@@ -91,6 +90,11 @@ public class ServerWrapper
             }
             Log.getLogger().warn("Finished turning on local cluster slave with id: " + localClusterSlaveId);
         }
+
+        final KryoFactory pool = globalCluster != null ? globalCluster.getFactory() : localCluster.getFactory();
+
+        databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion, pool);
+        databaseAccess.start();
 
         if(isPrimary && localClusterSlaveId != -1)
         {

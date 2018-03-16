@@ -1,11 +1,16 @@
 package main.java.com.bag.database;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.neo4j.cluster.ClusterSettings;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
@@ -64,15 +69,23 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     private final String haAddresses;
 
     /**
-     * Public constructor.
-     *
-     * @param id, id of the server.
+     * Pool for kryo objects.
      */
-    public Neo4jDatabaseAccess(final int id, final String haAddresses, final boolean multiVersion)
+    @Nullable
+    private final KryoPool pool;
+
+    /**
+     * Public constructor.
+     * @param id, id of the server.
+     * @param pool the kryo factory.
+     */
+    public Neo4jDatabaseAccess(final int id, final String haAddresses, final boolean multiVersion, final @Nullable KryoFactory pool)
     {
         this.id = id;
         this.haAddresses = haAddresses;
         this.multiVersion = multiVersion;
+
+        this.pool = pool == null ? null : new KryoPool.Builder(pool).softReferences().build();
     }
 
     @Override
@@ -167,6 +180,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         final ArrayList<Object> returnStorage = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx())
         {
+            final Kryo kryo = pool.borrow();
             final StringBuilder builder = new StringBuilder(MATCH);
             final Map<String, Object> properties;
 
@@ -213,7 +227,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                             if (multiVersion)
                             {
-                                temp = OutDatedDataException.getCorrectNodeStorage(sId, snapshotId, temp);
+                                temp = OutDatedDataException.getCorrectNodeStorage(sId, snapshotId, temp, kryo);
                             }
                             else
                             {
@@ -255,7 +269,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                             if (multiVersion)
                             {
-                                temp = OutDatedDataException.getCorrectRSStorage(sId, snapshotId, temp);
+                                temp = OutDatedDataException.getCorrectRSStorage(sId, snapshotId, temp, kryo);
                             }
                             else
                             {
@@ -286,7 +300,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
                 }
             }
-
+            pool.release(kryo);
             tx.success();
         }
         return returnStorage;
@@ -444,6 +458,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
     {
+        final Kryo kryo = pool.borrow();
         try
         {
             graphDb.beginTx();
@@ -463,7 +478,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             final Object obj = proxy.getProperty(TAG_VERSION);
                             NodeStorage temp = new NodeStorage(proxy.getLabels().iterator().next().name(), proxy.getAllProperties());
-                            proxy.setProperty(TAG_PRE, temp);
+                            final Output output = new Output();
+                            kryo.writeObject(output, temp);
+                            proxy.setProperty(TAG_PRE, output.getBuffer());
                             proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
 
                         }
@@ -477,11 +494,16 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
                 }
             }
+
         }
         catch (final Exception e)
         {
             Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
             return false;
+        }
+        finally
+        {
+            pool.release(kryo);
         }
         Log.getLogger().info("Executed update node transaction in server:  " + id);
         return true;
@@ -549,6 +571,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
     {
+        final Kryo kryo = pool.borrow();
         try
         {
             //Transform relationship params.
@@ -575,7 +598,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             final NodeStorage end = new NodeStorage(proxy.getEndNode().getLabels().iterator().next().name(), proxy.getEndNode().getAllProperties());
 
                             RelationshipStorage temp = new RelationshipStorage(proxy.getType().name(), proxy.getAllProperties(), start, end);
-                            proxy.setProperty(TAG_PRE, temp);
+                            final Output output = new Output();
+                            kryo.writeObject(output, temp);
+                            proxy.setProperty(TAG_PRE, output.getBuffer());
                             proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
                         }
 
@@ -598,6 +623,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         {
             Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
+        }
+        finally
+        {
+            pool.release(kryo);
         }
         Log.getLogger().info("Executed update relationship transaction in server:  " + id);
         return true;

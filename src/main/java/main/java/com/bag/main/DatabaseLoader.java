@@ -1,5 +1,6 @@
 package main.java.com.bag.main;
 
+import com.esotericsoftware.kryo.pool.KryoFactory;
 import main.java.com.bag.database.*;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
@@ -8,6 +9,7 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -141,15 +143,16 @@ public class DatabaseLoader
      * @param instance the instance to use.
      * @param globalServerId the global server id (used to find the folder)
      * @param multiVersion if multi-version mode.
+     * @param pool the kryo factory.
      * @return the access object.
      */
     @NotNull
-    public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId, final boolean multiVersion)
+    public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId, final boolean multiVersion, final @Nullable KryoFactory pool)
     {
         switch (instance)
         {
             case Constants.NEO4J:
-                return new Neo4jDatabaseAccess(globalServerId, null, multiVersion);
+                return new Neo4jDatabaseAccess(globalServerId, null, multiVersion, pool);
             case Constants.TITAN:
                 return new TitanDatabaseAccess(globalServerId);
             case Constants.SPARKSEE:
@@ -178,7 +181,7 @@ public class DatabaseLoader
 
         Log.getLogger().setLevel(Level.WARN);
 
-        final IDatabaseAccess access = instantiateDBAccess(databaseId, 0, false);
+        final IDatabaseAccess access = instantiateDBAccess(databaseId, 0, false, null);
         System.out.printf("Starting %s database%n", databaseId);
         access.start();
         System.out.printf("Loading...");
