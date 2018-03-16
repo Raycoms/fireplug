@@ -1,9 +1,11 @@
 
 \.idea/
 \out/
-\global/
-\local0/
-\local1/
-\local2/
-\local3/
+
 fireplug\.iml
+
+global/config/
+local0/config/
+local1/config/
+local2/config/
+local3/config/
