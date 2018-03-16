@@ -503,8 +503,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             if (multiVersion)
             {
-                myNode.setProperty(TAG_VERSION, null);
-                myNode.setProperty(TAG_PRE, null);
+                myNode.setProperty(TAG_VERSION, -1);
             }
 
             tx.success();
@@ -617,8 +616,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             if (multiVersion)
             {
-               tempStorage.addProperty(TAG_VERSION,null);
-                tempStorage.addProperty(TAG_PRE,null);
+               tempStorage.addProperty(TAG_VERSION,-1);
             }
 
             //Transform relationship params.
