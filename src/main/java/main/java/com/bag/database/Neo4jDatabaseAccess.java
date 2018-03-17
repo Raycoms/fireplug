@@ -480,8 +480,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             NodeStorage temp = new NodeStorage(proxy.getLabels().iterator().next().name(), proxy.getAllProperties());
                             final Output output = new Output(100000);
                             kryo.writeObject(output, temp);
-                            output.close();
                             proxy.setProperty(TAG_PRE, output.getBuffer());
+                            output.close();
                             proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
 
                         }
@@ -601,8 +601,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             RelationshipStorage temp = new RelationshipStorage(proxy.getType().name(), proxy.getAllProperties(), start, end);
                             final Output output = new Output(100000);
                             kryo.writeObject(output, temp);
-                            output.close();
                             proxy.setProperty(TAG_PRE, output.getBuffer());
+                            output.close();
                             proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
                         }
 
