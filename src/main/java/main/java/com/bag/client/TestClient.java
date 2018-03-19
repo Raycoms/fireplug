@@ -32,7 +32,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * Should the transaction runNetty in secure mode?
      */
-    private boolean secureMode = true;
+    private final boolean secureMode;
 
     /**
      * The place the local config file is. This + the cluster id will contain the concrete cluster config location.
@@ -183,7 +183,7 @@ public class TestClient implements BAGClient, ReplyListener
             globalProxy = null;
         }
 
-        secureMode = false;
+        secureMode = true;
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
@@ -516,7 +516,7 @@ public class TestClient implements BAGClient, ReplyListener
             final byte[] answer;
             if (localClusterId == -1)
             {
-                answer = localProxy.invokeUnordered(bytes);
+                answer = localProxy.invokeOrdered(bytes);
             }
             else
             {
