@@ -430,15 +430,26 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.readObject(messageInput, String.class);
         kryo.readObject(messageInput, String.class);
 
+        if(wrapper.isGloballyVerified())
+        {
+            //TODO: If this here is true, we need to get the read sets as well.
+        }
         kryo.readObject(messageInput, Long.class);
         final List writeSet = kryo.readObject(messageInput, ArrayList.class);
+        final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
+        final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
+
         final ArrayList<IOperation> localWriteSet;
+        final ArrayList<NodeStorage> readSetNode;
+        final ArrayList<RelationshipStorage> readsSetRelationship;
 
         messageInput.close();
-
+        
         try
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
+            readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+            readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
         }
         catch (final ClassCastException e)
         {
@@ -478,6 +489,25 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
+            if(wrapper.isGloballyVerified())
+            {
+                if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                        super.getLatestWritesSet(),
+                        new ArrayList<>(localWriteSet),
+                        readSetNode,
+                        readsSetRelationship,
+                        snapShotId,
+                        wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+                {
+                    Log.getLogger()
+                            .info("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                                    + localWriteSet.size()
+                                    + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+                    kryo.writeObject(output, Constants.ABORT);
+                    kryo.writeObject(output, getGlobalSnapshotId());
+                }
+                //TODO: We need to receive the readsets as well!
+            }
             Log.getLogger().info("Execute update on slave: " + snapShotId);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
             executeCommit(localWriteSet, rsaLoader, id, snapShotId);

@@ -215,6 +215,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty())
+        {
+            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
+            {
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
+            }
+        }
+
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
@@ -248,9 +256,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp);
-            if (wrapper.getLocalCluster() != null)
+            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient);
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
             }
         }
         else
@@ -345,7 +353,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     }
 
     private void signCommitWithDecisionAndDistribute(
-            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient)
+            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient, List<NodeStorage> readSetNode, List<RelationshipStorage> readsSetRelationship)
     {
         Log.getLogger().info("Sending signed commit to the other global replicas");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
@@ -357,6 +365,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, decision);
         kryo.writeObject(output, snapShotId);
         kryo.writeObject(output, localWriteSet);
+        if(wrapper.isGloballyVerified())
+        {
+            kryo.writeObject(output, readSetNode);
+            kryo.writeObject(output, readsSetRelationship);
+        }
 
         final byte[] message = output.toBytes();
         final byte[] signature;

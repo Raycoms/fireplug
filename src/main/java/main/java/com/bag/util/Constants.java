@@ -9,7 +9,7 @@ public class Constants
     public static final String READ_MESSAGE               = "node/read";
     public static final String RELATIONSHIP_READ_MESSAGE  = "relationship/read";
     public static final String COMMIT_RESPONSE            = "commit/response";
-    public static final String NEO4J                      = "neo4";
+    public static final String NEO4J                      = "neo4j";
     public static final String ORIENTDB                   = "orientDB";
     public static final String TITAN                      = "titan";
     public static final String SPARKSEE                   = "sparksee";

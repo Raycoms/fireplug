@@ -1,15 +1,15 @@
 package main.java.com.bag.server;
 
 import com.esotericsoftware.kryo.pool.KryoFactory;
-import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.main.DatabaseLoader;
-import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Scanner;
 
 /**
  * Server wrapper class which will contain the instance of the local cluster and global cluster.
@@ -19,12 +19,17 @@ public class ServerWrapper
     /**
      * String to print in the case of invalid arguments.
      */
-    private static final String INVALID_ARGUMENTS = "Invalid program arguments, terminating server";
+    private static final String INVALID_ARGUMENTS = "Invalid program arguments, terminating server, expecting: <serverId> <DBInstance> <localSlaveId> <primaryID> <actsInGlobalCluster> [logging] [multiVersion] [globallyVerified]";
 
     /**
      * If the server operates under multiVersion mode or not.
      */
     private final boolean multiVersion;
+
+    /**
+     * If the server is globally verified or locally verified.
+     */
+    private final boolean globallyVerified;
 
     /**
      * The instance of the server which responds to the global cluster.
@@ -63,7 +68,13 @@ public class ServerWrapper
      * @param initialLeaderId the id of its leader in the global cluster.
      * @param multiVersion if multi-version mode.
      */
-    public ServerWrapper(final int globalServerId, @NotNull final String instance, final boolean isPrimary, final int localClusterSlaveId, final int initialLeaderId, final boolean multiVersion)
+    public ServerWrapper(final int globalServerId,
+                         @NotNull final String instance,
+                         final boolean isPrimary,
+                         final int localClusterSlaveId,
+                         final int initialLeaderId,
+                         final boolean multiVersion,
+                         final boolean globallyVerified)
     {
         final ServerInstrumentation instrumentation = new ServerInstrumentation(globalServerId);
         this.globalServerId = globalServerId;
@@ -102,6 +113,7 @@ public class ServerWrapper
         }
 
         this.multiVersion = multiVersion;
+        this.globallyVerified = globallyVerified;
     }
 
     /**
@@ -133,6 +145,15 @@ public class ServerWrapper
     }
 
     /**
+     * Getter to check if globallyVerified.
+     * @return true if so.
+     */
+    public boolean isGloballyVerified()
+    {
+        return globallyVerified;
+    }
+
+    /**
      * Get the id of the server in the global cluster.
      * @return the id, an int.
      */
@@ -160,17 +181,21 @@ public class ServerWrapper
      * Main method used to start each GlobalClusterSlave.
      * @param args the id for each testServer, set it in the program arguments.
      */
-    public static void main(String [] args)
-    {
+    public static void main(String [] args) {
 
         /*
          * The server arguments are:
-         * serverId (unique in global cluster), instance (db to use, neo4j etc), id in localCluster, actsInGlobalCluster (p.e if is primary),
-         * id of primary of local cluster (id of local cluster)
-         * , use Logging (true of false)
-         *
-         * 0 neo4j 0 0 true true
+         * - ServerId (unique in global cluster)
+         * - Instance (db to use, neo4j etc)
+         * - Id in localCluster (-id if not needed)
+         * - ActsInGlobalCluster (p.e if is primary),
+         * - Use Logging (true of false)
+         * - MultiVersion
+         * - GloballyVerified
+         * Example: 0 neo4j 0 0 true [true false true]
          */
+
+
         final int serverId;
         final String instance;
         final int localClusterSlaveId;
@@ -194,28 +219,7 @@ public class ServerWrapper
             return;
         }
 
-        final String tempInstance = args[1];
-
-        if (tempInstance.toLowerCase().contains("titan"))
-        {
-            instance = Constants.TITAN;
-        }
-        else if (tempInstance.toLowerCase().contains("orientdb"))
-        {
-            instance = Constants.ORIENTDB;
-        }
-        else if (tempInstance.toLowerCase().contains("sparksee"))
-        {
-            instance = Constants.SPARKSEE;
-        }
-        else if(tempInstance.toLowerCase().contains("neo4j"))
-        {
-            instance = Constants.NEO4J;
-        }
-        else
-        {
-            instance = "none";
-        }
+        instance = args[1];
 
         try
         {
@@ -237,41 +241,45 @@ public class ServerWrapper
             return;
         }
 
-        if (args.length <= 4)
-        {
-            actsInGlobalCluster = false;
-        }
-        else
-        {
-            actsInGlobalCluster = Boolean.parseBoolean(args[4]);
-        }
+        actsInGlobalCluster = args.length > 4 && Boolean.parseBoolean(args[4]);
 
-        if(args.length>=6)
+        if (args.length >= 6)
         {
             boolean useLogging = Boolean.parseBoolean(args[5]);
-            if(!useLogging)
+            if (!useLogging)
             {
                 Log.getLogger().setLevel(Level.WARN);
             }
         }
 
         boolean multiVersion = false;
-        if(args.length>=7)
+        if (args.length >= 7)
         {
             multiVersion = Boolean.parseBoolean(args[6]);
             Log.getLogger().warn("Starting server with multiVersion: " + multiVersion);
         }
 
-        @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary, multiVersion);
-
-        /*final Scanner reader = new Scanner(System.in);  // Reading from System.in
-        Log.getLogger().info("Write anything to the console to kill this process");
-        final String command = reader.next();
-
-        if (command != null)
+        boolean globallyVerified = true;
+        if (args.length >= 7)
         {
-            wrapper.terminate();
-        }*/
+            globallyVerified = Boolean.parseBoolean(args[6]);
+            Log.getLogger().warn("Starting server globally verified: " + globallyVerified);
+        }
+
+        @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary, multiVersion, globallyVerified);
+
+        final Scanner reader = new Scanner(System.in);  // Reading from System.in
+        Log.getLogger().info("Write <kill> to the console to kill this process");
+
+        while(reader.next() != null)
+        {
+            final String command = reader.next();
+            if (command != null && command.equals("kill"))
+            {
+                Log.getLogger().info("Killing server!");
+                wrapper.terminate();
+            }
+        }
     }
 
     /**

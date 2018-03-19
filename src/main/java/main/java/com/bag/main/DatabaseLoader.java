@@ -149,7 +149,7 @@ public class DatabaseLoader
     @NotNull
     public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId, final boolean multiVersion, final @Nullable KryoFactory pool)
     {
-        switch (instance)
+        switch (instance.toLowerCase())
         {
             case Constants.NEO4J:
                 return new Neo4jDatabaseAccess(globalServerId, null, multiVersion, pool);
