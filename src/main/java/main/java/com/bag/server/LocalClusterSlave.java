@@ -430,26 +430,33 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.readObject(messageInput, String.class);
         kryo.readObject(messageInput, String.class);
 
-        if(wrapper.isGloballyVerified())
-        {
+
             //TODO: If this here is true, we need to get the read sets as well.
-        }
+
         kryo.readObject(messageInput, Long.class);
         final List writeSet = kryo.readObject(messageInput, ArrayList.class);
-        final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
-        final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
 
+        List readsSetNodeX = new ArrayList<>();;
+        List readsSetRelationshipX = new ArrayList<>();;
+        if(wrapper.isGloballyVerified())
+        {
+            readsSetNodeX = kryo.readObject(input, ArrayList.class);
+            readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
+        }
         final ArrayList<IOperation> localWriteSet;
-        final ArrayList<NodeStorage> readSetNode;
-        final ArrayList<RelationshipStorage> readsSetRelationship;
+        ArrayList<NodeStorage> readSetNode = new ArrayList<>();
+        ArrayList<RelationshipStorage> readsSetRelationship  = new ArrayList<>();
 
         messageInput.close();
         
         try
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
-            readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
-            readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+            if(wrapper.isGloballyVerified() && !readsSetNodeX.isEmpty() && !readsSetRelationshipX.isEmpty())
+            {
+                readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+                readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+            }
         }
         catch (final ClassCastException e)
         {
@@ -479,7 +486,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
         }
 
-        if (matchingSignatures < 2)
+        if (matchingSignatures < 1)
         {
             Log.getLogger()
                     .info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
@@ -503,8 +510,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                             .info("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                                     + localWriteSet.size()
                                     + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-                    kryo.writeObject(output, Constants.ABORT);
-                    kryo.writeObject(output, getGlobalSnapshotId());
+                    kryo.writeObject(output, false);
                 }
                 //TODO: We need to receive the readsets as well!
             }
