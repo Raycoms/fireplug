@@ -516,7 +516,7 @@ public class TestClient implements BAGClient, ReplyListener
             final byte[] answer;
             if (localClusterId == -1)
             {
-                answer = localProxy.invokeOrdered(bytes);
+                answer = localProxy.invokeUnordered(bytes);
             }
             else
             {
