@@ -435,7 +435,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         List readsSetNodeX = new ArrayList<>();;
         List readsSetRelationshipX = new ArrayList<>();;
 
-        Log.getLogger().warn("Reading sets");
         if(wrapper.isGloballyVerified())
         {
             readsSetNodeX = kryo.readObject(messageInput, ArrayList.class);
@@ -446,9 +445,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         ArrayList<RelationshipStorage> readsSetRelationship  = new ArrayList<>();
 
         messageInput.close();
-
-        Log.getLogger().warn("translating sets");
-
         try
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
@@ -492,7 +488,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     .info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
         }
 
-        Log.getLogger().warn("All " + matchingSignatures + "signatures are correct, started to commit now!");
+        Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
 
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
@@ -512,7 +508,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                                     + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
                     kryo.writeObject(output, false);
                 }
-                //TODO: We need to receive the readsets as well!
             }
             Log.getLogger().info("Execute update on slave: " + snapShotId);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
