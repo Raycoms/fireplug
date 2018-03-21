@@ -370,14 +370,22 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final byte[] message = output.toBytes();
         final byte[] signature;
-        try
+
+        if (wrapper.isGloballyVerified())
         {
-            signature = TOMUtil.signMessage(rsaLoader.loadPrivateKey(), message);
+            signature = new byte[0];
         }
-        catch (final Exception e)
+        else
         {
-            Log.getLogger().warn("Unable to sign message at server " + getId(), e);
-            return;
+            try
+            {
+                signature = TOMUtil.signMessage(rsaLoader.loadPrivateKey(), message);
+            }
+            catch (final Exception e)
+            {
+                Log.getLogger().warn("Unable to sign message at server " + getId(), e);
+                return;
+            }
         }
 
         SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);

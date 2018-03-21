@@ -460,35 +460,38 @@ public class LocalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        int matchingSignatures = 0;
-        for (final Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
+
+        if(!wrapper.isGloballyVerified())
         {
-            final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
-            try
+            int matchingSignatures = 0;
+            for (final Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
             {
-                if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
+                final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
+                try
                 {
-                    Log.getLogger().info("Signature of server: " + entry.getKey() + " doesn't match");
+                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
+                    {
+                        Log.getLogger().info("Signature of server: " + entry.getKey() + " doesn't match");
+                    }
+                    else
+                    {
+                        Log.getLogger().info("Signature matches of server: " + entry.getKey());
+                        matchingSignatures++;
+                    }
                 }
-                else
+                catch (final Exception e)
                 {
-                    Log.getLogger().info("Signature matches of server: " + entry.getKey());
-                    matchingSignatures++;
+                    Log.getLogger().warn("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
                 }
             }
-            catch (final Exception e)
+
+            if (matchingSignatures < 1)
             {
-                Log.getLogger().warn("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
+                Log.getLogger()
+                        .info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
             }
+            Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
-
-        if (matchingSignatures < 1)
-        {
-            Log.getLogger()
-                    .info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
-        }
-
-        Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
 
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
