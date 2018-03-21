@@ -403,7 +403,6 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if (lastKey > snapShotId)
         {
-            Log.getLogger().warn("Received old committed transaction.");
             //Received a message which has been committed in the past already.
             return;
         }
@@ -433,15 +432,14 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         kryo.readObject(messageInput, Long.class);
         final List writeSet = kryo.readObject(messageInput, ArrayList.class);
-
         List readsSetNodeX = new ArrayList<>();;
         List readsSetRelationshipX = new ArrayList<>();;
 
         Log.getLogger().warn("Reading sets");
         if(wrapper.isGloballyVerified())
         {
-            readsSetNodeX = kryo.readObject(input, ArrayList.class);
-            readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
+            readsSetNodeX = kryo.readObject(messageInput, ArrayList.class);
+            readsSetRelationshipX = kryo.readObject(messageInput, ArrayList.class);
         }
         final ArrayList<IOperation> localWriteSet;
         ArrayList<NodeStorage> readSetNode = new ArrayList<>();

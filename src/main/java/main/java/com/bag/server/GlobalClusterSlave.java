@@ -350,7 +350,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     }
 
     private void signCommitWithDecisionAndDistribute(
-            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient, List<NodeStorage> readSetNode, List<RelationshipStorage> readsSetRelationship)
+            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient, final ArrayList<NodeStorage> readSetNode, final ArrayList<RelationshipStorage> readsSetRelationship)
     {
         Log.getLogger().info("Sending signed commit to the other global replicas");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
