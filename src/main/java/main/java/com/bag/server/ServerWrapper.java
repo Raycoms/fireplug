@@ -260,9 +260,9 @@ public class ServerWrapper
         }
 
         boolean globallyVerified = true;
-        if (args.length >= 7)
+        if (args.length >= 8)
         {
-            globallyVerified = Boolean.parseBoolean(args[6]);
+            globallyVerified = Boolean.parseBoolean(args[7]);
             Log.getLogger().warn("Starting server globally verified: " + globallyVerified);
         }
 
