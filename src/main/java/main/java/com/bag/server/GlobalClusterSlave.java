@@ -404,7 +404,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
         signatureStorage.addSignatures(idClient, signature);
         //TODO: only temporary workaround!
-        if (true || signatureStorage.hasEnough())
+        if (wrapper.isGloballyVerified() || signatureStorage.hasEnough())
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
@@ -436,9 +436,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
 
-        //TODO: Revert it after finished, not needed for now since we only want 1 signature.
-        //proxy.sendMessageToTargets(output.getBuffer(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
-
+        if (!wrapper.isGloballyVerified())
+        {
+            //TODO: might need something similar in the future for global verification.
+            proxy.sendMessageToTargets(output.getBuffer(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        }
         output.close();
     }
 

@@ -399,7 +399,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         final long snapShotId = kryo.readObject(input, Long.class);
         final long lastKey = getGlobalSnapshotId();
 
-        Log.getLogger().info("Received update slave message with decision: " + decision);
+        Log.getLogger().warn("Received update slave message with decision: " + decision);
 
         if (lastKey > snapShotId)
         {
@@ -429,9 +429,6 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         kryo.readObject(messageInput, String.class);
         kryo.readObject(messageInput, String.class);
-
-
-            //TODO: If this here is true, we need to get the read sets as well.
 
         kryo.readObject(messageInput, Long.class);
         final List writeSet = kryo.readObject(messageInput, ArrayList.class);
@@ -492,7 +489,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     .info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: " + wrapper.getLocalClusterSlaveId());
         }
 
-        Log.getLogger().info("All signatures are correct, started to commit now!");
+        Log.getLogger().warn("All " + matchingSignatures + "signatures are correct, started to commit now!");
 
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
