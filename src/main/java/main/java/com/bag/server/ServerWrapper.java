@@ -259,7 +259,7 @@ public class ServerWrapper
             Log.getLogger().warn("Starting server with multiVersion: " + multiVersion);
         }
 
-        boolean globallyVerified = true;
+        boolean globallyVerified = false;
         if (args.length >= 8)
         {
             globallyVerified = Boolean.parseBoolean(args[7]);
