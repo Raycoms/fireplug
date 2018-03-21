@@ -436,6 +436,8 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         List readsSetNodeX = new ArrayList<>();;
         List readsSetRelationshipX = new ArrayList<>();;
+
+        Log.getLogger().warn("Reading sets");
         if(wrapper.isGloballyVerified())
         {
             readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -447,7 +449,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         messageInput.close();
 
-        Log.getLogger().warn("Reading sets");
+        Log.getLogger().warn("translating sets");
 
         try
         {

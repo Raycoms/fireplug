@@ -215,7 +215,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty())
+        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalCluster().getId() == 0)
         {
             signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
         }
