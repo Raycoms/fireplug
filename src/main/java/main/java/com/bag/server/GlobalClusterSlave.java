@@ -352,7 +352,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private void signCommitWithDecisionAndDistribute(
             final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient, List<NodeStorage> readSetNode, List<RelationshipStorage> readsSetRelationship)
     {
-        Log.getLogger().warn("Sending signed commit to the other global replicas");
+        Log.getLogger().info("Sending signed commit to the other global replicas");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
 
         //Todo probably will need a bigger buffer in the future. size depending on the set size?
@@ -386,24 +386,24 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
                 Log.getLogger()
-                        .warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
+                        .info("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
                                 + snapShotId);
             }
         }
         else
         {
-            Log.getLogger().warn("Size of message stored is: " + message.length);
+            Log.getLogger().info("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
             signatureStorageCache.put(snapShotId, signatureStorage);
         }
 
         signatureStorage.setProcessed();
-        Log.getLogger().warn("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+        Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
         signatureStorage.addSignatures(idClient, signature);
         //TODO: only temporary workaround!
         if (wrapper.isGloballyVerified() || signatureStorage.hasEnough())
         {
-            Log.getLogger().warn("Sending update to slave signed by all members: " + snapShotId);
+            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
             final Output messageOutput = new Output(100096);
 
