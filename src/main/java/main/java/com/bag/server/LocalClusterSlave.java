@@ -55,6 +55,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final int id;
 
     /**
+     * The id of the local cluster.
+     */
+    private final int localClusterId;
+
+    /**
      * The id of the primary of this slave.
      */
     private int primaryGlobalClusterId = -1;
@@ -96,6 +101,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation);
         this.id = id;
+        this.localClusterId = localClusterId;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
@@ -497,7 +503,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
 
-        if (getGlobalSnapshotId() == 1000 && id == 2)
+        if (getGlobalSnapshotId() == 1000 && id == 2 && localClusterId == 0)
         {
             Log.getLogger().warn("Instantiating new global cluster");
 
