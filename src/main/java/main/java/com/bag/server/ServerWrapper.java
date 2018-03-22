@@ -287,6 +287,7 @@ public class ServerWrapper
      */
     public void initNewGlobalClusterInstance()
     {
+        Log.getLogger().warn("Turning it on with new GlobalServerId: " + globalServerId);
         globalCluster = new GlobalClusterSlave(globalServerId, this, new ServerInstrumentation(globalServerId));
     }
 
