@@ -504,7 +504,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
             catch (final IOException e)
             {
-                e.printStackTrace();
+                Log.getLogger().error("Something went wrong executing the script", e);
             }
         }
 
