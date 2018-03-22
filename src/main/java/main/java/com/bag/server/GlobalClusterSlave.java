@@ -46,7 +46,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final int id;
 
-
     /**
      * The internal client used in this server
      */
@@ -220,47 +219,54 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
         }
 
-        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
-                super.getLatestWritesSet(),
-                new ArrayList<>(localWriteSet),
-                readSetNode,
-                readsSetRelationship,
-                timeStamp,
-                wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+        if (timeStamp > getGlobalSnapshotId())
         {
-            updateCounts(0, 0, 0, 1);
+            if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                    super.getLatestWritesSet(),
+                    new ArrayList<>(localWriteSet),
+                    readSetNode,
+                    readsSetRelationship,
+                    timeStamp,
+                    wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+            {
+                updateCounts(0, 0, 0, 1);
 
-            Log.getLogger()
-                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                            + localWriteSet.size()
-                            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-            kryo.writeObject(output, Constants.ABORT);
-            kryo.writeObject(output, getGlobalSnapshotId());
+                Log.getLogger()
+                        .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                                + localWriteSet.size()
+                                + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+                kryo.writeObject(output, Constants.ABORT);
+                kryo.writeObject(output, getGlobalSnapshotId());
+
+                if (!localWriteSet.isEmpty())
+                {
+                    Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
+                }
+
+                //Send abort to client and abort
+                final byte[] returnBytes = output.getBuffer();
+                output.close();
+                return returnBytes;
+            }
 
             if (!localWriteSet.isEmpty())
             {
-                Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
+                Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
+                final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
+                super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp);
+                if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
+                {
+                    signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
+                }
             }
-
-            //Send abort to client and abort
-            final byte[] returnBytes = output.getBuffer();
-            output.close();
-            return returnBytes;
-        }
-
-        if (!localWriteSet.isEmpty())
-        {
-            Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
-            final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
-            super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp);
-            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
+            else
             {
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
+                updateCounts(0, 0, 1, 0);
             }
         }
         else
         {
-            updateCounts(0, 0, 1, 0);
+            Log.getLogger().warn("Catching up, this is an old snapshotId!");
         }
 
         kryo.writeObject(output, Constants.COMMIT);
@@ -314,40 +320,35 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (timeStamp > getGlobalSnapshotId())
+
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                super.getLatestWritesSet(),
+                localWriteSet,
+                readSetNode,
+                readsSetRelationship,
+                timeStamp,
+                wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
         {
-            if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
-                    super.getLatestWritesSet(),
-                    localWriteSet,
-                    readSetNode,
-                    readsSetRelationship,
-                    timeStamp,
-                    wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
-            {
-                updateCounts(0, 0, 0, 1);
+            updateCounts(0, 0, 0, 1);
 
-                Log.getLogger()
-                        .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                                + localWriteSet.size()
-                                + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-                kryo.writeObject(output, Constants.ABORT);
-                kryo.writeObject(output, getGlobalSnapshotId());
-
-                //Send abort to client and abort
-                final byte[] returnBytes = output.getBuffer();
-                output.close();
-                return returnBytes;
-            }
-
-            updateCounts(0, 0, 1, 0);
-
-            kryo.writeObject(output, Constants.COMMIT);
+            Log.getLogger()
+                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                            + localWriteSet.size()
+                            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+            kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
+
+            //Send abort to client and abort
+            final byte[] returnBytes = output.getBuffer();
+            output.close();
+            return returnBytes;
         }
-        else
-        {
-            Log.getLogger().warn("Catching up, this is an old snapshotId!");
-        }
+
+        updateCounts(0, 0, 1, 0);
+
+        kryo.writeObject(output, Constants.COMMIT);
+        kryo.writeObject(output, getGlobalSnapshotId());
+
         final byte[] returnBytes = output.getBuffer();
         output.close();
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
@@ -356,7 +357,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
     }
 
     private void signCommitWithDecisionAndDistribute(
-            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient, final ArrayList<NodeStorage> readSetNode, final ArrayList<RelationshipStorage> readsSetRelationship)
+            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int idClient, final ArrayList<NodeStorage> readSetNode,
+            final ArrayList<RelationshipStorage> readsSetRelationship)
     {
         Log.getLogger().info("Sending signed commit to the other global replicas");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
@@ -368,7 +370,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, decision);
         kryo.writeObject(output, snapShotId);
         kryo.writeObject(output, localWriteSet);
-        if(wrapper.isGloballyVerified())
+        if (wrapper.isGloballyVerified())
         {
             kryo.writeObject(output, readSetNode);
             kryo.writeObject(output, readsSetRelationship);
@@ -476,10 +478,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final ArrayList<IOperation> localWriteSet;
 
-        if(lastSent > snapShotId)
+        if (lastSent > snapShotId)
         {
             final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
-            if(tempStorage == null || tempStorage.isDistributed())
+            if (tempStorage == null || tempStorage.isDistributed())
             {
                 signatureStorageCache.invalidate(snapShotId);
                 return;
@@ -753,7 +755,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }
             }
 
-            if(!signatureStorage.isDistributed())
+            if (!signatureStorage.isDistributed())
             {
                 signatureStorageCache.put(snapShotId, signatureStorage);
             }
@@ -802,6 +804,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private class MessageThread implements Runnable
     {
         private final byte[] message;
+
         MessageThread(final byte[] message)
         {
             this.message = message;
