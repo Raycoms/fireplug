@@ -1,5 +1,8 @@
 package main.java.com.bag.server;
 
+import bftsmart.reconfiguration.Reconfiguration;
+import bftsmart.reconfiguration.ReconfigurationTest;
+import bftsmart.reconfiguration.VMServices;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
@@ -497,15 +500,24 @@ public class LocalClusterSlave extends AbstractRecoverable
         if (getGlobalSnapshotId() > 1000 && id == 2)
         {
             Log.getLogger().warn("Instantiating new global cluster");
-            try
+
+            final Thread t = new Thread(new Runnable()
             {
-                Runtime.getRuntime().exec("./runscripts/smartrun.sh bftsmart.reconfiguration.VMServices 4 172.16.52.8 11340");
-            }
-            catch (final IOException e)
-            {
-                Log.getLogger().error("Something went wrong executing the script", e);
-            }
-            wrapper.initNewGlobalClusterInstance();
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        VMServices.main(new String[] {"4", "172.16.52.8", "11340"});
+                        wrapper.initNewGlobalClusterInstance();
+                    }
+                    catch (final InterruptedException e)
+                    {
+                        Log.getLogger().warn("Error instantiating new Replica", e);
+                    }
+                }
+            });
+            t.start();
         }
 
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
