@@ -219,55 +219,50 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
         }
 
-        if (timeStamp > getGlobalSnapshotId())
+
+        if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                super.getLatestWritesSet(),
+                new ArrayList<>(localWriteSet),
+                readSetNode,
+                readsSetRelationship,
+                timeStamp,
+                wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
         {
-            if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
-                    super.getLatestWritesSet(),
-                    new ArrayList<>(localWriteSet),
-                    readSetNode,
-                    readsSetRelationship,
-                    timeStamp,
-                    wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
-            {
-                updateCounts(0, 0, 0, 1);
+            updateCounts(0, 0, 0, 1);
 
-                Log.getLogger()
-                        .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                                + localWriteSet.size()
-                                + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-                kryo.writeObject(output, Constants.ABORT);
-                kryo.writeObject(output, getGlobalSnapshotId());
-
-                if (!localWriteSet.isEmpty())
-                {
-                    Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
-                }
-
-                //Send abort to client and abort
-                final byte[] returnBytes = output.getBuffer();
-                output.close();
-                return returnBytes;
-            }
+            Log.getLogger()
+                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                            + localWriteSet.size()
+                            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+            kryo.writeObject(output, Constants.ABORT);
+            kryo.writeObject(output, getGlobalSnapshotId());
 
             if (!localWriteSet.isEmpty())
             {
-                Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
-                final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
-                super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp);
-                if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
-                {
-                    signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
-                }
+                Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             }
-            else
+
+            //Send abort to client and abort
+            final byte[] returnBytes = output.getBuffer();
+            output.close();
+            return returnBytes;
+        }
+
+        if (!localWriteSet.isEmpty())
+        {
+            Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
+            final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
+            super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp);
+            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
-                updateCounts(0, 0, 1, 0);
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, idClient, readSetNode, readsSetRelationship);
             }
         }
         else
         {
-            Log.getLogger().warn("Catching up, this is an old snapshotId!");
+            updateCounts(0, 0, 1, 0);
         }
+
 
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());

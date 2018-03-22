@@ -464,7 +464,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             clients.put(idClient, clientSnapshot);
         }
-
+        
         synchronized (commitLock)
         {
             // First sign, then execute:
