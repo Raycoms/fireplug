@@ -516,7 +516,13 @@ public class TestClient implements BAGClient, ReplyListener
             final byte[] answer;
             if (localClusterId == -1)
             {
-                answer = localProxy.invokeUnordered(bytes);
+                //answer = localProxy.invokeUnordered(bytes);
+                final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
+                int rand = random.nextInt(viewProcesses.length);
+
+                Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
+                localProxy.invokeAsynchRequest(bytes, new int[]{rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                return;
             }
             else
             {
@@ -554,7 +560,7 @@ public class TestClient implements BAGClient, ReplyListener
             }
 
             //Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + this.localTimestamp);
-
+/*
             final Input input = new Input(answer);
             final String messageType = kryo.readObject(input, String.class);
 
@@ -581,6 +587,7 @@ public class TestClient implements BAGClient, ReplyListener
             pool.release(kryo);
             resetSets();
             return;
+            */
         }
 
         if (localClusterId == -1)

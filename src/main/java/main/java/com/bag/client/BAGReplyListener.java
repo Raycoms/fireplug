@@ -63,7 +63,7 @@ public class BAGReplyListener implements ReplyListener
         }
 
         Log.getLogger().info("Going for commit: " + resultsReceived);
-        if(resultsReceived == 2)
+        if(resultsReceived == 1)
         {
             if (commit)
             {
