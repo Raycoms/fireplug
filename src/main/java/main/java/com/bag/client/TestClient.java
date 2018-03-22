@@ -518,7 +518,8 @@ public class TestClient implements BAGClient, ReplyListener
             {
                 //answer = localProxy.invokeUnordered(bytes);
                 final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                int rand = random.nextInt(viewProcesses.length);
+                //int rand = random.nextInt(viewProcesses.length);
+                int rand = random.nextInt(1) +2; //réplicas 2 e 3 são orientdb
 
                 Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
                 localProxy.invokeAsynchRequest(bytes, new int[]{rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
