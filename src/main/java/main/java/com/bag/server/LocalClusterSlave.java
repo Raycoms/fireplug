@@ -493,6 +493,12 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
 
+        if (getGlobalSnapshotId() > 1000 && id == 2)
+        {
+            Log.getLogger().warn("Instantiating new global cluster");
+            wrapper.initNewGlobalClusterInstance();
+        }
+
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
             if(wrapper.isGloballyVerified())
