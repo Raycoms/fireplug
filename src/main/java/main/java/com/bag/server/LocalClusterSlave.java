@@ -18,6 +18,7 @@ import main.java.com.bag.util.storage.SignatureStorage;
 import main.java.com.bag.util.storage.TransactionStorage;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -497,6 +498,14 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().warn("Instantiating new global cluster");
             wrapper.initNewGlobalClusterInstance();
+            try
+            {
+                Runtime.getRuntime().exec("./runscripts/smartrun.sh bftsmart.reconfiguration.VMServices 4 172.16.52.8 11340");
+            }
+            catch (final IOException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
