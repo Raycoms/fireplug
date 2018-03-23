@@ -1,8 +1,5 @@
 package main.java.com.bag.server;
 
-import bftsmart.reconfiguration.Reconfiguration;
-import bftsmart.reconfiguration.ReconfigurationTest;
-import bftsmart.reconfiguration.VMServices;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
@@ -18,10 +15,8 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
-import main.java.com.bag.util.storage.TransactionStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -78,12 +73,6 @@ public class LocalClusterSlave extends AbstractRecoverable
      * Queue to catch messages out of order.
      */
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
-
-    //todo maybe detect local transaction problems in the future.
-    /**
-     * Contains all local transactions being executed on the server at the very moment.
-     */
-    private final HashMap<Integer, TransactionStorage> localTransactionList = new HashMap<>();
 
     /**
      * Lock to lock the update slave execution to order the execution correctly.
@@ -441,9 +430,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.readObject(messageInput, String.class);
 
         kryo.readObject(messageInput, Long.class);
+        final int consensusId = kryo.readObject(messageInput, Integer.class);
+
         final List writeSet = kryo.readObject(messageInput, ArrayList.class);
-        List readsSetNodeX = new ArrayList<>();;
-        List readsSetRelationshipX = new ArrayList<>();;
+        List readsSetNodeX = new ArrayList<>();
+        List readsSetRelationshipX = new ArrayList<>();
 
         if(wrapper.isGloballyVerified())
         {
@@ -503,7 +494,8 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
 
-        if (getGlobalSnapshotId() == 1000 && id == 2 && localClusterId == 0)
+        //Code to dynamically reconfigure the local cluster!
+        /*if (getGlobalSnapshotId() == 1000 && id == 2 && localClusterId == 0)
         {
             Log.getLogger().warn("Instantiating new global cluster");
 
@@ -534,36 +526,33 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
             });
             t.start();
-        }
+        }*/
 
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
-            if(wrapper.isGloballyVerified())
+            if(wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                    super.getLatestWritesSet(),
+                    new ArrayList<>(localWriteSet),
+                    readSetNode,
+                    readsSetRelationship,
+                    snapShotId,
+                    wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
             {
-                if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
-                        super.getLatestWritesSet(),
-                        new ArrayList<>(localWriteSet),
-                        readSetNode,
-                        readsSetRelationship,
-                        snapShotId,
-                        wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
-                {
-                    Log.getLogger()
+                Log.getLogger()
                             .info("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                                     + localWriteSet.size()
                                     + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-                    kryo.writeObject(output, false);
-                }
+                kryo.writeObject(output, false);
             }
             Log.getLogger().info("Execute update on slave: " + snapShotId);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
-            executeCommit(localWriteSet, rsaLoader, id, snapShotId);
+            executeCommit(localWriteSet, rsaLoader, id, snapShotId, consensusId);
 
             long requiredKey = lastKey + 1;
             while (buffer.containsKey(requiredKey))
             {
                 Log.getLogger().info("Execute update on slave: " + snapShotId);
-                executeCommit(buffer.remove(requiredKey), rsaLoader, id, snapShotId);
+                executeCommit(buffer.remove(requiredKey), rsaLoader, id, snapShotId, consensusId);
                 requiredKey++;
             }
 

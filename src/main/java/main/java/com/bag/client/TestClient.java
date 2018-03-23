@@ -163,7 +163,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * Create a threadsafe version of kryo.
      */
-    private final KryoFactory factory = () ->
+    protected final KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
         kryo.register(NodeStorage.class, 100);

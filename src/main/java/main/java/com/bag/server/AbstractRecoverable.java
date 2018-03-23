@@ -61,7 +61,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Lock for cleanUp.
      */
-    final Lock lock = new ReentrantLock();
+    final Lock reentrantLock = new ReentrantLock();
 
     /**
      * List of clients with the last snapshotId they read..
@@ -215,7 +215,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     private void shortCleanUp()
     {
-        if (!clients.isEmpty() && lock.tryLock())
+        if (!clients.isEmpty() && reentrantLock.tryLock())
         {
             long smallestSnapshot = Long.MAX_VALUE;
             for (final Map.Entry<Integer, Long> entry : clients.entrySet())
@@ -237,7 +237,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 }
                 Log.getLogger().info("Global size now; " + globalWriteSet.size());
             }
-            lock.unlock();
+            reentrantLock.unlock();
         }
     }
 
@@ -423,7 +423,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         kryo.writeObject(output, Constants.CONTINUE);
         kryo.writeObject(output, localSnapshotId);
 
-        if (returnList.isEmpty())
+        if (returnList == null || returnList.isEmpty())
         {
             kryo.writeObject(output, new ArrayList<NodeStorage>());
             kryo.writeObject(output, new ArrayList<RelationshipStorage>());
@@ -453,12 +453,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Execute the commit on the replica.
-     *
-     * @param localWriteSet the write set to execute.
+     *  @param localWriteSet the write set to execute.
      * @param keyLoader     the key loader.
      * @param idClient      the id of the server.
+     * @param consensusId the consensus ID.
      */
-    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient, final long clientSnapshot)
+    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient, final long clientSnapshot, final int consensusId)
     {
         if (!clients.containsKey(idClient) || clients.get(idClient) < clientSnapshot)
         {
@@ -478,6 +478,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             this.putIntoWriteSet(currentSnapshot, localWriteSet);
         }
 
+        wrapper.setLastTransactionId(consensusId);
         updateCounts(0, 0, 1, 0);
     }
 

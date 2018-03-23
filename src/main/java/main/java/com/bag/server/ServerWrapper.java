@@ -43,6 +43,11 @@ public class ServerWrapper
     private LocalClusterSlave  localCluster;
 
     /**
+     * Last executed transactionId.
+     */
+    private int lastTransactionId;
+
+    /**
      * The id of the server in the global cluster. Also the id of the local cluster (initially).
      */
     private final int globalServerId;
@@ -56,7 +61,7 @@ public class ServerWrapper
     /**
      * The database instance.
      */
-    private IDatabaseAccess databaseAccess;
+    private final IDatabaseAccess databaseAccess;
 
     /**
      * Creates a serverWrapper which contains the instances of the global and local clusters.
@@ -79,6 +84,7 @@ public class ServerWrapper
         final ServerInstrumentation instrumentation = new ServerInstrumentation(globalServerId);
         this.globalServerId = globalServerId;
         this.localClusterSlaveId = localClusterSlaveId;
+        lastTransactionId = 0;
 
         if(isPrimary)
         {
@@ -154,6 +160,24 @@ public class ServerWrapper
     }
 
     /**
+     * Set the last transactionID.
+     * @param newId the new ID to set.
+     */
+    public void setLastTransactionId(final int newId)
+    {
+        this.lastTransactionId = newId;
+    }
+
+    /**
+     * Get the last transactionID.
+     * @return the ID.
+     */
+    public int getLastTransactionId()
+    {
+        return this.lastTransactionId;
+    }
+
+    /**
      * Get the id of the server in the global cluster.
      * @return the id, an int.
      */
@@ -181,8 +205,8 @@ public class ServerWrapper
      * Main method used to start each GlobalClusterSlave.
      * @param args the id for each testServer, set it in the program arguments.
      */
-    public static void main(String [] args) {
-
+    public static void main(final String [] args)
+    {
         /*
          * The server arguments are:
          * - ServerId (unique in global cluster)
@@ -213,7 +237,7 @@ public class ServerWrapper
         {
             serverId = Integer.parseInt(args[0]);
         }
-        catch (NumberFormatException ne)
+        catch (final NumberFormatException ne)
         {
             Log.getLogger().warn(INVALID_ARGUMENTS);
             return;
@@ -225,7 +249,7 @@ public class ServerWrapper
         {
             localClusterSlaveId = Integer.parseInt(args[2]);
         }
-        catch (NumberFormatException ne)
+        catch (final NumberFormatException ne)
         {
             Log.getLogger().warn(INVALID_ARGUMENTS);
             return;
@@ -235,7 +259,7 @@ public class ServerWrapper
         {
             idOfPrimary = Integer.parseInt(args[3]);
         }
-        catch (NumberFormatException ne)
+        catch (final NumberFormatException ne)
         {
             Log.getLogger().warn(INVALID_ARGUMENTS);
             return;
@@ -245,7 +269,7 @@ public class ServerWrapper
 
         if (args.length >= 6)
         {
-            boolean useLogging = Boolean.parseBoolean(args[5]);
+            final boolean useLogging = Boolean.parseBoolean(args[5]);
             if (!useLogging)
             {
                 Log.getLogger().setLevel(Level.WARN);
@@ -329,13 +353,5 @@ public class ServerWrapper
         return localClusterSlaveId;
     }
 
-    /**
-     * Set the database access for this server.
-     * Likely after an unexpected shutdown.
-     * @param dataBaseAccess the access to set.
-     */
-    public void setDataBaseAccess(final IDatabaseAccess dataBaseAccess)
-    {
-        this.databaseAccess = dataBaseAccess;
-    }
+
 }
