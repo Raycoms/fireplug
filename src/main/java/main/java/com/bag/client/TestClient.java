@@ -24,16 +24,13 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static main.java.com.bag.util.ReadModes.*;
+
 /**
  * Class handling the client.
  */
 public class TestClient implements BAGClient, ReplyListener
 {
-    /**
-     * Should the transaction runNetty in secure mode?
-     */
-    private final boolean secureMode;
-
     /**
      * The place the local config file is. This + the cluster id will contain the concrete cluster config location.
      */
@@ -50,6 +47,9 @@ public class TestClient implements BAGClient, ReplyListener
     private ArrayList<NodeStorage>         readsSetNode;
     private ArrayList<RelationshipStorage> readsSetRelationship;
 
+    /**
+     * Write Set of the operations.
+     */
     private ArrayList<IOperation> writeSet;
 
     /**
@@ -65,12 +65,12 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * The id of the local server process the client is communicating with.
      */
-    private int serverProcess;
+    private final int serverProcess;
 
     /**
      * Lock object to let the thread wait for a read return.
      */
-    private BlockingQueue<Object> readQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Object> readQueue = new LinkedBlockingQueue<>();
 
     /**
      * The last object in read queue.
@@ -103,6 +103,11 @@ public class TestClient implements BAGClient, ReplyListener
      * The reply listener for aynch requests.
      */
     private final ReplyListener bagReplyListener;
+
+    /**
+     * The ReadMode of this client.
+     */
+    private final ReadModes readMode;
 
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
@@ -158,7 +163,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * Create a threadsafe version of kryo.
      */
-    public KryoFactory factory = () ->
+    private final KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
         kryo.register(NodeStorage.class, 100);
@@ -169,7 +174,7 @@ public class TestClient implements BAGClient, ReplyListener
         return kryo;
     };
 
-    public TestClient(final int processId, final int serverId, final int localClusterId)
+    public TestClient(final int processId, final int serverId, final int localClusterId, final int readModeId)
     {
         super();
         localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
@@ -183,12 +188,11 @@ public class TestClient implements BAGClient, ReplyListener
             globalProxy = null;
         }
 
-        secureMode = true;
         this.serverProcess = serverId;
         this.localClusterId = localClusterId;
         initClient();
-        bagReplyListener = new BAGReplyListener(this);
-
+        readMode = ReadModes.values()[readModeId];
+        bagReplyListener = new BAGReplyListener(this, readMode);
         Log.getLogger().warn("Starting client " + processId);
     }
 
@@ -248,7 +252,7 @@ public class TestClient implements BAGClient, ReplyListener
      * @param identifier the value to write to.
      * @param value      what should be written.
      */
-    private void handleUpdateRequest(Object identifier, Object value)
+    private void handleUpdateRequest(final Object identifier, final Object value)
     {
         if (identifier instanceof NodeStorage && value instanceof NodeStorage)
         {
@@ -269,7 +273,7 @@ public class TestClient implements BAGClient, ReplyListener
      *
      * @param value object to fill in the createSet.
      */
-    private void handleCreateRequest(Object value)
+    private void handleCreateRequest(final Object value)
     {
         if (value instanceof NodeStorage)
         {
@@ -288,7 +292,7 @@ public class TestClient implements BAGClient, ReplyListener
      *
      * @param identifier the object to delete.
      */
-    private void handleDeleteRequest(Object identifier)
+    private void handleDeleteRequest(final Object identifier)
     {
         if (identifier instanceof NodeStorage)
         {
@@ -308,7 +312,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void read(final Object... identifiers)
     {
-        long timeStampToSend = firstRead ? -1 : localTimestamp;
+        final long timeStampToSend = firstRead ? -1 : localTimestamp;
 
         for (final Object identifier : identifiers)
         {
@@ -412,7 +416,7 @@ public class TestClient implements BAGClient, ReplyListener
                 {
                     tempStorage.addProperty("hash", HashCreator.sha1FromNode(storage));
                 }
-                catch (NoSuchAlgorithmException e)
+                catch (final NoSuchAlgorithmException e)
                 {
                     Log.getLogger().warn("Couldn't add hash for node", e);
                 }
@@ -429,7 +433,7 @@ public class TestClient implements BAGClient, ReplyListener
                 {
                     tempStorage.addProperty("hash", HashCreator.sha1FromRelationship(storage));
                 }
-                catch (NoSuchAlgorithmException e)
+                catch (final NoSuchAlgorithmException e)
                 {
                     Log.getLogger().warn("Couldn't add hash for relationship", e);
                 }
@@ -496,7 +500,7 @@ public class TestClient implements BAGClient, ReplyListener
         final boolean readOnly = isReadOnly();
         Log.getLogger().info("Starting commit");
 
-        if (readOnly && !secureMode)
+        if (readOnly && readMode == UNSAFE)
         {
             Log.getLogger().warn(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
@@ -504,7 +508,7 @@ public class TestClient implements BAGClient, ReplyListener
             return;
         }
 
-        //Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
+        Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
         final byte[] bytes = serializeAll();
 
         if (readOnly)
@@ -516,44 +520,75 @@ public class TestClient implements BAGClient, ReplyListener
             final byte[] answer;
             if (localClusterId == -1)
             {
+                if (readMode == TO_1_OTHER)
+                {
+                    final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
+                    final int rand = random.nextInt(viewProcesses.length);
+
+                    Log.getLogger().info("Send to local Cluster to: " + rand);
+                    localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                    return;
+                }
                 answer = localProxy.invokeUnordered(bytes);
             }
             else
             {
-                //TODO test with 2 and three (three is odd one out, only needs one random call)
                 //Do it in optimistic mode in local cluster (if >= 4 replicas)
-                if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4)
+                if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && (readMode == TO_F_PLUS_1_LOCALLY || readMode == LOCALLY_UNORDERED))
                 {
-                    final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                    int rand = random.nextInt(viewProcesses.length);
-                    while (0 == rand)
+                    if (readMode == TO_F_PLUS_1_LOCALLY)
                     {
-                        rand = random.nextInt(viewProcesses.length);
+                        final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
+                        int rand = random.nextInt(viewProcesses.length);
+                        while (0 == rand)
+                        {
+                            rand = random.nextInt(viewProcesses.length);
+                        }
+
+                        Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
+                        localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        return;
                     }
 
-                    Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
-                    localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                    return;
-                    //Log.getLogger().info("To Local proxy:");
-                    //answer = localProxy.invokeUnordered(bytes);
+                    Log.getLogger().info("To Local proxy:");
+                    answer = localProxy.invokeUnordered(bytes);
                 }
                 else
                 {
-                    final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
-                    int rand = random.nextInt(viewProcesses.length);
-                    while (serverProcess == rand)
+                    if (readMode == TO_F_PLUS_1_GLOBALLY)
                     {
-                        rand = random.nextInt(viewProcesses.length);
-                    }
+                        final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
+                        int rand = random.nextInt(viewProcesses.length);
+                        while (serverProcess == rand)
+                        {
+                            rand = random.nextInt(viewProcesses.length);
+                        }
 
-                    Log.getLogger().info("Send to global Cluster to: " + serverProcess + " and: " + rand);
-                    globalProxy.invokeAsynchRequest(bytes, new int[]{serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                    return;
-                    //answer = globalProxy.invokeUnordered(bytes);
+                        Log.getLogger().info("Send to global Cluster to: " + serverProcess + " and: " + rand);
+                        globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        return;
+                    }
+                    else if (readMode == TO_1_OTHER)
+                    {
+                        final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
+                        final int rand = random.nextInt(viewProcesses.length);
+
+                        Log.getLogger().info("Send to global Cluster to: " + rand);
+                        globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        return;
+                    }
+                    else if(readMode == PESSIMISTIC)
+                    {
+                        answer = globalProxy.invokeOrdered(bytes);
+                    }
+                    else
+                    {
+                        answer = globalProxy.invokeUnordered(bytes);
+                    }
                 }
             }
 
-            //Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + this.localTimestamp);
+            Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + this.localTimestamp);
 
             final Input input = new Input(answer);
             final String messageType = kryo.readObject(input, String.class);
@@ -603,15 +638,15 @@ public class TestClient implements BAGClient, ReplyListener
      *
      * @return the data in byte format.
      */
-    private byte[] serialize(@NotNull String request)
+    private byte[] serialize(@NotNull final String request)
     {
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        Kryo kryo = pool.borrow();
+        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+        final Kryo kryo = pool.borrow();
 
-        Output output = new Output(0, 256);
+        final Output output = new Output(0, 256);
         kryo.writeObject(output, request);
 
-        byte[] bytes = output.getBuffer();
+        final byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
         return bytes;
@@ -622,7 +657,7 @@ public class TestClient implements BAGClient, ReplyListener
      *
      * @return the data in byte format.
      */
-    private byte[] serialize(@NotNull String reason, long localTimestamp, final Object... args)
+    private byte[] serialize(@NotNull final String reason, final long localTimestamp, final Object... args)
     {
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
@@ -639,7 +674,7 @@ public class TestClient implements BAGClient, ReplyListener
             }
         }
 
-        byte[] bytes = output.getBuffer();
+        final byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
         return bytes;
@@ -668,7 +703,7 @@ public class TestClient implements BAGClient, ReplyListener
         //Write the writeSet.
         kryo.writeObject(output, writeSet);
 
-        byte[] bytes = output.getBuffer();
+        final byte[] bytes = output.getBuffer();
         output.close();
         pool.release(kryo);
         return bytes;
@@ -711,7 +746,7 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private int getPrimary(final Kryo kryo)
     {
-        byte[] response = localProxy.invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
+        final byte[] response = localProxy.invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
         if (response == null)
         {
             Log.getLogger().warn("Server returned null, something went incredibly wrong there");

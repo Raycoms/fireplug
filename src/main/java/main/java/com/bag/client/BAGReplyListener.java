@@ -8,16 +8,48 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
+import main.java.com.bag.util.ReadModes;
 
 public class BAGReplyListener implements ReplyListener
 {
+    /**
+     * The hooked up client using this.
+     */
     final TestClient testClient;
+
+    /**
+     * The amount of required answers we need.
+     */
+    final int requiredResults;
+
+    /**
+     * The amount of results we received already.
+     */
     int resultsReceived = 0;
+
+    /**
+     * The result (commit or abort)
+     */
     int globalResult = -1;
 
-    public BAGReplyListener(final TestClient testClient)
+    public BAGReplyListener(final TestClient testClient, final ReadModes readMode)
     {
         this.testClient = testClient;
+        switch(readMode)
+        {
+            case TO_1_OTHER:
+                requiredResults = 1;
+                break;
+            case PESSIMISTIC:
+                requiredResults = 3;
+                break;
+            case LOCALLY_UNORDERED:
+            case GLOBALLY_UNORDERED:
+            case TO_F_PLUS_1_LOCALLY:
+            case TO_F_PLUS_1_GLOBALLY:
+            default:
+                requiredResults = 2;
+        }
     }
 
     @Override
@@ -63,7 +95,7 @@ public class BAGReplyListener implements ReplyListener
         }
 
         Log.getLogger().info("Going for commit: " + resultsReceived);
-        if(resultsReceived == 2)
+        if(resultsReceived == requiredResults)
         {
             if (commit)
             {
