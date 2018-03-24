@@ -193,7 +193,7 @@ public class TestClient implements BAGClient, ReplyListener
         initClient();
         readMode = ReadModes.values()[readModeId];
         bagReplyListener = new BAGReplyListener(this, readMode);
-        Log.getLogger().warn("Starting client " + processId);
+        Log.getLogger().warn("Starting client " + processId + " with read-mode: " + readMode.name());
     }
 
     /**
