@@ -95,7 +95,7 @@ public class ServerInstrumentation
                          final PrintWriter out = new PrintWriter(bw))
                     {
                         //out.print(elapsed + ";");
-                        out.print(abortedTransactions.get() + ";");
+                        //out.print(abortedTransactions.get() + ";");
                         //out.print(committedTransactions.get() + ";");
                         //out.print(readsPerformed.get() + ";");
                         //out.print(writesPerformed.get() + ";");
