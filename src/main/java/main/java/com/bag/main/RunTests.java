@@ -58,7 +58,7 @@ public class RunTests
         {
             serverPartner = Integer.parseInt(args[1]);
             localClusterId = Integer.parseInt(args[2]);
-            serverIp = "127.0.0.1";;
+            serverIp = "127.0.0.1";
         }
         else
         {
