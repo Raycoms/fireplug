@@ -112,7 +112,7 @@ public class BAGReplyListener implements ReplyListener
             globalResult = result;
             testClient.resetSets();
         }
-        Log.getLogger().warn("Only: " + resultsReceived + " received");
+        Log.getLogger().info("Only: " + resultsReceived + " received");
         pool.release(kryo);
         return;
     }
