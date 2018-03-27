@@ -265,17 +265,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
-            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified() && wrapper.getLocalCluster().getId() == 0)
+            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
-                Log.getLogger().warn("Sending global: " + getGlobalSnapshotId() + " seq: " + messageContext.getSequence() + " Consensus: " + messageContext.getConsensusId() + " operationId: " + messageContext.getOperationId() + "sender: " + messageContext.getSender());
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getSequence());
+                Log.getLogger().warn("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId() + Arrays.toString(localWriteSet.toArray()));
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
             }
         }
         else
         {
             updateCounts(0, 0, 1, 0);
         }
-
 
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
