@@ -384,7 +384,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, decision);
         kryo.writeObject(output, snapShotId);
         kryo.writeObject(output, localWriteSet);
-        //kryo.writeObject(output, consensusId);
+        kryo.writeObject(output, consensusId);
 
         final byte[] message = output.toBytes();
         final byte[] signature;
@@ -430,6 +430,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(messageOutput, decision);
             kryo.writeObject(messageOutput, snapShotId);
             kryo.writeObject(messageOutput, signatureStorage);
+            kryo.writeObject(messageOutput, consensusId);
 
             final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
             service.submit(runnable);
@@ -513,6 +514,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(messageOutput, decision);
         kryo.writeObject(messageOutput, snapShotId);
         kryo.writeObject(messageOutput, signatureStorage);
+        kryo.writeObject(messageOutput, context.getConsensusId());
 
         final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
         service.submit(runnable);
@@ -543,6 +545,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
+        final int consensusId = kryo.readObject(input, Integer.class);
+
         final ArrayList<IOperation> localWriteSet;
 
         if (lastSent > snapShotId)
@@ -596,7 +600,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final boolean signatureMatches = TOMUtil.verifySignature(key, message, signature);
         if (signatureMatches)
         {
-            storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet);
+            storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet, consensusId);
             return;
         }
 
@@ -754,6 +758,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param context    the message context.
      * @param decision   the decision.
      * @param message    the message.
+     * @param consensusId the consensus id.
      */
     private void storeSignedMessage(
             final Long snapShotId,
@@ -761,7 +766,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             @NotNull final MessageContext context,
             final String decision,
             final byte[] message,
-            final List<IOperation> writeSet)
+            final List<IOperation> writeSet,
+            final int consensusId)
     {
         final SignatureStorage signatureStorage;
 
@@ -808,6 +814,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     kryo.writeObject(messageOutput, decision);
                     kryo.writeObject(messageOutput, snapShotId);
                     kryo.writeObject(messageOutput, signatureStorage);
+                    kryo.writeObject(messageOutput, consensusId);
 
                     final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
                     //updateSlave(slaveUpdateOutput.getBuffer());

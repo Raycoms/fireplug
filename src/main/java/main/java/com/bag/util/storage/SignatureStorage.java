@@ -1,8 +1,6 @@
 package main.java.com.bag.util.storage;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -54,6 +52,8 @@ public class SignatureStorage implements Serializable
     /**
      * Public constructor to create the storage.
      * @param requiredSignatures the amount which are required.
+     * @param message the message.
+     * @param decision the decision.
      */
     public SignatureStorage(final int requiredSignatures, final byte[] message, final String decision)
     {
