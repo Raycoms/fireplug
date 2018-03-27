@@ -290,25 +290,32 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         Log.getLogger().info("Get info from databaseAccess to snapShotId " + localSnapshotId);
 
-        try
+        if(!identifier.getId().equalsIgnoreCase("Dummy"))
         {
-            returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
-        }
-        catch (final OutDatedDataException e)
-        {
-            kryo.writeObject(output, Constants.ABORT);
+            try
+            {
+                returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
+            }
+            catch (final OutDatedDataException e)
+            {
+                kryo.writeObject(output, Constants.ABORT);
+                kryo.writeObject(output, localSnapshotId);
+
+                Log.getLogger().info("Transaction found conflict");
+                Log.getLogger().info("OutdatedData Exception thrown: ", e);
+                kryo.writeObject(output, new ArrayList<NodeStorage>());
+                kryo.writeObject(output, new ArrayList<RelationshipStorage>());
+                return output;
+            }
+
+            kryo.writeObject(output, Constants.CONTINUE);
             kryo.writeObject(output, localSnapshotId);
-
-            Log.getLogger().info("Transaction found conflict");
-            Log.getLogger().info("OutdatedData Exception thrown: ", e);
-            kryo.writeObject(output, new ArrayList<NodeStorage>());
-            kryo.writeObject(output, new ArrayList<RelationshipStorage>());
-            return output;
+            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
-
-        kryo.writeObject(output, Constants.CONTINUE);
-        kryo.writeObject(output, localSnapshotId);
-        Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
+        else
+        {
+            returnList = new ArrayList<>();
+        }
 
         if (returnList.isEmpty())
         {

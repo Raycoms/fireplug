@@ -420,7 +420,10 @@ public class TestClient implements BAGClient, ReplyListener
                 {
                     Log.getLogger().warn("Couldn't add hash for node", e);
                 }
-                readsSetNode.add(tempStorage);
+                if(!tempStorage.getId().equalsIgnoreCase("Dummy"))
+                {
+                    readsSetNode.add(tempStorage);
+                }
             }
         }
 
@@ -742,6 +745,12 @@ public class TestClient implements BAGClient, ReplyListener
     public int getID()
     {
         return this.serverProcess;
+    }
+
+    @Override
+    public boolean hasRead()
+    {
+        return !readsSetNode.isEmpty() && !readsSetRelationship.isEmpty();
     }
 
     /**

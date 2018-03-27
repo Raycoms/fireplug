@@ -32,9 +32,21 @@ public class NodeStorage implements Serializable
     @NotNull
     private Map<String, Object> properties = new TreeMap<>();
 
+    /**
+     * Default constructor, needed for Kryo.
+     */
     public NodeStorage()
     {
         id = "Node";
+    }
+
+    /**
+     * Dummy constructor, this will create a dummy storage.
+     * @param dummy true if dummy, false if dummy.
+     */
+    public NodeStorage(final boolean dummy)
+    {
+        id = "Dummy";
     }
 
     /**

@@ -259,4 +259,10 @@ public class DirectAccessClient implements BAGClient
     {
         return 1;
     }
+
+    @Override
+    public boolean hasRead()
+    {
+        return true;
+    }
 }

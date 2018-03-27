@@ -534,6 +534,24 @@ public class ClientWorkLoads
 
                 if (i % commitAfter == 0)
                 {
+                    if (!client.hasRead())
+                    {
+                        client.read(new NodeStorage(true));
+                        try
+                        {
+                            while (client.getReadQueue().take() != TestClient.FINISHED_READING)
+                            {
+                                ;
+                            }
+                        }
+                        catch (final InterruptedException e)
+                        {
+                            /*
+                             * Intentionally left empty.
+                             */
+                        }
+                    }
+
                     client.commit();
                     while(client.isCommitting())
                     {

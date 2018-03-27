@@ -40,4 +40,10 @@ public interface BAGClient {
      * @return the id.
      */
     public int getID();
+
+    /**
+     * Check if the client read anything during the transaction.
+     * @return true if so.
+     */
+    public boolean hasRead();
 }
