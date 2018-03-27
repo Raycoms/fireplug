@@ -265,7 +265,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
-            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
+            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified() && wrapper.getLocalClusterSlaveId() == 0)
             {
                 Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
