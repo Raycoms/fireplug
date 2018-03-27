@@ -267,7 +267,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
             if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
-                Log.getLogger().warn("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId() + Arrays.toString(localWriteSet.toArray()));
+                Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
                 signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
             }
         }
@@ -384,7 +384,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, decision);
         kryo.writeObject(output, snapShotId);
         kryo.writeObject(output, localWriteSet);
-        kryo.writeObject(output, consensusId);
+        //kryo.writeObject(output, consensusId);
 
         final byte[] message = output.toBytes();
         final byte[] signature;
@@ -572,7 +572,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 + " and a writeSet of the length of: " + localWriteSet.size());
 
         final int messageLength = kryo.readObject(input, Integer.class);
-
         final int signatureLength = kryo.readObject(input, Integer.class);
         final byte[] signature = input.readBytes(signatureLength);
 
