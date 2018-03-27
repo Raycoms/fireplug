@@ -307,16 +307,16 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 kryo.writeObject(output, new ArrayList<RelationshipStorage>());
                 return output;
             }
-
-            kryo.writeObject(output, Constants.CONTINUE);
-            kryo.writeObject(output, localSnapshotId);
-            Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
         }
         else
         {
             returnList = new ArrayList<>();
         }
 
+        kryo.writeObject(output, Constants.CONTINUE);
+        kryo.writeObject(output, localSnapshotId);
+        Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
+        
         if (returnList.isEmpty())
         {
             kryo.writeObject(output, new ArrayList<NodeStorage>());
