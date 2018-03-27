@@ -596,12 +596,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final boolean signatureMatches = TOMUtil.verifySignature(key, message, signature);
         if (signatureMatches)
         {
-
             storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet);
             return;
         }
 
-        Log.getLogger().warn("Signature doesn't match of message, throwing message away.");
+        Log.getLogger().warn("Signature doesn't match of message, throwing message away." + id + ":" + messageContext.getSender() + ": " + message + "/" + signature);
     }
 
     @Override
