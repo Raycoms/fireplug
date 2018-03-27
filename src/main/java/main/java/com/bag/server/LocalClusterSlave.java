@@ -423,6 +423,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().warn("Unable to cast to SignatureStorage, something went wrong badly.", exp);
             return;
         }
+        final int consensusId = kryo.readObject(input, Integer.class);
 
         final Input messageInput = new Input(storage.getMessage());
 
@@ -430,7 +431,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.readObject(messageInput, String.class);
 
         kryo.readObject(messageInput, Long.class);
-        final int consensusId = kryo.readObject(messageInput, Integer.class);
 
         final List writeSet = kryo.readObject(messageInput, ArrayList.class);
         List readsSetNodeX = new ArrayList<>();
