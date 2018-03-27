@@ -424,17 +424,20 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
-            final Output messageOutput = new Output(100096);
+            if (wrapper.getLocalCluster().getId() == 0)
+            {
+                final Output messageOutput = new Output(100096);
 
-            kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-            kryo.writeObject(messageOutput, decision);
-            kryo.writeObject(messageOutput, snapShotId);
-            kryo.writeObject(messageOutput, signatureStorage);
-            kryo.writeObject(messageOutput, consensusId);
+                kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+                kryo.writeObject(messageOutput, decision);
+                kryo.writeObject(messageOutput, snapShotId);
+                kryo.writeObject(messageOutput, signatureStorage);
+                kryo.writeObject(messageOutput, consensusId);
 
-            final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
-            service.submit(runnable);
-            messageOutput.close();
+                final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+                service.submit(runnable);
+                messageOutput.close();
+            }
 
             signatureStorage.setDistributed();
             signatureStorageCache.put(snapShotId, signatureStorage);
@@ -506,19 +509,22 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
         signatureStorage.addSignatures(idClient, signature);
 
-        Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+        if (wrapper.getLocalCluster().getId() == 0)
+        {
+            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
-        final Output messageOutput = new Output(100096);
+            final Output messageOutput = new Output(100096);
 
-        kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-        kryo.writeObject(messageOutput, decision);
-        kryo.writeObject(messageOutput, snapShotId);
-        kryo.writeObject(messageOutput, signatureStorage);
-        kryo.writeObject(messageOutput, context.getConsensusId());
+            kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+            kryo.writeObject(messageOutput, decision);
+            kryo.writeObject(messageOutput, snapShotId);
+            kryo.writeObject(messageOutput, signatureStorage);
+            kryo.writeObject(messageOutput, context.getConsensusId());
 
-        final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
-        service.submit(runnable);
-        messageOutput.close();
+            final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+            service.submit(runnable);
+            messageOutput.close();
+        }
 
         signatureStorage.setDistributed();
         signatureStorageCache.put(snapShotId, signatureStorage);
