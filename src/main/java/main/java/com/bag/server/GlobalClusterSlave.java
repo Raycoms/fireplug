@@ -217,6 +217,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalCluster().getId() == 0)
         {
+            Log.getLogger().warn("Distribute commit to slave!");
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
         }
 
@@ -264,9 +265,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
-            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
+            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified() && wrapper.getLocalCluster().getId() == 0)
             {
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getSequence());
             }
         }
         else
