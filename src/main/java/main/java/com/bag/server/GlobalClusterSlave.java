@@ -424,7 +424,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
-            if (wrapper.getLocalCluster().getId() == 0)
+            if (wrapper.getLocalClusterSlaveId() == 0)
             {
                 final Output messageOutput = new Output(100096);
 
@@ -509,7 +509,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
         signatureStorage.addSignatures(idClient, signature);
 
-        if (wrapper.getLocalCluster().getId() == 0)
+        if (wrapper.getLocalClusterSlaveId() == 0)
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
