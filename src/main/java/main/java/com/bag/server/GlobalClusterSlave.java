@@ -227,7 +227,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             final byte[] returnBytes = output.getBuffer();
             output.close();
-            Log.getLogger().info("Old transaction, pulling it: " + getGlobalSnapshotId() + " compared to: " + messageContext.getConsensusId());
+            Log.getLogger().warn("Old transaction, pulling it: " + getGlobalSnapshotId() + " compared to: " + messageContext.getConsensusId());
             return returnBytes;
         }
 
