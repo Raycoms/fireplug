@@ -738,6 +738,12 @@ public class TestClient implements BAGClient, ReplyListener
         return isCommitting;
     }
 
+    @Override
+    public int getID()
+    {
+        return this.serverProcess;
+    }
+
     /**
      * Get the primary of the cluster.
      *

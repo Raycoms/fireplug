@@ -34,7 +34,8 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Class used to simulate a client acessing the database directly.
  */
-public class DirectAccessClient implements BAGClient {
+public class DirectAccessClient implements BAGClient
+{
 
     private NettyClient           server;
     private BlockingQueue<Object> readQueue;
@@ -251,5 +252,11 @@ public class DirectAccessClient implements BAGClient {
     public boolean isCommitting()
     {
         return false;
+    }
+
+    @Override
+    public int getID()
+    {
+        return 1;
     }
 }

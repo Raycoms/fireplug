@@ -34,4 +34,10 @@ public interface BAGClient {
      * @return true if so.
      */
     public boolean isCommitting();
+
+    /**
+     * Get the id of the client.
+     * @return the id.
+     */
+    public int getID();
 }

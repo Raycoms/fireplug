@@ -287,6 +287,7 @@ public class ClientWorkLoads
 
         public RealisticOperation(@NotNull final BAGClient client, final int commitAfter, int seed, double percOfWrites)
         {
+
             this.client = client;
             this.commitAfter = commitAfter;
             this.seed = seed;
@@ -347,7 +348,9 @@ public class ClientWorkLoads
 
         public void run()
         {
-            final int maxNodeId = 100000;
+            final int maxNodeId = 12500 * (1 + client.getID());
+            final int minNodeId = 12500 * client.getID();
+
             final int maxRelationShipId = Constants.RELATIONSHIP_TYPES_LIST.length;
 
             int relIndex = 0;
@@ -440,8 +443,8 @@ public class ClientWorkLoads
                     {
                         operation = new CreateOperation<>(new RelationshipStorage(
                                 Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)),
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId))));
                         //add relationship
                         createRelations += 1;
                     }
@@ -449,27 +452,27 @@ public class ClientWorkLoads
                     {
                         operation = new DeleteOperation<>(new RelationshipStorage(
                                 Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)),
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId))));
                         //delete relationship
                         deleteRelations += 1;
                     }
                     else if (randomNum <= 52.5 + 9.2 + 16.5)
                     {
-                        operation = new CreateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
+                        operation = new CreateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)));
                         //add node
                         createNodes += 1;
                     }
                     else if (randomNum <= 52.5 + 9.2 + 16.5 + 20.7)
                     {
-                        operation = new UpdateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
+                        operation = new UpdateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)),
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)));
                         //update node
                         updateNodes += 1;
                     }
                     else
                     {
-                        operation = new DeleteOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
+                        operation = new DeleteOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)));
                         //delete node
                         deleteNodes += 1;
                     }
