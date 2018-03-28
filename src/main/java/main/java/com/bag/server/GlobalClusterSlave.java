@@ -215,7 +215,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalCluster().getId() == 0)
+        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalClusterSlaveId() == 0)
         {
             Log.getLogger().warn("Distribute commit to slave!");
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
@@ -496,23 +496,23 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
                 Log.getLogger()
-                        .info("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
+                        .warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
                                 + snapShotId);
             }
         }
         else
         {
-            Log.getLogger().info("Size of message stored is: " + message.length);
+            Log.getLogger().warn("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
             signatureStorageCache.put(snapShotId, signatureStorage);
         }
 
         signatureStorage.setProcessed();
-        Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+        Log.getLogger().warn("Set processed by global cluster: " + snapShotId + " by: " + idClient);
         signatureStorage.addSignatures(idClient, signature);
 
 
-        Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+        Log.getLogger().warn("Sending update to slave signed by all members: " + snapShotId);
 
         final Output messageOutput = new Output(100096);
 
@@ -522,15 +522,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(messageOutput, signatureStorage);
         kryo.writeObject(messageOutput, context.getConsensusId());
 
+        Log.getLogger().warn("Starting thread to update to slave signed by all members: " + snapShotId);
+
         final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
         service.submit(runnable);
         messageOutput.close();
-
 
         signatureStorage.setDistributed();
         signatureStorageCache.put(snapShotId, signatureStorage);
         signatureStorageCache.invalidate(snapShotId);
         lastSent = snapShotId;
+
+        Log.getLogger().warn("Finished to update to slave signed by all members: " + snapShotId);
+
     }
 
     /**
