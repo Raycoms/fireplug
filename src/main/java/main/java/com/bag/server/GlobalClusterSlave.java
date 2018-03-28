@@ -174,8 +174,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Check for conflicts and unpack things for conflict handle check.
      *
-     * @param kryo  the kryo instance.
-     * @param input the input.
+     * @param kryo           the kryo instance.
+     * @param input          the input.
      * @param messageContext the message context.
      * @return the response.
      */
@@ -221,7 +221,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
         }
 
-        if(messageContext.getConsensusId() < wrapper.getLastTransactionId())
+        if (messageContext.getConsensusId() < wrapper.getLastTransactionId())
         {
             kryo.writeObject(output, Constants.COMMIT);
             kryo.writeObject(output, getGlobalSnapshotId());
@@ -366,11 +366,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Signs the commit, gathers all signatures,
      * and distributes the commit and decision to the slaves.
+     *
      * @param localWriteSet the writeset.
-     * @param decision the decision.
-     * @param snapShotId the snapshot.
-     * @param kryo the kryo instance.
-     * @param consensusId the consensus ID.
+     * @param decision      the decision.
+     * @param snapShotId    the snapshot.
+     * @param kryo          the kryo instance.
+     * @param consensusId   the consensus ID.
      */
     private void signCommitWithDecisionAndDistribute(final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo, final int consensusId)
     {
@@ -425,17 +426,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
 
-                final Output messageOutput = new Output(100096);
+            final Output messageOutput = new Output(100096);
 
-                kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-                kryo.writeObject(messageOutput, decision);
-                kryo.writeObject(messageOutput, snapShotId);
-                kryo.writeObject(messageOutput, signatureStorage);
-                kryo.writeObject(messageOutput, consensusId);
+            kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+            kryo.writeObject(messageOutput, decision);
+            kryo.writeObject(messageOutput, snapShotId);
+            kryo.writeObject(messageOutput, signatureStorage);
+            kryo.writeObject(messageOutput, consensusId);
 
-                final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
-                service.submit(runnable);
-                messageOutput.close();
+            final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+            service.submit(runnable);
+            messageOutput.close();
 
 
             signatureStorage.setDistributed();
@@ -458,15 +459,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     /**
      * Takes the signature of the decision and sends it to the slaves.
-     * @param localWriteSet the local writeSet.
-     * @param decision the decision.
-     * @param snapShotId the snapshotId.
-     * @param kryo the kryo instance.
-     * @param readSetNode the read set for the nodes.
+     *
+     * @param localWriteSet        the local writeSet.
+     * @param decision             the decision.
+     * @param snapShotId           the snapshotId.
+     * @param kryo                 the kryo instance.
+     * @param readSetNode          the read set for the nodes.
      * @param readsSetRelationship the read set for the relationships.
-     * @param context the message context.
+     * @param context              the message context.
      */
-    private void distributeCommitToSlave(final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo,
+    private void distributeCommitToSlave(
+            final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo,
             final ArrayList<NodeStorage> readSetNode,
             final ArrayList<RelationshipStorage> readsSetRelationship,
             final MessageContext context)
@@ -509,19 +512,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
         signatureStorage.addSignatures(idClient, signature);
 
 
-            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+        Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
-            final Output messageOutput = new Output(100096);
+        final Output messageOutput = new Output(100096);
 
-            kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-            kryo.writeObject(messageOutput, decision);
-            kryo.writeObject(messageOutput, snapShotId);
-            kryo.writeObject(messageOutput, signatureStorage);
-            kryo.writeObject(messageOutput, context.getConsensusId());
+        kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+        kryo.writeObject(messageOutput, decision);
+        kryo.writeObject(messageOutput, snapShotId);
+        kryo.writeObject(messageOutput, signatureStorage);
+        kryo.writeObject(messageOutput, context.getConsensusId());
 
-            final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
-            service.submit(runnable);
-            messageOutput.close();
+        final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+        service.submit(runnable);
+        messageOutput.close();
 
 
         signatureStorage.setDistributed();
@@ -757,11 +760,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * Store the signed message on the server.
      * If n-f messages arrived send it to client.
      *
-     * @param snapShotId the snapShotId as key.
-     * @param signature  the signature
-     * @param context    the message context.
-     * @param decision   the decision.
-     * @param message    the message.
+     * @param snapShotId  the snapShotId as key.
+     * @param signature   the signature
+     * @param context     the message context.
+     * @param decision    the decision.
+     * @param message     the message.
      * @param consensusId the consensus id.
      */
     private void storeSignedMessage(
@@ -811,23 +814,23 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (signatureStorage.isProcessed())
                 {
 
-                        final Output messageOutput = new Output(100096);
-                        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-                        final Kryo kryo = pool.borrow();
+                    final Output messageOutput = new Output(100096);
+                    final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+                    final Kryo kryo = pool.borrow();
 
-                        kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-                        kryo.writeObject(messageOutput, decision);
-                        kryo.writeObject(messageOutput, snapShotId);
-                        kryo.writeObject(messageOutput, signatureStorage);
-                        kryo.writeObject(messageOutput, consensusId);
+                    kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+                    kryo.writeObject(messageOutput, decision);
+                    kryo.writeObject(messageOutput, snapShotId);
+                    kryo.writeObject(messageOutput, signatureStorage);
+                    kryo.writeObject(messageOutput, consensusId);
 
-                        final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+                    final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
 
-                        //updateSlave(slaveUpdateOutput.getBuffer());
-                        //updateNextSlave(slaveUpdateOutput.getBuffer());
-                        service.submit(runnable);
-                        messageOutput.close();
-                        pool.release(kryo);
+                    //updateSlave(slaveUpdateOutput.getBuffer());
+                    //updateNextSlave(slaveUpdateOutput.getBuffer());
+                    service.submit(runnable);
+                    messageOutput.close();
+                    pool.release(kryo);
 
                     lastSent = snapShotId;
                     signatureStorage.setDistributed();

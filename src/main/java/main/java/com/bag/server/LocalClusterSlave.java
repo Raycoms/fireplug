@@ -540,10 +540,11 @@ public class LocalClusterSlave extends AbstractRecoverable
                     wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
             {
                 Log.getLogger()
-                        .info("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                        .warn("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                                 + localWriteSet.size()
                                 + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
                 kryo.writeObject(output, false);
+                return;
             }
             Log.getLogger().info("Execute update on slave: " + snapShotId);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
