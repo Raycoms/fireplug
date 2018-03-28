@@ -407,7 +407,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
         else if (lastKey == snapShotId)
         {
-            Log.getLogger().warn("Received already committed transaction.");
+            Log.getLogger().info("Received already committed transaction.");
             kryo.writeObject(output, true);
             return;
         }

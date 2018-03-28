@@ -424,8 +424,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
-            if (wrapper.getLocalClusterSlaveId() == 0)
-            {
+
                 final Output messageOutput = new Output(100096);
 
                 kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
@@ -437,7 +436,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
                 service.submit(runnable);
                 messageOutput.close();
-            }
+
 
             signatureStorage.setDistributed();
             signatureStorageCache.put(snapShotId, signatureStorage);
@@ -509,8 +508,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
         signatureStorage.addSignatures(idClient, signature);
 
-        if (wrapper.getLocalClusterSlaveId() == 0)
-        {
+
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
             final Output messageOutput = new Output(100096);
@@ -524,7 +522,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
             service.submit(runnable);
             messageOutput.close();
-        }
+
 
         signatureStorage.setDistributed();
         signatureStorageCache.put(snapShotId, signatureStorage);
@@ -812,8 +810,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
                 if (signatureStorage.isProcessed())
                 {
-                    if (wrapper.getLocalClusterSlaveId() == 0)
-                    {
+
                         final Output messageOutput = new Output(100096);
                         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
                         final Kryo kryo = pool.borrow();
@@ -831,7 +828,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         service.submit(runnable);
                         messageOutput.close();
                         pool.release(kryo);
-                    }
+
                     lastSent = snapShotId;
                     signatureStorage.setDistributed();
                 }
