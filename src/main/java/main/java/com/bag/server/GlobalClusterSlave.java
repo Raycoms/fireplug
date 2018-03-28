@@ -503,7 +503,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         else
         {
-            Log.getLogger().warn("Size of message stored is: " + message.length);
+            Log.getLogger().info("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
             signatureStorageCache.put(snapShotId, signatureStorage);
         }
