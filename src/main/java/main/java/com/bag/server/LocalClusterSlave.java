@@ -398,7 +398,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         final long snapShotId = kryo.readObject(input, Long.class);
         final long lastKey = getGlobalSnapshotId();
 
-        Log.getLogger().warn("Received update slave message with decision: " + decision);
+        Log.getLogger().info("Received update slave message with decision: " + decision);
 
         if (lastKey > snapShotId)
         {
