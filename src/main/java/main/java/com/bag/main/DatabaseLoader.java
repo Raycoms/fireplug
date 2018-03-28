@@ -160,7 +160,7 @@ public class DatabaseLoader
             case Constants.ORIENTDB:
                 return new OrientDBDatabaseAccess(globalServerId);
             default:
-                Log.getLogger().warn("Invalid databaseAccess - default to Neo4j.");
+                Log.getLogger().warn("Invalid databaseAccess - default to emptyDB.");
                 return new EmptyDatabaseAccess();
         }
     }
