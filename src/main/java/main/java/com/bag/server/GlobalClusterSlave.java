@@ -509,11 +509,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         signatureStorage.setProcessed();
-        Log.getLogger().warn("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+        Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
         signatureStorage.addSignatures(idClient, signature);
 
 
-        Log.getLogger().warn("Sending update to slave signed by all members: " + snapShotId);
+        Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
         final Output messageOutput = new Output(100096);
 
@@ -523,7 +523,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(messageOutput, signatureStorage);
         kryo.writeObject(messageOutput, context.getConsensusId());
 
-        Log.getLogger().warn("Starting thread to update to slave signed by all members: " + snapShotId);
+        Log.getLogger().info("Starting thread to update to slave signed by all members: " + snapShotId);
 
         final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
         service.submit(runnable);
@@ -534,7 +534,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         signatureStorageCache.invalidate(snapShotId);
         lastSent = snapShotId;
 
-        Log.getLogger().warn("Finished to update to slave signed by all members: " + snapShotId);
+        Log.getLogger().info("Finished to update to slave signed by all members: " + snapShotId);
 
     }
 
