@@ -215,6 +215,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        Log.getLogger().warn("Distribute commit to slave? " + wrapper.isGloballyVerified() + " " +  wrapper.getLocalCluster() != null + " " + !localWriteSet.isEmpty() + " " + wrapper.getLocalClusterSlaveId());
+
         if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalClusterSlaveId() == 0)
         {
             Log.getLogger().warn("Distribute commit to slave!");
