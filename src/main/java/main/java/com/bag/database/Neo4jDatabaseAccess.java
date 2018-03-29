@@ -481,6 +481,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             final Output output = new Output(1000);
                             kryo.writeObject(output, temp);
                             proxy.setProperty(TAG_PRE, output.getBuffer());
+                            output.clear();
                             output.close();
                             proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
 
@@ -602,6 +603,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             final Output output = new Output(1000);
                             kryo.writeObject(output, temp);
                             proxy.setProperty(TAG_PRE, output.getBuffer());
+                            output.clear();
                             output.close();
                             proxy.setProperty(TAG_VERSION, obj instanceof Integer ? (Integer) obj + 1 : 1);
                         }
