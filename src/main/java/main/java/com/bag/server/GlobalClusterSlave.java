@@ -226,9 +226,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             final int curr = countWrites.addAndGet(localWriteSet.size());
 
-            if (curr % 100 == 0)
+            if (curr % 10 == 0)
             {
-                Log.getLogger().warn("Current writes: " + curr);
+                Log.getLogger().warn(Arrays.toString(localWriteSet.toArray()));
             }
         }
 
