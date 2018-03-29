@@ -115,6 +115,11 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private final AtomicInteger countWrites = new AtomicInteger();
 
+    /**
+     * Write counter.
+     */
+    private final AtomicInteger countRealWrites = new AtomicInteger();
+
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
         if (Arrays.equals(o1, o2))
@@ -260,6 +265,7 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private void handleUpdateRequest(final Object identifier, final Object value)
     {
+        countRealWrites.incrementAndGet();
         if (identifier instanceof NodeStorage && value instanceof NodeStorage)
         {
             writeSet.add(new UpdateOperation<>((NodeStorage) identifier, (NodeStorage) value));
@@ -281,6 +287,7 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private void handleCreateRequest(final Object value)
     {
+        countRealWrites.incrementAndGet();
         if (value instanceof NodeStorage)
         {
             writeSet.add(new CreateOperation<>((NodeStorage) value));
@@ -300,6 +307,7 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private void handleDeleteRequest(final Object identifier)
     {
+        countRealWrites.incrementAndGet();
         if (identifier instanceof NodeStorage)
         {
             writeSet.add(new DeleteOperation<>((NodeStorage) identifier));
@@ -629,17 +637,17 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (writeSet.size() > 10)
         {
-            Log.getLogger().warn("Huge writeSet coming " + writeSet.size() + " Total writes: " + countWrites.addAndGet(writeSet.size()));
+            Log.getLogger().warn("Huge writeSet coming " + writeSet.size() + " Total writes: " + countWrites.addAndGet(writeSet.size()) + "/" + countRealWrites.get());
         }
         else if(!writeSet.isEmpty())
         {
-            Log.getLogger().warn("Total writes: " + countWrites.addAndGet(writeSet.size()));
+            Log.getLogger().warn("Total writes: " + countWrites.addAndGet(writeSet.size())  + "/" + countRealWrites.get());
         }
 
         if (localClusterId == -1)
         {
             Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
-            localProxy.invokeOrdered(bytes);
+            processCommitReturn(localProxy.invokeOrdered(bytes));
         }
         else
         {
