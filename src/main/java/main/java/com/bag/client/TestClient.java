@@ -629,8 +629,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (writeSet.size() > 10)
         {
-            Log.getLogger().warn("Huge writeSet coming!!!" + Arrays.toString(writeSet.toArray()));
-            Log.getLogger().warn("Total writes: " + countWrites.addAndGet(writeSet.size()));
+            Log.getLogger().warn("Huge writeSet coming " + writeSet.size() + " Total writes: " + countWrites.addAndGet(writeSet.size()));
         }
         else if(!writeSet.isEmpty())
         {
