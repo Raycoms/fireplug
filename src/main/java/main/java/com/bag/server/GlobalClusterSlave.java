@@ -25,6 +25,7 @@ import java.security.PublicKey;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class handling server communication in the global cluster.
@@ -70,6 +71,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * SignatureStorageCache lock to be sure that we compare correctly.
      */
     private static final Object lock = new Object();
+
+    /**
+     * Write counter.
+     */
+    private final AtomicInteger countWrites = new AtomicInteger();
 
     /**
      * Thread pool for message sending.
@@ -215,6 +221,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+
+        if (!localWriteSet.isEmpty())
+        {
+            final int curr = countWrites.addAndGet(localWriteSet.size());
+
+            if (curr % 100 == 0)
+            {
+                Log.getLogger().warn("Current writes: " + curr);
+            }
+        }
 
         if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalClusterSlaveId() == 0)
         {
