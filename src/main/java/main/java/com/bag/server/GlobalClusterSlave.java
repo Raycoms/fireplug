@@ -73,11 +73,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private static final Object lock = new Object();
 
     /**
-     * Write counter.
-     */
-    private final AtomicInteger countWrites = new AtomicInteger();
-
-    /**
      * Thread pool for message sending.
      */
     private final ExecutorService service = Executors.newSingleThreadExecutor();
@@ -219,17 +214,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final byte[] returnBytes = output.getBuffer();
             output.close();
             return returnBytes;
-        }
-
-
-        if (!localWriteSet.isEmpty())
-        {
-            final int curr = countWrites.addAndGet(localWriteSet.size());
-
-            if (curr % 10 == 0)
-            {
-                Log.getLogger().warn(Arrays.toString(localWriteSet.toArray()));
-            }
         }
 
         if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalClusterSlaveId() == 0)

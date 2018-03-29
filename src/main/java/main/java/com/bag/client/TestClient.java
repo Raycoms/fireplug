@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static main.java.com.bag.util.ReadModes.*;
 
@@ -108,6 +109,11 @@ public class TestClient implements BAGClient, ReplyListener
      * The ReadMode of this client.
      */
     private final ReadModes readMode;
+
+    /**
+     * Write counter.
+     */
+    private final AtomicInteger countWrites = new AtomicInteger();
 
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
@@ -619,6 +625,16 @@ public class TestClient implements BAGClient, ReplyListener
             pool.release(kryo);
             resetSets();
             return;
+        }
+
+        if (writeSet.size() > 10)
+        {
+            Log.getLogger().warn("Huge writeSet coming!!!" + Arrays.toString(writeSet.toArray()));
+            Log.getLogger().warn("Total writes: " + countWrites.addAndGet(writeSet.size()));
+        }
+        else if(!writeSet.isEmpty())
+        {
+            Log.getLogger().warn("Total writes: " + countWrites.addAndGet(writeSet.size()));
         }
 
         if (localClusterId == -1)
