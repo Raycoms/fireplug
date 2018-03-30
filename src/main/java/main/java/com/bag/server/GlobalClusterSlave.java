@@ -443,7 +443,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             signatureStorage.setDistributed();
             signatureStorageCache.put(consensusId, signatureStorage);
             signatureStorageCache.invalidate(consensusId);
-            lastSent = snapShotId;
+            lastSent = consensusId;
         }
         else
         {
@@ -532,7 +532,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         signatureStorage.setDistributed();
         signatureStorageCache.put(context.getConsensusId(), signatureStorage);
         signatureStorageCache.invalidate(context.getConsensusId());
-        lastSent = snapShotId;
+        lastSent = context.getConsensusId();
 
         Log.getLogger().info("Finished to update to slave signed by all members: " + snapShotId);
 
@@ -561,7 +561,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final ArrayList<IOperation> localWriteSet;
 
-        if (lastSent > snapShotId)
+        if (lastSent > consensusId)
         {
             final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(consensusId);
             if (tempStorage == null || tempStorage.isDistributed())
@@ -837,7 +837,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     messageOutput.close();
                     pool.release(kryo);
 
-                    lastSent = snapShotId;
+                    lastSent = consensusId;
                     signatureStorage.setDistributed();
                 }
             }
