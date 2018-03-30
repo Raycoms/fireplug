@@ -178,7 +178,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param messageContext the message context.
      * @return the response.
      */
-    private synchronized byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
+    private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
     {
         Log.getLogger().info("Execute commit");
         //Read the inputStream.
@@ -264,6 +264,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
+            Log.getLogger().warn("Has: " + "signatures" + " " + "commit" + " " + getGlobalSnapshotId() + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()));
+
+
             if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
                 Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
