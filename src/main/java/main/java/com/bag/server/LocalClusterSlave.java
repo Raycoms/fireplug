@@ -546,14 +546,14 @@ public class LocalClusterSlave extends AbstractRecoverable
                 kryo.writeObject(output, false);
                 return;
             }
-            Log.getLogger().info("Execute update on slave: " + snapShotId);
+            Log.getLogger().warn("1: Execute update on slave: " + snapShotId);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
             executeCommit(localWriteSet, rsaLoader, id, snapShotId, consensusId);
 
             long requiredKey = lastKey + 1;
             while (buffer.containsKey(requiredKey))
             {
-                Log.getLogger().info("Execute update on slave: " + snapShotId);
+                Log.getLogger().warn("2: Execute update on slave: " + snapShotId);
                 executeCommit(buffer.remove(requiredKey), rsaLoader, id, snapShotId, consensusId);
                 requiredKey++;
             }
