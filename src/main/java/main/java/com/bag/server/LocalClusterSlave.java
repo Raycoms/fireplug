@@ -403,6 +403,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         if (lastKey > snapShotId)
         {
             //Received a message which has been committed in the past already.
+            kryo.writeObject(output, false);
             return;
         }
         else if (lastKey == snapShotId)
@@ -421,6 +422,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         catch (final ClassCastException exp)
         {
             Log.getLogger().warn("Unable to cast to SignatureStorage, something went wrong badly.", exp);
+            kryo.writeObject(output, false);
             return;
         }
         final int consensusId = kryo.readObject(input, Integer.class);
@@ -458,6 +460,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         catch (final ClassCastException e)
         {
             Log.getLogger().warn("Couldn't convert received signature message.", e);
+            kryo.writeObject(output, false);
             return;
         }
 
@@ -483,14 +486,18 @@ public class LocalClusterSlave extends AbstractRecoverable
                 catch (final Exception e)
                 {
                     Log.getLogger().warn("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
+                    kryo.writeObject(output, false);
+                    return;
                 }
             }
 
-            if (matchingSignatures < 1)
+            if (matchingSignatures < 2)
             {
                 Log.getLogger()
                         .info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
                                 + wrapper.getLocalClusterSlaveId());
+                kryo.writeObject(output, false);
+                return;
             }
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
