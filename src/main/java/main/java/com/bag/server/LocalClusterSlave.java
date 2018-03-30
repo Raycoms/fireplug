@@ -475,7 +475,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 {
                     if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
                     {
-                        Log.getLogger().info("Signature of server: " + entry.getKey() + " doesn't match");
+                        Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
                     }
                     else
                     {
@@ -600,10 +600,8 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void propagateUpdate(final byte[] message)
     {
-        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-        final Kryo kryo = pool.borrow();
         byte[] response = null;
-        while(response == null)
+        do
         {
             response = proxy.invokeUnordered(message);
             if (response != null)
@@ -619,6 +617,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
             }
             Log.getLogger().warn("Slave update saved, trying again!");
-        }
+        } while(response == null);
     }
 }
