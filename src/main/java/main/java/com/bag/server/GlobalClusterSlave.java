@@ -213,7 +213,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             output.close();
             return returnBytes;
         }
-        
+
         if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalClusterSlaveId() == 0)
         {
             Log.getLogger().info("Distribute commit to slave!");
@@ -242,7 +242,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
-                    .warn("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                    .warn("Found conflict " + messageContext.getConsensusId() + ":" + messageContext.getSequence() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                             + localWriteSet.size()
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
