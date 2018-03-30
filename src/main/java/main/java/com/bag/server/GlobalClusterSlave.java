@@ -55,7 +55,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Cache which holds the signatureStorages for the consistency.
      */
-    private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
+    private final Cache<Integer, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
 
     /**
      * The last sent commit, do not put anything under this number in the signature cache.
@@ -142,7 +142,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             try
             {
-                signatureStorageCache.put(kryo.readObject(input, Long.class), kryo.readObject(input, SignatureStorage.class));
+                signatureStorageCache.put(kryo.readObject(input, Integer.class), kryo.readObject(input, SignatureStorage.class));
             }
             catch (final ClassCastException ex)
             {
@@ -161,9 +161,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().warn("Size at global: " + signatureStorageCache.estimatedSize());
 
-        final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
+        final Map<Integer, SignatureStorage> copy = signatureStorageCache.asMap();
         kryo.writeObject(output, copy.size());
-        for (final Map.Entry<Long, SignatureStorage> entrySet : copy.entrySet())
+        for (final Map.Entry<Integer, SignatureStorage> entrySet : copy.entrySet())
         {
             kryo.writeObject(output, entrySet.getKey());
             kryo.writeObject(output, entrySet.getValue());
@@ -401,7 +401,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
+        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(consensusId);
         if (signatureStorage != null)
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
@@ -416,7 +416,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(consensusId, signatureStorage);
         }
 
         signatureStorage.setProcessed();
@@ -441,13 +441,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
 
             signatureStorage.setDistributed();
-            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(consensusId, signatureStorage);
             signatureStorageCache.invalidate(snapShotId);
             lastSent = snapShotId;
         }
         else
         {
-            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(consensusId, signatureStorage);
         }
 
         kryo.writeObject(output, message.length);
@@ -505,7 +505,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(context.getConsensusId(), signatureStorage);
         }
 
         signatureStorage.setProcessed();
@@ -530,7 +530,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         messageOutput.close();
 
         signatureStorage.setDistributed();
-        signatureStorageCache.put(snapShotId, signatureStorage);
+        signatureStorageCache.put(context.getConsensusId(), signatureStorage);
         signatureStorageCache.invalidate(snapShotId);
         lastSent = snapShotId;
 
@@ -844,7 +844,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (!signatureStorage.isDistributed())
             {
-                signatureStorageCache.put(snapShotId, signatureStorage);
+                signatureStorageCache.put(consensusId, signatureStorage);
             }
         }
     }
