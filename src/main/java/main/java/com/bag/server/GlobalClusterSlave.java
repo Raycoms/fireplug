@@ -99,12 +99,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
-
-        for(int i = 0; i < message.length; i++)
-        {
-            Log.getLogger().warn("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId());
-        }
-
         final byte[][] allResults = new byte[message.length][];
         for (int i = 0; i < message.length; i++)
         {
@@ -219,9 +213,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             output.close();
             return returnBytes;
         }
-
-        Log.getLogger().warn("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId() + " reg: " +  messageContext.getRegency() + Arrays.toString(localWriteSet.toArray()));
-
+        
         if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalClusterSlaveId() == 0)
         {
             Log.getLogger().info("Distribute commit to slave!");
@@ -250,7 +242,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
-                    .info("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                    .warn("Found conflict, returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                             + localWriteSet.size()
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
@@ -481,7 +473,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
 
-        //TODO: What is being sent here is not equal to the signature in the signatureStorage1
         proxy.sendMessageToTargets(output.getBuffer(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         output.close();
     }
