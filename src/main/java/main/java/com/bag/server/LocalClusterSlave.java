@@ -227,7 +227,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                     {
                         handleSlaveUpdateMessage(input, output, kryo);
                     }
-                    output.close();
                     input.close();
                     return new byte[0];
                 default:
@@ -246,7 +245,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Return it to sender, size: " + returnValue.length);
 
         input.close();
-        output.close();
         pool.release(kryo);
 
         return returnValue;
