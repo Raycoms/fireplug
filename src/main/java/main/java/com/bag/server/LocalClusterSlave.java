@@ -402,7 +402,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         if (lastKey > snapShotId)
         {
             //Received a message which has been committed in the past already.
-            kryo.writeObject(output, false);
+            kryo.writeObject(output, true);
             return output;
         }
         else if (lastKey == snapShotId)
@@ -463,7 +463,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             return output;
         }
 
-
         if (!wrapper.isGloballyVerified())
         {
             int matchingSignatures = 0;
@@ -475,6 +474,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
                     {
                         Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
+                        Log.getLogger().warn(Arrays.toString(storage.getMessage()) + " : " + Arrays.toString(entry.getValue()));
                     }
                     else
                     {
@@ -492,8 +492,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             if (matchingSignatures < 2)
             {
-                Log.getLogger()
-                        .warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
+                Log.getLogger().info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
                                 + wrapper.getLocalClusterSlaveId());
                 kryo.writeObject(output, false);
                 return output;
@@ -568,7 +567,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             return output;
         }
         buffer.put(snapShotId, localWriteSet);
-        Log.getLogger().warn("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
+        Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
         kryo.writeObject(output, true);
         return output;
     }
