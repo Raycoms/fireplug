@@ -90,28 +90,32 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Every byte array is one request.
      *
-     * @param bytes           the requests.
+     * @param message           the requests.
      * @param messageContexts the contexts.
      * @return the answers of all requests in this batch.
      */
     @Override
-    public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts, final boolean noop)
+    public byte[][] appExecuteBatch(final byte[][] message, final MessageContext[] messageContexts, final boolean noop)
     {
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
 
-        final byte[][] allResults = new byte[bytes.length][];
-        for (int i = 0; i < bytes.length; ++i)
+        for(int i = 0; i < message.length; i++)
+        {
+            Log.getLogger().warn("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId());
+        }
+
+        final byte[][] allResults = new byte[message.length][];
+        for (int i = 0; i < message.length; i++)
         {
             if (messageContexts != null && messageContexts[i] != null)
             {
-                final Input input = new Input(bytes[i]);
+                final Input input = new Input(message[i]);
                 final String type = kryo.readObject(input, String.class);
 
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
                     final Long timeStamp = kryo.readObject(input, Long.class);
-                    Log.getLogger().warn("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId() + " reg: " +  messageContexts[i].getRegency() + timeStamp);
                     final byte[] result = executeCommit(kryo, input, timeStamp, messageContexts[i]);
                     allResults[i] = result;
                 }
