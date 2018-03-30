@@ -602,10 +602,9 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
-        byte[] response = proxy.invokeUnordered(message);
+        byte[] response = null;
         while(response == null)
         {
-            Log.getLogger().warn("F Did null: ");
             response = proxy.invokeUnordered(message);
             if (response != null)
             {
@@ -619,6 +618,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     response = null;
                 }
             }
+            Log.getLogger().warn("Slave update saved, trying again!");
         }
     }
 }
