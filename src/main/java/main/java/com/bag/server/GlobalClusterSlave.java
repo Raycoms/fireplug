@@ -54,7 +54,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Cache which holds the signatureStorages for the consistency.
      */
-    private final Cache<Integer, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
+    private final Cache<Long, SignatureStorage> signatureStorageCache = Caffeine.newBuilder().build();
 
     /**
      * The last sent commit, do not put anything under this number in the signature cache.
@@ -141,7 +141,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             try
             {
-                signatureStorageCache.put(kryo.readObject(input, Integer.class), kryo.readObject(input, SignatureStorage.class));
+                signatureStorageCache.put(kryo.readObject(input, Long.class), kryo.readObject(input, SignatureStorage.class));
             }
             catch (final ClassCastException ex)
             {
@@ -160,9 +160,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().warn("Size at global: " + signatureStorageCache.estimatedSize());
 
-        final Map<Integer, SignatureStorage> copy = signatureStorageCache.asMap();
+        final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
         kryo.writeObject(output, copy.size());
-        for (final Map.Entry<Integer, SignatureStorage> entrySet : copy.entrySet())
+        for (final Map.Entry<Long, SignatureStorage> entrySet : copy.entrySet())
         {
             kryo.writeObject(output, entrySet.getKey());
             kryo.writeObject(output, entrySet.getValue());
@@ -400,7 +400,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(consensusId);
+        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
         if (signatureStorage != null)
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
@@ -410,7 +410,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         + " message of committing server: "
                         + message.length + "id: " + snapShotId);
 
-                final Input messageInput1 = new Input(message);
                 final Input messageInput = new Input(signatureStorage.getMessage());
                 try
                 {
@@ -421,17 +420,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
                     final int f = kryo.readObject(messageInput, Integer.class);
 
-                    final String a1 = kryo.readObject(messageInput1, String.class);
-                    final String b1 = kryo.readObject(messageInput1, String.class);
-                    final long c1 = kryo.readObject(messageInput1, Long.class);
-                    final List d1 = kryo.readObject(messageInput1, ArrayList.class);
-                    final ArrayList<IOperation> e1 = (ArrayList<IOperation>) d1;
-                    final int f1 = kryo.readObject(messageInput1, Integer.class);
-
                     Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
-                    Log.getLogger().warn("Should: " + a1 + " " + b1 + " " + c1 + " " + f1 + " " + Arrays.toString(e1.toArray()));
-                    Log.getLogger().warn("Has: " + "commit" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(localWriteSet.toArray()));
-
+                    Log.getLogger().warn("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(localWriteSet.toArray()));
                 }
                 catch(final Exception ex)
                 {
@@ -439,7 +429,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }
                 finally
                 {
-                    messageInput1.close();
                     messageInput.close();
                 }
             }
@@ -448,7 +437,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            signatureStorageCache.put(consensusId, signatureStorage);
+            signatureStorageCache.put(snapShotId, signatureStorage);
         }
 
         signatureStorage.setProcessed();
@@ -472,13 +461,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
             messageOutput.close();
 
             signatureStorage.setDistributed();
-            signatureStorageCache.put(consensusId, signatureStorage);
-            signatureStorageCache.invalidate(consensusId);
-            lastSent = consensusId;
+            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.invalidate(snapShotId);
+            lastSent = snapShotId;
         }
         else
         {
-            signatureStorageCache.put(consensusId, signatureStorage);
+            signatureStorageCache.put(snapShotId, signatureStorage);
         }
 
         kryo.writeObject(output, message.length);
@@ -523,7 +512,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         signature = context.getProof().iterator().next().getValue();
 
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(context.getConsensusId());
+        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
         if (signatureStorage != null)
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
@@ -537,7 +526,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            signatureStorageCache.put(context.getConsensusId(), signatureStorage);
+            signatureStorageCache.put(snapShotId, signatureStorage);
         }
 
         signatureStorage.setProcessed();
@@ -562,9 +551,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         messageOutput.close();
 
         signatureStorage.setDistributed();
-        signatureStorageCache.put(context.getConsensusId(), signatureStorage);
-        signatureStorageCache.invalidate(context.getConsensusId());
-        lastSent = context.getConsensusId();
+        signatureStorageCache.put(snapShotId, signatureStorage);
+        signatureStorageCache.invalidate(snapShotId);
+        lastSent = snapShotId;
 
         Log.getLogger().info("Finished to update to slave signed by all members: " + snapShotId);
 
@@ -593,12 +582,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final ArrayList<IOperation> localWriteSet;
 
-        if (lastSent > consensusId)
+        if (lastSent > snapShotId)
         {
-            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(consensusId);
+            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
             if (tempStorage == null || tempStorage.isDistributed())
             {
-                signatureStorageCache.invalidate(consensusId);
+                signatureStorageCache.invalidate(snapShotId);
                 return;
             }
         }
@@ -820,8 +809,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
             final Kryo kryo = pool.borrow();
 
-            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(consensusId);
-            signatureStorageCache.invalidate(consensusId);
+            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
+            signatureStorageCache.invalidate(snapShotId);
             if (tempStorage == null)
             {
                 signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
@@ -834,46 +823,27 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                Log.getLogger().warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server "
-                        + message.length + " ws: " + writeSet.size() + " id: " + snapShotId);
-
                 final Input messageInput = new Input(signatureStorage.getMessage());
-                final String a = kryo.readObject(messageInput, String.class);
-                final String b = kryo.readObject(messageInput, String.class);
-                final long c  = kryo.readObject(messageInput, Long.class);
-                final List d = kryo.readObject(messageInput, ArrayList.class);
-                final ArrayList<IOperation> e;
-                messageInput.close();
                 try
                 {
-                    e = (ArrayList<IOperation>) d;
+                    final String a = kryo.readObject(messageInput, String.class);
+                    final String b = kryo.readObject(messageInput, String.class);
+                    final long c = kryo.readObject(messageInput, Long.class);
+                    final List d = kryo.readObject(messageInput, ArrayList.class);
+                    final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
+                    final int f = kryo.readObject(messageInput, Integer.class);
 
+                    Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
+                    Log.getLogger().warn("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(writeSet.toArray()));
                 }
-                catch (final ClassCastException ex)
+                catch(final Exception ex)
                 {
-                    Log.getLogger().warn("Couldn't convert received signature message.", ex);
-                    return;
+                    Log.getLogger().warn(ex);
                 }
-
-                final Input messageInput1 = new Input(message);
-                final String a1 = kryo.readObject(messageInput, String.class);
-                final String b1 = kryo.readObject(messageInput, String.class);
-                final long c1  = kryo.readObject(messageInput, Long.class);
-                final List d1 = kryo.readObject(messageInput, ArrayList.class);
-                final ArrayList<IOperation> e1;
-                messageInput1.close();
-                try
+                finally
                 {
-                    e1 = (ArrayList<IOperation>) d1;
+                    messageInput.close();
                 }
-                catch (final ClassCastException ex)
-                {
-                    Log.getLogger().warn("Couldn't convert received signature message.", ex);
-                    return;
-                }
-
-                Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + Arrays.toString(e.toArray()));
-                Log.getLogger().warn("Should: " + a1 + " " + b1 + " " + c1 + " " + Arrays.toString(e1.toArray()));
             }
 
             if (!decision.equals(signatureStorage.getDecision()))
@@ -908,14 +878,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     messageOutput.close();
                     pool.release(kryo);
 
-                    lastSent = consensusId;
+                    lastSent = snapShotId;
                     signatureStorage.setDistributed();
                 }
             }
 
             if (!signatureStorage.isDistributed())
             {
-                signatureStorageCache.put(consensusId, signatureStorage);
+                signatureStorageCache.put(snapShotId, signatureStorage);
             }
         }
     }
