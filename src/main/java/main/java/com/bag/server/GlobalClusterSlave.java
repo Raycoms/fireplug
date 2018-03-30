@@ -231,6 +231,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }*/
 
+        Log.getLogger().warn("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()));
+
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
@@ -242,8 +244,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
-                    .warn("Found conflict " + messageContext.getConsensusId() + ":" + messageContext.getSequence() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                            + localWriteSet.size()
+                    .warn("Found conflict " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                            + Arrays.toString(localWriteSet.toArray())
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());

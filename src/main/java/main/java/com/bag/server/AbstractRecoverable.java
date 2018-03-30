@@ -471,19 +471,17 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             clients.put(idClient, clientSnapshot);
         }
-        
-        synchronized (commitLock)
+
+        // First sign, then execute:
+        final long currentSnapshot = ++globalSnapshotId;
+        //Execute the transaction.
+        for (final IOperation op : localWriteSet)
         {
-            // First sign, then execute:
-            final long currentSnapshot = ++globalSnapshotId;
-            //Execute the transaction.
-            for (final IOperation op : localWriteSet)
-            {
-                op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, keyLoader, idClient);
-                updateCounts(1, 0, 0, 0);
-            }
-            this.putIntoWriteSet(currentSnapshot, localWriteSet);
+            op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, keyLoader, idClient);
+            updateCounts(1, 0, 0, 0);
         }
+        this.putIntoWriteSet(currentSnapshot, new ArrayList<>(localWriteSet));
+
 
         wrapper.setLastTransactionId(consensusId);
         updateCounts(0, 0, 1, 0);
