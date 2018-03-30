@@ -813,7 +813,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (tempStorage == null)
             {
                 signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-                Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
+                Log.getLogger().warn("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
             }
             else
             {
