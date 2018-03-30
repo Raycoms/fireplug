@@ -888,12 +888,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
     }
 
-    private void updateSlave(final byte[] message)
+    private void updateSlave(final byte[] message, final Kryo kryo)
     {
         if (wrapper.getLocalCluster() != null)
         {
             Log.getLogger().info("Notifying local cluster!");
-            wrapper.getLocalCluster().propagateUpdate(message);
+            wrapper.getLocalCluster().propagateUpdate(message, kryo);
         }
     }
 
@@ -939,20 +939,26 @@ public class GlobalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
-            updateSlave(message);
+            final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
+            final Kryo kryo = pool.borrow();
+
+            updateSlave(message, kryo);
+
+            pool.release(kryo);
         }
 
         /**
          * Update the slave with a transaction.
          *
          * @param message the message to propagate.
+         * @param kryo a kryo instance.
          */
-        private void updateSlave(final byte[] message)
+        private void updateSlave(final byte[] message, final Kryo kryo)
         {
             if (wrapper.getLocalCluster() != null)
             {
                 Log.getLogger().info("Notifying local cluster!");
-                wrapper.getLocalCluster().propagateUpdate(message);
+                wrapper.getLocalCluster().propagateUpdate(message, kryo);
             }
         }
     }
