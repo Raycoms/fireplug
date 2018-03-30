@@ -221,14 +221,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
         }
 
-        if (messageContext.getSequence() < wrapper.getLastTransactionId())
+        if (messageContext.getConsensusId() < wrapper.getLastTransactionId())
         {
             kryo.writeObject(output, Constants.COMMIT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
             final byte[] returnBytes = output.getBuffer();
             output.close();
-            Log.getLogger().warn("Old transaction, pulling it: " + getGlobalSnapshotId() + " compared to: " + messageContext.getSequence());
+            Log.getLogger().warn("Old transaction, pulling it: " + getGlobalSnapshotId() + " compared to: " + messageContext.getConsensusId());
             return returnBytes;
         }
 
@@ -264,11 +264,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
-            super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getSequence());
+            super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
+            Log.getLogger().warn("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId() + " reg: " +  messageContext.getRegency() + Arrays.toString(localWriteSet.toArray()));
             if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
-                Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getSequence());
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getSequence());
+                Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
             }
         }
         else
@@ -505,7 +506,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, localWriteSet);
         kryo.writeObject(output, readSetNode);
         kryo.writeObject(output, readsSetRelationship);
-        kryo.writeObject(output, context.getSequence());
+        kryo.writeObject(output, context.getConsensusId());
 
         final byte[] message = output.toBytes();
         final byte[] signature;
@@ -542,7 +543,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(messageOutput, decision);
         kryo.writeObject(messageOutput, snapShotId);
         kryo.writeObject(messageOutput, signatureStorage);
-        kryo.writeObject(messageOutput, context.getSequence());
+        kryo.writeObject(messageOutput, context.getConsensusId());
 
         Log.getLogger().info("Starting thread to update to slave signed by all members: " + snapShotId);
 
