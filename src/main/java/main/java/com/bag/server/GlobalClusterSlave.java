@@ -442,7 +442,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             signatureStorage.setDistributed();
             signatureStorageCache.put(consensusId, signatureStorage);
-            signatureStorageCache.invalidate(snapShotId);
+            signatureStorageCache.invalidate(consensusId);
             lastSent = snapShotId;
         }
         else
@@ -491,7 +491,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         signature = context.getProof().iterator().next().getValue();
 
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
+        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(context.getConsensusId());
         if (signatureStorage != null)
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
@@ -531,7 +531,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         signatureStorage.setDistributed();
         signatureStorageCache.put(context.getConsensusId(), signatureStorage);
-        signatureStorageCache.invalidate(snapShotId);
+        signatureStorageCache.invalidate(context.getConsensusId());
         lastSent = snapShotId;
 
         Log.getLogger().info("Finished to update to slave signed by all members: " + snapShotId);
@@ -563,10 +563,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (lastSent > snapShotId)
         {
-            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
+            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(consensusId);
             if (tempStorage == null || tempStorage.isDistributed())
             {
-                signatureStorageCache.invalidate(snapShotId);
+                signatureStorageCache.invalidate(consensusId);
                 return;
             }
         }
@@ -785,8 +785,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         synchronized (lock)
         {
-            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
-            signatureStorageCache.invalidate(snapShotId);
+            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(consensusId);
+            signatureStorageCache.invalidate(consensusId);
             if (tempStorage == null)
             {
                 signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
