@@ -8,6 +8,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.util.Constants;
@@ -597,8 +598,9 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Send this update to all other replicas.
      * @param message the message.
+     * @param kryo the kryo instance.
      */
-    public void propagateUpdate(final byte[] message)
+    public void propagateUpdate(final byte[] message, final Kryo kryo)
     {
         byte[] response = null;
         do
@@ -608,7 +610,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             {
                 try (Input input = new Input(response))
                 {
-                    final boolean right = input.readBoolean();
+                    final boolean right = kryo.readObject(input, Boolean.class);
                     if(right)
                     {
                         return;

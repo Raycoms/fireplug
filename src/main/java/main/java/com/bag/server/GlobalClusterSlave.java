@@ -435,7 +435,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(messageOutput, signatureStorage);
             kryo.writeObject(messageOutput, consensusId);
 
-            final MessageThread runnable = new MessageThread(messageOutput.toBytes());
+            final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
             service.submit(runnable);
             messageOutput.close();
 
@@ -453,7 +453,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
 
-        proxy.sendMessageToTargets(output.toBytes(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        //TODO: What is being sent here is not equal to the signature in the signatureStorage1
+        proxy.sendMessageToTargets(output.getBuffer(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         output.close();
     }
 
@@ -524,7 +525,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Starting thread to update to slave signed by all members: " + snapShotId);
 
-        final MessageThread runnable = new MessageThread(messageOutput.toBytes());
+        final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
         service.submit(runnable);
         messageOutput.close();
 
@@ -784,6 +785,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         synchronized (lock)
         {
+            final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+            final Kryo kryo = pool.borrow();
+
             final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(consensusId);
             signatureStorageCache.invalidate(consensusId);
             if (tempStorage == null)
@@ -798,8 +802,46 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (signatureStorage.getMessage().length != message.length)
             {
-                Log.getLogger().info("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server "
+                Log.getLogger().warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of writing server "
                         + message.length + " ws: " + writeSet.size() + " id: " + snapShotId);
+
+                final Input messageInput = new Input(signatureStorage.getMessage());
+                final String a = kryo.readObject(messageInput, String.class);
+                final String b = kryo.readObject(messageInput, String.class);
+                final long c  = kryo.readObject(messageInput, Long.class);
+                final List d = kryo.readObject(messageInput, ArrayList.class);
+                final ArrayList<IOperation> e;
+                messageInput.close();
+                try
+                {
+                    e = (ArrayList<IOperation>) d;
+
+                }
+                catch (final ClassCastException ex)
+                {
+                    Log.getLogger().warn("Couldn't convert received signature message.", ex);
+                    return;
+                }
+
+                final Input messageInput1 = new Input(message);
+                final String a1 = kryo.readObject(messageInput, String.class);
+                final String b1 = kryo.readObject(messageInput, String.class);
+                final long c1  = kryo.readObject(messageInput, Long.class);
+                final List d1 = kryo.readObject(messageInput, ArrayList.class);
+                final ArrayList<IOperation> e1;
+                messageInput1.close();
+                try
+                {
+                    e1 = (ArrayList<IOperation>) d1;
+                }
+                catch (final ClassCastException ex)
+                {
+                    Log.getLogger().warn("Couldn't convert received signature message.", ex);
+                    return;
+                }
+
+                Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + Arrays.toString(e.toArray()));
+                Log.getLogger().warn("Should: " + a1 + " " + b1 + " " + c1 + " " + Arrays.toString(e1.toArray()));
             }
 
             if (!decision.equals(signatureStorage.getDecision()))
@@ -819,8 +861,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
 
                     final Output messageOutput = new Output(100096);
-                    final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-                    final Kryo kryo = pool.borrow();
 
                     kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
                     kryo.writeObject(messageOutput, decision);
