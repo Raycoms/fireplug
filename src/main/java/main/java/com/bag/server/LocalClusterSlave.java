@@ -494,7 +494,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             if (matchingSignatures < 2)
             {
                 Log.getLogger()
-                        .info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
+                        .warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
                                 + wrapper.getLocalClusterSlaveId());
                 kryo.writeObject(output, false);
                 return;
