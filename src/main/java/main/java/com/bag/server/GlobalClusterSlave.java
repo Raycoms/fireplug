@@ -399,8 +399,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        final long sigId = snapShotId * 10000 + consensusId;
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId * 10000 + consensusId);
+        final long sigId = Objects.hash(snapShotId, consensusId);
+        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(sigId);
         if (signatureStorage != null)
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
@@ -446,10 +446,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (signatureStorage.hasEnough())
         {
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-
-
             final Output messageOutput = new Output(100096);
-
             kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
             kryo.writeObject(messageOutput, decision);
             kryo.writeObject(messageOutput, snapShotId);
@@ -510,7 +507,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final byte[] signature;
 
         signature = context.getProof().iterator().next().getValue();
-        final long sigId = snapShotId * 10000 + context.getConsensusId();
+        final long sigId = Objects.hash(snapShotId, context.getConsensusId());
 
         SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(sigId);
         if (signatureStorage != null)
@@ -579,7 +576,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final int consensusId = kryo.readObject(input, Integer.class);
-        final long sigId = snapShotId * 10000 + consensusId;
+        final long sigId = Objects.hash(snapShotId, consensusId);
 
         final ArrayList<IOperation> localWriteSet;
 
@@ -809,7 +806,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
             final Kryo kryo = pool.borrow();
-            final long sigId = snapShotId * 10000 + consensusId;
+            final long sigId = Objects.hash(snapShotId, consensusId);
 
             final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(sigId);
             signatureStorageCache.invalidate(sigId);
@@ -892,15 +889,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
     }
 
-    private void updateSlave(final byte[] message, final Kryo kryo)
-    {
-        if (wrapper.getLocalCluster() != null)
-        {
-            Log.getLogger().info("Notifying local cluster!");
-            wrapper.getLocalCluster().propagateUpdate(message, kryo);
-        }
-    }
-
     @Override
     public void putIntoWriteSet(final long currentSnapshot, final List<IOperation> localWriteSet)
     {
@@ -943,26 +931,20 @@ public class GlobalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
-            final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
-            final Kryo kryo = pool.borrow();
-
-            updateSlave(message, kryo);
-
-            pool.release(kryo);
+            updateSlave(message);
         }
 
         /**
          * Update the slave with a transaction.
          *
          * @param message the message to propagate.
-         * @param kryo a kryo instance.
          */
-        private void updateSlave(final byte[] message, final Kryo kryo)
+        private void updateSlave(final byte[] message)
         {
             if (wrapper.getLocalCluster() != null)
             {
                 Log.getLogger().info("Notifying local cluster!");
-                wrapper.getLocalCluster().propagateUpdate(message, kryo);
+                wrapper.getLocalCluster().propagateUpdate(message);
             }
         }
     }

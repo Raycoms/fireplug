@@ -8,7 +8,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.util.Constants;
@@ -51,11 +50,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final int id;
 
     /**
-     * The id of the local cluster.
-     */
-    private final int localClusterId;
-
-    /**
      * The id of the primary of this slave.
      */
     private int primaryGlobalClusterId = -1;
@@ -91,7 +85,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation);
         this.id = id;
-        this.localClusterId = localClusterId;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
@@ -596,27 +589,12 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Send this update to all other replicas.
      * @param message the message.
-     * @param kryo the kryo instance.
      */
-    public void propagateUpdate(final byte[] message, final Kryo kryo)
+    public void propagateUpdate(final byte[] message)
     {
-        byte[] response = null;
-        do
+        while(proxy.invokeUnordered(message) == null)
         {
-            response = proxy.invokeUnordered(message);
-            if (response != null)
-            {
-                try (Input input = new Input(response))
-                {
-                    final boolean right = kryo.readObject(input, Boolean.class);
-                    if(right)
-                    {
-                        return;
-                    }
-                    response = null;
-                }
-            }
-            Log.getLogger().warn("Slave update saved, trying again!");
-        } while(response == null);
+            Log.getLogger().warn("Slave update failed, no response, trying again!");
+        }
     }
 }
