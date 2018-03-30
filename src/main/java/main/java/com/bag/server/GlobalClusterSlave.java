@@ -97,22 +97,22 @@ public class GlobalClusterSlave extends AbstractRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts, final boolean noop)
     {
+        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+        final Kryo kryo = pool.borrow();
+
         final byte[][] allResults = new byte[bytes.length][];
         for (int i = 0; i < bytes.length; ++i)
         {
             if (messageContexts != null && messageContexts[i] != null)
             {
-                final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-                final Kryo kryo = pool.borrow();
                 final Input input = new Input(bytes[i]);
-
                 final String type = kryo.readObject(input, String.class);
 
                 if (Constants.COMMIT_MESSAGE.equals(type))
                 {
                     final Long timeStamp = kryo.readObject(input, Long.class);
+                    Log.getLogger().warn("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId() + " reg: " +  messageContexts[i].getRegency() + timeStamp);
                     final byte[] result = executeCommit(kryo, input, timeStamp, messageContexts[i]);
-                    pool.release(kryo);
                     allResults[i] = result;
                 }
                 else
@@ -130,6 +130,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
         }
 
+        pool.release(kryo);
         return allResults;
     }
 
@@ -215,6 +216,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        Log.getLogger().warn("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId() + " reg: " +  messageContext.getRegency() + Arrays.toString(localWriteSet.toArray()));
+
         if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalClusterSlaveId() == 0)
         {
             Log.getLogger().info("Distribute commit to slave!");
@@ -265,7 +268,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Comitting: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
-            Log.getLogger().warn("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId() + " reg: " +  messageContext.getRegency() + Arrays.toString(localWriteSet.toArray()));
             if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
                 Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
