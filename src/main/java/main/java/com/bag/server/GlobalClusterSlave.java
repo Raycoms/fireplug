@@ -186,7 +186,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
     {
-        Log.getLogger().warn("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
+        Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
         final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
@@ -237,7 +237,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }*/
 
-        Log.getLogger().warn("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
+        Log.getLogger().info("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
 
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
@@ -271,7 +271,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
-            Log.getLogger().warn("Comitting: " + "signatures" + " " + "commit" + " " + getGlobalSnapshotId() + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
+            Log.getLogger().info("Comitting: " + "signatures" + " " + "commit" + " " + getGlobalSnapshotId() + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
 
             if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
