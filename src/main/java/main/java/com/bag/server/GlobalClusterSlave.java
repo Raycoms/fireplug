@@ -242,7 +242,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateCounts(0, 0, 0, 1);
 
             Log.getLogger()
-                    .warn("Found conflict " + messageContext.getConsensusId() + ":" + messageContext.getSequence() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                    .info("Found conflict " + messageContext.getConsensusId() + ":" + messageContext.getSequence() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                             + localWriteSet.size()
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
@@ -399,7 +399,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
+        final long sigId = snapShotId * 10000 + consensusId;
+        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId * 10000 + consensusId);
         if (signatureStorage != null)
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
@@ -436,7 +437,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(sigId, signatureStorage);
         }
 
         signatureStorage.setProcessed();
@@ -460,13 +461,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
             messageOutput.close();
 
             signatureStorage.setDistributed();
-            signatureStorageCache.put(snapShotId, signatureStorage);
-            signatureStorageCache.invalidate(snapShotId);
+            signatureStorageCache.put(sigId, signatureStorage);
+            signatureStorageCache.invalidate(sigId);
             lastSent = snapShotId;
         }
         else
         {
-            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(sigId, signatureStorage);
         }
 
         kryo.writeObject(output, message.length);
@@ -509,8 +510,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final byte[] signature;
 
         signature = context.getProof().iterator().next().getValue();
+        final long sigId = snapShotId * 10000 + context.getConsensusId();
 
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
+        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(sigId);
         if (signatureStorage != null)
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
@@ -524,7 +526,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().info("Size of message stored is: " + message.length);
             signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            signatureStorageCache.put(snapShotId, signatureStorage);
+            signatureStorageCache.put(sigId, signatureStorage);
         }
 
         signatureStorage.setProcessed();
@@ -549,8 +551,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         messageOutput.close();
 
         signatureStorage.setDistributed();
-        signatureStorageCache.put(snapShotId, signatureStorage);
-        signatureStorageCache.invalidate(snapShotId);
+        signatureStorageCache.put(sigId, signatureStorage);
+        signatureStorageCache.invalidate(sigId);
         lastSent = snapShotId;
 
         Log.getLogger().info("Finished to update to slave signed by all members: " + snapShotId);
@@ -577,15 +579,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
         final int consensusId = kryo.readObject(input, Integer.class);
+        final long sigId = snapShotId * 10000 + consensusId;
 
         final ArrayList<IOperation> localWriteSet;
 
         if (lastSent > snapShotId)
         {
-            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
+            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(sigId);
             if (tempStorage == null || tempStorage.isDistributed())
             {
-                signatureStorageCache.invalidate(snapShotId);
+                signatureStorageCache.invalidate(sigId);
                 return;
             }
         }
@@ -806,9 +809,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
             final Kryo kryo = pool.borrow();
+            final long sigId = snapShotId * 10000 + consensusId;
 
-            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
-            signatureStorageCache.invalidate(snapShotId);
+            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(sigId);
+            signatureStorageCache.invalidate(sigId);
             if (tempStorage == null)
             {
                 signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
@@ -883,7 +887,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (!signatureStorage.isDistributed())
             {
-                signatureStorageCache.put(snapShotId, signatureStorage);
+                signatureStorageCache.put(sigId, signatureStorage);
             }
         }
     }
