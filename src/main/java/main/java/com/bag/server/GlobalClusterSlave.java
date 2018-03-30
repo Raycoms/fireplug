@@ -406,7 +406,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
-                Log.getLogger().info("Message in signatureStorage: "
+                Log.getLogger().warn("Message in signatureStorage: "
                         + signatureStorage.getMessage().length
                         + " message of committing server: "
                         + message.length + "id: " + snapShotId);
