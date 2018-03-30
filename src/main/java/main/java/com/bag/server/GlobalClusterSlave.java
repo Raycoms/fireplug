@@ -410,6 +410,44 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         + signatureStorage.getMessage().length
                         + " message of committing server: "
                         + message.length + "id: " + snapShotId);
+
+                final Input messageInput = new Input(signatureStorage.getMessage());
+                final String a = kryo.readObject(messageInput, String.class);
+                final String b = kryo.readObject(messageInput, String.class);
+                final long c  = kryo.readObject(messageInput, Long.class);
+                final List d = kryo.readObject(messageInput, ArrayList.class);
+                final ArrayList<IOperation> e;
+                messageInput.close();
+                try
+                {
+                    e = (ArrayList<IOperation>) d;
+
+                }
+                catch (final ClassCastException ex)
+                {
+                    Log.getLogger().warn("Couldn't convert received signature message.", ex);
+                    return;
+                }
+
+                final Input messageInput1 = new Input(message);
+                final String a1 = kryo.readObject(messageInput, String.class);
+                final String b1 = kryo.readObject(messageInput, String.class);
+                final long c1  = kryo.readObject(messageInput, Long.class);
+                final List d1 = kryo.readObject(messageInput, ArrayList.class);
+                final ArrayList<IOperation> e1;
+                messageInput1.close();
+                try
+                {
+                    e1 = (ArrayList<IOperation>) d1;
+                }
+                catch (final ClassCastException ex)
+                {
+                    Log.getLogger().warn("Couldn't convert received signature message.", ex);
+                    return;
+                }
+
+                Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + Arrays.toString(e.toArray()));
+                Log.getLogger().warn("Should: " + a1 + " " + b1 + " " + c1 + " " + Arrays.toString(e1.toArray()));
             }
         }
         else
