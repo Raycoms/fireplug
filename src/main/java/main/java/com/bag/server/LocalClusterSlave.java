@@ -225,7 +225,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().info("Received update slave message");
                     synchronized (lock)
                     {
-                        handleSlaveUpdateMessage(input, output, kryo);
+                        output = handleSlaveUpdateMessage(input, output, kryo);
                     }
                     input.close();
                     return new byte[0];
@@ -384,12 +384,13 @@ public class LocalClusterSlave extends AbstractRecoverable
         return output;
     }
 
-    private void handleSlaveUpdateMessage(final Input input, final Output output, final Kryo kryo)
+    private Output handleSlaveUpdateMessage(final Input input, final Output output, final Kryo kryo)
     {
         //Not required. Is primary already dealt with it.
         if (wrapper.getGlobalCluster() != null)
         {
-            return;
+            kryo.writeObject(output, true);
+            return output;
         }
 
         final String decision = kryo.readObject(input, String.class);
@@ -402,13 +403,13 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             //Received a message which has been committed in the past already.
             kryo.writeObject(output, false);
-            return;
+            return output;
         }
         else if (lastKey == snapShotId)
         {
             Log.getLogger().info("Received already committed transaction.");
             kryo.writeObject(output, true);
-            return;
+            return output;
         }
 
         final SignatureStorage storage;
@@ -421,7 +422,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().warn("Unable to cast to SignatureStorage, something went wrong badly.", exp);
             kryo.writeObject(output, false);
-            return;
+            return output;
         }
         final int consensusId = kryo.readObject(input, Integer.class);
 
@@ -459,7 +460,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().warn("Couldn't convert received signature message.", e);
             kryo.writeObject(output, false);
-            return;
+            return output;
         }
 
 
@@ -485,7 +486,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 {
                     Log.getLogger().warn("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
                     kryo.writeObject(output, false);
-                    return;
+                    return output;
                 }
             }
 
@@ -495,7 +496,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                         .warn("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
                                 + wrapper.getLocalClusterSlaveId());
                 kryo.writeObject(output, false);
-                return;
+                return output;
             }
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
@@ -549,7 +550,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                                 + localWriteSet.size()
                                 + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
                 kryo.writeObject(output, false);
-                return;
+                return output;
             }
             Log.getLogger().warn("1: Execute update on slave: " + snapShotId);
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
@@ -564,10 +565,12 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
 
             kryo.writeObject(output, true);
-            return;
+            return output;
         }
         buffer.put(snapShotId, localWriteSet);
         Log.getLogger().warn("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
+        kryo.writeObject(output, true);
+        return output;
     }
 
     @Override
