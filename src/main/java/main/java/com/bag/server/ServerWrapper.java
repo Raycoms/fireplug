@@ -88,14 +88,14 @@ public class ServerWrapper
 
         if(isPrimary)
         {
-            Log.getLogger().warn("Turn on global cluster with id: " + globalServerId);
+            Log.getLogger().error("Turn on global cluster with id: " + globalServerId);
             globalCluster = new GlobalClusterSlave(globalServerId, this, instrumentation);
-            Log.getLogger().warn("Finished turning on global cluster with id: " + globalServerId);
+            Log.getLogger().error("Finished turning on global cluster with id: " + globalServerId);
         }
 
         if(localClusterSlaveId != -1)
         {
-            Log.getLogger().warn("Start local cluster slave with id: "  + localClusterSlaveId);
+            Log.getLogger().error("Start local cluster slave with id: "  + localClusterSlaveId);
             localCluster = new LocalClusterSlave(localClusterSlaveId, this, initialLeaderId, instrumentation);
             if(isPrimary)
             {
@@ -105,7 +105,7 @@ public class ServerWrapper
             {
                 localCluster.setPrimaryGlobalClusterId(initialLeaderId);
             }
-            Log.getLogger().warn("Finished turning on local cluster slave with id: " + localClusterSlaveId);
+            Log.getLogger().error("Finished turning on local cluster slave with id: " + localClusterSlaveId);
         }
 
         final KryoFactory pool = globalCluster != null ? globalCluster.getFactory() : localCluster.getFactory();
@@ -229,7 +229,7 @@ public class ServerWrapper
 
         if (args.length <= 3)
         {
-            Log.getLogger().warn(INVALID_ARGUMENTS);
+            Log.getLogger().error(INVALID_ARGUMENTS);
             return;
         }
 
@@ -239,7 +239,7 @@ public class ServerWrapper
         }
         catch (final NumberFormatException ne)
         {
-            Log.getLogger().warn(INVALID_ARGUMENTS);
+            Log.getLogger().error(INVALID_ARGUMENTS);
             return;
         }
 
@@ -251,7 +251,7 @@ public class ServerWrapper
         }
         catch (final NumberFormatException ne)
         {
-            Log.getLogger().warn(INVALID_ARGUMENTS);
+            Log.getLogger().error(INVALID_ARGUMENTS);
             return;
         }
 
@@ -261,7 +261,7 @@ public class ServerWrapper
         }
         catch (final NumberFormatException ne)
         {
-            Log.getLogger().warn(INVALID_ARGUMENTS);
+            Log.getLogger().error(INVALID_ARGUMENTS);
             return;
         }
 
@@ -272,7 +272,7 @@ public class ServerWrapper
             final boolean useLogging = Boolean.parseBoolean(args[5]);
             if (!useLogging)
             {
-                Log.getLogger().setLevel(Level.WARN);
+                Log.getLogger().setLevel(Level.ERROR);
             }
         }
 
@@ -280,14 +280,14 @@ public class ServerWrapper
         if (args.length >= 7)
         {
             multiVersion = Boolean.parseBoolean(args[6]);
-            Log.getLogger().warn("Starting server with multiVersion: " + multiVersion);
+            Log.getLogger().error("Starting server with multiVersion: " + multiVersion);
         }
 
         boolean globallyVerified = false;
         if (args.length >= 8)
         {
             globallyVerified = Boolean.parseBoolean(args[7]);
-            Log.getLogger().warn("Starting server globally verified: " + globallyVerified);
+            Log.getLogger().error("Starting server globally verified: " + globallyVerified);
         }
 
         @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary, multiVersion, globallyVerified);
@@ -311,7 +311,7 @@ public class ServerWrapper
      */
     public void initNewGlobalClusterInstance()
     {
-        Log.getLogger().warn("Turning it on with new GlobalServerId: " + globalServerId);
+        Log.getLogger().error("Turning it on with new GlobalServerId: " + globalServerId);
         globalCluster = new GlobalClusterSlave(globalServerId, this, new ServerInstrumentation(globalServerId));
     }
 

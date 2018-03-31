@@ -117,8 +117,8 @@ public class Instrumentation
 
         String threadName = Thread.currentThread().getName();
         if (additionalMessage != null)
-            Log.getLogger().warn("\n" + threadName + " ---  Performance (" + additionalMessage + "):\n" + sb.toString());
+            Log.getLogger().error("\n" + threadName + " ---  Performance (" + additionalMessage + "):\n" + sb.toString());
         else
-            Log.getLogger().warn("\n" + threadName + " ---  Performance:\n" + sb.toString());
+            Log.getLogger().error("\n" + threadName + " ---  Performance:\n" + sb.toString());
     }
 }

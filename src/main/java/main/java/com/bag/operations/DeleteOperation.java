@@ -39,7 +39,7 @@ public class DeleteOperation<S extends Serializable> implements IOperation, Seri
         }
         else
         {
-            Log.getLogger().warn("Trying to delete incorrect type in the database.");
+            Log.getLogger().error("Trying to delete incorrect type in the database.");
         }
     }
 

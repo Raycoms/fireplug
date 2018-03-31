@@ -122,7 +122,7 @@ public class TestClient implements BAGClient, ReplyListener
         {
             if(o1.length == 0 || o2.length == 0)
             {
-                Log.getLogger().warn("WOW, 1 of the messages has 0 length");
+                Log.getLogger().error("WOW, 1 of the messages has 0 length");
                 return 0;
             }
 
@@ -132,7 +132,7 @@ public class TestClient implements BAGClient, ReplyListener
 
             if (!messageType1.equals(messageType2))
             {
-                Log.getLogger().warn("Message types differ: " + messageType1 + " : " + messageType2);
+                Log.getLogger().error("Message types differ: " + messageType1 + " : " + messageType2);
                 return -1;
             }
 
@@ -143,18 +143,18 @@ public class TestClient implements BAGClient, ReplyListener
 
                 if (!commit1.equals(commit2))
                 {
-                    Log.getLogger().warn("Commit responses differ: " + commit1 + " : " + commit2);
+                    Log.getLogger().error("Commit responses differ: " + commit1 + " : " + commit2);
                     return -1;
                 }
             }
             else
             {
-                Log.getLogger().warn("Something went wrong, those messages are no commit responses: " + messageType1 + " " + messageType2);
+                Log.getLogger().error("Something went wrong, those messages are no commit responses: " + messageType1 + " " + messageType2);
             }
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Something went wrong deserializing:" + e.toString());
+            Log.getLogger().error("Something went wrong deserializing:" + e.toString());
             return -1;
         }
 
@@ -194,7 +194,7 @@ public class TestClient implements BAGClient, ReplyListener
         initClient();
         readMode = ReadModes.values()[readModeId];
         bagReplyListener = new BAGReplyListener(this, readMode);
-        Log.getLogger().warn("Starting client " + processId + " with read-mode: " + readMode.name());
+        Log.getLogger().error("Starting client " + processId + " with read-mode: " + readMode.name());
     }
 
     /**
@@ -226,7 +226,7 @@ public class TestClient implements BAGClient, ReplyListener
     {
         if (identifier == null && value == null)
         {
-            Log.getLogger().warn("Unsupported write operation");
+            Log.getLogger().error("Unsupported write operation");
             return;
         }
 
@@ -265,7 +265,7 @@ public class TestClient implements BAGClient, ReplyListener
         }
         else
         {
-            Log.getLogger().warn("Unsupported update operation can't update a node with a relationship or vice versa");
+            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
         }
     }
 
@@ -331,7 +331,7 @@ public class TestClient implements BAGClient, ReplyListener
             }
             else
             {
-                Log.getLogger().warn("Unsupported identifier: " + identifier.toString());
+                Log.getLogger().error("Unsupported identifier: " + identifier.toString());
             }
         }
         firstRead = false;
@@ -384,7 +384,7 @@ public class TestClient implements BAGClient, ReplyListener
     {
         if (input == null)
         {
-            Log.getLogger().warn("TimeOut, Didn't receive an answer from the server!");
+            Log.getLogger().error("TimeOut, Didn't receive an answer from the server!");
             return;
         }
 
@@ -419,7 +419,7 @@ public class TestClient implements BAGClient, ReplyListener
                 }
                 catch (final NoSuchAlgorithmException e)
                 {
-                    Log.getLogger().warn("Couldn't add hash for node", e);
+                    Log.getLogger().error("Couldn't add hash for node", e);
                 }
                 if(!tempStorage.getId().equalsIgnoreCase("Dummy"))
                 {
@@ -439,7 +439,7 @@ public class TestClient implements BAGClient, ReplyListener
                 }
                 catch (final NoSuchAlgorithmException e)
                 {
-                    Log.getLogger().warn("Couldn't add hash for relationship", e);
+                    Log.getLogger().error("Couldn't add hash for relationship", e);
                 }
                 readsSetRelationship.add(tempStorage);
             }
@@ -457,7 +457,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (result == null)
         {
-            Log.getLogger().warn("Server returned null, something went incredibly wrong there");
+            Log.getLogger().error("Server returned null, something went incredibly wrong there");
             resetSets();
             return;
         }
@@ -467,7 +467,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (!Constants.COMMIT_RESPONSE.equals(type))
         {
-            Log.getLogger().warn("Incorrect response to commit message");
+            Log.getLogger().error("Incorrect response to commit message");
             input.close();
             resetSets();
             return;
@@ -506,7 +506,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (readOnly && readMode == UNSAFE)
         {
-            Log.getLogger().warn(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
+            Log.getLogger().error(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
             resetSets();
             return;
@@ -599,7 +599,7 @@ public class TestClient implements BAGClient, ReplyListener
 
             if (!Constants.COMMIT_RESPONSE.equals(messageType))
             {
-                Log.getLogger().warn("Incorrect response type to client from server!" + localProxy.getProcessId());
+                Log.getLogger().error("Incorrect response type to client from server!" + localProxy.getProcessId());
                 resetSets();
                 firstRead = true;
                 pool.release(kryo);
@@ -765,7 +765,7 @@ public class TestClient implements BAGClient, ReplyListener
         final byte[] response = localProxy.invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
         if (response == null)
         {
-            Log.getLogger().warn("Server returned null, something went incredibly wrong there");
+            Log.getLogger().error("Server returned null, something went incredibly wrong there");
             return -1;
         }
 

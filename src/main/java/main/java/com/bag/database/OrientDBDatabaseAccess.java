@@ -52,7 +52,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        Log.getLogger().warn("Starting OrientDB database service on " + this.id);
+        Log.getLogger().error("Starting OrientDB database service on " + this.id);
 
         factory = new OrientGraphFactory(BASE_PATH + this.id);
     }
@@ -90,7 +90,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         else
         {
-            Log.getLogger().warn("Can't read data on object: " + identifier.getClass().toString());
+            Log.getLogger().error("Can't read data on object: " + identifier.getClass().toString());
             return Collections.emptyList();
         }
 
@@ -233,11 +233,11 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
             {
                 if(props.getValue() instanceof String)
                 {
-                    Log.getLogger().warn(props.getKey() + " " + props.getValue());
+                    Log.getLogger().error(props.getKey() + " " + props.getValue());
                 }
                 else
                 {
-                    Log.getLogger().warn(props.getKey());
+                    Log.getLogger().error(props.getKey());
                 }
             }
             return Collections.emptyList();
@@ -278,7 +278,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch (NoSuchAlgorithmException e)
         {
-            Log.getLogger().warn("Failed at generating hash in server " + id, e);
+            Log.getLogger().error("Failed at generating hash in server " + id, e);
         }
         finally
         {
@@ -311,7 +311,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute update node transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -339,7 +339,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute create node transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -363,7 +363,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute delete node transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -400,7 +400,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -443,7 +443,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute create relationship transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -472,7 +472,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute delete relationship transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -515,7 +515,7 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
         catch (NoSuchAlgorithmException e)
         {
-            Log.getLogger().warn("Failed at generating hash in server " + id, e);
+            Log.getLogger().error("Failed at generating hash in server " + id, e);
         }
         finally
         {

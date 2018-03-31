@@ -46,7 +46,7 @@ public class RunTests
 
         if (args.length < 5)
         {
-            Log.getLogger().warn("Usage:\n"+
+            Log.getLogger().error("Usage:\n"+
                     "To use BAG: RunTests true serverPartner localClusterId shareOfClient percOfWrites [lowLevelLogging]\n"+
                     "To use direct access: RunTests false serverAddress serverPort shareOfClient percOfWrites [lowLevelLoggin]\n");
             return;

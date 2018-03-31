@@ -47,12 +47,12 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
             }
             else
             {
-                Log.getLogger().warn("Trying to create incorrect type in the database.");
+                Log.getLogger().error("Trying to create incorrect type in the database.");
             }
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Unable to sign nodeStorage ", e);
+            Log.getLogger().error("Unable to sign nodeStorage ", e);
         }
     }
 

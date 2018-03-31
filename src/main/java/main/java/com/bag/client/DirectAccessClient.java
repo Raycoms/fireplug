@@ -113,7 +113,7 @@ public class DirectAccessClient implements BAGClient
     {
         if(identifier == null && value == null)
         {
-            Log.getLogger().warn("Unsupported write operation");
+            Log.getLogger().error("Unsupported write operation");
             return;
         }
 
@@ -152,7 +152,7 @@ public class DirectAccessClient implements BAGClient
         }
         else
         {
-            Log.getLogger().warn("Unsupported update operation can't update a node with a relationship or vice versa");
+            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
         }
     }
 
@@ -172,7 +172,7 @@ public class DirectAccessClient implements BAGClient
         }
         else
         {
-            Log.getLogger().warn("Unsupported update operation can't update a node with a relationship or vice versa");
+            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
         }
     }
 
@@ -193,7 +193,7 @@ public class DirectAccessClient implements BAGClient
         }
         else
         {
-            Log.getLogger().warn("Unsupported update operation can't update a node with a relationship or vice versa");
+            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
         }
     }
 
@@ -206,7 +206,7 @@ public class DirectAccessClient implements BAGClient
             if (item instanceof NodeStorage || item instanceof RelationshipStorage)
                 list.add(item);
             else
-                Log.getLogger().warn("Invalid type to read " + item.getClass().getName());
+                Log.getLogger().error("Invalid type to read " + item.getClass().getName());
         }
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);

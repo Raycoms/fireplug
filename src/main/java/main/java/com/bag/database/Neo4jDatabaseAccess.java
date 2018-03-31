@@ -92,8 +92,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     public void start()
     {
         final File dbPath = new File(BASE_PATH + id);
-        Log.getLogger().warn("Starting neo4j database service on " + id);
-        Log.getLogger().warn("Starting neo4j database with multiVersion " + multiVersion);
+        Log.getLogger().error("Starting neo4j database service on " + id);
+        Log.getLogger().error("Starting neo4j database with multiVersion " + multiVersion);
 
         if (haAddresses == null)
         {
@@ -121,7 +121,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             builder.setConfig(HaSettings.ha_server, servers.get(0));
             builder.setConfig(ClusterSettings.cluster_server, initialHosts.get(id));
             graphDb = builder.newGraphDatabase();
-            Log.getLogger().warn("HA neo4j database started " + id);
+            Log.getLogger().error("HA neo4j database started " + id);
 
             if (id > 0)
             {
@@ -130,7 +130,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     @Override
                     public void run()
                     {
-                        Log.getLogger().warn("Ping...");
+                        Log.getLogger().error("Ping...");
 
                     }
                 }, 0, 60000);
@@ -167,7 +167,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         else
         {
-            Log.getLogger().warn("Can't read data on object: " + identifier.getClass().toString());
+            Log.getLogger().error("Can't read data on object: " + identifier.getClass().toString());
             return Collections.emptyList();
         }
 
@@ -444,7 +444,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
                     catch (final NoSuchAlgorithmException e)
                     {
-                        Log.getLogger().warn("Couldn't execute SHA1 for node", e);
+                        Log.getLogger().error("Couldn't execute SHA1 for node", e);
                     }
                     break;
                 }
@@ -499,7 +499,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute update node transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -534,7 +534,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute create node transaction in server:  " + id, e);
             return false;
         }
         Log.getLogger().info("Executed create node transaction in server:  " + id);
@@ -562,7 +562,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute delete node transaction in server:  " + id, e);
             return false;
         }
         Log.getLogger().info("Executed delete node transaction in server:  " + id);
@@ -624,7 +624,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         catch (final NoSuchAlgorithmException e)
         {
-            Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -667,7 +667,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute create relationship transaction in server:  " + id, e);
             return false;
         }
         Log.getLogger().info("Executed create relationship transaction in server:  " + id);
@@ -703,7 +703,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute delete relationship transaction in server:  " + id, e);
             return false;
         }
         Log.getLogger().info("Executed delete relationship transaction in server:  " + id);
@@ -740,7 +740,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
                     catch (final NoSuchAlgorithmException e)
                     {
-                        Log.getLogger().warn("Couldn't execute SHA1 for relationship", e);
+                        Log.getLogger().error("Couldn't execute SHA1 for relationship", e);
                     }
                     break;
                 }

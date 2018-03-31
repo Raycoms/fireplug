@@ -41,7 +41,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        Log.getLogger().warn("Starting Titan database service on " + id);
+        Log.getLogger().error("Starting Titan database service on " + id);
 
         Logger.getLogger(com.thinkaurelius.titan.graphdb.transaction.StandardTitanTx.class).setLevel(Level.ERROR);
         TitanFactory.Builder config = TitanFactory.build();
@@ -358,7 +358,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute update node transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -386,7 +386,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute create node transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -414,7 +414,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute delete node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute delete node transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -476,7 +476,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -517,7 +517,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute create relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute create relationship transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -556,7 +556,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().warn("Couldn't execute delete relationship transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute delete relationship transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -603,7 +603,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (NoSuchAlgorithmException e)
         {
-            Log.getLogger().warn("Failed at generating hash in server " + id, e);
+            Log.getLogger().error("Failed at generating hash in server " + id, e);
         }
         finally
         {

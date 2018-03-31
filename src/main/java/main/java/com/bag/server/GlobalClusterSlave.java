@@ -102,7 +102,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (messageContexts == null || message == null || message.length != messageContexts.length)
         {
-            Log.getLogger().warn("!!!!!!!!!!!!!!!!!Something is going so badly!!!!!!!!!!!!!!!!!! the message length is != the contxt length");
+            Log.getLogger().error("!!!!!!!!!!!!!!!!!Something is going so badly!!!!!!!!!!!!!!!!!! the message length is != the contxt length");
         }
 
         for(int i = 0; i < message.length; i++)
@@ -129,19 +129,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                     else
                     {
-                        Log.getLogger().warn("Return empty bytes for message type: " + type);
+                        Log.getLogger().error("Return empty bytes for message type: " + type);
                         allResults[i] = makeEmptyAbortResult();
                         updateCounts(0, 0, 0, 1);
                     }
                 }
                 catch (final Exception any)
                 {
-                    Log.getLogger().warn("Any: ", any);
+                    Log.getLogger().error("Any: ", any);
                 }
             }
             else
             {
-                Log.getLogger().warn("Received message with empty context!");
+                Log.getLogger().error("Received message with empty context!");
                 allResults[i] = makeEmptyAbortResult();
                 updateCounts(0, 0, 0, 1);
             }
@@ -163,7 +163,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
             catch (final ClassCastException ex)
             {
-                Log.getLogger().warn("Unable to restore signatureStoreMap entry: " + i + " at server: " + id, ex);
+                Log.getLogger().error("Unable to restore signatureStoreMap entry: " + i + " at server: " + id, ex);
             }
         }
     }
@@ -176,7 +176,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return output;
         }
 
-        Log.getLogger().warn("Size at global: " + signatureStorageCache.estimatedSize());
+        Log.getLogger().error("Size at global: " + signatureStorageCache.estimatedSize());
 
         final Map<Long, SignatureStorage> copy = signatureStorageCache.asMap();
         kryo.writeObject(output, copy.size());
@@ -246,7 +246,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             final byte[] returnBytes = output.getBuffer();
             output.close();
-            Log.getLogger().warn("Old transaction, pulling it: " + getGlobalSnapshotId() + " compared to: " + messageContext.getConsensusId());
+            Log.getLogger().error("Old transaction, pulling it: " + getGlobalSnapshotId() + " compared to: " + messageContext.getConsensusId());
             return returnBytes;
         }*/
 
@@ -338,7 +338,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
+            Log.getLogger().error("Couldn't convert received data to sets. Returning abort", e);
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
@@ -417,7 +417,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Unable to sign message at server " + getId(), e);
+            Log.getLogger().error("Unable to sign message at server " + getId(), e);
             return;
         }
 
@@ -428,7 +428,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             {
                 if (signatureStorage.getMessage().length != output.toBytes().length)
                 {
-                    Log.getLogger().warn("Message in signatureStorage: "
+                    Log.getLogger().error("Message in signatureStorage: "
                             + signatureStorage.getMessage().length
                             + " message of committing server: "
                             + message.length + "id: " + snapShotId);
@@ -443,12 +443,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
                         final int f = kryo.readObject(messageInput, Integer.class);
 
-                        Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
-                        Log.getLogger().warn("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(localWriteSet.toArray()));
+                        Log.getLogger().error("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
+                        Log.getLogger().error("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(localWriteSet.toArray()));
                     }
                     catch (final Exception ex)
                     {
-                        Log.getLogger().warn(ex);
+                        Log.getLogger().error(ex);
                     }
                     finally
                     {
@@ -538,7 +538,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (signatureStorage.getMessage().length != output.toBytes().length)
             {
                 Log.getLogger()
-                        .warn("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
+                        .error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
                                 + snapShotId);
             }
         }
@@ -618,7 +618,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         catch (final ClassCastException e)
         {
-            Log.getLogger().warn("Couldn't convert received signature message.", e);
+            Log.getLogger().error("Couldn't convert received signature message.", e);
             return;
         }
 
@@ -643,7 +643,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Unable to load public key on server " + id + " sent by server " + messageContext.getSender(), e);
+            Log.getLogger().error("Unable to load public key on server " + id + " sent by server " + messageContext.getSender(), e);
             return;
         }
 
@@ -657,7 +657,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        Log.getLogger().warn("Signature doesn't match of message, throwing message away." + id + ":" + messageContext.getSender() + ": " + message + "/" + signature);
+        Log.getLogger().error("Signature doesn't match of message, throwing message away." + id + ":" + messageContext.getSender() + ": " + message + "/" + signature);
     }
 
     @Override
@@ -685,7 +685,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                     catch (final Exception t)
                     {
-                        Log.getLogger().warn("Error on " + Constants.READ_MESSAGE + ", returning empty read", t);
+                        Log.getLogger().error("Error on " + Constants.READ_MESSAGE + ", returning empty read", t);
                         output.close();
                         output = makeEmptyReadResponse(Constants.READ_MESSAGE, kryo);
                     }
@@ -699,7 +699,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                     catch (final Exception t)
                     {
-                        Log.getLogger().warn("Error on " + Constants.RELATIONSHIP_READ_MESSAGE + ", returning empty read", t);
+                        Log.getLogger().error("Error on " + Constants.RELATIONSHIP_READ_MESSAGE + ", returning empty read", t);
                         output = makeEmptyReadResponse(Constants.RELATIONSHIP_READ_MESSAGE, kryo);
                     }
                     break;
@@ -731,7 +731,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     Log.getLogger().info("Return it to client, size: " + result.length);
                     return result;
                 default:
-                    Log.getLogger().warn("Incorrect operation sent unordered to the server");
+                    Log.getLogger().error("Incorrect operation sent unordered to the server");
                     break;
             }
             returnValue = output.getBuffer();
@@ -853,12 +853,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
                     final int f = kryo.readObject(messageInput, Integer.class);
 
-                    Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
-                    Log.getLogger().warn("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(writeSet.toArray()));
+                    Log.getLogger().error("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
+                    Log.getLogger().error("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(writeSet.toArray()));
                 }
                 catch(final Exception ex)
                 {
-                    Log.getLogger().warn(ex);
+                    Log.getLogger().error(ex);
                 }
                 finally
                 {
@@ -868,7 +868,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (!decision.equals(signatureStorage.getDecision()))
             {
-                Log.getLogger().warn("Replica: " + id + " did receive a different decision of replica: " + context.getSender() + ". Might be corrupted.");
+                Log.getLogger().error("Replica: " + id + " did receive a different decision of replica: " + context.getSender() + ". Might be corrupted.");
                 return;
             }
             signatureStorage.addSignatures(context.getSender(), signature);

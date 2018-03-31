@@ -158,14 +158,14 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
                 else
                 {
-                    Log.getLogger().warn("Return empty bytes for message type: " + type);
+                    Log.getLogger().error("Return empty bytes for message type: " + type);
                     allResults[i] = makeEmptyAbortResult();
                     updateCounts(0, 0, 0, 1);
                 }
             }
             else
             {
-                Log.getLogger().warn("Received message with empty context!");
+                Log.getLogger().error("Received message with empty context!");
                 allResults[i] = makeEmptyAbortResult();
                 updateCounts(0, 0, 0, 1);
             }
@@ -224,18 +224,18 @@ public class LocalClusterSlave extends AbstractRecoverable
                             output = handleSlaveUpdateMessage(input, output, kryo);
                             if (output == null)
                             {
-                                Log.getLogger().warn("Error, error, null output detected");
+                                Log.getLogger().error("Error, error, null output detected");
                             }
                         }
                         catch(final Exception ex)
                         {
-                            Log.getLogger().warn("Local: ", ex);
+                            Log.getLogger().error("Local: ", ex);
                         }
                     }
                     input.close();
                     return new byte[0];
                 default:
-                    Log.getLogger().warn("Incorrect operation sent unordered to the server");
+                    Log.getLogger().error("Incorrect operation sent unordered to the server");
                     output.close();
                     input.close();
                     return new byte[0];
@@ -292,7 +292,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Couldn't convert received data to sets. Returning abort", e);
+            Log.getLogger().error("Couldn't convert received data to sets. Returning abort", e);
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
@@ -363,7 +363,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if (messageContext.getLeader() == oldPrimary)
         {
-            Log.getLogger().warn("Slave: " + newPrimary + "tried to register as new primary.");
+            Log.getLogger().error("Slave: " + newPrimary + "tried to register as new primary.");
         }
         return output;
     }
@@ -425,7 +425,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
         catch (final ClassCastException exp)
         {
-            Log.getLogger().warn("Unable to cast to SignatureStorage, something went wrong badly.", exp);
+            Log.getLogger().error("Unable to cast to SignatureStorage, something went wrong badly.", exp);
             kryo.writeObject(output, false);
             return output;
         }
@@ -463,7 +463,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
         catch (final ClassCastException e)
         {
-            Log.getLogger().warn("Couldn't convert received signature message.", e);
+            Log.getLogger().error("Couldn't convert received signature message.", e);
             kryo.writeObject(output, false);
             return output;
         }
@@ -478,8 +478,8 @@ public class LocalClusterSlave extends AbstractRecoverable
                 {
                     if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
                     {
-                        Log.getLogger().warn("Signature of server: " + entry.getKey() + " doesn't match");
-                        Log.getLogger().warn(Arrays.toString(storage.getMessage()) + " : " + Arrays.toString(entry.getValue()));
+                        Log.getLogger().error("Signature of server: " + entry.getKey() + " doesn't match");
+                        Log.getLogger().error(Arrays.toString(storage.getMessage()) + " : " + Arrays.toString(entry.getValue()));
                     }
                     else
                     {
@@ -489,7 +489,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
                 catch (final Exception e)
                 {
-                    Log.getLogger().warn("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
+                    Log.getLogger().error("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
                     kryo.writeObject(output, false);
                     return output;
                 }
@@ -508,7 +508,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         //Code to dynamically reconfigure the local cluster!
         /*if (getGlobalSnapshotId() == 1000 && id == 2 && localClusterId == 0)
         {
-            Log.getLogger().warn("Instantiating new global cluster");
+            Log.getLogger().error("Instantiating new global cluster");
 
             final Thread t = new Thread(new Runnable()
             {
@@ -532,7 +532,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     }
                     catch (final InterruptedException e)
                     {
-                        Log.getLogger().warn("Error instantiating new Replica", e);
+                        Log.getLogger().error("Error instantiating new Replica", e);
                     }
                 }
             });
@@ -550,7 +550,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
             {
                 Log.getLogger()
-                        .warn("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                        .error("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                                 + localWriteSet.size()
                                 + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
                 kryo.writeObject(output, false);
@@ -605,7 +605,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         while(proxy.invokeUnordered(message) == null)
         {
-            Log.getLogger().warn("Slave update failed, no response, trying again!");
+            Log.getLogger().error("Slave update failed, no response, trying again!");
         }
     }
 }

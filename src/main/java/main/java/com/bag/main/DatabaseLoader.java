@@ -160,7 +160,7 @@ public class DatabaseLoader
             case Constants.ORIENTDB:
                 return new OrientDBDatabaseAccess(globalServerId);
             default:
-                Log.getLogger().warn("Invalid databaseAccess - default to emptyDB.");
+                Log.getLogger().error("Invalid databaseAccess - default to emptyDB.");
                 return new EmptyDatabaseAccess();
         }
     }

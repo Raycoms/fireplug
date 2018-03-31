@@ -30,7 +30,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        Log.getLogger().warn("Starting Sparksee database service on " + id);
+        Log.getLogger().error("Starting Sparksee database service on " + id);
         SparkseeProperties.load("config/sparksee.cfg");
         final SparkseeConfig cfg = new SparkseeConfig();
         sparksee = new Sparksee(cfg);
@@ -44,13 +44,13 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             db = sparksee.open(location, false);
         } catch (Exception e1)
         {
-            Log.getLogger().warn("Unable to open Sparksee.");
+            Log.getLogger().error("Unable to open Sparksee.");
             try
             {
                 db = sparksee.create(location, "HelloSparksee");
             } catch (Exception e2)
             {
-                Log.getLogger().warn("Unable to create an instance of Sparksee!");
+                Log.getLogger().error("Unable to create an instance of Sparksee!");
             }
         }
     }
@@ -94,7 +94,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         else
         {
-            Log.getLogger().warn("Can't read data on object: " + identifier.getClass().toString());
+            Log.getLogger().error("Can't read data on object: " + identifier.getClass().toString());
             return Collections.emptyList();
         }
 
@@ -328,12 +328,12 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         catch (NoSuchAlgorithmException e)
         {
-            Log.getLogger().warn("Couldn't execute SHA1 for node", e);
+            Log.getLogger().error("Couldn't execute SHA1 for node", e);
         }
         catch (RuntimeException e)
         {
             return false;
-            //Log.getLogger().warn("Couldn't execute the query, return false at sparksee");
+            //Log.getLogger().error("Couldn't execute the query, return false at sparksee");
         }
         finally
         {
@@ -369,7 +369,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         catch (NoSuchAlgorithmException e)
         {
-            Log.getLogger().warn("Couldn't execute SHA1 for node", e);
+            Log.getLogger().error("Couldn't execute SHA1 for node", e);
         }
         finally
         {
@@ -480,7 +480,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
             }
             catch (NoSuchAlgorithmException e)
             {
-                Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+                Log.getLogger().error("Couldn't execute update node transaction in server:  " + id, e);
                 sess.close();
                 return false;
             }
@@ -518,7 +518,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         catch (NoSuchAlgorithmException e)
         {
-            Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
+            Log.getLogger().error("Couldn't execute create node transaction in server:  " + id, e);
             return false;
         }
         finally
@@ -578,7 +578,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 }
                 catch (NoSuchAlgorithmException e)
                 {
-                    Log.getLogger().warn("Couldn't execute update node transaction in server:  " + id, e);
+                    Log.getLogger().error("Couldn't execute update node transaction in server:  " + id, e);
                     sess.close();
                     return false;
                 }
@@ -647,7 +647,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 }
                 catch (NoSuchAlgorithmException e)
                 {
-                    Log.getLogger().warn("Couldn't execute create node transaction in server:  " + id, e);
+                    Log.getLogger().error("Couldn't execute create node transaction in server:  " + id, e);
                     endObjs.close();
                     startObjs.close();
                     startIt.close();

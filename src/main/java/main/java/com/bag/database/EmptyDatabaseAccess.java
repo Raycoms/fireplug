@@ -20,7 +20,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        Log.getLogger().warn("Starting EMPTY Database");
+        Log.getLogger().error("Starting EMPTY Database");
         /*
          * Nothing to do here.
          */

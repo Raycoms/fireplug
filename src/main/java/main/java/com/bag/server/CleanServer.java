@@ -122,7 +122,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause)
     {
-        Log.getLogger().warn("Exception caused in transfer", cause);
+        Log.getLogger().error("Exception caused in transfer", cause);
         ctx.close();
     }
 

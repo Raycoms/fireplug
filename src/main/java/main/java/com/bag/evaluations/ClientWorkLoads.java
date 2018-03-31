@@ -247,7 +247,7 @@ public class ClientWorkLoads
             }
             catch (IOException e)
             {
-                Log.getLogger().warn("Error reading file", e);
+                Log.getLogger().error("Error reading file", e);
             }
             finally
             {

@@ -71,7 +71,7 @@ public class BAGReplyListener implements ReplyListener
 
         if (!Constants.COMMIT_RESPONSE.equals(messageType))
         {
-            Log.getLogger().warn("Incorrect response type to client from server! ReqId: " + tomMessage.destination + "type: " + messageType + " ");
+            Log.getLogger().error("Incorrect response type to client from server! ReqId: " + tomMessage.destination + "type: " + messageType + " ");
             testClient.resetSets();
             testClient.setFirstRead(true);
             pool.release(kryo);
@@ -87,7 +87,7 @@ public class BAGReplyListener implements ReplyListener
         }
         else
         {
-            Log.getLogger().warn("Two different responses to client from servers! ReqId: " + tomMessage.destination);
+            Log.getLogger().error("Two different responses to client from servers! ReqId: " + tomMessage.destination);
             testClient.resetSets();
             testClient.setFirstRead(true);
             pool.release(kryo);
