@@ -22,7 +22,7 @@ for i in range(0, total_servers):
 	servers[i] = int(servers[i])
 
 if len(servers) != cluster_size *total_clusters:
-    (print "servers are not cluster size times total clusters")
+    print("servers are not cluster size times total clusters")
 	sys.exit(-1)
 
 print("cluster_size: %d"%cluster_size)
@@ -34,7 +34,7 @@ print(servers)
 
 # create global strings
 global_strings = [] #a list[server]
-print('    global:')
+print("    global:")
 for i in range(0, total_servers):
 	ip = "%s.%d"%(partial_ip, servers[i])
 	port = initial_global_port + (port_step *i)
