@@ -476,7 +476,7 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
         catch (Exception e)
         {
-            Log.getLogger().error("Couldn't execute update relationship transaction in server:  " + id, e);
+            Log.getLogger().warn("Couldn't execute update relationship transaction in server:  " + id, e);
             return false;
         }
         finally

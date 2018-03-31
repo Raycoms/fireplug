@@ -50,7 +50,7 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
                 db = sparksee.create(location, "HelloSparksee");
             } catch (Exception e2)
             {
-                Log.getLogger().error("Unable to create an instance of Sparksee!");
+                Log.getLogger().warn("Unable to create an instance of Sparksee!");
             }
         }
     }

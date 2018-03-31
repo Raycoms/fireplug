@@ -158,14 +158,14 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
                 else
                 {
-                    Log.getLogger().error("Return empty bytes for message type: " + type);
+                    Log.getLogger().warn("Return empty bytes for message type: " + type);
                     allResults[i] = makeEmptyAbortResult();
                     updateCounts(0, 0, 0, 1);
                 }
             }
             else
             {
-                Log.getLogger().error("Received message with empty context!");
+                Log.getLogger().warn("Received message with empty context!");
                 allResults[i] = makeEmptyAbortResult();
                 updateCounts(0, 0, 0, 1);
             }
@@ -224,12 +224,12 @@ public class LocalClusterSlave extends AbstractRecoverable
                             output = handleSlaveUpdateMessage(input, output, kryo);
                             if (output == null)
                             {
-                                Log.getLogger().error("Error, error, null output detected");
+                                Log.getLogger().warn("Error, error, null output detected");
                             }
                         }
                         catch(final Exception ex)
                         {
-                            Log.getLogger().error("Local: ", ex);
+                            Log.getLogger().warn("Local: ", ex);
                         }
                     }
                     input.close();

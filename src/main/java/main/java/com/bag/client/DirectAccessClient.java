@@ -206,7 +206,7 @@ public class DirectAccessClient implements BAGClient
             if (item instanceof NodeStorage || item instanceof RelationshipStorage)
                 list.add(item);
             else
-                Log.getLogger().error("Invalid type to read " + item.getClass().getName());
+                Log.getLogger().warn("Invalid type to read " + item.getClass().getName());
         }
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);

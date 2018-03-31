@@ -122,7 +122,7 @@ public class TestClient implements BAGClient, ReplyListener
         {
             if(o1.length == 0 || o2.length == 0)
             {
-                Log.getLogger().error("WOW, 1 of the messages has 0 length");
+                Log.getLogger().warn("WOW, 1 of the messages has 0 length");
                 return 0;
             }
 
@@ -132,7 +132,7 @@ public class TestClient implements BAGClient, ReplyListener
 
             if (!messageType1.equals(messageType2))
             {
-                Log.getLogger().error("Message types differ: " + messageType1 + " : " + messageType2);
+                Log.getLogger().warn("Message types differ: " + messageType1 + " : " + messageType2);
                 return -1;
             }
 
@@ -143,18 +143,18 @@ public class TestClient implements BAGClient, ReplyListener
 
                 if (!commit1.equals(commit2))
                 {
-                    Log.getLogger().error("Commit responses differ: " + commit1 + " : " + commit2);
+                    Log.getLogger().warn("Commit responses differ: " + commit1 + " : " + commit2);
                     return -1;
                 }
             }
             else
             {
-                Log.getLogger().error("Something went wrong, those messages are no commit responses: " + messageType1 + " " + messageType2);
+                Log.getLogger().warn("Something went wrong, those messages are no commit responses: " + messageType1 + " " + messageType2);
             }
         }
         catch (final Exception e)
         {
-            Log.getLogger().error("Something went wrong deserializing:" + e.toString());
+            Log.getLogger().warn("Something went wrong deserializing:" + e.toString());
             return -1;
         }
 

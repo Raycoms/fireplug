@@ -102,7 +102,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (messageContexts == null || message == null || message.length != messageContexts.length)
         {
-            Log.getLogger().error("!!!!!!!!!!!!!!!!!Something is going so badly!!!!!!!!!!!!!!!!!! the message length is != the contxt length");
+            Log.getLogger().warn("!!!!!!!!!!!!!!!!!Something is going so badly!!!!!!!!!!!!!!!!!! the message length is != the contxt length");
         }
 
         for(int i = 0; i < message.length; i++)
@@ -129,19 +129,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                     else
                     {
-                        Log.getLogger().error("Return empty bytes for message type: " + type);
+                        Log.getLogger().warn("Return empty bytes for message type: " + type);
                         allResults[i] = makeEmptyAbortResult();
                         updateCounts(0, 0, 0, 1);
                     }
                 }
                 catch (final Exception any)
                 {
-                    Log.getLogger().error("Any: ", any);
+                    Log.getLogger().warn("Any: ", any);
                 }
             }
             else
             {
-                Log.getLogger().error("Received message with empty context!");
+                Log.getLogger().warn("Received message with empty context!");
                 allResults[i] = makeEmptyAbortResult();
                 updateCounts(0, 0, 0, 1);
             }
@@ -685,7 +685,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                     catch (final Exception t)
                     {
-                        Log.getLogger().error("Error on " + Constants.READ_MESSAGE + ", returning empty read", t);
+                        Log.getLogger().warn("Error on " + Constants.READ_MESSAGE + ", returning empty read", t);
                         output.close();
                         output = makeEmptyReadResponse(Constants.READ_MESSAGE, kryo);
                     }
@@ -699,7 +699,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     }
                     catch (final Exception t)
                     {
-                        Log.getLogger().error("Error on " + Constants.RELATIONSHIP_READ_MESSAGE + ", returning empty read", t);
+                        Log.getLogger().warn("Error on " + Constants.RELATIONSHIP_READ_MESSAGE + ", returning empty read", t);
                         output = makeEmptyReadResponse(Constants.RELATIONSHIP_READ_MESSAGE, kryo);
                     }
                     break;
