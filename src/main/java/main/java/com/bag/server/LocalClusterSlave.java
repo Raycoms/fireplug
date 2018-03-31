@@ -146,11 +146,18 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
                 else if (Constants.UPDATE_SLAVE.equals(type))
                 {
-                    final Output output = new Output(0, 1024);
+                    Output output = new Output(0, 1024);
                     Log.getLogger().info("Received update slave message");
                     synchronized (lock)
                     {
-                        handleSlaveUpdateMessage(input, output, kryo);
+                        try
+                        {
+                            output = handleSlaveUpdateMessage(input, output, kryo);
+                        }
+                        catch(final Exception ex)
+                        {
+                            Log.getLogger().error("Local: ", ex);
+                        }
                     }
                     allResults[i] = output.getBuffer();
                     output.close();
@@ -222,10 +229,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                         try
                         {
                             output = handleSlaveUpdateMessage(input, output, kryo);
-                            if (output == null)
-                            {
-                                Log.getLogger().error("Error, error, null output detected");
-                            }
                         }
                         catch(final Exception ex)
                         {
@@ -389,7 +392,8 @@ public class LocalClusterSlave extends AbstractRecoverable
         return output;
     }
 
-    private Output handleSlaveUpdateMessage(final Input input, final Output output, final Kryo kryo)
+    @NotNull
+    private Output handleSlaveUpdateMessage(final Input input, @NotNull final Output output, final Kryo kryo)
     {
         //Not required. Is primary already dealt with it.
         if (wrapper.getGlobalCluster() != null)
@@ -497,7 +501,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             if (matchingSignatures < 2)
             {
-                Log.getLogger().info("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
+                Log.getLogger().error("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
                                 + wrapper.getLocalClusterSlaveId());
                 kryo.writeObject(output, false);
                 return output;
