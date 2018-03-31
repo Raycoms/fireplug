@@ -421,71 +421,74 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
 
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
-        if (signatureStorage != null)
+        synchronized (lock)
         {
-            if (signatureStorage.getMessage().length != output.toBytes().length)
+            SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
+            if (signatureStorage != null)
             {
-                Log.getLogger().warn("Message in signatureStorage: "
-                        + signatureStorage.getMessage().length
-                        + " message of committing server: "
-                        + message.length + "id: " + snapShotId);
+                if (signatureStorage.getMessage().length != output.toBytes().length)
+                {
+                    Log.getLogger().warn("Message in signatureStorage: "
+                            + signatureStorage.getMessage().length
+                            + " message of committing server: "
+                            + message.length + "id: " + snapShotId);
 
-                final Input messageInput = new Input(signatureStorage.getMessage());
-                try
-                {
-                    final String a = kryo.readObject(messageInput, String.class);
-                    final String b = kryo.readObject(messageInput, String.class);
-                    final long c = kryo.readObject(messageInput, Long.class);
-                    final List d = kryo.readObject(messageInput, ArrayList.class);
-                    final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
-                    final int f = kryo.readObject(messageInput, Integer.class);
+                    final Input messageInput = new Input(signatureStorage.getMessage());
+                    try
+                    {
+                        final String a = kryo.readObject(messageInput, String.class);
+                        final String b = kryo.readObject(messageInput, String.class);
+                        final long c = kryo.readObject(messageInput, Long.class);
+                        final List d = kryo.readObject(messageInput, ArrayList.class);
+                        final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
+                        final int f = kryo.readObject(messageInput, Integer.class);
 
-                    Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
-                    Log.getLogger().warn("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(localWriteSet.toArray()));
-                }
-                catch(final Exception ex)
-                {
-                    Log.getLogger().warn(ex);
-                }
-                finally
-                {
-                    messageInput.close();
+                        Log.getLogger().warn("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
+                        Log.getLogger().warn("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(localWriteSet.toArray()));
+                    }
+                    catch (final Exception ex)
+                    {
+                        Log.getLogger().warn(ex);
+                    }
+                    finally
+                    {
+                        messageInput.close();
+                    }
                 }
             }
-        }
-        else
-        {
-            Log.getLogger().info("Size of message stored is: " + message.length);
-            signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            signatureStorageCache.put(snapShotId, signatureStorage);
-        }
+            else
+            {
+                Log.getLogger().info("Size of message stored is: " + message.length);
+                signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
+                signatureStorageCache.put(snapShotId, signatureStorage);
+            }
 
-        signatureStorage.setProcessed();
-        Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
-        signatureStorage.addSignatures(idClient, signature);
-        if (signatureStorage.hasEnough())
-        {
-            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-            final Output messageOutput = new Output(100096);
-            kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-            kryo.writeObject(messageOutput, decision);
-            kryo.writeObject(messageOutput, snapShotId);
-            kryo.writeObject(messageOutput, signatureStorage);
-            kryo.writeObject(messageOutput, consensusId);
+            signatureStorage.setProcessed();
+            Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+            signatureStorage.addSignatures(idClient, signature);
+            if (signatureStorage.hasEnough())
+            {
+                Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+                final Output messageOutput = new Output(100096);
+                kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+                kryo.writeObject(messageOutput, decision);
+                kryo.writeObject(messageOutput, snapShotId);
+                kryo.writeObject(messageOutput, signatureStorage);
+                kryo.writeObject(messageOutput, consensusId);
 
-            final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
-            service.submit(runnable);
-            messageOutput.close();
+                final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+                service.submit(runnable);
+                messageOutput.close();
 
-            signatureStorage.setDistributed();
-            signatureStorageCache.put(snapShotId, signatureStorage);
-            signatureStorageCache.invalidate(snapShotId);
-            lastSent = snapShotId;
-        }
-        else
-        {
-            signatureStorageCache.put(snapShotId, signatureStorage);
+                signatureStorage.setDistributed();
+                signatureStorageCache.put(snapShotId, signatureStorage);
+                signatureStorageCache.invalidate(snapShotId);
+                lastSent = snapShotId;
+            }
+            else
+            {
+                signatureStorageCache.put(snapShotId, signatureStorage);
+            }
         }
 
         kryo.writeObject(output, message.length);
