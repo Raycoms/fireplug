@@ -219,7 +219,18 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().info("Received update slave message");
                     synchronized (lock)
                     {
-                        output = handleSlaveUpdateMessage(input, output, kryo);
+                        try
+                        {
+                            output = handleSlaveUpdateMessage(input, output, kryo);
+                            if (output == null)
+                            {
+                                Log.getLogger().error("Error, error, null output detected");
+                            }
+                        }
+                        catch(final Exception ex)
+                        {
+                            Log.getLogger().error("Local: ", ex);
+                        }
                     }
                     input.close();
                     return new byte[0];
