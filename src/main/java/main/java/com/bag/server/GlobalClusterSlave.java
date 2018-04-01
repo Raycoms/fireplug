@@ -499,7 +499,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (signatureStorageCache.estimatedSize() > 100)
         {
             Log.getLogger().error("Uuuuhhhhuuuu, signature storage cache is toooo huge");
-            for(final Map.Entry<Long, SignatureStorage> sig = signatureStorageCache.asMap())
+            for(final Map.Entry<Long, SignatureStorage> sig : signatureStorageCache.asMap().entrySet())
             {
                 if (!sig.getValue().isDistributed())
                 {
