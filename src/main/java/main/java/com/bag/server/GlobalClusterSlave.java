@@ -952,7 +952,14 @@ public class GlobalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
-            updateSlave(message);
+            try
+            {
+                updateSlave(message);
+            }
+            catch(final Exception ex)
+            {
+                Log.getLogger().warn("Exc: ", ex);
+            }
         }
 
         /**
