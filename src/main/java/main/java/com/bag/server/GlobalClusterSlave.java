@@ -496,9 +496,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
         }
 
-        if (signatureStorageCache.estimatedSize() > 10000)
+        if (signatureStorageCache.estimatedSize() > 100)
         {
             Log.getLogger().error("Uuuuhhhhuuuu, signature storage cache is toooo huge");
+            for(final Map.Entry<Long, SignatureStorage> sig = signatureStorageCache.asMap())
+            {
+                if (!sig.getValue().isDistributed())
+                {
+                    Log.getLogger().warn(sig.getKey() + " sigs: " + sig.getValue().hasEnough());
+                }
+            }
         }
 
         kryo.writeObject(output, message.length);
