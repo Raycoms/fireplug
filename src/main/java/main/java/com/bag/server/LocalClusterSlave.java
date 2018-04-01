@@ -127,59 +127,67 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts, final boolean bim)
     {
-        final byte[][] allResults = new byte[bytes.length][];
-        for (int i = 0; i < bytes.length; ++i)
+        try
         {
-            if (messageContexts != null && messageContexts[i] != null)
+            final byte[][] allResults = new byte[bytes.length][];
+            for (int i = 0; i < bytes.length; ++i)
             {
-                final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-                final Kryo kryo = pool.borrow();
-                final Input input = new Input(bytes[i]);
-
-                final String type = kryo.readObject(input, String.class);
-
-                if (Constants.COMMIT_MESSAGE.equals(type))
+                if (messageContexts != null && messageContexts[i] != null)
                 {
-                    final byte[] result = handleReadOnlyCommit(input, kryo);
-                    pool.release(kryo);
-                    allResults[i] = result;
-                }
-                else if (Constants.UPDATE_SLAVE.equals(type))
-                {
-                    Output output = new Output(0, 1024);
-                    Log.getLogger().error("Received update slave message ordered");
-                    synchronized (lock)
+                    final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+                    final Kryo kryo = pool.borrow();
+                    final Input input = new Input(bytes[i]);
+
+                    final String type = kryo.readObject(input, String.class);
+
+                    if (Constants.COMMIT_MESSAGE.equals(type))
                     {
-                        try
-                        {
-                            output = handleSlaveUpdateMessage(input, output, kryo);
-                        }
-                        catch(final Exception ex)
-                        {
-                            Log.getLogger().error("Local: ", ex);
-                        }
+                        final byte[] result = handleReadOnlyCommit(input, kryo);
+                        pool.release(kryo);
+                        allResults[i] = result;
                     }
-                    Log.getLogger().error("Leaving update slave message ordered");
-                    allResults[i] = output.getBuffer();
-                    output.close();
-                    input.close();
+                    else if (Constants.UPDATE_SLAVE.equals(type))
+                    {
+                        Output output = new Output(0, 1024);
+                        Log.getLogger().error("Received update slave message ordered");
+                        synchronized (lock)
+                        {
+                            try
+                            {
+                                output = handleSlaveUpdateMessage(input, output, kryo);
+                            }
+                            catch (final Exception ex)
+                            {
+                                Log.getLogger().error("Local: ", ex);
+                            }
+                        }
+                        Log.getLogger().error("Leaving update slave message ordered");
+                        allResults[i] = output.getBuffer();
+                        output.close();
+                        input.close();
+                    }
+                    else
+                    {
+                        Log.getLogger().error("Return empty bytes for message type: " + type);
+                        allResults[i] = makeEmptyAbortResult();
+                        updateCounts(0, 0, 0, 1);
+                    }
                 }
                 else
                 {
-                    Log.getLogger().error("Return empty bytes for message type: " + type);
+                    Log.getLogger().error("Received message with empty context!");
                     allResults[i] = makeEmptyAbortResult();
                     updateCounts(0, 0, 0, 1);
                 }
             }
-            else
-            {
-                Log.getLogger().error("Received message with empty context!");
-                allResults[i] = makeEmptyAbortResult();
-                updateCounts(0, 0, 0, 1);
-            }
+            return allResults;
+        }
+        catch(final Exception ex)
+        {
+            Log.getLogger().error("Something going wrong in the execute batch", ex);
         }
 
-        return allResults;
+        return new byte[0][0];
     }
 
     @Override
@@ -245,6 +253,11 @@ public class LocalClusterSlave extends AbstractRecoverable
                     return new byte[0];
             }
             returnValue = output.getBuffer();
+        }
+        catch(final Exception ex)
+        {
+            returnValue = new byte[]{0};
+            Log.getLogger().error("Something going wrong in the unordered execution", ex);
         }
         finally
         {
