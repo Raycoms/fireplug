@@ -496,6 +496,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
         }
 
+        if (signatureStorageCache.estimatedSize() > 10000)
+        {
+            Log.getLogger().error("Uuuuhhhhuuuu, signature storage cache is toooo huge");
+        }
+
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
