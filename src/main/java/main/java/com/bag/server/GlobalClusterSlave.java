@@ -76,6 +76,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final ExecutorService service = Executors.newFixedThreadPool(2);
 
+    /**
+     * Thread pool for message sending.
+     */
+    private final ExecutorService localDis = Executors.newSingleThreadExecutor();
+
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
         super(id, GLOBAL_CONFIG_LOCATION, wrapper, instrumentation);
@@ -476,7 +481,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 kryo.writeObject(messageOutput, signatureStorage);
                 kryo.writeObject(messageOutput, consensusId);
 
-                final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+                final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
                 service.submit(runnable);
                 messageOutput.close();
 
@@ -495,7 +500,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
 
-        proxy.sendMessageToTargets(output.getBuffer(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        final GlobalMessageThread messageThread = new GlobalMessageThread(output.getBuffer());
+        localDis.submit(messageThread);
+        //proxy.sendMessageToTargets(output.getBuffer(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         output.close();
     }
 
@@ -531,23 +538,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final byte[] signature;
 
         signature = context.getProof().iterator().next().getValue();
-
-        SignatureStorage signatureStorage = signatureStorageCache.getIfPresent(snapShotId);
-        if (signatureStorage != null)
-        {
-            if (signatureStorage.getMessage().length != output.toBytes().length)
-            {
-                Log.getLogger()
-                        .error("Message in signatureStorage: " + signatureStorage.getMessage().length + " message of committing server: " + message.length + "id: "
-                                + snapShotId);
-            }
-        }
-        else
-        {
-            Log.getLogger().info("Size of message stored is: " + message.length);
-            signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-            signatureStorageCache.put(snapShotId, signatureStorage);
-        }
+        final SignatureStorage signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
 
         signatureStorage.setProcessed();
         Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
@@ -566,13 +557,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Starting thread to update to slave signed by all members: " + snapShotId);
 
-        final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+        final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
         service.submit(runnable);
         messageOutput.close();
 
         signatureStorage.setDistributed();
-        signatureStorageCache.put(snapShotId, signatureStorage);
-        signatureStorageCache.invalidate(snapShotId);
         lastSent = snapShotId;
 
         Log.getLogger().info("Finished to update to slave signed by all members: " + snapShotId);
@@ -890,7 +879,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     kryo.writeObject(messageOutput, signatureStorage);
                     kryo.writeObject(messageOutput, consensusId);
 
-                    final MessageThread runnable = new MessageThread(messageOutput.getBuffer());
+                    final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
 
                     //updateSlave(slaveUpdateOutput.getBuffer());
                     //updateNextSlave(slaveUpdateOutput.getBuffer());
@@ -940,11 +929,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         proxy.close();
     }
 
-    private class MessageThread implements Runnable
+    private class DistributeMessageThread implements Runnable
     {
         private final byte[] message;
 
-        MessageThread(final byte[] message)
+        DistributeMessageThread(final byte[] message)
         {
             this.message = message;
         }
@@ -952,14 +941,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
-            try
-            {
-                updateSlave(message);
-            }
-            catch(final Exception ex)
-            {
-                Log.getLogger().warn("Exc: ", ex);
-            }
+            updateSlave(message);
         }
 
         /**
@@ -974,6 +956,32 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Notifying local cluster!");
                 wrapper.getLocalCluster().propagateUpdate(message);
             }
+        }
+    }
+
+    private class GlobalMessageThread implements Runnable
+    {
+        private final byte[] message;
+
+        GlobalMessageThread(final byte[] message)
+        {
+            this.message = message;
+        }
+
+        @Override
+        public void run()
+        {
+            update(message);
+        }
+
+        /**
+         * Update the slave with a transaction.
+         *
+         * @param message the message to propagate.
+         */
+        private void update(final byte[] message)
+        {
+            proxy.invokeUnordered(message);
         }
     }
 }

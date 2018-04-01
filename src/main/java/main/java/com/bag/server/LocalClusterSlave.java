@@ -152,14 +152,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                         Log.getLogger().error("Received update slave message ordered");
                         synchronized (lock)
                         {
-                            try
-                            {
-                                output = handleSlaveUpdateMessage(input, output, kryo);
-                            }
-                            catch (final Exception ex)
-                            {
-                                Log.getLogger().error("Local: ", ex);
-                            }
+                            output = handleSlaveUpdateMessage(input, output, kryo);
                         }
                         Log.getLogger().error("Leaving update slave message ordered");
                         allResults[i] = output.getBuffer();
@@ -201,7 +194,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             final Kryo kryo = pool.borrow();
             final Input input = new Input(bytes);
             final String reason = kryo.readObject(input, String.class);
-            byte[] returnValue;
+            final byte[] returnValue;
 
             switch (reason)
             {
@@ -236,14 +229,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().info("Received update slave message");
                     synchronized (lock)
                     {
-                        try
-                        {
-                            output = handleSlaveUpdateMessage(input, output, kryo);
-                        }
-                        catch (final Exception ex)
-                        {
-                            Log.getLogger().error("Local: ", ex);
-                        }
+                        output = handleSlaveUpdateMessage(input, output, kryo);
                     }
                     input.close();
                     return new byte[0];
@@ -259,11 +245,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             input.close();
             pool.release(kryo);
             return returnValue;
-        }
-        catch (final Exception ex)
-        {
-            Log.getLogger().error("Something going wrong in the unordered execution", ex);
-            return new byte[]{0};
         }
         finally
         {
