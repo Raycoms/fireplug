@@ -496,17 +496,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
         }
 
-        if (signatureStorageCache.estimatedSize() > 300)
-        {
-            for(final Map.Entry<Long, SignatureStorage> sig : signatureStorageCache.asMap().entrySet())
-            {
-                if (!sig.getValue().isDistributed() && sig.getKey() < lastSent-10000)
-                {
-                    Log.getLogger().warn(sig.getKey() + " sigs: " + sig.getValue().hasEnough());
-                }
-            }
-        }
-
         kryo.writeObject(output, message.length);
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
@@ -645,6 +634,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().error("Unable to load public key on server " + id + " sent by server " + messageContext.getSender(), e);
             return;
+        }
+
+        if (signatureStorageCache.estimatedSize() > 500)
+        {
+            for(final Map.Entry<Long, SignatureStorage> sig : signatureStorageCache.asMap().entrySet())
+            {
+                if (!sig.getValue().isDistributed() && sig.getKey() < lastSent-10000)
+                {
+                    Log.getLogger().warn(sig.getKey() + " sigs: " + sig.getValue().hasEnough());
+                }
+            }
         }
 
         final byte[] message = new byte[messageLength];
