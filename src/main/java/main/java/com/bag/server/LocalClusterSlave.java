@@ -193,15 +193,16 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
     {
-        Log.getLogger().info("Received unordered message");
-        final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
-        final Kryo kryo = pool.borrow();
-        final Input input = new Input(bytes);
-        final String reason = kryo.readObject(input, String.class);
-        byte[] returnValue;
         Output output = new Output(0, 400240);
         try
         {
+            Log.getLogger().info("Received unordered message");
+            final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
+            final Kryo kryo = pool.borrow();
+            final Input input = new Input(bytes);
+            final String reason = kryo.readObject(input, String.class);
+            byte[] returnValue;
+
             switch (reason)
             {
                 case Constants.READ_MESSAGE:
@@ -239,7 +240,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                         {
                             output = handleSlaveUpdateMessage(input, output, kryo);
                         }
-                        catch(final Exception ex)
+                        catch (final Exception ex)
                         {
                             Log.getLogger().error("Local: ", ex);
                         }
@@ -253,23 +254,21 @@ public class LocalClusterSlave extends AbstractRecoverable
                     return new byte[0];
             }
             returnValue = output.getBuffer();
+            Log.getLogger().info("Return it to sender, size: " + returnValue.length);
+
+            input.close();
+            pool.release(kryo);
+            return returnValue;
         }
-        catch(final Exception ex)
+        catch (final Exception ex)
         {
-            returnValue = new byte[]{0};
             Log.getLogger().error("Something going wrong in the unordered execution", ex);
+            return new byte[]{0};
         }
         finally
         {
             output.close();
         }
-
-        Log.getLogger().info("Return it to sender, size: " + returnValue.length);
-
-        input.close();
-        pool.release(kryo);
-
-        return returnValue;
     }
 
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
