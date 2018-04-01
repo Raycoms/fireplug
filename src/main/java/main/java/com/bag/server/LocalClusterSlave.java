@@ -147,7 +147,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 else if (Constants.UPDATE_SLAVE.equals(type))
                 {
                     Output output = new Output(0, 1024);
-                    Log.getLogger().info("Received update slave message");
+                    Log.getLogger().error("Received update slave message ordered");
                     synchronized (lock)
                     {
                         try
@@ -159,6 +159,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                             Log.getLogger().error("Local: ", ex);
                         }
                     }
+                    Log.getLogger().error("Leaving update slave message ordered");
                     allResults[i] = output.getBuffer();
                     output.close();
                     input.close();
@@ -575,6 +576,10 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
         buffer.put(snapShotId, localWriteSet);
         Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
+        if(buffer.size() > 1000)
+        {
+            Log.getLogger().error("Missing more than 1000 messages, something is broken!");
+        }
         kryo.writeObject(output, true);
         return output;
     }
