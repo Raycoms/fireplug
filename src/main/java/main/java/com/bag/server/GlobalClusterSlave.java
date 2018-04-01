@@ -591,73 +591,75 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final ArrayList<IOperation> localWriteSet;
 
-        if (lastSent > snapShotId)
+        synchronized (lock)
         {
-            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
-            if (tempStorage == null || tempStorage.isDistributed())
+            if (lastSent > snapShotId)
             {
-                signatureStorageCache.invalidate(snapShotId);
-                return;
-            }
-        }
-
-        try
-        {
-            localWriteSet = (ArrayList<IOperation>) writeSet;
-        }
-        catch (final ClassCastException e)
-        {
-            Log.getLogger().error("Couldn't convert received signature message.", e);
-            return;
-        }
-
-        Log.getLogger().info("Server: " + id + " Received message to sign with snapShotId: "
-                + snapShotId + " of Server "
-                + messageContext.getSender()
-                + " and decision: " + decision
-                + " and a writeSet of the length of: " + localWriteSet.size());
-
-        final int messageLength = kryo.readObject(input, Integer.class);
-        final int signatureLength = kryo.readObject(input, Integer.class);
-        final byte[] signature = input.readBytes(signatureLength);
-
-        //Not required anymore.
-        input.close();
-
-        final RSAKeyLoader rsaLoader = new RSAKeyLoader(messageContext.getSender(), GLOBAL_CONFIG_LOCATION, false);
-        final PublicKey key;
-        try
-        {
-            key = rsaLoader.loadPublicKey();
-        }
-        catch (final Exception e)
-        {
-            Log.getLogger().error("Unable to load public key on server " + id + " sent by server " + messageContext.getSender(), e);
-            return;
-        }
-
-        if (signatureStorageCache.estimatedSize() > 500)
-        {
-            for(final Map.Entry<Long, SignatureStorage> sig : signatureStorageCache.asMap().entrySet())
-            {
-                if (!sig.getValue().isDistributed() && sig.getKey() < lastSent-10000)
+                final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
+                if (tempStorage == null || tempStorage.isDistributed())
                 {
-                    Log.getLogger().warn(sig.getKey() + " sigs: " + sig.getValue().hasEnough());
+                    signatureStorageCache.invalidate(snapShotId);
+                    return;
                 }
             }
+
+            try
+            {
+                localWriteSet = (ArrayList<IOperation>) writeSet;
+            }
+            catch (final ClassCastException e)
+            {
+                Log.getLogger().error("Couldn't convert received signature message.", e);
+                return;
+            }
+
+            Log.getLogger().info("Server: " + id + " Received message to sign with snapShotId: "
+                    + snapShotId + " of Server "
+                    + messageContext.getSender()
+                    + " and decision: " + decision
+                    + " and a writeSet of the length of: " + localWriteSet.size());
+
+            final int messageLength = kryo.readObject(input, Integer.class);
+            final int signatureLength = kryo.readObject(input, Integer.class);
+            final byte[] signature = input.readBytes(signatureLength);
+
+            //Not required anymore.
+            input.close();
+
+            final RSAKeyLoader rsaLoader = new RSAKeyLoader(messageContext.getSender(), GLOBAL_CONFIG_LOCATION, false);
+            final PublicKey key;
+            try
+            {
+                key = rsaLoader.loadPublicKey();
+            }
+            catch (final Exception e)
+            {
+                Log.getLogger().error("Unable to load public key on server " + id + " sent by server " + messageContext.getSender(), e);
+                return;
+            }
+
+            if (signatureStorageCache.estimatedSize() > 500)
+            {
+                for (final Map.Entry<Long, SignatureStorage> sig : signatureStorageCache.asMap().entrySet())
+                {
+                    if (!sig.getValue().isDistributed() && sig.getKey() < lastSent - 10000)
+                    {
+                        Log.getLogger().warn(sig.getKey() + " sigs: " + sig.getValue().hasEnough());
+                    }
+                }
+            }
+
+            final byte[] message = new byte[messageLength];
+            System.arraycopy(buffer, 0, message, 0, messageLength);
+
+            final boolean signatureMatches = TOMUtil.verifySignature(key, message, signature);
+            if (signatureMatches)
+            {
+                storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet, consensusId);
+                return;
+            }
+            Log.getLogger().error("Signature doesn't match of message, throwing message away." + id + ":" + messageContext.getSender() + ": " + message + "/" + signature);
         }
-
-        final byte[] message = new byte[messageLength];
-        System.arraycopy(buffer, 0, message, 0, messageLength);
-
-        final boolean signatureMatches = TOMUtil.verifySignature(key, message, signature);
-        if (signatureMatches)
-        {
-            storeSignedMessage(snapShotId, signature, messageContext, decision, message, writeSet, consensusId);
-            return;
-        }
-
-        Log.getLogger().error("Signature doesn't match of message, throwing message away." + id + ":" + messageContext.getSender() + ": " + message + "/" + signature);
     }
 
     @Override
@@ -824,89 +826,84 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         final SignatureStorage signatureStorage;
 
-        synchronized (lock)
+        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+        final Kryo kryo = pool.borrow();
+
+        final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
+        signatureStorageCache.invalidate(snapShotId);
+        if (tempStorage == null)
         {
-            final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-            final Kryo kryo = pool.borrow();
+            signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
+            Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
+        }
+        else
+        {
+            signatureStorage = tempStorage;
+        }
 
-            final SignatureStorage tempStorage = signatureStorageCache.getIfPresent(snapShotId);
-            signatureStorageCache.invalidate(snapShotId);
-            if (tempStorage == null)
+        if (signatureStorage.getMessage().length != message.length)
+        {
+            final Input messageInput = new Input(signatureStorage.getMessage());
+            try
             {
-                signatureStorage = new SignatureStorage(super.getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
-                Log.getLogger().info("Replica: " + id + " did not have the transaction prepared. Might be slow or corrupted, message size stored: " + message.length);
+                final String a = kryo.readObject(messageInput, String.class);
+                final String b = kryo.readObject(messageInput, String.class);
+                final long c = kryo.readObject(messageInput, Long.class);
+                final List d = kryo.readObject(messageInput, ArrayList.class);
+                final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
+                final int f = kryo.readObject(messageInput, Integer.class);
+
+                Log.getLogger().error("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
+                Log.getLogger().error("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(writeSet.toArray()));
             }
-            else
+            catch (final Exception ex)
             {
-                signatureStorage = tempStorage;
+                Log.getLogger().error(ex);
             }
-
-            if (signatureStorage.getMessage().length != message.length)
+            finally
             {
-                final Input messageInput = new Input(signatureStorage.getMessage());
-                try
-                {
-                    final String a = kryo.readObject(messageInput, String.class);
-                    final String b = kryo.readObject(messageInput, String.class);
-                    final long c = kryo.readObject(messageInput, Long.class);
-                    final List d = kryo.readObject(messageInput, ArrayList.class);
-                    final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
-                    final int f = kryo.readObject(messageInput, Integer.class);
-
-                    Log.getLogger().error("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
-                    Log.getLogger().error("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(writeSet.toArray()));
-                }
-                catch(final Exception ex)
-                {
-                    Log.getLogger().error(ex);
-                }
-                finally
-                {
-                    messageInput.close();
-                }
+                messageInput.close();
             }
+        }
 
-            if (!decision.equals(signatureStorage.getDecision()))
+        if (!decision.equals(signatureStorage.getDecision()))
+        {
+            Log.getLogger().error("Replica: " + id + " did receive a different decision of replica: " + context.getSender() + ". Might be corrupted.");
+            return;
+        }
+        signatureStorage.addSignatures(context.getSender(), signature);
+
+        Log.getLogger().info("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
+                + " by: " + context.getSender());
+
+        if (signatureStorage.hasEnough())
+        {
+            Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
+            if (signatureStorage.isProcessed())
             {
-                Log.getLogger().error("Replica: " + id + " did receive a different decision of replica: " + context.getSender() + ". Might be corrupted.");
-                return;
+
+                final Output messageOutput = new Output(100096);
+
+                kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+                kryo.writeObject(messageOutput, decision);
+                kryo.writeObject(messageOutput, snapShotId);
+                kryo.writeObject(messageOutput, signatureStorage);
+                kryo.writeObject(messageOutput, consensusId);
+
+                final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
+                service.submit(runnable);
+
+                messageOutput.close();
+                pool.release(kryo);
+
+                lastSent = snapShotId;
+                signatureStorage.setDistributed();
             }
-            signatureStorage.addSignatures(context.getSender(), signature);
+        }
 
-            Log.getLogger().info("Adding signature to signatureStorage, has: " + signatureStorage.getSignatures().size() + " is: " + signatureStorage.isProcessed()
-                    + " by: " + context.getSender());
-
-            if (signatureStorage.hasEnough())
-            {
-                Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-                if (signatureStorage.isProcessed())
-                {
-
-                    final Output messageOutput = new Output(100096);
-
-                    kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-                    kryo.writeObject(messageOutput, decision);
-                    kryo.writeObject(messageOutput, snapShotId);
-                    kryo.writeObject(messageOutput, signatureStorage);
-                    kryo.writeObject(messageOutput, consensusId);
-
-                    final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
-
-                    //updateSlave(slaveUpdateOutput.getBuffer());
-                    //updateNextSlave(slaveUpdateOutput.getBuffer());
-                    service.submit(runnable);
-                    messageOutput.close();
-                    pool.release(kryo);
-
-                    lastSent = snapShotId;
-                    signatureStorage.setDistributed();
-                }
-            }
-
-            if (!signatureStorage.isDistributed())
-            {
-                signatureStorageCache.put(snapShotId, signatureStorage);
-            }
+        if (!signatureStorage.isDistributed())
+        {
+            signatureStorageCache.put(snapShotId, signatureStorage);
         }
     }
 
@@ -992,7 +989,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
          */
         private void update(final byte[] message)
         {
-            proxy.invokeUnordered(message);
+            while (proxy.invokeUnordered(message) == null)
+            {
+                Log.getLogger().warn("Couldn't distribute the message in the global cluster");
+            }
         }
     }
 }
