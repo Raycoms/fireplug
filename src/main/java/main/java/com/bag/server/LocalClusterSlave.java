@@ -127,60 +127,51 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] bytes, final MessageContext[] messageContexts, final boolean bim)
     {
-        try
+        final byte[][] allResults = new byte[bytes.length][];
+        for (int i = 0; i < bytes.length; ++i)
         {
-            final byte[][] allResults = new byte[bytes.length][];
-            for (int i = 0; i < bytes.length; ++i)
+            if (messageContexts != null && messageContexts[i] != null)
             {
-                if (messageContexts != null && messageContexts[i] != null)
+                final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+                final Kryo kryo = pool.borrow();
+                final Input input = new Input(bytes[i]);
+
+                final String type = kryo.readObject(input, String.class);
+
+                if (Constants.COMMIT_MESSAGE.equals(type))
                 {
-                    final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-                    final Kryo kryo = pool.borrow();
-                    final Input input = new Input(bytes[i]);
-
-                    final String type = kryo.readObject(input, String.class);
-
-                    if (Constants.COMMIT_MESSAGE.equals(type))
+                    final byte[] result = handleReadOnlyCommit(input, kryo);
+                    pool.release(kryo);
+                    allResults[i] = result;
+                }
+                else if (Constants.UPDATE_SLAVE.equals(type))
+                {
+                    Output output = new Output(0, 1024);
+                    Log.getLogger().error("Received update slave message ordered");
+                    synchronized (lock)
                     {
-                        final byte[] result = handleReadOnlyCommit(input, kryo);
-                        pool.release(kryo);
-                        allResults[i] = result;
+                        output = handleSlaveUpdateMessage(input, output, kryo);
                     }
-                    else if (Constants.UPDATE_SLAVE.equals(type))
-                    {
-                        Output output = new Output(0, 1024);
-                        Log.getLogger().error("Received update slave message ordered");
-                        synchronized (lock)
-                        {
-                            output = handleSlaveUpdateMessage(input, output, kryo);
-                        }
-                        Log.getLogger().error("Leaving update slave message ordered");
-                        allResults[i] = output.getBuffer();
-                        output.close();
-                        input.close();
-                    }
-                    else
-                    {
-                        Log.getLogger().error("Return empty bytes for message type: " + type);
-                        allResults[i] = makeEmptyAbortResult();
-                        updateCounts(0, 0, 0, 1);
-                    }
+                    Log.getLogger().error("Leaving update slave message ordered");
+                    allResults[i] = output.getBuffer();
+                    output.close();
+                    input.close();
                 }
                 else
                 {
-                    Log.getLogger().error("Received message with empty context!");
+                    Log.getLogger().error("Return empty bytes for message type: " + type);
                     allResults[i] = makeEmptyAbortResult();
                     updateCounts(0, 0, 0, 1);
                 }
             }
-            return allResults;
+            else
+            {
+                Log.getLogger().error("Received message with empty context!");
+                allResults[i] = makeEmptyAbortResult();
+                updateCounts(0, 0, 0, 1);
+            }
         }
-        catch(final Exception ex)
-        {
-            Log.getLogger().error("Something going wrong in the execute batch", ex);
-        }
-
-        return new byte[0][0];
+        return allResults;
     }
 
     @Override

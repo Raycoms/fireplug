@@ -120,28 +120,20 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             if (messageContexts != null && messageContexts[i] != null)
             {
-                try
+                final Input input = new Input(message[i]);
+                final String type = kryo.readObject(input, String.class);
+
+                if (Constants.COMMIT_MESSAGE.equals(type))
                 {
-                    final Input input = new Input(message[i]);
-                    final String type = kryo.readObject(input, String.class);
-
-                    if (Constants.COMMIT_MESSAGE.equals(type))
-                    {
-
-                        final Long timeStamp = kryo.readObject(input, Long.class);
-                        final byte[] result = executeCommit(kryo, input, timeStamp, messageContexts[i]);
-                        allResults[i] = result;
-                    }
-                    else
-                    {
-                        Log.getLogger().error("Return empty bytes for message type: " + type);
-                        allResults[i] = makeEmptyAbortResult();
-                        updateCounts(0, 0, 0, 1);
-                    }
+                    final Long timeStamp = kryo.readObject(input, Long.class);
+                    final byte[] result = executeCommit(kryo, input, timeStamp, messageContexts[i]);
+                    allResults[i] = result;
                 }
-                catch (final Exception any)
+                else
                 {
-                    Log.getLogger().error("Any: ", any);
+                    Log.getLogger().error("Return empty bytes for message type: " + type);
+                    allResults[i] = makeEmptyAbortResult();
+                    updateCounts(0, 0, 0, 1);
                 }
             }
             else
@@ -437,28 +429,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                             + signatureStorage.getMessage().length
                             + " message of committing server: "
                             + message.length + "id: " + snapShotId);
-
-                    final Input messageInput = new Input(signatureStorage.getMessage());
-                    try
-                    {
-                        final String a = kryo.readObject(messageInput, String.class);
-                        final String b = kryo.readObject(messageInput, String.class);
-                        final long c = kryo.readObject(messageInput, Long.class);
-                        final List d = kryo.readObject(messageInput, ArrayList.class);
-                        final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
-                        final int f = kryo.readObject(messageInput, Integer.class);
-
-                        Log.getLogger().error("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
-                        Log.getLogger().error("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(localWriteSet.toArray()));
-                    }
-                    catch (final Exception ex)
-                    {
-                        Log.getLogger().error(ex);
-                    }
-                    finally
-                    {
-                        messageInput.close();
-                    }
                 }
             }
             else
@@ -637,7 +607,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().error("Unable to load public key on server " + id + " sent by server " + messageContext.getSender(), e);
                 return;
             }
-            
+
             final byte[] message = new byte[messageLength];
             System.arraycopy(buffer, 0, message, 0, messageLength);
 
@@ -833,26 +803,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (signatureStorage.getMessage().length != message.length)
         {
             final Input messageInput = new Input(signatureStorage.getMessage());
-            try
-            {
-                final String a = kryo.readObject(messageInput, String.class);
-                final String b = kryo.readObject(messageInput, String.class);
-                final long c = kryo.readObject(messageInput, Long.class);
-                final List d = kryo.readObject(messageInput, ArrayList.class);
-                final ArrayList<IOperation> e = (ArrayList<IOperation>) d;
-                final int f = kryo.readObject(messageInput, Integer.class);
-
-                Log.getLogger().error("Did: " + a + " " + b + " " + c + " " + f + " " + Arrays.toString(e.toArray()));
-                Log.getLogger().error("Has: " + "signatures" + " " + decision + " " + snapShotId + " " + consensusId + " " + Arrays.toString(writeSet.toArray()));
-            }
-            catch (final Exception ex)
-            {
-                Log.getLogger().error(ex);
-            }
-            finally
-            {
-                messageInput.close();
-            }
+            Log.getLogger().error("Different message size detected");
         }
 
         if (!decision.equals(signatureStorage.getDecision()))
