@@ -465,7 +465,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                            final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
                            final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
-                           temp = OutDatedDataException.getCorrectNodeStorage(sId, (long) wantedId, temp, kryo);
+                           temp = OutDatedDataException.getCorrectNodeStorage(sId, wantedId instanceof Long ? (long) wantedId : -1, temp, kryo);
                         }
                         return HashCreator.sha1FromNode(nodeStorage).equals(temp.getProperty(Constants.TAG_HASH));
                     }
@@ -791,7 +791,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
                             final Object snapshotId = relationshipStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                            temp = OutDatedDataException.getCorrectRSStorage(sId, (long) snapshotId, temp, kryo);
+                            temp = OutDatedDataException.getCorrectRSStorage(sId, snapshotId instanceof Long ? (long) snapshotId : -1, temp, kryo);
 
                             return HashCreator.sha1FromRelationship(relationshipStorage).equals(temp.getProperty(Constants.TAG_HASH));
                         }
