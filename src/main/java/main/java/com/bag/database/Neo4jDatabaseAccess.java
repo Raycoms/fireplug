@@ -234,7 +234,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             {
                                 OutDatedDataException.checkSnapshotId(sId, snapshotId);
                             }
-                            temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                            //temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         temp.removeProperty(Constants.TAG_HASH);
 
@@ -276,7 +276,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             {
                                 OutDatedDataException.checkSnapshotId(sId, snapshotId);
                             }
-                            temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
+                            //temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         temp.removeProperty(Constants.TAG_HASH);
                         if (multiVersion)
