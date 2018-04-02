@@ -458,23 +458,22 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
 
                     final Kryo kryo = pool.borrow();
-                    NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-                    if (temp.getProperties().containsKey(TAG_SNAPSHOT_ID))
-                    {
-                        final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
-                        final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
-                        temp = OutDatedDataException.getCorrectNodeStorage(sId, (long) wantedId, temp, kryo);
-                    }
-                    pool.release(kryo);
-
                     try
                     {
+                        NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                        if (temp.getProperties().containsKey(TAG_SNAPSHOT_ID))
+                        {
+                           final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
+                           final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
+                          temp = OutDatedDataException.getCorrectNodeStorage(sId, (long) wantedId, temp, kryo);
+                        }
                         return HashCreator.sha1FromNode(nodeStorage).equals(temp.getProperty(Constants.TAG_HASH));
                     }
-                    catch (final NoSuchAlgorithmException e)
+                    catch (final Exception e)
                     {
                         Log.getLogger().error("Couldn't execute SHA1 for node", e);
                     }
+                    pool.release(kryo);
 
                     break;
                 }
@@ -781,24 +780,25 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
 
                     final Kryo kryo = pool.borrow();
-                    final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
-                    final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
 
-                    RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
-                    if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                    try
                     {
-                        final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                        final Object snapshotId = relationshipStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                        temp = OutDatedDataException.getCorrectRSStorage(sId, (long) snapshotId, temp, kryo);
+                        final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
+                        final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
 
-                        try
+                        RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
+                        if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
                         {
-                            return HashCreator.sha1FromRelationship(relationshipStorage).equals(r.getProperty(Constants.TAG_HASH));
+                            final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            final Object snapshotId = relationshipStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            temp = OutDatedDataException.getCorrectRSStorage(sId, (long) snapshotId, temp, kryo);
+
+                            return HashCreator.sha1FromRelationship(relationshipStorage).equals(temp.getProperty(Constants.TAG_HASH));
                         }
-                        catch (final NoSuchAlgorithmException e)
-                        {
-                            Log.getLogger().error("Couldn't execute SHA1 for relationship", e);
-                        }
+                    }
+                    catch (final Exception e)
+                    {
+                        Log.getLogger().error("Couldn't execute SHA1 for relationship", e);
                     }
                     pool.release(kryo);
                     break;
