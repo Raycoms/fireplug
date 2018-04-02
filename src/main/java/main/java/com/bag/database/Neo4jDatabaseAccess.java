@@ -438,38 +438,44 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 if (entry.getValue() instanceof NodeProxy)
                 {
                     final NodeProxy n = (NodeProxy) entry.getValue();
-                    if (multiVersion)
-                    {
-                        final Kryo kryo = pool.borrow();
-                        NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-                        if (temp.getProperties().containsKey(TAG_SNAPSHOT_ID))
-                        {
-                            final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
-                            final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
-                            temp = OutDatedDataException.getCorrectNodeStorage(sId, (long) wantedId, temp, kryo);
-                        }
-                        pool.release(kryo);
 
-                        try
-                        {
-                            return HashCreator.sha1FromNode(nodeStorage).equals(temp.getProperty(Constants.TAG_HASH));
-                        }
-                        catch (final NoSuchAlgorithmException e)
-                        {
-                            Log.getLogger().error("Couldn't execute SHA1 for node", e);
-                        }
-                    }
-                    else
+                    try
                     {
-                        try
+                        if (HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH)))
                         {
-                            return HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH));
-                        }
-                        catch (final NoSuchAlgorithmException e)
-                        {
-                            Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                            return true;
                         }
                     }
+                    catch (final NoSuchAlgorithmException e)
+                    {
+                        Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                    }
+
+                    if (!multiVersion)
+                    {
+                        return false;
+                    }
+
+
+                    final Kryo kryo = pool.borrow();
+                    NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                    if (temp.getProperties().containsKey(TAG_SNAPSHOT_ID))
+                    {
+                        final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
+                        final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
+                        temp = OutDatedDataException.getCorrectNodeStorage(sId, (long) wantedId, temp, kryo);
+                    }
+                    pool.release(kryo);
+
+                    try
+                    {
+                        return HashCreator.sha1FromNode(nodeStorage).equals(temp.getProperty(Constants.TAG_HASH));
+                    }
+                    catch (final NoSuchAlgorithmException e)
+                    {
+                        Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                    }
+
                     break;
                 }
             }
@@ -757,11 +763,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 if (entry.getValue() instanceof RelationshipProxy)
                 {
                     final RelationshipProxy r = (RelationshipProxy) entry.getValue();
-
                     try
                     {
-                        final boolean matches = HashCreator.sha1FromRelationship(relationshipStorage).equals(r.getProperty(Constants.TAG_HASH));
-                        if (matches)
+                        if (HashCreator.sha1FromRelationship(relationshipStorage).equals(r.getProperty(Constants.TAG_HASH)))
                         {
                             return true;
                         }
