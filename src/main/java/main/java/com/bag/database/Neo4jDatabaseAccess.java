@@ -568,7 +568,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyDelete(final NodeStorage storage, final long snapshotId)
     {
-         try
+        try
         {
             if(multiVersion)
             {
@@ -758,39 +758,45 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 {
                     final RelationshipProxy r = (RelationshipProxy) entry.getValue();
 
-                    if (multiVersion)
-                    {
-                        final Kryo kryo = pool.borrow();
-                        final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
-                        final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
-
-                        RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
-                        if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
-                        {
-                            final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-                            final Object snapshotId = relationshipStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
-
-                            temp = OutDatedDataException.getCorrectRSStorage(sId, (long) snapshotId, temp, kryo);
-                        }
-                        pool.release(kryo);
-
-                        try
-                        {
-                            return HashCreator.sha1FromRelationship(relationshipStorage).equals(temp.getProperty(Constants.TAG_HASH));
-                        }
-                        catch (final NoSuchAlgorithmException e)
-                        {
-                            Log.getLogger().error("Couldn't execute SHA1 for node", e);
-                        }
-                    }
                     try
                     {
-                        return HashCreator.sha1FromRelationship(relationshipStorage).equals(r.getProperty(Constants.TAG_HASH));
+                        final boolean matches = HashCreator.sha1FromRelationship(relationshipStorage).equals(r.getProperty(Constants.TAG_HASH));
+                        if (matches)
+                        {
+                            return true;
+                        }
                     }
                     catch (final NoSuchAlgorithmException e)
                     {
-                        Log.getLogger().error("Couldn't execute SHA1 for relationship", e);
+                        Log.getLogger().error("Couldn't execute SHA1 for node", e);
                     }
+
+                    if (!multiVersion)
+                    {
+                        return false;
+                    }
+
+                    final Kryo kryo = pool.borrow();
+                    final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
+                    final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
+
+                    RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
+                    if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                    {
+                        final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        final Object snapshotId = relationshipStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                        temp = OutDatedDataException.getCorrectRSStorage(sId, (long) snapshotId, temp, kryo);
+
+                        try
+                        {
+                            return HashCreator.sha1FromRelationship(relationshipStorage).equals(r.getProperty(Constants.TAG_HASH));
+                        }
+                        catch (final NoSuchAlgorithmException e)
+                        {
+                            Log.getLogger().error("Couldn't execute SHA1 for relationship", e);
+                        }
+                    }
+                    pool.release(kryo);
                     break;
                 }
             }
