@@ -34,11 +34,11 @@ public interface IDatabaseAccess
 
         if(readSet.get(0) instanceof NodeStorage)
         {
-            equalHashNode(readSet);
+            return equalHashNode(readSet);
         }
         else if(readSet.get(0) instanceof RelationshipStorage)
         {
-            equalHashRelationship(readSet);
+            return equalHashRelationship(readSet);
         }
 
         return true;
@@ -51,11 +51,11 @@ public interface IDatabaseAccess
      */
     default boolean equalHashRelationship(final List readSet)
     {
-        for(Object storage: readSet)
+        for(final Object storage: readSet)
         {
             if(storage instanceof RelationshipStorage)
             {
-                RelationshipStorage relationshipStorage = (RelationshipStorage) storage;
+                final RelationshipStorage relationshipStorage = (RelationshipStorage) storage;
 
                 if(!compareRelationship(relationshipStorage))
                 {
@@ -73,11 +73,11 @@ public interface IDatabaseAccess
      */
     default boolean equalHashNode(final List readSet)
     {
-        for(Object storage: readSet)
+        for(final Object storage: readSet)
         {
             if(storage instanceof NodeStorage)
             {
-                NodeStorage nodeStorage = (NodeStorage) storage;
+                final NodeStorage nodeStorage = (NodeStorage) storage;
 
                 if(!compareNode(nodeStorage))
                 {

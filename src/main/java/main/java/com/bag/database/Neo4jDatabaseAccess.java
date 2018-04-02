@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static main.java.com.bag.util.Constants.TAG_PRE;
+import static main.java.com.bag.util.Constants.TAG_SNAPSHOT_ID;
 import static main.java.com.bag.util.Constants.TAG_VERSION;
 
 /**
@@ -415,6 +416,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         return builder.toString();
     }
 
+    //TODO: detect differnt version!
+
     @Override
     public boolean compareNode(final NodeStorage nodeStorage)
     {
@@ -437,14 +440,37 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 if (entry.getValue() instanceof NodeProxy)
                 {
                     final NodeProxy n = (NodeProxy) entry.getValue();
+                    if (multiVersion)
+                    {
+                        final Kryo kryo = pool.borrow();
+                        NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                        if (temp.getProperties().containsKey(TAG_SNAPSHOT_ID))
+                        {
+                            final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
+                            final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
+                            temp = OutDatedDataException.getCorrectNodeStorage(sId, (long) wantedId, temp, kryo);
+                        }
+                        pool.release(kryo);
 
-                    try
-                    {
-                        return HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH));
+                        try
+                        {
+                            return HashCreator.sha1FromNode(nodeStorage).equals(temp.getProperty(Constants.TAG_HASH));
+                        }
+                        catch (final NoSuchAlgorithmException e)
+                        {
+                            Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                        }
                     }
-                    catch (final NoSuchAlgorithmException e)
+                    else
                     {
-                        Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                        try
+                        {
+                            return HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH));
+                        }
+                        catch (final NoSuchAlgorithmException e)
+                        {
+                            Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                        }
                     }
                     break;
                 }
@@ -730,13 +756,38 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final Map<String, Object> value = result.next();
             for (final Map.Entry<String, Object> entry : value.entrySet())
             {
-                if (entry.getValue() instanceof NodeProxy)
+                if (entry.getValue() instanceof RelationshipProxy)
                 {
-                    final NodeProxy n = (NodeProxy) entry.getValue();
+                    final RelationshipProxy r = (RelationshipProxy) entry.getValue();
 
+                    if (multiVersion)
+                    {
+                        final Kryo kryo = pool.borrow();
+                        final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
+                        final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
+
+                        RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
+                        if (temp.getProperties().containsKey(Constants.TAG_SNAPSHOT_ID))
+                        {
+                            final Object sId = temp.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+                            final Object snapshotId = relationshipStorage.getProperties().get(Constants.TAG_SNAPSHOT_ID);
+
+                            temp = OutDatedDataException.getCorrectRSStorage(sId, (long) snapshotId, temp, kryo);
+                        }
+                        pool.release(kryo);
+
+                        try
+                        {
+                            return HashCreator.sha1FromRelationship(relationshipStorage).equals(temp.getProperty(Constants.TAG_HASH));
+                        }
+                        catch (final NoSuchAlgorithmException e)
+                        {
+                            Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                        }
+                    }
                     try
                     {
-                        return HashCreator.sha1FromRelationship(relationshipStorage).equals(n.getProperty(Constants.TAG_HASH));
+                        return HashCreator.sha1FromRelationship(relationshipStorage).equals(r.getProperty(Constants.TAG_HASH));
                     }
                     catch (final NoSuchAlgorithmException e)
                     {
