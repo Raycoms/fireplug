@@ -465,13 +465,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                            final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
                            final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
-                          temp = OutDatedDataException.getCorrectNodeStorage(sId, (long) wantedId, temp, kryo);
+                           temp = OutDatedDataException.getCorrectNodeStorage(sId, (long) wantedId, temp, kryo);
                         }
                         return HashCreator.sha1FromNode(nodeStorage).equals(temp.getProperty(Constants.TAG_HASH));
                     }
                     catch (final Exception e)
                     {
-                        Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                        Log.getLogger().error("Couldn't execute SHA1 for node " + nodeStorage.toString(), e);
                     }
                     pool.release(kryo);
 

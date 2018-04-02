@@ -219,10 +219,10 @@ public class NodeStorage implements Serializable
         sb.append("[");
         for (Map.Entry<String, Object> item : properties.entrySet())
         {
-            if(item.getKey().equals(TAG_HASH) || item.getKey().equals(TAG_SNAPSHOT_ID) || item.getKey().equals(TAG_VERSION))
+            /*if(item.getKey().equals(TAG_HASH) || item.getKey().equals(TAG_SNAPSHOT_ID) || item.getKey().equals(TAG_VERSION))
             {
                 continue;
-            }
+            }*/
             sb.append(item.getKey());
             sb.append("=");
             sb.append(item.getValue());
