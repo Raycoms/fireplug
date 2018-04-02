@@ -416,8 +416,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         return builder.toString();
     }
 
-    //TODO: detect differnt version!
-
     @Override
     public boolean compareNode(final NodeStorage nodeStorage)
     {
