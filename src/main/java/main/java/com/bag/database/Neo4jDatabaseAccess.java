@@ -445,6 +445,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             return true;
                         }
+                        final NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                        Log.getLogger().error("Failing: " + nodeStorage.toString() + " : " + temp.toString());
                     }
                     catch (final NoSuchAlgorithmException e)
                     {
@@ -455,7 +457,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     {
                         return false;
                     }
-
 
                     final Kryo kryo = pool.borrow();
                     try
