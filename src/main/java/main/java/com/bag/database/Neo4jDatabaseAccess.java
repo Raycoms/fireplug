@@ -432,7 +432,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final Result result = graphDb.execute(builder, properties);
 
             //Assuming we only get one node in return.
-            if (result.hasNext())
+            while (result.hasNext())
             {
                 final Map<String, Object> value = result.next();
                 for (final Map.Entry<String, Object> entry : value.entrySet())
@@ -481,6 +481,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         break;
                     }
                 }
+
+                return false;
             }
             tx.success();
             Log.getLogger().error("Can't find node! ");

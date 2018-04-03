@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #BAG_HOSTS should contain the host ips in the right order.
 
 #DBS=('neo4j' 'neo4j' 'orientdb' 'orientdb' 'neo4j' 'neo4j' 'orientdb' 'orientdb')

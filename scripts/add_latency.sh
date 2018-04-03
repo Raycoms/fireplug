@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ITF=eth0
 HOSTS="172.16.52.3 172.16.52.5 172.16.52.7 172.16.52.9"
 FILTER="sudo tc filter add dev $ITF protocol ip parent 1: prio 1 u32"
