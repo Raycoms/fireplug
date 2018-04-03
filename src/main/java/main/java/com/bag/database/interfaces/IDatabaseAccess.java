@@ -2,6 +2,7 @@ package main.java.com.bag.database.interfaces;
 
 
 import main.java.com.bag.exceptions.OutDatedDataException;
+import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
@@ -40,6 +41,7 @@ public interface IDatabaseAccess
         {
             return equalHashRelationship(readSet);
         }
+        Log.getLogger().warn("Invalid readSet");
 
         return true;
     }

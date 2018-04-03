@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static main.java.com.bag.util.Constants.TAG_PRE;
+import static main.java.com.bag.util.Constants.TAG_SNAPSHOT_ID;
 import static main.java.com.bag.util.Constants.TAG_VERSION;
 
 /**
@@ -25,7 +26,8 @@ public class HashCreator
         final NodeStorage copy = new NodeStorage(node);
         copy.removeProperty(TAG_VERSION);
         copy.removeProperty(TAG_PRE);
-
+        copy.removeProperty(TAG_SNAPSHOT_ID);
+        
         MessageDigest mDigest = MessageDigest.getInstance("SHA1");
 
         byte[] result = mDigest.digest(copy.getBytes());
