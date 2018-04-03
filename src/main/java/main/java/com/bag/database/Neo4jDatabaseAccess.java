@@ -427,9 +427,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         try (Transaction tx = graphDb.beginTx())
         {
             final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
+            final StringBuilder builder = new StringBuilder(MATCH);
+            builder.append(buildNodeString(nodeStorage, ""));
+            builder.append(" RETURN n");
 
+            //Converts the keys to upper case to fit the params we send to neo4j.
             final Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
-            final Result result = graphDb.execute(builder, properties);
+            final Result result = graphDb.execute(builder.toString(), properties);
 
             //Assuming we only get one node in return.
             while (result.hasNext())
