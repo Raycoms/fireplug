@@ -348,7 +348,7 @@ public class ClientWorkLoads
 
         public void run()
         {
-            final int maxNodeId = 500;
+            final int maxNodeId = 100000;
             final int minNodeId = 0;
 
             final int maxRelationShipId = Constants.RELATIONSHIP_TYPES_LIST.length;
