@@ -432,11 +432,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             //Converts the keys to upper case to fit the params we send to neo4j.
             final Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
+            Log.getLogger().error(builder.toString());
             final Result result = graphDb.execute(builder.toString(), properties);
 
             //Assuming we only get one node in return.
             while (result.hasNext())
             {
+                Log.getLogger().error("Received result!");
                 final Map<String, Object> value = result.next();
                 for (final Map.Entry<String, Object> entry : value.entrySet())
                 {
