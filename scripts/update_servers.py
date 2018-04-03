@@ -5,7 +5,7 @@ import subprocess
 if len(sys.argv) < 6:
 	print sys.argv[0] +" cluster_size total_clusters latency partial_ip servers..."
 	print "ex.: update_servers.py 4 2 1 172.16.52 2 3 4 5 6 7 8 9"
-sys.exit(-1)
+	sys.exit(-1)
 
 cluster_size = int(sys.argv[1])
 total_clusters = int(sys.argv[2])
@@ -22,8 +22,8 @@ for i in range(0, total_servers):
 	servers[i] = int(servers[i])
 
 if len(servers) != cluster_size *total_clusters:
-    print "servers are not cluster size times total clusters"
-sys.exit(-1)
+	print "servers are not cluster size times total clusters"
+	sys.exit(-1)
 
 print "cluster_size: %d"%cluster_size
 print "total_clusters: %d"%total_clusters
