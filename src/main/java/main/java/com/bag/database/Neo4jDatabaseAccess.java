@@ -505,7 +505,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         final NodeProxy proxy = (NodeProxy) entry.getValue();
                         if(multiVersion)
                         {
-                            final Object obj = proxy.getProperty(TAG_VERSION);
+                            final Object obj = proxy.hasProperty(TAG_VERSION) ? proxy.getProperty(TAG_VERSION) : null;
                             final NodeStorage temp = new NodeStorage(proxy.getLabels().iterator().next().name(), proxy.getAllProperties());
                             final Output output = new Output(10000);
                             kryo.writeObject(output, temp);
@@ -623,7 +623,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         final RelationshipProxy proxy = (RelationshipProxy) entry.getValue();
                         if(multiVersion)
                         {
-                            final Object obj = proxy.getProperty(TAG_VERSION);
+
+                            final Object obj = proxy.hasProperty(TAG_VERSION) ? proxy.getProperty(TAG_VERSION) : null;
                             final NodeStorage start = new NodeStorage(proxy.getStartNode().getLabels().iterator().next().name(), proxy.getStartNode().getAllProperties());
                             final NodeStorage end = new NodeStorage(proxy.getEndNode().getLabels().iterator().next().name(), proxy.getEndNode().getAllProperties());
 
