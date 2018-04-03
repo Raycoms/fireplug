@@ -103,7 +103,7 @@ public class ConflictHandler
         {
             if (!localWriteSet.isEmpty())
             {
-                Log.getLogger().info("Aborting because of writeSet containing node read");
+                Log.getLogger().warn("Aborting because of writeSet containing node read");
             }
             return false;
         }
@@ -138,7 +138,7 @@ public class ConflictHandler
         {
             if (!localWriteSet.isEmpty())
             {
-                Log.getLogger().info("Aborting because of writeSet containing rs read");
+                Log.getLogger().warn("Aborting because of writeSet containing rs read");
             }
             return false;
         }
@@ -181,7 +181,7 @@ public class ConflictHandler
         }
         if (!commit && !localWriteSet.isEmpty())
         {
-            Log.getLogger().info("Aborting because of writeSet containing clashing operation");
+            Log.getLogger().warn("Aborting because of writeSet containing clashing operation");
         }
 
         return commit;
@@ -199,7 +199,7 @@ public class ConflictHandler
         final boolean eq = access.equalHash(readSetNode) && access.equalHash(readSetRelationship);
         if (!eq)
         {
-            Log.getLogger().info("Aborting because of incorrect read");
+            Log.getLogger().warn("Aborting because of incorrect read");
         }
         return eq;
     }
