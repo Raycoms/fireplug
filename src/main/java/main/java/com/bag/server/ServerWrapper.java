@@ -295,7 +295,7 @@ public class ServerWrapper
         final Scanner reader = new Scanner(System.in);  // Reading from System.in
         Log.getLogger().info("Write <kill> to the console to kill this process");
 
-        while(reader.next() != null)
+        while(reader.hasNext())
         {
             final String command = reader.next();
             if (command != null && command.equals("kill"))
