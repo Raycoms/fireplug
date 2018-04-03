@@ -426,7 +426,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
         try (Transaction tx = graphDb.beginTx())
         {
-            final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
             final StringBuilder builder = new StringBuilder(MATCH);
             builder.append(buildNodeString(nodeStorage, ""));
             builder.append(" RETURN n");
