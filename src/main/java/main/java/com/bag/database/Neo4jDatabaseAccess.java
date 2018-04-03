@@ -451,8 +451,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             {
                                 return true;
                             }
-                            final NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-                            Log.getLogger().warn("Failing: " + nodeStorage.toString() + " : " + temp.toString());
                         }
                         catch (final NoSuchAlgorithmException e)
                         {
@@ -780,13 +778,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             return true;
                         }
-
-                        final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
-                        final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
-
-                        RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
-                        Log.getLogger().warn("Relationship comparison failed!");
-                        Log.getLogger().error(relationshipStorage.toString() + " : " + temp.toString());
                     }
                     catch (final NoSuchAlgorithmException e)
                     {
