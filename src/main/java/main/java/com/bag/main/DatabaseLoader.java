@@ -1,16 +1,15 @@
 package main.java.com.bag.main;
 
-import main.java.com.bag.server.database.Neo4jDatabaseAccess;
-import main.java.com.bag.server.database.OrientDBDatabaseAccess;
-import main.java.com.bag.server.database.SparkseeDatabaseAccess;
-import main.java.com.bag.server.database.TitanDatabaseAccess;
-import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import main.java.com.bag.database.*;
+import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -143,15 +142,17 @@ public class DatabaseLoader
      * Instantiate the database access.
      * @param instance the instance to use.
      * @param globalServerId the global server id (used to find the folder)
+     * @param multiVersion if multi-version mode.
+     * @param pool the kryo factory.
      * @return the access object.
      */
     @NotNull
-    private static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId)
+    public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId, final boolean multiVersion, final @Nullable KryoFactory pool)
     {
-        switch (instance)
+        switch (instance.toLowerCase())
         {
             case Constants.NEO4J:
-                return new Neo4jDatabaseAccess(globalServerId, null);
+                return new Neo4jDatabaseAccess(globalServerId, null, multiVersion, pool);
             case Constants.TITAN:
                 return new TitanDatabaseAccess(globalServerId);
             case Constants.SPARKSEE:
@@ -159,8 +160,8 @@ public class DatabaseLoader
             case Constants.ORIENTDB:
                 return new OrientDBDatabaseAccess(globalServerId);
             default:
-                Log.getLogger().warn("Invalid databaseAccess - default to Neo4j.");
-                return new Neo4jDatabaseAccess(globalServerId, null);
+                Log.getLogger().error("Invalid databaseAccess - default to emptyDB.");
+                return new EmptyDatabaseAccess();
         }
     }
 
@@ -180,7 +181,7 @@ public class DatabaseLoader
 
         Log.getLogger().setLevel(Level.WARN);
 
-        final IDatabaseAccess access = instantiateDBAccess(databaseId, 0);
+        final IDatabaseAccess access = instantiateDBAccess(databaseId, 0, false, null);
         System.out.printf("Starting %s database%n", databaseId);
         access.start();
         System.out.printf("Loading...");

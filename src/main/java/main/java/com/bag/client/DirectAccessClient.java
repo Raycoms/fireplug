@@ -34,7 +34,8 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Class used to simulate a client acessing the database directly.
  */
-public class DirectAccessClient implements BAGClient {
+public class DirectAccessClient implements BAGClient
+{
 
     private NettyClient           server;
     private BlockingQueue<Object> readQueue;
@@ -112,7 +113,7 @@ public class DirectAccessClient implements BAGClient {
     {
         if(identifier == null && value == null)
         {
-            Log.getLogger().warn("Unsupported write operation");
+            Log.getLogger().error("Unsupported write operation");
             return;
         }
 
@@ -151,7 +152,7 @@ public class DirectAccessClient implements BAGClient {
         }
         else
         {
-            Log.getLogger().warn("Unsupported update operation can't update a node with a relationship or vice versa");
+            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
         }
     }
 
@@ -171,7 +172,7 @@ public class DirectAccessClient implements BAGClient {
         }
         else
         {
-            Log.getLogger().warn("Unsupported update operation can't update a node with a relationship or vice versa");
+            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
         }
     }
 
@@ -192,7 +193,7 @@ public class DirectAccessClient implements BAGClient {
         }
         else
         {
-            Log.getLogger().warn("Unsupported update operation can't update a node with a relationship or vice versa");
+            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
         }
     }
 
@@ -251,5 +252,17 @@ public class DirectAccessClient implements BAGClient {
     public boolean isCommitting()
     {
         return false;
+    }
+
+    @Override
+    public int getID()
+    {
+        return 1;
+    }
+
+    @Override
+    public boolean hasRead()
+    {
+        return true;
     }
 }

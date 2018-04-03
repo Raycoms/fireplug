@@ -11,6 +11,7 @@ import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import com.github.benmanes.caffeine.cache.*;
 import main.java.com.bag.exceptions.OutDatedDataException;
+import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
@@ -19,7 +20,6 @@ import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
-import main.java.com.bag.util.storage.TransactionStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,12 +56,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Unique Id of the server.
      */
-    private int id;
+    private final int id;
 
     /**
      * Lock for cleanUp.
      */
-    final Lock lock = new ReentrantLock();
+    final Lock reentrantLock = new ReentrantLock();
 
     /**
      * List of clients with the last snapshotId they read..
@@ -71,12 +71,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Write set of the nodes contains updates and deletes.
      */
-    private ConcurrentSkipListMap<Long, List<IOperation>> globalWriteSet;
+    private final ConcurrentSkipListMap<Long, List<IOperation>> globalWriteSet;
 
     /**
      * Write set cache of the nodes contains updates and deletes but only of the last x transactions.
      */
-    private Cache<Long, List<IOperation>> latestWritesSet = Caffeine.newBuilder()
+    private final Cache<Long, List<IOperation>> latestWritesSet = Caffeine.newBuilder()
             .maximumSize(KEEP_LAST_X)
             .writer(new CacheWriter<Long, List<IOperation>>()
             {
@@ -103,9 +103,15 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     private final ServerWrapper wrapper;
 
+    /**
+     * Server instrumentation to print the results.
+     */
     private final ServerInstrumentation instrumentation;
 
-    private KryoFactory factory = () ->
+    /**
+     * Factory for all Kryo related parts. Will give you a kryo object and receives it on release, to avoid memory leaks.
+     */
+    private final KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
         kryo.register(NodeStorage.class, 100);
@@ -133,18 +139,18 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         globalSnapshotId = 1;
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
-        Log.getLogger().warn("Instantiating abstract recoverable of id: " + id + " at config directory: " + configDirectory);
+        Log.getLogger().error("Instantiating abstract recoverable of id: " + id + " at config directory: " + configDirectory);
         //the default verifier is instantiated with null in the ServerReplica.
         this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());
 
-        Log.getLogger().warn("Finished instantiating abstract recoverable of id: " + id);
+        Log.getLogger().error("Finished instantiating abstract recoverable of id: " + id);
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
 
         globalWriteSet = new ConcurrentSkipListMap<>();
 
-        Log.getLogger().warn("Instantiating fileWriter.");
+        Log.getLogger().error("Instantiating fileWriter.");
         try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
              final BufferedWriter bw = new BufferedWriter(file);
              final PrintWriter out = new PrintWriter(bw))
@@ -160,14 +166,22 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             out.print("throughput");
             out.println();
         }
-        catch (IOException e)
+        catch (final IOException e)
         {
             Log.getLogger().info("Problem while writing to file!", e);
         }
-        Log.getLogger().warn("Finished file writer instantiation.");
+        Log.getLogger().error("Finished file writer instantiation.");
     }
 
-    public void updateCounts(int writes, int reads, int commits, int aborts)
+    /**
+     * Update the instrumentation counts.
+     *
+     * @param writes  the writes.
+     * @param reads   the reads.
+     * @param commits the commits.
+     * @param aborts  the aborts.
+     */
+    public void updateCounts(final int writes, final int reads, final int commits, final int aborts)
     {
         instrumentation.updateCounts(writes, reads, commits, aborts);
     }
@@ -175,58 +189,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     @Override
     public void installSnapshot(final byte[] bytes)
     {
-        /*Log.getLogger().warn("Install snapshot!");
-        if (bytes == null || bytes.length <= 1)
-        {
-            return;
-        }
-        KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-
-        Kryo kryo = pool.borrow();
-        Input input = new Input(bytes);
-
-        globalSnapshotId = kryo.readObject(input, Long.class);
-        Log.getLogger().error("Install snapshot with old values!!!!: " + globalSnapshotId);
-        globalWriteSet.clear();
-
-        while (input.canReadLong())
-        {
-            long snapshotId = kryo.readObject(input, Long.class);
-            Object object = kryo.readClassAndObject(input);
-            if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
-            {
-                globalWriteSet.put(snapshotId, (List<IOperation>) object);
-            }
-        }
-
-        latestWritesSet.cleanUp();
-        while (input.canReadLong())
-        {
-            long snapshotId = kryo.readObject(input, Long.class);
-            Object object = kryo.readClassAndObject(input);
-            if (object instanceof List && !((List) object).isEmpty() && ((List) object).get(0) instanceof IOperation)
-            {
-                latestWritesSet.put(snapshotId, (List<IOperation>) object);
-            }
-        }
-
-        this.id = kryo.readObject(input, Integer.class);
-        String instance = kryo.readObject(input, String.class);
-        wrapper.setDataBaseAccess(ServerWrapper.instantiateDBAccess(instance, wrapper.getGlobalServerId()));
-
-        readSpecificData(input, kryo);
-
-        this.replica = new ServiceReplica(id, this, this);
-        this.replica.setReplyController(new DefaultReplier());
-
-        kryo.register(NodeStorage.class, 100);
-        kryo.register(RelationshipStorage.class, 200);
-        kryo.register(CreateOperation.class, 250);
-        kryo.register(DeleteOperation.class, 300);
-        kryo.register(UpdateOperation.class, 350);
-
-        input.close();
-        pool.release(kryo);*/
+        /**
+         * No Snapshots for the time being required.
+         */
     }
 
     /**
@@ -245,9 +210,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     abstract Output writeSpecificData(final Output output, final Kryo kryo);
 
+    /**
+     * Clean up all entries in write sets which we don't need anymore since we have the guarantee that the client will only respond with a higher id.
+     */
     private void shortCleanUp()
     {
-        if (!clients.isEmpty() && lock.tryLock())
+        if (!clients.isEmpty() && reentrantLock.tryLock())
         {
             long smallestSnapshot = Long.MAX_VALUE;
             for (final Map.Entry<Integer, Long> entry : clients.entrySet())
@@ -269,48 +237,16 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
                 }
                 Log.getLogger().info("Global size now; " + globalWriteSet.size());
             }
-            lock.unlock();
+            reentrantLock.unlock();
         }
     }
 
     @Override
     public byte[] getSnapshot()
     {
-        /*if (globalWriteSet == null || latestWritesSet == null)
-        {
-            return new byte[] {0};
-        }*/
-
-        /*Log.getLogger().warn("Snapshot!");
-        //Log.getLogger().warn("Get snapshot!!: " + globalWriteSet.size() + " + " + latestWritesSet.estimatedSize());
-        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        final Kryo kryo = pool.borrow();
-
-        Output output = new Output(0, 8000240);
-        kryo.writeObject(output, getGlobalSnapshotId());
-
-        for (final Map.Entry<Long, List<IOperation>> writeSet : globalWriteSet.entrySet())
-        {
-            kryo.writeObject(output, writeSet.getKey());
-            kryo.writeObject(output, writeSet.getValue());
-        }
-
-        for (final Map.Entry<Long, List<IOperation>> writeSet : latestWritesSet.asMap().entrySet())
-        {
-            kryo.writeObject(output, writeSet.getKey());
-            kryo.writeObject(output, writeSet.getValue());
-        }
-
-        kryo.writeObject(output, id);
-        IDatabaseAccess databaseAccess = wrapper.getDataBaseAccess();
-        kryo.writeObject(output, databaseAccess.toString());
-
-        output = writeSpecificData(output, kryo);
-
-        Log.getLogger().warn("Finished snapshotting");
-        byte[] bytes = output.getBuffer();
-        output.close();
-        pool.release(kryo);*/
+        /**
+         * No Snapshots for the time being required.
+         */
         return new byte[] {0, 1};
     }
 
@@ -323,7 +259,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * @param clientId the id of the reading client.
      * @return output object to return to client.
      */
-    Output handleNodeRead(final Input input, final Kryo kryo, final Output output, final int clientId)
+    public Output handleNodeRead(final Input input, final Kryo kryo, final Output output, final int clientId)
     {
         long localSnapshotId = kryo.readObject(input, Long.class);
         final NodeStorage identifier = kryo.readObject(input, NodeStorage.class);
@@ -334,9 +270,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
         if (localSnapshotId == -1)
         {
-            TransactionStorage transaction = new TransactionStorage();
-            transaction.addReadSetNodes(identifier);
-            //localTransactionList.put(messageContext.getSender(), transaction);
+            //Transaction Storage is not used for now.
+            /**TransactionStorage transaction = new TransactionStorage();
+             transaction.addReadSetNodes(identifier);
+             localTransactionList.put(messageContext.getSender(), transaction);
+             **/
+
             localSnapshotId = getGlobalSnapshotId();
             if (!clients.containsKey(clientId) || clients.get(clientId) < localSnapshotId)
             {
@@ -351,26 +290,33 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         Log.getLogger().info("Get info from databaseAccess to snapShotId " + localSnapshotId);
 
-        try
+        if(!identifier.getId().equalsIgnoreCase("Dummy"))
         {
-            returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
-        }
-        catch (final OutDatedDataException e)
-        {
-            kryo.writeObject(output, Constants.ABORT);
-            kryo.writeObject(output, localSnapshotId);
+            try
+            {
+                returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
+            }
+            catch (final OutDatedDataException e)
+            {
+                kryo.writeObject(output, Constants.ABORT);
+                kryo.writeObject(output, localSnapshotId);
 
-            Log.getLogger().info("Transaction found conflict");
-            Log.getLogger().info("OutdatedData Exception thrown: ", e);
-            kryo.writeObject(output, new ArrayList<NodeStorage>());
-            kryo.writeObject(output, new ArrayList<RelationshipStorage>());
-            return output;
+                Log.getLogger().info("Transaction found conflict");
+                Log.getLogger().info("OutdatedData Exception thrown: ", e);
+                kryo.writeObject(output, new ArrayList<NodeStorage>());
+                kryo.writeObject(output, new ArrayList<RelationshipStorage>());
+                return output;
+            }
+        }
+        else
+        {
+            returnList = new ArrayList<>();
         }
 
         kryo.writeObject(output, Constants.CONTINUE);
         kryo.writeObject(output, localSnapshotId);
         Log.getLogger().info("Got info from databaseAccess: " + returnList.size());
-
+        
         if (returnList.isEmpty())
         {
             kryo.writeObject(output, new ArrayList<NodeStorage>());
@@ -425,7 +371,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
         kryo.writeObject(output, Constants.ABORT);
-        byte[] temp = output.getBuffer();
+        final byte[] temp = output.getBuffer();
         output.close();
         pool.release(kryo);
         return temp;
@@ -443,7 +389,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     Output handleRelationshipRead(final Input input, final Kryo kryo, final Output output, final int clientId)
     {
         long localSnapshotId = kryo.readObject(input, Long.class);
-        RelationshipStorage identifier = kryo.readObject(input, RelationshipStorage.class);
+        final RelationshipStorage identifier = kryo.readObject(input, RelationshipStorage.class);
         input.close();
 
         updateCounts(0, 1, 0, 0);
@@ -451,9 +397,12 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         Log.getLogger().info("With snapShot id: " + localSnapshotId);
         if (localSnapshotId == -1)
         {
-            TransactionStorage transaction = new TransactionStorage();
-            transaction.addReadSetRelationship(identifier);
-            //localTransactionList.put(messageContext.getSender(), transaction);
+            /**
+             * TransactionStorage transaction = new TransactionStorage();
+             * transaction.addReadSetRelationship(identifier);
+             * localTransactionList.put(messageContext.getSender(), transaction);
+             */
+
             localSnapshotId = getGlobalSnapshotId();
             if (!clients.containsKey(clientId) || clients.get(clientId) < localSnapshotId)
             {
@@ -491,7 +440,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
         final ArrayList<NodeStorage> nodeStorage = new ArrayList<>();
         final ArrayList<RelationshipStorage> relationshipStorage = new ArrayList<>();
-        for (Object obj : returnList)
+        for (final Object obj : returnList)
         {
             if (obj instanceof NodeStorage)
             {
@@ -511,32 +460,30 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Execute the commit on the replica.
-     *
-     * @param localWriteSet the write set to execute.
+     *  @param localWriteSet the write set to execute.
      * @param keyLoader     the key loader.
      * @param idClient      the id of the server.
+     * @param consensusId the consensus ID.
      */
-    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient, final long clientSnapshot)
+    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient, final long clientSnapshot, final int consensusId)
     {
         if (!clients.containsKey(idClient) || clients.get(idClient) < clientSnapshot)
         {
             clients.put(idClient, clientSnapshot);
         }
 
-        synchronized (commitLock)
+        // First sign, then execute:
+        final long currentSnapshot = ++globalSnapshotId;
+        //Execute the transaction.
+        for (final IOperation op : localWriteSet)
         {
-            //First sign, then execute;
-            final long currentSnapshot = ++globalSnapshotId;
-            //Execute the transaction.
-            for (final IOperation op : localWriteSet)
-            {
-                //Log.getLogger().warn(currentSnapshot + " Running on: " + location + " op: " + op.toString());
-                op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, keyLoader, idClient);
-                updateCounts(1, 0, 0, 0);
-            }
-            this.putIntoWriteSet(currentSnapshot, localWriteSet);
+            op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, keyLoader, idClient);
+            updateCounts(1, 0, 0, 0);
         }
+        this.putIntoWriteSet(currentSnapshot, new ArrayList<>(localWriteSet));
 
+
+        wrapper.setLastTransactionId(consensusId);
         updateCounts(0, 0, 1, 0);
     }
 
@@ -556,7 +503,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return instance of the service replica
      */
-    ServiceReplica getReplica()
+    public ServiceReplica getReplica()
     {
         return replica;
     }
@@ -566,7 +513,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return the snapshot id.
      */
-    long getGlobalSnapshotId()
+    public long getGlobalSnapshotId()
     {
         return globalSnapshotId;
     }
@@ -576,7 +523,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return a hashmap of all the operations with their snapshotId.
      */
-    ConcurrentSkipListMap<Long, List<IOperation>> getGlobalWriteSet()
+    public ConcurrentSkipListMap<Long, List<IOperation>> getGlobalWriteSet()
     {
         return globalWriteSet;
     }
@@ -586,7 +533,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return a hashmap of all the operations with their snapshotId.
      */
-    Map<Long, List<IOperation>> getLatestWritesSet()
+    public Map<Long, List<IOperation>> getLatestWritesSet()
     {
         return latestWritesSet.asMap();
     }
@@ -604,7 +551,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return the factory.
      */
-    KryoFactory getFactory()
+    public KryoFactory getFactory()
     {
         return factory;
     }
@@ -624,7 +571,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      *
      * @return the id.
      */
-    int getId()
+    public int getId()
     {
         return id;
     }

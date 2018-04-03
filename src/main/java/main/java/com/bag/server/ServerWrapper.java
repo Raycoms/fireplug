@@ -1,12 +1,9 @@
 package main.java.com.bag.server;
 
-import main.java.com.bag.server.database.Neo4jDatabaseAccess;
-import main.java.com.bag.server.database.OrientDBDatabaseAccess;
-import main.java.com.bag.server.database.SparkseeDatabaseAccess;
-import main.java.com.bag.server.database.TitanDatabaseAccess;
-import main.java.com.bag.server.database.EmptyDatabaseAccess;
-import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
-import main.java.com.bag.util.Constants;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import main.java.com.bag.instrumentations.ServerInstrumentation;
+import main.java.com.bag.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.main.DatabaseLoader;
 import main.java.com.bag.util.Log;
 import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +19,17 @@ public class ServerWrapper
     /**
      * String to print in the case of invalid arguments.
      */
-    private static final String INVALID_ARGUMENTS = "Invalid program arguments, terminating server";
+    private static final String INVALID_ARGUMENTS = "Invalid program arguments, terminating server, expecting: <serverId> <DBInstance> <localSlaveId> <primaryID> <actsInGlobalCluster> [logging] [multiVersion] [globallyVerified]";
+
+    /**
+     * If the server operates under multiVersion mode or not.
+     */
+    private final boolean multiVersion;
+
+    /**
+     * If the server is globally verified or locally verified.
+     */
+    private final boolean globallyVerified;
 
     /**
      * The instance of the server which responds to the global cluster.
@@ -36,14 +43,14 @@ public class ServerWrapper
     private LocalClusterSlave  localCluster;
 
     /**
+     * Last executed transactionId.
+     */
+    private int lastTransactionId;
+
+    /**
      * The id of the server in the global cluster. Also the id of the local cluster (initially).
      */
     private final int globalServerId;
-
-    /**
-     * The String instance of the database.
-     */
-    private final String instance;
 
     /**
      * The id of the server in the local cluster.
@@ -54,7 +61,7 @@ public class ServerWrapper
     /**
      * The database instance.
      */
-    private IDatabaseAccess databaseAccess;
+    private final IDatabaseAccess databaseAccess;
 
     /**
      * Creates a serverWrapper which contains the instances of the global and local clusters.
@@ -64,27 +71,31 @@ public class ServerWrapper
      * @param isPrimary checks if it is a primary.
      * @param localClusterSlaveId the id of it in the local cluster.
      * @param initialLeaderId the id of its leader in the global cluster.
+     * @param multiVersion if multi-version mode.
      */
-    public ServerWrapper(final int globalServerId, @NotNull final String instance, final boolean isPrimary, final int localClusterSlaveId, final int initialLeaderId)
+    public ServerWrapper(final int globalServerId,
+                         @NotNull final String instance,
+                         final boolean isPrimary,
+                         final int localClusterSlaveId,
+                         final int initialLeaderId,
+                         final boolean multiVersion,
+                         final boolean globallyVerified)
     {
         final ServerInstrumentation instrumentation = new ServerInstrumentation(globalServerId);
         this.globalServerId = globalServerId;
-        this.instance = instance;
         this.localClusterSlaveId = localClusterSlaveId;
-
-        databaseAccess = instantiateDBAccess(instance, globalServerId);
-        databaseAccess.start();
+        lastTransactionId = 0;
 
         if(isPrimary)
         {
-            Log.getLogger().warn("Turn on global cluster with id: " + globalServerId);
+            Log.getLogger().error("Turn on global cluster with id: " + globalServerId);
             globalCluster = new GlobalClusterSlave(globalServerId, this, instrumentation);
-            Log.getLogger().warn("Finished turning on global cluster with id: " + globalServerId);
+            Log.getLogger().error("Finished turning on global cluster with id: " + globalServerId);
         }
 
         if(localClusterSlaveId != -1)
         {
-            Log.getLogger().warn("Start local cluster slave with id: "  + localClusterSlaveId);
+            Log.getLogger().error("Start local cluster slave with id: "  + localClusterSlaveId);
             localCluster = new LocalClusterSlave(localClusterSlaveId, this, initialLeaderId, instrumentation);
             if(isPrimary)
             {
@@ -94,13 +105,21 @@ public class ServerWrapper
             {
                 localCluster.setPrimaryGlobalClusterId(initialLeaderId);
             }
-            Log.getLogger().warn("Finished turning on local cluster slave with id: " + localClusterSlaveId);
+            Log.getLogger().error("Finished turning on local cluster slave with id: " + localClusterSlaveId);
         }
+
+        final KryoFactory pool = globalCluster != null ? globalCluster.getFactory() : localCluster.getFactory();
+
+        databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion, pool);
+        databaseAccess.start();
 
         if(isPrimary && localClusterSlaveId != -1)
         {
             localCluster.setPrimary(true);
         }
+
+        this.multiVersion = multiVersion;
+        this.globallyVerified = globallyVerified;
     }
 
     /**
@@ -113,31 +132,6 @@ public class ServerWrapper
     }
 
     /**
-     * Instantiate the Database access classes depending on the String instance.
-     *
-     * @param instance the string describing which to use.
-     * @return the databaseAccess for the instance.
-     */
-    @NotNull
-    public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId)
-    {
-        switch (instance)
-        {
-            case Constants.NEO4J:
-                return new Neo4jDatabaseAccess(globalServerId, null);
-            case Constants.TITAN:
-                return new TitanDatabaseAccess(globalServerId);
-            case Constants.SPARKSEE:
-                return  new SparkseeDatabaseAccess(globalServerId);
-            case Constants.ORIENTDB:
-                return new OrientDBDatabaseAccess(globalServerId);
-            default:
-                Log.getLogger().warn("Empty databaseAccess");
-                return new EmptyDatabaseAccess();
-        }
-    }
-
-    /**
      * Get the global cluster in this wrapper.
      * @return the global cluster.
      */
@@ -145,6 +139,42 @@ public class ServerWrapper
     public GlobalClusterSlave getGlobalCluster()
     {
         return this.globalCluster;
+    }
+
+    /**
+     * Getter to check if multiVersion.
+     * @return true if so.
+     */
+    public boolean isMultiVersion()
+    {
+        return multiVersion;
+    }
+
+    /**
+     * Getter to check if globallyVerified.
+     * @return true if so.
+     */
+    public boolean isGloballyVerified()
+    {
+        return globallyVerified;
+    }
+
+    /**
+     * Set the last transactionID.
+     * @param newId the new ID to set.
+     */
+    public void setLastTransactionId(final int newId)
+    {
+        this.lastTransactionId = newId;
+    }
+
+    /**
+     * Get the last transactionID.
+     * @return the ID.
+     */
+    public int getLastTransactionId()
+    {
+        return this.lastTransactionId;
     }
 
     /**
@@ -175,17 +205,21 @@ public class ServerWrapper
      * Main method used to start each GlobalClusterSlave.
      * @param args the id for each testServer, set it in the program arguments.
      */
-    public static void main(String [] args)
+    public static void main(final String [] args)
     {
-
         /*
          * The server arguments are:
-         * serverId (unique in global cluster), instance (db to use, neo4j etc), id in localCluster, actsInGlobalCluster (p.e if is primary),
-         * id of primary of local cluster (id of local cluster)
-         * , use Logging (true of false)
-         *
-         * 0 neo4j 0 0 true true
+         * - ServerId (unique in global cluster)
+         * - Instance (db to use, neo4j etc)
+         * - Id in localCluster (-id if not needed)
+         * - ActsInGlobalCluster (p.e if is primary),
+         * - Use Logging (true of false)
+         * - MultiVersion
+         * - GloballyVerified
+         * Example: 0 neo4j 0 0 true [true false true]
          */
+
+
         final int serverId;
         final String instance;
         final int localClusterSlaveId;
@@ -195,7 +229,7 @@ public class ServerWrapper
 
         if (args.length <= 3)
         {
-            Log.getLogger().warn(INVALID_ARGUMENTS);
+            Log.getLogger().error(INVALID_ARGUMENTS);
             return;
         }
 
@@ -203,42 +237,21 @@ public class ServerWrapper
         {
             serverId = Integer.parseInt(args[0]);
         }
-        catch (NumberFormatException ne)
+        catch (final NumberFormatException ne)
         {
-            Log.getLogger().warn(INVALID_ARGUMENTS);
+            Log.getLogger().error(INVALID_ARGUMENTS);
             return;
         }
 
-        final String tempInstance = args[1];
-
-        if (tempInstance.toLowerCase().contains("titan"))
-        {
-            instance = Constants.TITAN;
-        }
-        else if (tempInstance.toLowerCase().contains("orientdb"))
-        {
-            instance = Constants.ORIENTDB;
-        }
-        else if (tempInstance.toLowerCase().contains("sparksee"))
-        {
-            instance = Constants.SPARKSEE;
-        }
-        else if(tempInstance.toLowerCase().contains("neo4j"))
-        {
-            instance = Constants.NEO4J;
-        }
-        else
-        {
-            instance = "none";
-        }
+        instance = args[1];
 
         try
         {
             localClusterSlaveId = Integer.parseInt(args[2]);
         }
-        catch (NumberFormatException ne)
+        catch (final NumberFormatException ne)
         {
-            Log.getLogger().warn(INVALID_ARGUMENTS);
+            Log.getLogger().error(INVALID_ARGUMENTS);
             return;
         }
 
@@ -246,40 +259,51 @@ public class ServerWrapper
         {
             idOfPrimary = Integer.parseInt(args[3]);
         }
-        catch (NumberFormatException ne)
+        catch (final NumberFormatException ne)
         {
-            Log.getLogger().warn(INVALID_ARGUMENTS);
+            Log.getLogger().error(INVALID_ARGUMENTS);
             return;
         }
 
-        if (args.length <= 4)
-        {
-            actsInGlobalCluster = false;
-        }
-        else
-        {
-            actsInGlobalCluster = Boolean.parseBoolean(args[4]);
-        }
+        actsInGlobalCluster = args.length > 4 && Boolean.parseBoolean(args[4]);
 
-        if(args.length>=6)
+        if (args.length >= 6)
         {
-            boolean useLogging = Boolean.parseBoolean(args[5]);
-            if(!useLogging)
+            final boolean useLogging = Boolean.parseBoolean(args[5]);
+            if (!useLogging)
             {
                 Log.getLogger().setLevel(Level.WARN);
             }
         }
 
-        @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary);
-
-        /*final Scanner reader = new Scanner(System.in);  // Reading from System.in
-        Log.getLogger().info("Write anything to the console to kill this process");
-        final String command = reader.next();
-
-        if (command != null)
+        boolean multiVersion = false;
+        if (args.length >= 7)
         {
-            wrapper.terminate();
-        }*/
+            multiVersion = Boolean.parseBoolean(args[6]);
+            Log.getLogger().error("Starting server with multiVersion: " + multiVersion);
+        }
+
+        boolean globallyVerified = false;
+        if (args.length >= 8)
+        {
+            globallyVerified = Boolean.parseBoolean(args[7]);
+            Log.getLogger().error("Starting server globally verified: " + globallyVerified);
+        }
+
+        @NotNull final ServerWrapper wrapper = new ServerWrapper(serverId, instance, actsInGlobalCluster, localClusterSlaveId, idOfPrimary, multiVersion, globallyVerified);
+
+        final Scanner reader = new Scanner(System.in);  // Reading from System.in
+        Log.getLogger().info("Write <kill> to the console to kill this process");
+
+        while(reader.hasNext())
+        {
+            final String command = reader.next();
+            if (command != null && command.equals("kill"))
+            {
+                Log.getLogger().info("Killing server!");
+                wrapper.terminate();
+            }
+        }
     }
 
     /**
@@ -287,6 +311,7 @@ public class ServerWrapper
      */
     public void initNewGlobalClusterInstance()
     {
+        Log.getLogger().error("Turning it on with new GlobalServerId: " + globalServerId);
         globalCluster = new GlobalClusterSlave(globalServerId, this, new ServerInstrumentation(globalServerId));
     }
 
@@ -302,7 +327,7 @@ public class ServerWrapper
      * Get an instance of the local cluster.
      * @return the local cluster instance.
      */
-    public LocalClusterSlave getLocalCLuster()
+    public LocalClusterSlave getLocalCluster()
     {
         return localCluster;
     }
@@ -328,13 +353,5 @@ public class ServerWrapper
         return localClusterSlaveId;
     }
 
-    /**
-     * Set the database access for this server.
-     * Likely after an unexpected shutdown.
-     * @param dataBaseAccess the access to set.
-     */
-    public void setDataBaseAccess(final IDatabaseAccess dataBaseAccess)
-    {
-        this.databaseAccess = dataBaseAccess;
-    }
+
 }

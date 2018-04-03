@@ -1,14 +1,12 @@
 package main.java.com.bag.operations;
 
 import bftsmart.reconfiguration.util.RSAKeyLoader;
-import bftsmart.tom.util.TOMUtil;
-import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 /**
  * Create command which may be sent to the database.
@@ -49,12 +47,12 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
             }
             else
             {
-                Log.getLogger().warn("Trying to create incorrect type in the database.");
+                Log.getLogger().error("Trying to create incorrect type in the database.");
             }
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Unable to sign nodeStorage ", e);
+            Log.getLogger().error("Unable to sign nodeStorage ", e);
         }
     }
 

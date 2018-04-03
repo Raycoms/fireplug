@@ -56,7 +56,7 @@ public class ClientWorkLoads
         /**
          * Create a threadsafe version of kryo.
          */
-        private KryoFactory factory = () ->
+        private final KryoFactory factory = () ->
         {
             Kryo kryo = new Kryo();
             kryo.register(NodeStorage.class, 100);
@@ -247,7 +247,7 @@ public class ClientWorkLoads
             }
             catch (IOException e)
             {
-                Log.getLogger().warn("Error reading file", e);
+                Log.getLogger().error("Error reading file", e);
             }
             finally
             {
@@ -274,7 +274,7 @@ public class ClientWorkLoads
         /**
          * Create a threadsafe version of kryo.
          */
-        public KryoFactory factory = () ->
+        public final KryoFactory factory = () ->
         {
             Kryo kryo = new Kryo();
             kryo.register(NodeStorage.class, 100);
@@ -285,8 +285,9 @@ public class ClientWorkLoads
             return kryo;
         };
 
-        public RealisticOperation(@NotNull final BAGClient client, final int commitAfter, int seed, double percOfWrites)
+        public RealisticOperation(@NotNull final BAGClient client, final int commitAfter, final int seed, final double percOfWrites)
         {
+
             this.client = client;
             this.commitAfter = commitAfter;
             this.seed = seed;
@@ -295,14 +296,14 @@ public class ClientWorkLoads
 
         private List<GraphRelation> loadGraphRelations() throws IOException
         {
-            String graphLocation = System.getProperty("user.home") + "/thesis/src/testGraphs/social-a-graph.txt";
-            Random rnd = new Random();
-            int linesToLoad = 500;
-            int upperBound = 239736 - 500;
-            List<GraphRelation> list = new ArrayList<GraphRelation>();
+            final String graphLocation = System.getProperty("user.home") + "/thesis/src/testGraphs/social-a-graph.txt";
+            final Random rnd = new Random();
+            final int linesToLoad = 500;
+            final int upperBound = 239736 - 500;
+            final List<GraphRelation> list = new ArrayList<GraphRelation>();
             try (FileReader fr = new FileReader(graphLocation); BufferedReader br = new BufferedReader(fr);)
             {
-                int start = rnd.nextInt(upperBound);
+                final int start = rnd.nextInt(upperBound);
                 int count = 0;
                 String line;
                 while ((line = br.readLine()) != null)
@@ -318,8 +319,8 @@ public class ClientWorkLoads
                         break;
                     }
 
-                    String[] fields = line.split(" ");
-                    GraphRelation item = new GraphRelation();
+                    final String[] fields = line.split(" ");
+                    final GraphRelation item = new GraphRelation();
                     item.origin = fields[0];
                     item.relationName = fields[1];
                     item.destination = fields[2];
@@ -331,11 +332,11 @@ public class ClientWorkLoads
         }
 
         // Implementing Fisher–Yates shuffle
-        private static void shuffleArray(byte[] array)
+        private static void shuffleArray(final byte[] array)
         {
             int index;
             byte temp;
-            Random random = new Random();
+            final Random random = new Random();
             for (int i = array.length - 1; i > 0; i--)
             {
                 index = random.nextInt(i + 1);
@@ -348,6 +349,8 @@ public class ClientWorkLoads
         public void run()
         {
             final int maxNodeId = 100000;
+            final int minNodeId = 0;
+
             final int maxRelationShipId = Constants.RELATIONSHIP_TYPES_LIST.length;
 
             int relIndex = 0;
@@ -356,22 +359,22 @@ public class ClientWorkLoads
             int createNodes = 0;
             int createRelations = 0;
             int updateNodes = 0;
-            int updateRelations = 0;
+            final int updateRelations = 0;
             int deleteNodes = 0;
             int deleteRelations = 0;
             int commits = 0;
-            List<GraphRelation> loadedRelations;
+            final List<GraphRelation> loadedRelations;
             try
             {
                 loadedRelations = loadGraphRelations();
             }
-            catch (IOException e)
+            catch (final IOException e)
             {
                 e.printStackTrace();
                 return;
             }
 
-            byte[] bytes = new byte[1000000];
+            final byte[] bytes = new byte[1000000];
 
             for (int i = 0; i < bytes.length; i++)
             {
@@ -388,25 +391,25 @@ public class ClientWorkLoads
             final Random random = new Random(RANDOM_SEED + seed);
 
             long nanos = System.nanoTime();
-            long totalNanos = nanos;
+            final long totalNanos = nanos;
 
             for (int i = 1; i < bytes.length; i++)
             {
-                GraphRelation currentNode = loadedRelations.get(relIndex);
+                final GraphRelation currentNode = loadedRelations.get(relIndex);
                 relIndex += 1;
                 if (relIndex >= loadedRelations.size())
                 {
                     relIndex = 0;
                 }
 
-                boolean isRead = bytes[i] == 0;
+                final boolean isRead = bytes[i] == 0;
                 RelationshipStorage readRelationship = null;
                 NodeStorage readNodeStorage = null;
                 IOperation operation = null;
 
                 if (isRead || this.percOfWrites <= 0)
                 {
-                    double randomNum = random.nextDouble() * 100 + 1;
+                    final double randomNum = random.nextDouble() * 100 + 1;
                     if (randomNum <= 15.7)
                     {
                         readRelationship = new RelationshipStorage(
@@ -435,13 +438,13 @@ public class ClientWorkLoads
                 else
                 {
                     Log.getLogger().info("IS WRITE");
-                    double randomNum = random.nextDouble() * 100 + 1;
+                    final double randomNum = random.nextDouble() * 100 + 1;
                     if (randomNum <= 52.5)
                     {
                         operation = new CreateOperation<>(new RelationshipStorage(
                                 Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)),
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId))));
                         //add relationship
                         createRelations += 1;
                     }
@@ -449,27 +452,27 @@ public class ClientWorkLoads
                     {
                         operation = new DeleteOperation<>(new RelationshipStorage(
                                 Constants.RELATIONSHIP_TYPES_LIST[random.nextInt(maxRelationShipId)],
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId)))));
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)),
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId))));
                         //delete relationship
                         deleteRelations += 1;
                     }
                     else if (randomNum <= 52.5 + 9.2 + 16.5)
                     {
-                        operation = new CreateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
+                        operation = new CreateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)));
                         //add node
                         createNodes += 1;
                     }
                     else if (randomNum <= 52.5 + 9.2 + 16.5 + 20.7)
                     {
-                        operation = new UpdateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))),
-                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
+                        operation = new UpdateOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)),
+                                new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)));
                         //update node
                         updateNodes += 1;
                     }
                     else
                     {
-                        operation = new DeleteOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId))));
+                        operation = new DeleteOperation<>(new NodeStorage(String.valueOf(random.nextInt(maxNodeId) + minNodeId)));
                         //delete node
                         deleteNodes += 1;
                     }
@@ -487,7 +490,7 @@ public class ClientWorkLoads
                                 ;
                             }
                         }
-                        catch (InterruptedException e)
+                        catch (final InterruptedException e)
                         {
                                 /*
                                  * Intentionally left empty.
@@ -505,7 +508,7 @@ public class ClientWorkLoads
                                 ;
                             }
                         }
-                        catch (InterruptedException e)
+                        catch (final InterruptedException e)
                         {
                                 /*
                                  * Intentionally left empty.
@@ -531,6 +534,24 @@ public class ClientWorkLoads
 
                 if (i % commitAfter == 0)
                 {
+                    if (!client.hasRead())
+                    {
+                        client.read(new NodeStorage(true));
+                        try
+                        {
+                            while (client.getReadQueue().take() != TestClient.FINISHED_READING)
+                            {
+                                ;
+                            }
+                        }
+                        catch (final InterruptedException e)
+                        {
+                            /*
+                             * Intentionally left empty.
+                             */
+                        }
+                    }
+
                     client.commit();
                     while(client.isCommitting())
                     {
@@ -544,7 +565,7 @@ public class ClientWorkLoads
 
                 if (i % 1000 == 0)
                 {
-                    double dif = (System.nanoTime() - nanos) / 1000000000.0;
+                    final double dif = (System.nanoTime() - nanos) / 1000000000.0;
                     System.out.println(String.format("Elapsed: %.3f s\nreadNodes: %d\nreadRelations: %d\n" +
                                     "createNodes: %d\ncreateRelations: %d\nupdateNodes: %d\nupdateRelations: %d\n" +
                                     "deleteNodes: %d\ndeleteRelations: %d\ncommits: %d\n\n", dif, readNodes, readRelations,
@@ -553,7 +574,7 @@ public class ClientWorkLoads
                 }
             }
 
-            double dif = (System.nanoTime() - totalNanos) / 1000000000.0;
+            final double dif = (System.nanoTime() - totalNanos) / 1000000000.0;
             System.out.println(String.format("Total Elapsed: %.3f s\nreadNodes: %d\nreadRelations: %d\n" +
                             "createNodes: %d\ncreateRelations: %d\nupdateNodes: %d\nupdateRelations: %d\n" +
                             "deleteNodes: %d\ndeleteRelations: %d\ncommits: %d\n\n", dif, readNodes, readRelations,

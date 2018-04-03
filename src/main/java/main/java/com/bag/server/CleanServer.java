@@ -16,15 +16,13 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import main.java.com.bag.exceptions.OutDatedDataException;
+import main.java.com.bag.instrumentations.ServerInstrumentation;
+import main.java.com.bag.main.DatabaseLoader;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
-import main.java.com.bag.server.database.Neo4jDatabaseAccess;
-import main.java.com.bag.server.database.OrientDBDatabaseAccess;
-import main.java.com.bag.server.database.SparkseeDatabaseAccess;
-import main.java.com.bag.server.database.TitanDatabaseAccess;
-import main.java.com.bag.server.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.server.nettyhandlers.BAGMessage;
 import main.java.com.bag.server.nettyhandlers.BAGMessageDecoder;
 import main.java.com.bag.server.nettyhandlers.BAGMessageEncoder;
@@ -51,11 +49,11 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
      * Name of the location of the global config.
      */
     private static final String GLOBAL_CONFIG_LOCATION = "global/config";
-    
+
     /**
      * Create a threadsafe version of kryo.
      */
-    private static KryoFactory factory = () ->
+    private static final KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
         kryo.register(NodeStorage.class, 100);
@@ -72,30 +70,23 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
     private final IDatabaseAccess access;
 
     /**
-     * Id of the server.
-     */
-    private final int id;
-
-
-    /**
      * Used to measure and save performance info
      */
-    private ServerInstrumentation instrumentation;
+    private final ServerInstrumentation instrumentation;
 
     /**
      * Create an instance of this server.
      *
      * @param access the instance of the db.
      */
-    private CleanServer(final IDatabaseAccess access, final int id, ServerInstrumentation instrumentation)
+    private CleanServer(final IDatabaseAccess access, final int id, final ServerInstrumentation instrumentation)
     {
         this.access = access;
-        this.id = id;
         this.instrumentation = instrumentation;
 
-        try(final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results"+id+".txt", true);
-            final BufferedWriter bw = new BufferedWriter(file);
-            final PrintWriter out = new PrintWriter(bw))
+        try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
+             final BufferedWriter bw = new BufferedWriter(file);
+             final PrintWriter out = new PrintWriter(bw))
         {
             out.println();
             out.println("Starting new experiment (direct server): ");
@@ -108,7 +99,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             out.print("throughput");
             out.println();
         }
-        catch (IOException e)
+        catch (final IOException e)
         {
             Log.getLogger().info("Problem while writing to file!", e);
         }
@@ -123,7 +114,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
     }
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx)
+    public void channelReadComplete(final ChannelHandlerContext ctx)
     {
         ctx.flush();
     }
@@ -131,32 +122,40 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause)
     {
-        Log.getLogger().warn("Exception caused in transfer", cause);
+        Log.getLogger().error("Exception caused in transfer", cause);
         ctx.close();
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, final BAGMessage msg) {
+    public void channelRead0(final ChannelHandlerContext ctx, final BAGMessage msg)
+    {
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
         final Input input = new Input(msg.buffer);
         int writesPerformed = 0;
-        List<Object> readObjects = new ArrayList<>();
+        final List<Object> readObjects = new ArrayList<>();
         final List returnValue = kryo.readObject(input, ArrayList.class);
         Log.getLogger().info("Received message!");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
 
-        for (Object obj : returnValue) {
-            if (obj instanceof IOperation) {
+        for (final Object obj : returnValue)
+        {
+            if (obj instanceof IOperation)
+            {
                 ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, 0);
                 instrumentation.updateCounts(1, 0, 0, 0);
                 writesPerformed += 1;
-            } else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage) {
-                try {
-                    List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT);
+            }
+            else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
+            {
+                try
+                {
+                    final List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT);
                     readObjects.addAll(read);
                     instrumentation.updateCounts(0, 1, 0, 0);
-                } catch (OutDatedDataException e) {
+                }
+                catch (final OutDatedDataException e)
+                {
                     Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
                     instrumentation.updateCounts(0, 0, 0, 1);
                 }
@@ -166,11 +165,14 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         readObjects.add(new DeleteOperation<>());
 
         if (writesPerformed > 0)
+        {
             instrumentation.updateCounts(0, 0, 1, 0);
+        }
 
-        try (final Output output = new Output(0, 1024 * 100)) {
+        try (final Output output = new Output(0, 1024 * 100))
+        {
             kryo.writeObject(output, readObjects);
-            BAGMessage message = new BAGMessage();
+            final BAGMessage message = new BAGMessage();
             message.buffer = output.getBuffer();
             message.size = message.buffer.length;
             pool.release(kryo);
@@ -183,7 +185,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
      *
      * @param args the arguments to start it with.
      */
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         if (args.length < 3)
         {
@@ -198,33 +200,17 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         final String tempInstance = args[2];
         String haAddresses = null;
         if (args.length > 3)
+        {
             haAddresses = args[3];
-
-        ServerInstrumentation instrumentation = new ServerInstrumentation(id);
-
-        IDatabaseAccess access;
-
-        if (tempInstance.toLowerCase().contains("titan"))
-        {
-            access = new TitanDatabaseAccess(id);
-        }
-        else if (tempInstance.toLowerCase().contains("orientdb"))
-        {
-            access = new OrientDBDatabaseAccess(id);
-        }
-        else if (tempInstance.toLowerCase().contains("sparksee"))
-        {
-            access = new SparkseeDatabaseAccess(id);
-        }
-        else
-        {
-            access = new Neo4jDatabaseAccess(id, haAddresses);
         }
 
-        if(args.length>=4)
+        final ServerInstrumentation instrumentation = new ServerInstrumentation(id);
+
+        final IDatabaseAccess access = DatabaseLoader.instantiateDBAccess(tempInstance.toLowerCase(), id, false, null);
+        if (args.length >= 4)
         {
-            boolean useLogging = Boolean.parseBoolean(args[3]);
-            if(!useLogging)
+            final boolean useLogging = Boolean.parseBoolean(args[3]);
+            if (!useLogging)
             {
                 Log.getLogger().setLevel(Level.OFF);
             }
@@ -264,7 +250,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             System.out.println("Direct server " + id + " started.");
             future.channel().closeFuture().sync();
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             Thread.currentThread().interrupt();
             Log.getLogger().info("Netty server got interrupted", e);

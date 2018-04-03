@@ -1,0 +1,14 @@
+{
+  "states": {
+    "Neo4j-Mv": "minecolonies:blockhutsmeltery",
+    "Neo4j": {"DB": "Neo4j", "Protocol": "default"},
+    "Mixed": "",
+    "Flat": ""
+  },
+  "triggers": {
+    "triggerName": {"unit": 100, "comparison": >}
+  },
+  "solutions": {
+    "#triggerName": { "#Neo4j-Mv": "#Neo4j"}
+  }
+}
