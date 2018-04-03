@@ -113,7 +113,7 @@ def update_latency_lines(lines, string):
 for i in range(0, total_servers):
 	cluster = i % total_clusters
 	host = 'nova-%d'%servers[i]
-	command = 'addlatency%d.sh stop'%cluster
+	command = '~/addlatency%d.sh stop'%cluster
 	subprocess.Popen(['ssh', host, command], shell=False)
 
 
@@ -132,13 +132,13 @@ if latency == 1:
 
 
 	for i in range(0, total_clusters):
-		lfile = open('addlatency%d.sh'%i, 'r')
+		lfile = open('~/addlatency%d.sh'%i, 'r')
 		lines = lfile.readlines()
 		lfile.close()
 
 		lines = update_latency_lines(lines, latency_strings[i])
 
-		lfile = open('addlatency%d.sh'%i, 'w')
+		lfile = open('~/addlatency%d.sh'%i, 'w')
 		lfile.writelines(lines)
 		lfile.close()
 
@@ -146,7 +146,7 @@ if latency == 1:
 	for i in range(0, total_servers):
 		cluster = i % total_clusters
 		host = 'nova-%d'%servers[i]
-		command = 'addlatency%d.sh start'%cluster
+		command = '~/addlatency%d.sh start'%cluster
 		subprocess.Popen(['ssh', host, command], shell=False)
 
 
