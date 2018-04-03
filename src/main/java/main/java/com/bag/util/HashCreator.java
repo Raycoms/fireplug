@@ -24,7 +24,7 @@ public class HashCreator
          * Intentionally left empty.
          */
     }
-    
+
     /**
      * Create a sha1 hash-sum from a @NodeStorage.
      * @param node the input @NodeStorage
