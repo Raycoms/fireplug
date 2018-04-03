@@ -204,8 +204,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 Log.getLogger().info(Long.toString(snapshotId));
                 builder.append(buildNodeString(nodeStorage, ""));
                 builder.append(" RETURN n");
-                Log.getLogger().info(builder.toString());
-
+                Log.getLogger().warn(builder.toString());
                 //Converts the keys to upper case to fit the params we send to neo4j.
                 properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
             }
