@@ -132,13 +132,13 @@ if latency == 1:
 
 
 	for i in range(0, total_clusters):
-		lfile = open('~/addlatency%d.sh'%i, 'r')
+		lfile = open('addlatency%d.sh'%i, 'r')
 		lines = lfile.readlines()
 		lfile.close()
 
 		lines = update_latency_lines(lines, latency_strings[i])
 
-		lfile = open('~/addlatency%d.sh'%i, 'w')
+		lfile = open('addlatency%d.sh'%i, 'w')
 		lfile.writelines(lines)
 		lfile.close()
 
