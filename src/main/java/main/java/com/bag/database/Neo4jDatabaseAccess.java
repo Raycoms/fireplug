@@ -437,7 +437,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             //Assuming we only get one node in return.
             while (result.hasNext())
             {
-                Log.getLogger().error("Received result!");
+                Log.getLogger().info("Received result!");
                 final Map<String, Object> value = result.next();
                 for (final Map.Entry<String, Object> entry : value.entrySet())
                 {
