@@ -481,7 +481,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             }
         }
 
-        Log.getLogger().error("Can't find node!");
+        Log.getLogger().error("Can't find node! " + nodeStorage.toString());
         //If can't find the node its different probably.
         return false;
     }
@@ -816,7 +816,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             }
         }
 
-        Log.getLogger().error("Can't find RS!");
+        Log.getLogger().error("Can't find RS! " + relationshipStorage.toString());
         return false;
     }
 
