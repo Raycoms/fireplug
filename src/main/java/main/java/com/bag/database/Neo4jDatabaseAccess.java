@@ -425,8 +425,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
 
         final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
-        final Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
+        final String copy = builder;
 
+        final Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
         final Result result = graphDb.execute(builder, properties);
 
         //Assuming we only get one node in return.
@@ -481,7 +482,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             }
         }
 
-        Log.getLogger().error("Can't find node! " + nodeStorage.toString());
+        Log.getLogger().error("Can't find node! " + nodeStorage.toString() + " : " + copy + Arrays.toString(properties.entrySet().toArray()));
+
         //If can't find the node its different probably.
         return false;
     }
