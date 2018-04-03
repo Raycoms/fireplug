@@ -424,65 +424,68 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             start();
         }
 
-        final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
-        final String copy = builder;
-
-        final Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
-        final Result result = graphDb.execute(builder, properties);
-
-        //Assuming we only get one node in return.
-        if (result.hasNext())
+        try (Transaction tx = graphDb.beginTx())
         {
-            final Map<String, Object> value = result.next();
-            for (final Map.Entry<String, Object> entry : value.entrySet())
+            final String builder = MATCH + buildNodeString(nodeStorage, "") + " RETURN n";
+
+            final Map<String, Object> properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
+            final Result result = graphDb.execute(builder, properties);
+
+            //Assuming we only get one node in return.
+            if (result.hasNext())
             {
-                if (entry.getValue() instanceof NodeProxy)
+                final Map<String, Object> value = result.next();
+                for (final Map.Entry<String, Object> entry : value.entrySet())
                 {
-                    final NodeProxy n = (NodeProxy) entry.getValue();
-
-                    try
+                    if (entry.getValue() instanceof NodeProxy)
                     {
-                        if (HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH)))
+                        final NodeProxy n = (NodeProxy) entry.getValue();
+
+                        try
                         {
-                            return true;
+                            if (HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH)))
+                            {
+                                return true;
+                            }
+                            final NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                            Log.getLogger().warn("Failing: " + nodeStorage.toString() + " : " + temp.toString());
                         }
-                        final NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-                        Log.getLogger().warn("Failing: " + nodeStorage.toString() + " : " + temp.toString());
-                    }
-                    catch (final NoSuchAlgorithmException e)
-                    {
-                        Log.getLogger().error("Couldn't execute SHA1 for node", e);
-                    }
-
-                    if (!multiVersion)
-                    {
-                        return false;
-                    }
-
-                    final Kryo kryo = pool.borrow();
-                    try
-                    {
-                        NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-                        if (temp.getProperties().containsKey(TAG_SNAPSHOT_ID))
+                        catch (final NoSuchAlgorithmException e)
                         {
-                           final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
-                           final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
-                           temp = OutDatedDataException.getCorrectNodeStorage(sId, wantedId instanceof Long ? (long) wantedId : -1, temp, kryo);
+                            Log.getLogger().error("Couldn't execute SHA1 for node", e);
                         }
-                        return HashCreator.sha1FromNode(nodeStorage).equals(temp.getProperty(Constants.TAG_HASH));
-                    }
-                    catch (final Exception e)
-                    {
-                        Log.getLogger().error("Couldn't execute SHA1 for node " + nodeStorage.toString(), e);
-                    }
-                    pool.release(kryo);
 
-                    break;
+                        if (!multiVersion)
+                        {
+                            return false;
+                        }
+
+                        final Kryo kryo = pool.borrow();
+                        try
+                        {
+                            NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
+                            if (temp.getProperties().containsKey(TAG_SNAPSHOT_ID))
+                            {
+                                final Object sId = temp.getProperties().get(TAG_SNAPSHOT_ID);
+                                final Object wantedId = nodeStorage.getProperty(TAG_SNAPSHOT_ID);
+                                temp = OutDatedDataException.getCorrectNodeStorage(sId, wantedId instanceof Long ? (long) wantedId : -1, temp, kryo);
+                            }
+                            return HashCreator.sha1FromNode(nodeStorage).equals(temp.getProperty(Constants.TAG_HASH));
+                        }
+                        catch (final Exception e)
+                        {
+                            Log.getLogger().error("Couldn't execute SHA1 for node " + nodeStorage.toString(), e);
+                        }
+                        pool.release(kryo);
+
+                        break;
+                    }
                 }
             }
+            tx.success();
+            Log.getLogger().error("Can't find node! ");
         }
 
-        Log.getLogger().error("Can't find node! " + nodeStorage.toString() + " : " + copy + Arrays.toString(properties.entrySet().toArray()));
 
         //If can't find the node its different probably.
         return false;
