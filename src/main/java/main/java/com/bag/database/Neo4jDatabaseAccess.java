@@ -204,7 +204,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 Log.getLogger().info(Long.toString(snapshotId));
                 builder.append(buildNodeString(nodeStorage, ""));
                 builder.append(" RETURN n");
-                Log.getLogger().warn(builder.toString());
+                Log.getLogger().info(builder.toString());
                 //Converts the keys to upper case to fit the params we send to neo4j.
                 properties = transFormToPropertyMap(nodeStorage.getProperties(), "");
             }
@@ -214,7 +214,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final Result result = graphDb.execute(builder.toString(), properties);
             while (result.hasNext())
             {
-                Log.getLogger().error("Received result!");
                 final Map<String, Object> value = result.next();
 
                 for (final Map.Entry<String, Object> entry : value.entrySet())
@@ -490,12 +489,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 return false;
             }
             tx.success();
-            Log.getLogger().info("Can't find node! ");
         }
 
-
         //If can't find the node its different probably.
-        return false;
+        return true;
     }
 
     @Override
@@ -828,8 +825,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             }
         }
 
-        Log.getLogger().error("Can't find RS! " + relationshipStorage.toString());
-        return false;
+        return true;
     }
 
     /**
