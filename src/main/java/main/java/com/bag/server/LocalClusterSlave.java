@@ -210,7 +210,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     handleRegisterGloballyMessage(input, output, messageContext, kryo);
                     break;
                 case Constants.UPDATE_SLAVE:
-                    Log.getLogger().info("Received update slave message");
+                    Log.getLogger().error("Received update slave message");
                     handleSlaveUpdateMessage(input, output, kryo);
                     input.close();
                     return new byte[0];
