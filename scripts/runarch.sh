@@ -23,11 +23,11 @@ for HOST in ${BAG_HOSTS} ; do
     ((i++))
 done
 
-localClusterId=(0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1)
-
+#localClusterId=(0 1 0 1 0 1 0 1)
+localClusterId=(0 1 2 0 1 2 0 1 2 0 1 2)
 #This one depends on the topology
-idInLocalCluster=(0 0 1 1 2 2 3 3)
-#idInLocalCluster=(0 0 0 1 1 1 2 2 2 3 3 3)
+#idInLocalCluster=(0 0 1 1 2 2 3 3)
+idInLocalCluster=(0 0 0 1 1 1 2 2 2 3 3 3)
 #idInLocalCluster=(0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3)
 
 i=0
