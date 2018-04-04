@@ -74,7 +74,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Thread pool for message sending.
      */
-    private final ExecutorService service = Executors.newFixedThreadPool(2);
+    private final ExecutorService service = Executors.newSingleThreadExecutor();
 
     /**
      * Thread pool for message sending.
@@ -836,9 +836,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 kryo.writeObject(messageOutput, signatureStorage);
                 kryo.writeObject(messageOutput, consensusId);
 
-                final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
-                service.submit(runnable);
-
+                if (wrapper.getLocalCluster().getId() == 0)
+                {
+                    final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
+                    service.submit(runnable);
+                }
                 messageOutput.close();
                 pool.release(kryo);
 
