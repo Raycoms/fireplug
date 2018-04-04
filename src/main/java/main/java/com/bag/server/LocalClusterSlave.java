@@ -544,9 +544,9 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
         buffer.put(snapShotId, localWriteSet);
         Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
-        if(buffer.size() > 10000)
+        if(buffer.size() % 200 == 0)
         {
-            Log.getLogger().error("Missing more than 1000 messages, something is broken!" + lastKey);
+            Log.getLogger().error("Missing more than: " + buffer.size() + " messages, something is broken!" + lastKey);
         }
         kryo.writeObject(output, true);
         return output;
