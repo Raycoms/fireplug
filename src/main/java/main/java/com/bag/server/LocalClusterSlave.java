@@ -70,11 +70,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
 
     /**
-     * Lock to lock the update slave execution to order the execution correctly.
-     */
-    private final Object lock = new Object();
-
-    /**
      * Public constructor used to create a local cluster slave.
      *
      * @param id             its unique id in the local cluster.
@@ -146,12 +141,9 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
                 else if (Constants.UPDATE_SLAVE.equals(type))
                 {
-                    Output output = new Output(0, 1024);
+                    final Output output;
                     Log.getLogger().error("Received update slave message ordered");
-                    synchronized (lock)
-                    {
-                        output = handleSlaveUpdateMessage(input, output, kryo);
-                    }
+                    output = handleSlaveUpdateMessage(input, new Output(0, 1024), kryo);
                     Log.getLogger().error("Leaving update slave message ordered");
                     allResults[i] = output.getBuffer();
                     output.close();
@@ -177,36 +169,37 @@ public class LocalClusterSlave extends AbstractRecoverable
     @Override
     public byte[] appExecuteUnordered(final byte[] bytes, final MessageContext messageContext)
     {
-        Output output = new Output(0, 400240);
-        try
+        final KryoPool pool;
+        final Kryo kryo;
+        final Input input;
+        final byte[] returnValue;
+        try (Output output = new Output(0, 400240))
         {
             Log.getLogger().info("Received unordered message");
-            final KryoPool pool = new KryoPool.Builder(getFactory()).softReferences().build();
-            final Kryo kryo = pool.borrow();
-            final Input input = new Input(bytes);
+            pool = new KryoPool.Builder(getFactory()).softReferences().build();
+            kryo = pool.borrow();
+            input = new Input(bytes);
             final String reason = kryo.readObject(input, String.class);
-            final byte[] returnValue;
 
             switch (reason)
             {
                 case Constants.READ_MESSAGE:
                     Log.getLogger().info("Received Node read message");
                     kryo.writeObject(output, Constants.READ_MESSAGE);
-                    output = handleNodeRead(input, kryo, output, messageContext.getSender());
+                    handleNodeRead(input, kryo, output, messageContext.getSender());
                     break;
                 case Constants.RELATIONSHIP_READ_MESSAGE:
                     Log.getLogger().info("Received Relationship read message");
                     kryo.writeObject(output, Constants.READ_MESSAGE);
-                    output = handleRelationshipRead(input, kryo, output, messageContext.getSender());
+                    handleRelationshipRead(input, kryo, output, messageContext.getSender());
                     break;
                 case Constants.GET_PRIMARY:
                     Log.getLogger().info("Received GetPrimary message");
                     kryo.writeObject(output, Constants.GET_PRIMARY);
-                    output = handleGetPrimaryMessage(messageContext, output, kryo);
+                    handleGetPrimaryMessage(messageContext, output, kryo);
                     break;
                 case Constants.COMMIT:
                     Log.getLogger().info("Received commit message: " + input.getBuffer().length);
-                    output.close();
                     final byte[] result = handleReadOnlyCommit(input, kryo);
                     input.close();
                     pool.release(kryo);
@@ -214,33 +207,24 @@ public class LocalClusterSlave extends AbstractRecoverable
                     return result;
                 case Constants.REGISTER_GLOBALLY_MESSAGE:
                     Log.getLogger().info("Received register globally message");
-                    output = handleRegisterGloballyMessage(input, output, messageContext, kryo);
+                    handleRegisterGloballyMessage(input, output, messageContext, kryo);
                     break;
                 case Constants.UPDATE_SLAVE:
                     Log.getLogger().info("Received update slave message");
-                    synchronized (lock)
-                    {
-                        output = handleSlaveUpdateMessage(input, output, kryo);
-                    }
+                    handleSlaveUpdateMessage(input, output, kryo);
                     input.close();
                     return new byte[0];
                 default:
                     Log.getLogger().error("Incorrect operation sent unordered to the server");
-                    output.close();
                     input.close();
                     return new byte[0];
             }
             returnValue = output.getBuffer();
             Log.getLogger().info("Return it to sender, size: " + returnValue.length);
-
-            input.close();
-            pool.release(kryo);
-            return returnValue;
         }
-        finally
-        {
-            output.close();
-        }
+        input.close();
+        pool.release(kryo);
+        return returnValue;
     }
 
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
@@ -378,7 +362,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     }
 
     @NotNull
-    private Output handleSlaveUpdateMessage(final Input input, @NotNull final Output output, final Kryo kryo)
+    private synchronized Output handleSlaveUpdateMessage(final Input input, @NotNull final Output output, final Kryo kryo)
     {
         //Not required. Is primary already dealt with it.
         if (wrapper.getGlobalCluster() != null)
