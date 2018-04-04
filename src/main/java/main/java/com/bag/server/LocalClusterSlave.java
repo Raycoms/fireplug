@@ -211,7 +211,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     handleRegisterGloballyMessage(input, output, messageContext, kryo);
                     break;
                 case Constants.UPDATE_SLAVE:
-                    Log.getLogger().error("Received update slave message");
+                    Log.getLogger().info("Received update slave message");
                     handleSlaveUpdateMessage(input, output, kryo);
                     input.close();
                     return new byte[0];
@@ -380,13 +380,14 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         if (lastKey > snapShotId)
         {
+            Log.getLogger().warn("Throwing away, incoming snapshotId: " + snapShotId + " smaller than existing: " + lastKey);
             //Received a message which has been committed in the past already.
             kryo.writeObject(output, true);
             return output;
         }
         else if (lastKey == snapShotId)
         {
-            Log.getLogger().info("Received already committed transaction.");
+            Log.getLogger().warn("Received already committed transaction.");
             kryo.writeObject(output, true);
             return output;
         }
