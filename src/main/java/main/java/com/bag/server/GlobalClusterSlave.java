@@ -451,8 +451,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 kryo.writeObject(messageOutput, signatureStorage);
                 kryo.writeObject(messageOutput, consensusId);
 
-                final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
-                service.submit(runnable);
+                if (wrapper.getLocalCluster().getId() == 0)
+                {
+                    final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
+                    service.submit(runnable);
+                }
                 messageOutput.close();
 
                 signatureStorage.setDistributed();
@@ -527,8 +530,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Starting thread to update to slave signed by all members: " + snapShotId);
 
-        final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
-        service.submit(runnable);
+        if (wrapper.getLocalCluster().getId() == 0)
+        {
+            final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
+            service.submit(runnable);
+        }
         messageOutput.close();
 
         signatureStorage.setDistributed();
