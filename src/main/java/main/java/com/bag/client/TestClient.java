@@ -506,7 +506,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (readOnly && readMode == UNSAFE)
         {
-            Log.getLogger().error(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
+            Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
             firstRead = true;
             resetSets();
             return;
