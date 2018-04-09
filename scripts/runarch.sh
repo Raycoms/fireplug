@@ -1,7 +1,8 @@
+#!/usr/bin/env bash
 #BAG_HOSTS should contain the host ips in the right order.
 
-#DBS=('neo4j' 'neo4j' 'orientdb' 'orientdb' 'neo4j' 'neo4j' 'orientdb' 'orientdb')
-DBS=('neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j')
+#DBS=('neo4j' 'neo4j' 'orientdb' 'orientdb' 'neo4j' 'neo4j' 'orientdb' 'orientdb' 'neo4j' 'neo4j' 'orientdb' 'orientdb')
+DBS=('neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j' 'neo4j')
 
 multi=$1
 mode=$2
@@ -22,11 +23,11 @@ for HOST in ${BAG_HOSTS} ; do
     ((i++))
 done
 
-localClusterId=(0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1)
-
+#localClusterId=(0 1 0 1 0 1 0 1)
+localClusterId=(0 1 2 0 1 2 0 1 2 0 1 2)
 #This one depends on the topology
-idInLocalCluster=(0 0 1 1 2 2 3 3)
-#idInLocalCluster=(0 0 0 1 1 1 2 2 2 3 3 3)
+#idInLocalCluster=(0 0 1 1 2 2 3 3)
+idInLocalCluster=(0 0 0 1 1 1 2 2 2 3 3 3)
 #idInLocalCluster=(0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3)
 
 i=0

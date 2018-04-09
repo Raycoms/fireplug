@@ -16,6 +16,16 @@ import static main.java.com.bag.util.Constants.TAG_VERSION;
 public class HashCreator
 {
     /**
+     * Private constructor to hide implicit one.
+     */
+    private HashCreator()
+    {
+        /**
+         * Intentionally left empty.
+         */
+    }
+
+    /**
      * Create a sha1 hash-sum from a @NodeStorage.
      * @param node the input @NodeStorage
      * @return the return string (hash-sum)
@@ -27,10 +37,10 @@ public class HashCreator
         copy.removeProperty(TAG_VERSION);
         copy.removeProperty(TAG_PRE);
         copy.removeProperty(TAG_SNAPSHOT_ID);
-        
-        MessageDigest mDigest = MessageDigest.getInstance("SHA1");
 
-        byte[] result = mDigest.digest(copy.getBytes());
+        final MessageDigest mDigest = MessageDigest.getInstance("SHA1");
+
+        final byte[] result = mDigest.digest(copy.getBytes());
 
         final StringBuilder sb = new StringBuilder();
         for (final byte aResult : result)
@@ -52,12 +62,13 @@ public class HashCreator
         final RelationshipStorage copy = new RelationshipStorage(relationShip);
         copy.removeProperty(TAG_VERSION);
         copy.removeProperty(TAG_PRE);
+        copy.removeProperty(TAG_SNAPSHOT_ID);
 
-        MessageDigest mDigest = MessageDigest.getInstance("SHA1");
+        final MessageDigest mDigest = MessageDigest.getInstance("SHA1");
 
-        byte[] result = mDigest.digest(copy.getBytes());
+        final byte[] result = mDigest.digest(copy.getBytes());
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (final byte aResult : result)
         {
             sb.append(Integer.toString((aResult & 0xff) + 0x100, 16).substring(1));

@@ -212,6 +212,7 @@ public class ServerWrapper
          * - ServerId (unique in global cluster)
          * - Instance (db to use, neo4j etc)
          * - Id in localCluster (-id if not needed)
+         * - idOfPrimary
          * - ActsInGlobalCluster (p.e if is primary),
          * - Use Logging (true of false)
          * - MultiVersion

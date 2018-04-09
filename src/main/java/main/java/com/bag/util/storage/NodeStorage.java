@@ -65,7 +65,7 @@ public class NodeStorage implements Serializable
      *
      * @param id string identifier of the node.
      */
-    public NodeStorage(@NotNull String id)
+    public NodeStorage(@NotNull final String id)
     {
         this.id = "Node";
         this.properties = new TreeMap<>();
@@ -78,7 +78,7 @@ public class NodeStorage implements Serializable
      * @param id         string identifier of the node.
      * @param properties properties of the node.
      */
-    public NodeStorage(@NotNull String id, @NotNull Map<String, Object> properties)
+    public NodeStorage(@NotNull final String id, @NotNull final Map<String, Object> properties)
     {
         this.id = "Node";
         this.properties.putAll(properties);
@@ -126,7 +126,7 @@ public class NodeStorage implements Serializable
      * @param description description of the property.
      * @param value       value of the property.
      */
-    public void addProperty(String description, Object value)
+    public void addProperty(final String description, final Object value)
     {
         this.properties.put(description, value);
     }
@@ -183,7 +183,7 @@ public class NodeStorage implements Serializable
     {
         final Output output = new Output(0, 100024);
         kryo.writeObject(output, this);
-        byte[] bytes = output.getBuffer();
+        final byte[] bytes = output.getBuffer();
         output.close();
         return bytes;
     }
@@ -205,7 +205,7 @@ public class NodeStorage implements Serializable
      *
      * @param key the key of the property which should be removed.
      */
-    public void removeProperty(String key)
+    public void removeProperty(final String key)
     {
         properties.remove(key);
     }
@@ -213,11 +213,11 @@ public class NodeStorage implements Serializable
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(id);
 
         sb.append("[");
-        for (Map.Entry<String, Object> item : properties.entrySet())
+        for (final Map.Entry<String, Object> item : properties.entrySet())
         {
             /*if(item.getKey().equals(TAG_HASH) || item.getKey().equals(TAG_SNAPSHOT_ID) || item.getKey().equals(TAG_VERSION))
             {
@@ -242,10 +242,10 @@ public class NodeStorage implements Serializable
      */
     public byte[] getBytes()
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(id);
 
-        for (Map.Entry<String, Object> entry : properties.entrySet())
+        for (final Map.Entry<String, Object> entry : properties.entrySet())
         {
             sb.append(entry.getKey()).append(entry.getValue());
         }
