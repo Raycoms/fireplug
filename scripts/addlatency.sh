@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Script to simulate latency.
 ITF=eth0
 HOSTS="172.16.52.3 172.16.52.4 172.16.52.6 172.16.52.7 172.16.52.9 172.16.52.20 172.16.52.22 172.16.52.23"
 FILTER="sudo-g5k tc filter add dev $ITF protocol ip parent 1: prio 1 u32"

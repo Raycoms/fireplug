@@ -9,3 +9,22 @@ which only supports crash faults.
 
 Currently, offering support for Neo4j, Titan, SparkSee and OrientDB
 
+
+
+
+
+# Scripts:
+All scripts require the environmental variable BAG_HOSTS which should contain a list of all ips ordered by their bft-smart ID.
+All scripts are supposed to be executed outside of the project folder. (One folder up).
+
+# Utility scripts:
+- Script to kill all processes (Kills all java processes).
+killjava.sh
+- Script to pull the newest version and compile a new Jar.
+compile.sh
+- Script to setup latency between the different nodes.
+addlatency.sh
+- Script to generate the environmental variable and setup the config and latency files.
+update_servers.py (Requires python).
+-
+
