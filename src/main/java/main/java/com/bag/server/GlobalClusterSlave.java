@@ -108,6 +108,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 return;
             }
 
+            if (positionToCheck > 1)
+            {
+                return;
+            }
+
             proxy.getViewManager().updateCurrentViewFromRepository();
 
             positionToCheck = 1;
