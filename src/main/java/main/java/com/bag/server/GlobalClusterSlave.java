@@ -23,10 +23,6 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.DataOutputStream;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.security.PublicKey;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +36,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * Name of the location of the global config.
      */
-    private static final String GLOBAL_CONFIG_LOCATION = "global/config";
+    public static final String GLOBAL_CONFIG_LOCATION = "global/config";
 
     /**
      * The wrapper class instance. Used to access the global cluster if possible.
@@ -116,8 +112,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             positionToCheck = this.id + 1;
         }
-        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, proxy, GLOBAL_CONFIG_LOCATION, id), 10000, 5000);
-        timer.scheduleAtFixedRate(new LoadSensor(), 5000, 5000);
+
+        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, proxy, GLOBAL_CONFIG_LOCATION, id, pool.borrow()), 10000, 5000);
     }
 
     /**
@@ -132,11 +129,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
-
-        if (messageContexts == null || message == null || message.length != messageContexts.length)
-        {
-            Log.getLogger().error("!!!!!!!!!!!!!!!!!Something is going so badly!!!!!!!!!!!!!!!!!! the message length is != the contxt length");
-        }
 
         for(int i = 0; i < message.length; i++)
         {

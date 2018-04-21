@@ -14,6 +14,7 @@ import main.java.com.bag.client.TestClient;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.UpdateOperation;
+import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -41,6 +42,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<BAGMessage>
         kryo.register(CreateOperation.class, 250);
         kryo.register(DeleteOperation.class, 300);
         kryo.register(UpdateOperation.class, 350);
+        kryo.register(LoadSensor.LoadDesc.class, 400);
         return kryo;
     };
 

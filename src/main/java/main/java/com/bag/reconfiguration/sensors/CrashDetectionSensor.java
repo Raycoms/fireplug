@@ -2,6 +2,9 @@ package main.java.com.bag.reconfiguration.sensors;
 
 import bftsmart.reconfiguration.ViewManager;
 import bftsmart.tom.ServiceProxy;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import main.java.com.bag.util.Log;
 
 import java.io.DataOutputStream;
@@ -11,28 +14,62 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.TimerTask;
 
+import static main.java.com.bag.server.GlobalClusterSlave.GLOBAL_CONFIG_LOCATION;
+import static main.java.com.bag.util.Constants.*;
+
 /**
  * Sensor to detect crashes. It pings a specific server and checks if available, if not available it removes it from the view and updates the view.
  * This is run periodically.
  */
 public class CrashDetectionSensor extends TimerTask
 {
+    /**
+     * The id it should check.
+     */
     private int idToCheck;
+
+    /**
+     * Proxy to send messages and get view.
+     */
     private final ServiceProxy proxy;
+
+    /**
+     * The config location on disk.
+     */
     private final String configLocation;
+
+    /**
+     * It's id.
+     */
     private final int id;
-    public CrashDetectionSensor(final int idToCheck, final ServiceProxy proxy, final String configLocation, final int id)
+
+    /**
+     * Kryo object for serialization.
+     */
+    private final Kryo kryo;
+
+    /**
+     * Creates a crash detection sensor.
+     *
+     * @param idToCheck      the id it checks.
+     * @param proxy          the proxy it uses.
+     * @param configLocation the configuration location.
+     * @param id             it's id.
+     * @param kryo           the kryo object.
+     */
+    public CrashDetectionSensor(final int idToCheck, final ServiceProxy proxy, final String configLocation, final int id, final Kryo kryo)
     {
         this.idToCheck = idToCheck;
         this.proxy = proxy;
         this.configLocation = configLocation;
         this.id = id;
+        this.kryo = kryo;
     }
 
     @Override
     public void run()
     {
-        if (proxy == null)
+        if (proxy == null || id == idToCheck)
         {
             Log.getLogger().warn("Proxy became null, not executing analysis!");
             return;
@@ -40,7 +77,7 @@ public class CrashDetectionSensor extends TimerTask
 
         proxy.getViewManager().updateCurrentViewFromRepository();
 
-        if (proxy.getViewManager().getCurrentView().getProcesses()[proxy.getViewManager().getCurrentView().getProcesses().length-1] < idToCheck)
+        if (proxy.getViewManager().getCurrentView().getProcesses()[proxy.getViewManager().getCurrentView().getProcesses().length - 1] < idToCheck)
         {
             idToCheck = 0;
         }
@@ -48,23 +85,23 @@ public class CrashDetectionSensor extends TimerTask
         Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
 
         final String cluster;
-        if (configLocation.contains("global"))
+        if (configLocation.contains(GLOBAL_CLUSTER))
         {
-            cluster = "global";
+            cluster = GLOBAL_CLUSTER;
         }
         else
         {
-            cluster = "local";
+            cluster = LOCAL_CLUSTER;
         }
 
         final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
         boolean needsReconfiguration = false;
-        try(Socket socket = new Socket(address.getHostName(), address.getPort()))
+        try (Socket socket = new Socket(address.getHostName(), address.getPort()))
         {
-            new DataOutputStream(socket.getOutputStream()).writeInt(id+1);
+            new DataOutputStream(socket.getOutputStream()).writeInt(id + 1);
             Log.getLogger().info("Connection established");
         }
-        catch(final ConnectException ex)
+        catch (final ConnectException ex)
         {
             if (ex.getMessage().contains("refused"))
             {
@@ -82,7 +119,7 @@ public class CrashDetectionSensor extends TimerTask
             Log.getLogger().warn("Starting reconfiguration at cluster: " + cluster);
             try
             {
-                if (cluster.equalsIgnoreCase("global"))
+                if (cluster.equalsIgnoreCase(GLOBAL_CLUSTER))
                 {
                     Thread.sleep(1000L);
                 }
@@ -91,10 +128,43 @@ public class CrashDetectionSensor extends TimerTask
                 viewManager.executeUpdates();
                 Thread.sleep(2000L);
                 viewManager.close();
-                idToCheck += 1;
                 Log.getLogger().warn("Finished reconfiguration at cluster: " + cluster);
                 proxy.getViewManager().updateCurrentViewFromRepository();
                 Log.getLogger().warn("Finished updating old view at cluster: " + cluster);
+                if (cluster.equalsIgnoreCase(LOCAL_CLUSTER))
+                {
+                    Log.getLogger().warn("Starting new primary election!");
+                    final Output output = new Output(128);
+                    kryo.writeObject(output, PRIMARY_ELECTION_MESSAGE);
+                    kryo.writeObject(output, idToCheck);
+                    final byte[] returnBytes = output.getBuffer();
+                    output.close();
+
+                    final byte[] response = proxy.invokeOrdered(returnBytes);
+
+                    if (response != null)
+                    {
+                        Log.getLogger().error("Null response from primary election message, this is very bad!");
+                    }
+
+                    final Input input = new Input(response);
+                    int newId = kryo.readObject(input, Integer.class);
+                    if (newId < 0)
+                    {
+                        newId = id;
+                    }
+                    Log.getLogger().warn("Host with ID: " + newId + " has been elected!");
+
+                    final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
+                    final InetSocketAddress newPrimaryAddress = proxy.getViewManager().getCurrentView().getAddress(newId);
+                    newGlobalViewManager.addServer(newId, newPrimaryAddress.getHostName(), address.getPort());
+                    newGlobalViewManager.executeUpdates();
+                    Thread.sleep(2000L);
+                    newGlobalViewManager.close();
+                    Log.getLogger().warn("Finished adding new cluster member to global cluster!");
+                    input.close();
+                }
+                idToCheck += 1;
             }
             catch (final InterruptedException e)
             {

@@ -16,6 +16,7 @@ import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
+import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -119,6 +120,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         kryo.register(CreateOperation.class, 250);
         kryo.register(DeleteOperation.class, 300);
         kryo.register(UpdateOperation.class, 350);
+        kryo.register(LoadSensor.LoadDesc.class, 400);
         // configure kryo instance, customize settings
         return kryo;
     };

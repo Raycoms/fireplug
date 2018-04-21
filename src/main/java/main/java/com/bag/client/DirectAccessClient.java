@@ -17,6 +17,7 @@ import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.operations.UpdateOperation;
+import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.server.nettyhandlers.BAGMessageDecoder;
 import main.java.com.bag.server.nettyhandlers.BAGMessageEncoder;
 import main.java.com.bag.server.nettyhandlers.ClientHandler;
@@ -57,6 +58,7 @@ public class DirectAccessClient implements BAGClient
         kryo.register(CreateOperation.class, 250);
         kryo.register(DeleteOperation.class, 300);
         kryo.register(UpdateOperation.class, 350);
+        kryo.register(LoadSensor.LoadDesc.class, 400);
         return kryo;
     };
 

@@ -1,7 +1,5 @@
 package main.java.com.bag.server;
 
-import bftsmart.reconfiguration.VMServices;
-import bftsmart.reconfiguration.ViewManager;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
@@ -40,7 +38,12 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * The place the local config file lays. This + the cluster id will contain the concrete cluster config location.
      */
-    private static final String LOCAL_CONFIG_LOCATION = "local%d/config";
+    private static final String LOCAL_CONFIG_LOCATION  = "local%d/config";
+
+    /**
+     * Importance of the CPU when electing a new primary.
+     */
+    private static final double CPU_IMPORTANCE_MULTIPLIER = 10.0;
 
     /**
      * The wrapper class instance. Used to access the global cluster if possible.
@@ -73,11 +76,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     private ServiceProxy proxy;
 
     /**
-     * The id of the local cluster.
-     */
-    private final int localClusterId;
-
-    /**
      * Queue to catch messages out of order.
      */
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
@@ -86,6 +84,11 @@ public class LocalClusterSlave extends AbstractRecoverable
      * Timer object to execute functions in intervals
      */
     private final Timer timer = new Timer();
+
+    /**
+     * Hashmap which has the information about all local node performances.
+     */
+    private final HashMap<Integer, LoadSensor.LoadDesc> performanceMap = new HashMap<>();
 
     /**
      * Public constructor used to create a local cluster slave.
@@ -98,7 +101,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation);
         this.id = id;
-        this.localClusterId = localClusterId;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         this.primaryId = 0;
@@ -113,8 +115,9 @@ public class LocalClusterSlave extends AbstractRecoverable
             positionToCheck = this.id + 1;
         }
 
-        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, proxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id), 10000, 5000);
-        timer.scheduleAtFixedRate(new LoadSensor(), 5000, 5000);
+        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, proxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow()), 10000, 6000);
+        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), new ServiceProxy(2000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId)), id), 10000, 10000);
     }
 
     /**
@@ -181,6 +184,23 @@ public class LocalClusterSlave extends AbstractRecoverable
                     output.close();
                     input.close();
                 }
+                else if(Constants.PRIMARY_ELECTION_MESSAGE.equals(type))
+                {
+                    final Output output;
+                    Log.getLogger().error("Received primary election message ordered");
+                    output = handlePrimaryElection(input, kryo);
+                    Log.getLogger().error("Leaving primary election message ordered");
+                    allResults[i] = output.getBuffer();
+                    output.close();
+                    input.close();
+                }
+                else if(Constants.PERFORMANCE_UPDATE_MESSAGE.equals(type))
+                {
+                    Log.getLogger().warn("Received performance update message");
+                    handlePerformanceUpdateMessage(input, kryo);
+                    input.close();
+                    allResults[i] = new byte[0];
+                }
                 else
                 {
                     Log.getLogger().error("Return empty bytes for message type: " + type);
@@ -196,6 +216,86 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
         }
         return allResults;
+    }
+
+    /**
+     * Method to handle the primary election.
+     * @param input the input.
+     * @param kryo the kryo object.
+     * @return the output to respond.
+     */
+    private Output handlePrimaryElection(final Input input, final Kryo kryo)
+    {
+        final int failedReplica = kryo.readObject(input, Integer.class);
+        final Output output = new Output(0, 1024);
+
+
+        if (checkIfFailedReplicaIsGone(failedReplica))
+        {
+            kryo.writeObject(output, failedReplica);
+            return output;
+        }
+
+        LoadSensor.LoadDesc best = null;
+        int leadingReplica = -1;
+        for (final Map.Entry<Integer, LoadSensor.LoadDesc> entry: performanceMap.entrySet())
+        {
+            if (entry.getKey() != failedReplica)
+            {
+                final LoadSensor.LoadDesc thisDesc = entry.getValue();
+                if (best == null)
+                {
+                    best = thisDesc;
+                    leadingReplica = entry.getKey();
+                }
+                else
+                {
+                    double score = (best.getCpuUsage() - thisDesc.getCpuUsage()) * CPU_IMPORTANCE_MULTIPLIER;
+                    score += (best.getAllocatedMemory() - thisDesc.getAllocatedMemory()) / 800000.0;
+                    score += (best.getMaxMemory() - thisDesc.getMaxMemory()) / 800000.0;
+                    score += (best.getFreeMemory() - thisDesc.getFreeMemory()) / 800000.0;
+
+                    if (score < 0)
+                    {
+                        best = thisDesc;
+                        leadingReplica = entry.getKey();
+                    }
+                }
+            }
+        }
+
+        Log.getLogger().warn("Decided on: " + leadingReplica);
+        kryo.writeObject(output, leadingReplica);
+        return output;
+    }
+
+    /**
+     * Checks if the server really has to update the primary.
+     * @param failedReplica the id of the supposently saved replica.
+     * @return true if so.
+     */
+    private boolean checkIfFailedReplicaIsGone(final int failedReplica)
+    {
+        final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(failedReplica);
+        boolean needsReconfiguration = false;
+        try (Socket socket = new Socket(address.getHostName(), address.getPort()))
+        {
+            new DataOutputStream(socket.getOutputStream()).writeInt(id + 1);
+            Log.getLogger().info("Connection established");
+        }
+        catch (final ConnectException ex)
+        {
+            if (ex.getMessage().contains("refused"))
+            {
+                needsReconfiguration = true;
+            }
+        }
+        catch (final Exception ex)
+        {
+            //This here is normal in the global cluster, let's ignore this.
+            Log.getLogger().warn(ex);
+        }
+        return needsReconfiguration;
     }
 
     @Override
@@ -246,7 +346,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().info("Received update slave message");
                     handleSlaveUpdateMessage(input, output, kryo);
                     input.close();
-                    return new byte[0];
+                    break;
                 default:
                     Log.getLogger().error("Incorrect operation sent unordered to the server");
                     input.close();
@@ -258,6 +358,19 @@ public class LocalClusterSlave extends AbstractRecoverable
         input.close();
         pool.release(kryo);
         return returnValue;
+    }
+
+    /**
+     * Handling of performance update messages.
+     * Stores the performance update in the performance tracking hashmap.
+     * @param input the input with the data.
+     * @param kryo the kryo instance.
+     */
+    private void handlePerformanceUpdateMessage(final Input input, final Kryo kryo)
+    {
+        final LoadSensor.LoadDesc loadDesc = kryo.readObject(input, LoadSensor.LoadDesc.class);
+        final int sender = kryo.readObject(input, Integer.class);
+        performanceMap.put(sender, loadDesc);
     }
 
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
