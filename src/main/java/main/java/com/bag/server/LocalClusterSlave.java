@@ -264,6 +264,21 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
         }
 
+        if (id == leadingReplica)
+        {
+            Log.getLogger().error("Instantiating new global cluster");
+
+            final Thread t = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    wrapper.initNewGlobalClusterInstance();
+                }
+            });
+            t.start();
+        }
+
         Log.getLogger().warn("Decided on: " + leadingReplica);
         kryo.writeObject(output, leadingReplica);
         return output;
@@ -625,40 +640,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
-
-        //Code to dynamically reconfigure the local cluster!
-        /*if (getGlobalSnapshotId() == 1000 && id == 2 && localClusterId == 0)
-        {
-            Log.getLogger().error("Instantiating new global cluster");
-
-            final Thread t = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-
-                        final Thread t = new Thread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                wrapper.initNewGlobalClusterInstance();
-                            }
-                        });
-                        t.start();
-                        Thread.sleep(100);
-                        VMServices.main(new String[] {"4", "172.16.52.8", "11340"});
-                    }
-                    catch (final InterruptedException e)
-                    {
-                        Log.getLogger().error("Error instantiating new Replica", e);
-                    }
-                }
-            });
-            t.start();
-        }*/
 
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
