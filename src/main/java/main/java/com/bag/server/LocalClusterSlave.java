@@ -92,7 +92,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(primaryId);
             try(Socket socket = new Socket(address.getHostName(), address.getPort()))
             {
-                new DataOutputStream(socket.getOutputStream()).writeInt(proxy.getViewManager().getCurrentView().getId());
+                new DataOutputStream(socket.getOutputStream()).writeInt(id);
                 Log.getLogger().info("Connection established");
             }
             catch(final ConnectException ex)
