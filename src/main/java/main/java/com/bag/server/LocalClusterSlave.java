@@ -119,6 +119,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
 
             final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
+            boolean needsReconfiguration = false;
             try(Socket socket = new Socket(address.getHostName(), address.getPort()))
             {
                 new DataOutputStream(socket.getOutputStream()).writeInt(id+1);
@@ -128,27 +129,34 @@ public class LocalClusterSlave extends AbstractRecoverable
             {
                 if (ex.getMessage().contains("refused"))
                 {
-                    Log.getLogger().warn("Starting reconfiguration!");
-                    try
-                    {
-                        final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
-                        viewManager.removeServer(idToCheck);
-                        viewManager.executeUpdates();
-                        Thread.sleep(2000L);
-                        viewManager.close();
-                        positionToCheck += 1;
-                        proxy.getViewManager().updateCurrentViewFromRepository();
-                    }
-                    catch (final InterruptedException e)
-                    {
-                        Log.getLogger().error("Unable to reconfigure", e);
-                    }
+                   needsReconfiguration = true;
                 }
             }
             catch (final Exception ex)
             {
                 //This here is normal in the global cluster, let's ignore this.
                 Log.getLogger().info(ex);
+            }
+
+            if (needsReconfiguration)
+            {
+                Log.getLogger().warn("Starting reconfiguration!");
+                try
+                {
+                    final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+                    viewManager.removeServer(idToCheck);
+                    viewManager.executeUpdates();
+                    Thread.sleep(2000L);
+                    viewManager.close();
+                    positionToCheck += 1;
+                    Log.getLogger().warn("Finished reconfiguration!");
+                    proxy.getViewManager().updateCurrentViewFromRepository();
+                    Log.getLogger().warn("Finished updating old view!");
+                }
+                catch (final InterruptedException e)
+                {
+                    Log.getLogger().error("Unable to reconfigure", e);
+                }
             }
         }
     };
