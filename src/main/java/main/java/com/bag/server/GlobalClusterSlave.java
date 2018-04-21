@@ -104,7 +104,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         public void run()
         {
             proxy.getViewManager().updateCurrentViewFromRepository();
-            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id);
 
             if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
             {
@@ -112,6 +111,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
 
             final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
+            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
 
             final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
             try(Socket socket = new Socket(address.getHostName(), address.getPort()))
