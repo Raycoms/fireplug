@@ -47,6 +47,13 @@ public class CrashDetectionSensor extends TimerTask
 
         final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
         Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
+
+        if (configLocation.contains("global"))
+        {
+            Log.getLogger().warn("At global cluster!");
+            return;
+        }
+
         final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
         boolean needsReconfiguration = false;
         try(Socket socket = new Socket(address.getHostName(), address.getPort()))
