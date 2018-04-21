@@ -27,7 +27,7 @@ public class Constants
     public static final String TAG_VERSION                = "version";
     public static final String TAG_PRE                    = "preversion";
     public static final String LOCAL_CLUSTER              = "local";
-    public static final String GLOBAL_CLUSTER             = "local";
+    public static final String GLOBAL_CLUSTER             = "global";
     public static final String PRIMARY_ELECTION_MESSAGE   = "primaryElection";
     public static final String PERFORMANCE_UPDATE_MESSAGE = "performanceUpdate";
 
