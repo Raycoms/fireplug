@@ -117,8 +117,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             positionToCheck = this.id + 1;
         }
         task = new CrashDetectionSensor(positionToCheck, proxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id);
-        //todo turn on lter again
-        //timer.scheduleAtFixedRate(task, 10000, 5000);
+        timer.scheduleAtFixedRate(task, 10000, 5000);
     }
 
     /**
