@@ -1,5 +1,6 @@
 package main.java.com.bag.server;
 
+import bftsmart.communication.server.ServersCommunicationLayer;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
@@ -18,6 +19,10 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -70,6 +75,33 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
 
+    final Timer timer = new Timer();
+
+    final TimerTask task = new TimerTask() {
+        @Override
+        public void run()
+        {
+            try(Socket socket = new Socket(proxy.getViewManager().getStaticConf().getHost(0), proxy.getViewManager().getStaticConf().getServerToServerPort(0)))
+            {
+                if (socket.isConnected())
+                {
+                    Log.getLogger().error("Connected to socket, yay! Deconnecting again");
+                }
+                socket.close();
+            }
+            catch (final UnknownHostException var8)
+            {
+                Log.getLogger().error(var8);
+            }
+            catch (final IOException var9)
+            {
+                Log.getLogger().error(var9);
+            }
+
+            timer.schedule(task, 50000);
+        }
+    };
+
     /**
      * Public constructor used to create a local cluster slave.
      *
@@ -84,6 +116,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
+        timer.schedule(task, 50000);
     }
 
     /**
@@ -174,22 +207,6 @@ public class LocalClusterSlave extends AbstractRecoverable
         final Kryo kryo;
         final Input input;
         final byte[] returnValue;
-
-        if (this.proxy.getViewManager().getCurrentViewProcesses().length <= 3)
-        {
-            boolean leaderPresent = false;
-            for(final int localProcessId: proxy.getViewManager().getCurrentViewProcesses())
-            {
-                if (localProcessId == 0)
-                {
-                    leaderPresent = true;
-                }
-            }
-            if (!leaderPresent)
-            {
-                Log.getLogger().error("Leader failed, erroring!");
-            }
-        }
 
         try (Output output = new Output(0, 400240))
         {
