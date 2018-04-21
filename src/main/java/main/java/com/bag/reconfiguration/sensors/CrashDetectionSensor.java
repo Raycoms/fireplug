@@ -17,13 +17,13 @@ import java.util.TimerTask;
  */
 public class CrashDetectionSensor extends TimerTask
 {
-    private int positionToCheck;
+    private int idToCheck;
     private final ServiceProxy proxy;
     private final String configLocation;
     private final int id;
-    public CrashDetectionSensor(final int positionToCheck, final ServiceProxy proxy, final String configLocation, final int id)
+    public CrashDetectionSensor(final int idToCheck, final ServiceProxy proxy, final String configLocation, final int id)
     {
-        this.positionToCheck = positionToCheck;
+        this.idToCheck = idToCheck;
         this.proxy = proxy;
         this.configLocation = configLocation;
         this.id = id;
@@ -40,12 +40,11 @@ public class CrashDetectionSensor extends TimerTask
 
         proxy.getViewManager().updateCurrentViewFromRepository();
 
-        if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
+        if (proxy.getViewManager().getCurrentView().getProcesses()[proxy.getViewManager().getCurrentView().getProcesses().length-1] < idToCheck)
         {
-            positionToCheck = 0;
+            idToCheck = 0;
         }
 
-        final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
         Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
 
         final String cluster;
@@ -88,7 +87,7 @@ public class CrashDetectionSensor extends TimerTask
                 viewManager.executeUpdates();
                 Thread.sleep(2000L);
                 viewManager.close();
-                positionToCheck += 1;
+                idToCheck += 1;
                 Log.getLogger().warn("Finished reconfiguration at cluster: " + cluster);
                 proxy.getViewManager().updateCurrentViewFromRepository();
                 Log.getLogger().warn("Finished updating old view at cluster: " + cluster);
