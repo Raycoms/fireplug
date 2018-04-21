@@ -81,11 +81,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
 
     /**
-     * Random object.
-     */
-    private final Random random = new Random();
-
-    /**
      * Timer object to execute functions in intervals
      */
     private final Timer timer = new Timer();
@@ -185,7 +180,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             this.positionToCheck = this.id + 1;
         }
-        timer.scheduleAtFixedRate(task, 5000, 1000);
+        timer.scheduleAtFixedRate(task, 5000, 5000);
     }
 
     /**
