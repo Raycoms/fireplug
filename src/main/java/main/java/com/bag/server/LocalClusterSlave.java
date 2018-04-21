@@ -18,6 +18,7 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.DataOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.util.*;
@@ -81,6 +82,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             try(Socket socket = new Socket(proxy.getViewManager().getStaticConf().getHost(0), proxy.getViewManager().getStaticConf().getServerToServerPort(0)))
             {
+                new DataOutputStream(socket.getOutputStream()).writeInt(proxy.getViewManager().getStaticConf().getProcessId());
                 Log.getLogger().info("Connection established");
             }
             catch(final ConnectException ex)
@@ -91,10 +93,11 @@ public class LocalClusterSlave extends AbstractRecoverable
                     try
                     {
                         VMServices.main(new String[] {"0"});
+                        timer.cancel();
                     }
                     catch (final InterruptedException e)
                     {
-                        e.printStackTrace();
+                        Log.getLogger().error("Unable to reconfigure");
                     }
                 }
             }
