@@ -171,38 +171,14 @@ public class CrashDetectionSensor extends TimerTask
                     final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
                     final ServiceProxy globalProxy = new ServiceProxy(4000 + this.id, GLOBAL_CONFIG_LOCATION);
 
-                    final InetSocketAddress newPrimaryAddress1 = globalProxy.getViewManager().getStaticConf().getLocalAddress(newId);
-                    final InetSocketAddress newPrimaryAddress2 = globalProxy.getViewManager().getStaticConf().getRemoteAddress(newId);
-                    final InetSocketAddress newPrimaryAddress3 = globalProxy.getViewManager().getStaticConf().getServerToServerRemoteAddress(newId);
-                    final SocketAddress newPrimaryAddress4 = globalProxy.getViewManager().getRemoteAddress(7);
-
-                    if (newPrimaryAddress1 != null)
-                    {
-                        Log.getLogger().warn(newPrimaryAddress1.getHostName() + " " + newPrimaryAddress1.getHostString() + " " + newPrimaryAddress1.getAddress() + " " + newPrimaryAddress1.getPort());
-                    }
-
-                    if (newPrimaryAddress2 != null)
-                    {
-                        Log.getLogger().warn(newPrimaryAddress2.getHostName() + " " + newPrimaryAddress2.getHostString() + " " + newPrimaryAddress2.getAddress() + " " + newPrimaryAddress2.getPort());
-                    }
-
-                    if (newPrimaryAddress3 != null)
-                    {
-                        Log.getLogger().warn(newPrimaryAddress3.getHostName() + " " + newPrimaryAddress3.getHostString() + " " + newPrimaryAddress3.getAddress() + " " + newPrimaryAddress3.getPort());
-                    }
-
-                    if (newPrimaryAddress4 != null)
-                    {
-                        Log.getLogger().warn(newPrimaryAddress4.toString());
-                    }
-
-                    if (newPrimaryAddress2 == null)
+                    final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getStaticConf().getRemoteAddress(newId);
+                    if (newPrimaryAddress == null)
                     {
                         Log.getLogger().warn("Failed adding new cluster member to global cluster! Id: " + newId);
                     }
                     else
                     {
-                        newGlobalViewManager.addServer(newId, newPrimaryAddress2.getHostName(), newPrimaryAddress2.getPort());
+                        newGlobalViewManager.addServer(newId, newPrimaryAddress.getAddress().getHostAddress(), newPrimaryAddress.getPort());
                         newGlobalViewManager.executeUpdates();
                         Thread.sleep(2000L);
                         newGlobalViewManager.close();
