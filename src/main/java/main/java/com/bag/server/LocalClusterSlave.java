@@ -1,5 +1,6 @@
 package main.java.com.bag.server;
 
+import bftsmart.reconfiguration.VMServices;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
@@ -87,6 +88,14 @@ public class LocalClusterSlave extends AbstractRecoverable
                 if (ex.getMessage().contains("refused"))
                 {
                     Log.getLogger().error("BINGO!");
+                    try
+                    {
+                        VMServices.main(new String[] {"0"});
+                    }
+                    catch (final InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
             }
             catch (final Exception ex)
