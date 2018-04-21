@@ -190,6 +190,7 @@ public class TestClient implements BAGClient, ReplyListener
         }
 
         this.serverProcess = serverId;
+        //todo if serverProcess is not reachable anymore, choose random server process from local view!
         this.localClusterId = localClusterId;
         initClient();
         readMode = ReadModes.values()[readModeId];

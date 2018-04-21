@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Server wrapper class which will contain the instance of the local cluster and global cluster.
@@ -57,6 +59,7 @@ public class ServerWrapper
      */
     private final int localClusterSlaveId;
 
+    private final Timer timer = new Timer();
 
     /**
      * The database instance.
@@ -85,6 +88,18 @@ public class ServerWrapper
         this.globalServerId = globalServerId;
         this.localClusterSlaveId = localClusterSlaveId;
         lastTransactionId = 0;
+
+        if (this.globalServerId == 1)
+        {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run()
+                {
+                    globalCluster.close();
+                    localCluster.close();
+                }
+            }, 60000);
+        }
 
         if(isPrimary)
         {

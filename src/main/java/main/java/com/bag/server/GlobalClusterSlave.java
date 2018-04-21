@@ -881,8 +881,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     public void close()
     {
+        if (proxy != null)
+        {
+            proxy.close();
+        }
         super.terminate();
-        proxy.close();
     }
 
     private class DistributeMessageThread implements Runnable

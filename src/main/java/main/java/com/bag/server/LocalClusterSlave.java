@@ -174,6 +174,23 @@ public class LocalClusterSlave extends AbstractRecoverable
         final Kryo kryo;
         final Input input;
         final byte[] returnValue;
+
+        if (this.proxy.getViewManager().getCurrentViewProcesses().length <= 3)
+        {
+            boolean leaderPresent = false;
+            for(final int localProcessId: proxy.getViewManager().getCurrentViewProcesses())
+            {
+                if (localProcessId == 0)
+                {
+                    leaderPresent = true;
+                }
+            }
+            if (!leaderPresent)
+            {
+                Log.getLogger().error("Leader failed, erroring!");
+            }
+        }
+
         try (Output output = new Output(0, 400240))
         {
             Log.getLogger().info("Received unordered message");
@@ -573,6 +590,18 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         kryo.writeObject(output, primaryGlobalClusterId);
         return output;
+    }
+
+    /**
+     * Closes the local cluster and his code.
+     */
+    public void close()
+    {
+        if (proxy != null)
+        {
+            proxy.close();
+        }
+        super.terminate();
     }
 
     /**
