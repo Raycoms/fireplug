@@ -80,7 +80,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             try(Socket socket = new Socket(proxy.getViewManager().getStaticConf().getHost(0), proxy.getViewManager().getStaticConf().getServerToServerPort(0)))
             {
-                socket.close();
+                Log.getLogger().info("Connection established");
             }
             catch(final ConnectException ex)
             {
