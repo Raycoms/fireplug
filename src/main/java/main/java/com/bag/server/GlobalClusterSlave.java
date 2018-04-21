@@ -126,24 +126,21 @@ public class GlobalClusterSlave extends AbstractRecoverable
             {
                 if (ex.getMessage().contains("refused"))
                 {
-                    Log.getLogger().error("BINGO!");
-                    if (random.nextInt(10 ) < 1)
+                    Log.getLogger().warn("Starting reconfiguration!");
+                    try
                     {
-                        Log.getLogger().warn("Starting reconfiguration!");
-                        try
-                        {
-                            final ViewManager viewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
-                            viewManager.removeServer(idToCheck);
-                            viewManager.executeUpdates();
-                            Thread.sleep(2000L);
-                            viewManager.close();
-                            positionToCheck += 1;
-                        }
-                        catch (final InterruptedException e)
-                        {
-                            Log.getLogger().error("Unable to reconfigure", e);
-                        }
+                        final ViewManager viewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
+                        viewManager.removeServer(idToCheck);
+                        viewManager.executeUpdates();
+                        Thread.sleep(2000L);
+                        viewManager.close();
+                        positionToCheck += 1;
                     }
+                    catch (final InterruptedException e)
+                    {
+                        Log.getLogger().error("Unable to reconfigure", e);
+                    }
+
                     proxy.getViewManager().updateCurrentViewFromRepository();
                 }
             }
@@ -164,7 +161,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Turning on client proxy with id:" + idClient);
         this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
         Log.getLogger().info("Turned on global cluster with id:" + id);
-        timer.scheduleAtFixedRate(task, 5000, 1000);
         if (this.id + 1 >= proxy.getViewManager().getCurrentViewN())
         {
             this.positionToCheck = 0;
@@ -173,7 +169,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             this.positionToCheck = this.id + 1;
         }
-
+        timer.scheduleAtFixedRate(task, 5000, 1000);
     }
 
     /**
@@ -965,6 +961,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     public void close()
     {
+        timer.cancel();
         if (proxy != null)
         {
             proxy.close();
