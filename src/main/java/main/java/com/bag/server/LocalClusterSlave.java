@@ -79,11 +79,21 @@ public class LocalClusterSlave extends AbstractRecoverable
      * Queue to catch messages out of order.
      */
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
-    final Random random = new Random();
 
-    final Timer timer = new Timer();
+    /**
+     * Random object.
+     */
+    private final Random random = new Random();
 
-    final TimerTask task = new TimerTask()
+    /**
+     * Timer object to execute functions in intervals
+     */
+    private final Timer timer = new Timer();
+
+    /**
+     * Timer task to check for dead replicas.
+     */
+    private final TimerTask task = new TimerTask()
     {
         @Override
         public void run()
