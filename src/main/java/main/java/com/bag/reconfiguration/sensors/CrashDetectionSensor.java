@@ -162,11 +162,18 @@ public class CrashDetectionSensor extends TimerTask
 
                     final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
                     final InetSocketAddress newPrimaryAddress = proxy.getViewManager().getCurrentView().getAddress(newId);
-                    newGlobalViewManager.addServer(newId, newPrimaryAddress.getHostName(), address.getPort());
-                    newGlobalViewManager.executeUpdates();
-                    Thread.sleep(2000L);
-                    newGlobalViewManager.close();
-                    Log.getLogger().warn("Finished adding new cluster member to global cluster!");
+                    if (newPrimaryAddress == null)
+                    {
+                        Log.getLogger().warn("Failed adding new cluster member to global cluster!");
+                    }
+                    else
+                    {
+                        newGlobalViewManager.addServer(newId, newPrimaryAddress.getHostName(), address.getPort());
+                        newGlobalViewManager.executeUpdates();
+                        Thread.sleep(2000L);
+                        newGlobalViewManager.close();
+                        Log.getLogger().warn("Finished adding new cluster member to global cluster!");
+                    }
                 }
                 idToCheck += 1;
             }

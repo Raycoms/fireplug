@@ -296,7 +296,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             //This here is normal in the global cluster, let's ignore this.
             Log.getLogger().warn("Something went wrong", ex);
         }
-        return needsReconfiguration;
+        return !needsReconfiguration;
     }
 
     @Override
