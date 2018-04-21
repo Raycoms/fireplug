@@ -170,7 +170,7 @@ public class CrashDetectionSensor extends TimerTask
                     final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
                     final ServiceProxy globalProxy = new ServiceProxy(4000 + this.id, GLOBAL_CONFIG_LOCATION);
 
-                    final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getCurrentView().getAddress(newId);
+                    final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getStaticConf().getLocalAddress(newId);
                     if (newPrimaryAddress == null)
                     {
                         Log.getLogger().warn("Failed adding new cluster member to global cluster! Id: " + newId);
