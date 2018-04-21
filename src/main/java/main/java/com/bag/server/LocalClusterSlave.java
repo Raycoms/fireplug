@@ -126,7 +126,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().warn("Starting reconfiguration!");
                     try
                     {
-                        final ViewManager viewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
+                        final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
                         viewManager.removeServer(idToCheck);
                         viewManager.executeUpdates();
                         Thread.sleep(2000L);
