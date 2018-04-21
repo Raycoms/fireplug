@@ -100,7 +100,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             if (proxy == null)
             {
-                Log.getLogger().warn("Proxy null =O Oahhahaha");
+                Log.getLogger().warn("Proxy became null, not executing analysis!");
                 return;
             }
 
@@ -113,12 +113,6 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
             Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
-
-            if (positionToCheck != 0)
-            {
-                return;
-            }
-
             final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
             boolean needsReconfiguration = false;
             try(Socket socket = new Socket(address.getHostName(), address.getPort()))
