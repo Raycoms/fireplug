@@ -1,6 +1,7 @@
 package main.java.com.bag.server;
 
 import bftsmart.reconfiguration.VMServices;
+import bftsmart.reconfiguration.ViewManager;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
@@ -69,9 +70,15 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final ServiceProxy proxy;
 
     /**
+     * The id of the local cluster.
+     */
+    private final int localClusterId;
+
+    /**
      * Queue to catch messages out of order.
      */
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
+    final Random random = new Random();
 
     final Timer timer = new Timer();
 
@@ -80,6 +87,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
+            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentViewProcesses()));
             try(Socket socket = new Socket(proxy.getViewManager().getStaticConf().getHost(0), proxy.getViewManager().getStaticConf().getServerToServerPort(0)))
             {
                 new DataOutputStream(socket.getOutputStream()).writeInt(proxy.getViewManager().getStaticConf().getProcessId());
@@ -90,14 +98,22 @@ public class LocalClusterSlave extends AbstractRecoverable
                 if (ex.getMessage().contains("refused"))
                 {
                     Log.getLogger().error("BINGO!");
-                    try
+                    if (random.nextInt(10 ) < 1)
                     {
-                        VMServices.main(new String[] {"0"});
-                        timer.cancel();
-                    }
-                    catch (final InterruptedException e)
-                    {
-                        Log.getLogger().error("Unable to reconfigure");
+                        Log.getLogger().warn("Starting reconfiguration!");
+                        try
+                        {
+                            final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+                            viewManager.removeServer(0);
+                            viewManager.executeUpdates();
+                            Thread.sleep(2000L);
+                            viewManager.close();
+                            timer.cancel();
+                        }
+                        catch (final InterruptedException e)
+                        {
+                            Log.getLogger().error("Unable to reconfigure", e);
+                        }
                     }
                 }
             }
@@ -120,6 +136,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation);
         this.id = id;
+        this.localClusterId = localClusterId;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         Log.getLogger().info("Turned on local cluster with id: " + id);
