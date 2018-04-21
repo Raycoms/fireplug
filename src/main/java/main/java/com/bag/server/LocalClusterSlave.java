@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.DataOutputStream;
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.*;
 
@@ -62,7 +63,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * The id of the primary of this slave in the local cluster.
      */
-    private int primaryId = -1;
+    private int primaryId;
 
     /**
      * The serviceProxy to establish communication with the other replicas.
@@ -87,10 +88,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
-            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentViewProcesses()));
-            try(Socket socket = new Socket(proxy.getViewManager().getStaticConf().getHost(0), proxy.getViewManager().getStaticConf().getServerToServerPort(0)))
+            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()));
+            final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(primaryId);
+            try(Socket socket = new Socket(address.getHostName(), address.getPort()))
             {
-                new DataOutputStream(socket.getOutputStream()).writeInt(proxy.getViewManager().getStaticConf().getProcessId());
+                new DataOutputStream(socket.getOutputStream()).writeInt(proxy.getViewManager().getCurrentView().getId());
                 Log.getLogger().info("Connection established");
             }
             catch(final ConnectException ex)
@@ -104,10 +106,11 @@ public class LocalClusterSlave extends AbstractRecoverable
                         try
                         {
                             final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
-                            viewManager.removeServer(0);
+                            viewManager.removeServer(primaryId);
                             viewManager.executeUpdates();
                             Thread.sleep(2000L);
                             viewManager.close();
+                            primaryId = 1;
                         }
                         catch (final InterruptedException e)
                         {
@@ -138,6 +141,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         this.localClusterId = localClusterId;
         this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        this.primaryId = 0;
         Log.getLogger().info("Turned on local cluster with id: " + id);
         if (id != 0)
         {
