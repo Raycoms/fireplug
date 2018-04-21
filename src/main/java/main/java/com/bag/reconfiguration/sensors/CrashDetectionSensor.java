@@ -48,10 +48,14 @@ public class CrashDetectionSensor extends TimerTask
         final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
         Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
 
+        final String cluster;
         if (configLocation.contains("global"))
         {
-            Log.getLogger().warn("At global cluster!");
-            return;
+            cluster = "global";
+        }
+        else
+        {
+            cluster = "local";
         }
 
         final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
@@ -71,12 +75,12 @@ public class CrashDetectionSensor extends TimerTask
         catch (final Exception ex)
         {
             //This here is normal in the global cluster, let's ignore this.
-            Log.getLogger().info(ex);
+            Log.getLogger().warn(ex);
         }
 
         if (needsReconfiguration)
         {
-            Log.getLogger().warn("Starting reconfiguration!");
+            Log.getLogger().warn("Starting reconfiguration at cluster: " + cluster);
             try
             {
                 final ViewManager viewManager = new ViewManager(configLocation);
@@ -85,13 +89,13 @@ public class CrashDetectionSensor extends TimerTask
                 Thread.sleep(2000L);
                 viewManager.close();
                 positionToCheck += 1;
-                Log.getLogger().warn("Finished reconfiguration!");
+                Log.getLogger().warn("Finished reconfiguration at cluster: " + cluster);
                 proxy.getViewManager().updateCurrentViewFromRepository();
-                Log.getLogger().warn("Finished updating old view!");
+                Log.getLogger().warn("Finished updating old view at cluster: " + cluster);
             }
             catch (final InterruptedException e)
             {
-                Log.getLogger().error("Unable to reconfigure", e);
+                Log.getLogger().error("Unable to reconfigure at cluster: " + cluster, e);
             }
         }
     }
