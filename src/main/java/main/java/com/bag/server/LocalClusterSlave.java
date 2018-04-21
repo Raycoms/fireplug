@@ -281,10 +281,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         try (Socket socket = new Socket(address.getHostName(), address.getPort()))
         {
             new DataOutputStream(socket.getOutputStream()).writeInt(id + 1);
-            Log.getLogger().info("Connection established");
+            Log.getLogger().warn("Connection established in primary check");
         }
         catch (final ConnectException ex)
         {
+            Log.getLogger().warn("Connection exception in primary check");
             if (ex.getMessage().contains("refused"))
             {
                 needsReconfiguration = true;
@@ -293,7 +294,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         catch (final Exception ex)
         {
             //This here is normal in the global cluster, let's ignore this.
-            Log.getLogger().warn(ex);
+            Log.getLogger().warn("Something went wrong", ex);
         }
         return needsReconfiguration;
     }
