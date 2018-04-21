@@ -100,7 +100,7 @@ public class CrashDetectionSensor extends TimerTask
             cluster = LOCAL_CLUSTER;
         }
 
-        final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
+        final InetSocketAddress address = proxy.getViewManager().getStaticConf().getLocalAddress(idToCheck);
         boolean needsReconfiguration = false;
         try (Socket socket = new Socket(address.getHostName(), address.getPort()))
         {
