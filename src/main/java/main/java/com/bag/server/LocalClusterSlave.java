@@ -121,6 +121,8 @@ public class LocalClusterSlave extends AbstractRecoverable
                             Thread.sleep(2000L);
                             viewManager.close();
                             primaryId = 1;
+
+
                         }
                         catch (final InterruptedException e)
                         {
@@ -134,6 +136,11 @@ public class LocalClusterSlave extends AbstractRecoverable
             {
                 //This here is normal in the global cluster, let's ignore this.
                 Log.getLogger().info(ex);
+            }
+
+            if (id == primaryId)
+            {
+                timer.cancel();
             }
         }
     };
