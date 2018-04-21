@@ -118,11 +118,9 @@ public class LocalClusterSlave extends AbstractRecoverable
                             final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
                             viewManager.removeServer(primaryId);
                             viewManager.executeUpdates();
-                            Thread.sleep(2000L);
+                            Thread.sleep(1000L);
                             viewManager.close();
                             primaryId = 1;
-
-
                         }
                         catch (final InterruptedException e)
                         {

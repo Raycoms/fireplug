@@ -46,7 +46,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final ServerWrapper wrapper;
 
     /**
-     * The id of the local cluster.
+     * The the id of the replica inside the global cluster, on default this is the id of the local cluster as well.
      */
     private final int id;
 
@@ -86,10 +86,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final ExecutorService localDis = Executors.newSingleThreadExecutor();
 
     /**
-     * Random object.
-     */
-    private final Random random = new Random();
-    /**
      * Timer object to execute functions in intervals
      */
     private final Timer timer = new Timer();
@@ -107,9 +103,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
-            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()));
+            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id);
 
-            if (proxy.getViewManager().getCurrentViewProcesses().length <= positionToCheck)
+            if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
             {
                 positionToCheck = 0;
             }
@@ -132,7 +128,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         final ViewManager viewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
                         viewManager.removeServer(idToCheck);
                         viewManager.executeUpdates();
-                        Thread.sleep(2000L);
+                        Thread.sleep(1000L);
                         viewManager.close();
                         positionToCheck += 1;
                     }
@@ -140,7 +136,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     {
                         Log.getLogger().error("Unable to reconfigure", e);
                     }
-
                     proxy.getViewManager().updateCurrentViewFromRepository();
                 }
             }
