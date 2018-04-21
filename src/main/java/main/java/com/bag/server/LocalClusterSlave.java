@@ -98,11 +98,12 @@ public class LocalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
+            proxy.getViewManager().updateCurrentViewFromRepository();
             Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()));
             final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(primaryId);
             try(Socket socket = new Socket(address.getHostName(), address.getPort()))
             {
-                new DataOutputStream(socket.getOutputStream()).writeInt(id);
+                new DataOutputStream(socket.getOutputStream()).writeInt(id+1);
                 Log.getLogger().info("Connection established");
             }
             catch(final ConnectException ex)
@@ -118,7 +119,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                             final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
                             viewManager.removeServer(primaryId);
                             viewManager.executeUpdates();
-                            Thread.sleep(1000L);
+                            Thread.sleep(2000L);
                             viewManager.close();
                             primaryId = 1;
                         }
@@ -127,7 +128,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                             Log.getLogger().error("Unable to reconfigure", e);
                         }
                     }
-                    proxy.getViewManager().updateCurrentViewFromRepository();
                 }
             }
             catch (final Exception ex)

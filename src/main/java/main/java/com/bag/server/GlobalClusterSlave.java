@@ -103,6 +103,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
+            proxy.getViewManager().updateCurrentViewFromRepository();
             Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id);
 
             if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
@@ -115,7 +116,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
             try(Socket socket = new Socket(address.getHostName(), address.getPort()))
             {
-                new DataOutputStream(socket.getOutputStream()).writeInt(id);
+                new DataOutputStream(socket.getOutputStream()).writeInt(id+1);
                 Log.getLogger().info("Connection established");
             }
             catch(final ConnectException ex)
@@ -128,7 +129,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                         final ViewManager viewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
                         viewManager.removeServer(idToCheck);
                         viewManager.executeUpdates();
-                        Thread.sleep(1000L);
+                        Thread.sleep(2000L);
                         viewManager.close();
                         positionToCheck += 1;
                     }
@@ -136,7 +137,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     {
                         Log.getLogger().error("Unable to reconfigure", e);
                     }
-                    proxy.getViewManager().updateCurrentViewFromRepository();
                 }
             }
             catch (final Exception ex)
