@@ -91,16 +91,29 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final Timer timer = new Timer();
 
     /**
+     * The position in the list of the server this server has to check if still alive
+     */
+    private int positionToCheck = 0;
+
+    /**
      * Timer task to check for dead replicas.
      */
-    private final TimerTask task = new TimerTask()
+    final TimerTask task = new TimerTask()
     {
         @Override
         public void run()
         {
             proxy.getViewManager().updateCurrentViewFromRepository();
-            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()));
-            final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(primaryId);
+            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id);
+
+            if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
+            {
+                positionToCheck = 0;
+            }
+
+            final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
+
+            final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
             try(Socket socket = new Socket(address.getHostName(), address.getPort()))
             {
                 new DataOutputStream(socket.getOutputStream()).writeInt(id+1);
@@ -110,23 +123,19 @@ public class LocalClusterSlave extends AbstractRecoverable
             {
                 if (ex.getMessage().contains("refused"))
                 {
-                    Log.getLogger().error("BINGO!");
-                    if (random.nextInt(10 ) < 1)
+                    Log.getLogger().warn("Starting reconfiguration!");
+                    try
                     {
-                        Log.getLogger().warn("Starting reconfiguration!");
-                        try
-                        {
-                            final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
-                            viewManager.removeServer(primaryId);
-                            viewManager.executeUpdates();
-                            Thread.sleep(2000L);
-                            viewManager.close();
-                            primaryId = 1;
-                        }
-                        catch (final InterruptedException e)
-                        {
-                            Log.getLogger().error("Unable to reconfigure", e);
-                        }
+                        final ViewManager viewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
+                        viewManager.removeServer(idToCheck);
+                        viewManager.executeUpdates();
+                        Thread.sleep(2000L);
+                        viewManager.close();
+                        positionToCheck += 1;
+                    }
+                    catch (final InterruptedException e)
+                    {
+                        Log.getLogger().error("Unable to reconfigure", e);
                     }
                 }
             }
@@ -134,11 +143,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             {
                 //This here is normal in the global cluster, let's ignore this.
                 Log.getLogger().info(ex);
-            }
-
-            if (id == primaryId)
-            {
-                timer.cancel();
             }
         }
     };
@@ -159,10 +163,15 @@ public class LocalClusterSlave extends AbstractRecoverable
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         this.primaryId = 0;
         Log.getLogger().info("Turned on local cluster with id: " + id);
-        if (id != 0)
+        if (this.id + 1 >= proxy.getViewManager().getCurrentViewN())
         {
-            timer.scheduleAtFixedRate(task, 5000, 1000);
+            this.positionToCheck = 0;
         }
+        else
+        {
+            this.positionToCheck = this.id + 1;
+        }
+        timer.scheduleAtFixedRate(task, 5000, 1000);
     }
 
     /**
