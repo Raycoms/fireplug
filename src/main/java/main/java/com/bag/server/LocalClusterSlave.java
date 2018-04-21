@@ -108,7 +108,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                             viewManager.executeUpdates();
                             Thread.sleep(2000L);
                             viewManager.close();
-                            timer.cancel();
                         }
                         catch (final InterruptedException e)
                         {
