@@ -13,6 +13,7 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.reconfiguration.sensors.CrashDetectionSensor;
+import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -87,11 +88,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final Timer timer = new Timer();
 
     /**
-     * Timer task to check for dead replicas.
-     */
-    private final CrashDetectionSensor task;
-
-    /**
      * Public constructor used to create a local cluster slave.
      *
      * @param id             its unique id in the local cluster.
@@ -116,8 +112,9 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             positionToCheck = this.id + 1;
         }
-        task = new CrashDetectionSensor(positionToCheck, proxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id);
-        timer.scheduleAtFixedRate(task, 10000, 5000);
+
+        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, proxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id), 10000, 5000);
+        timer.scheduleAtFixedRate(new LoadSensor(), 5000, 5000);
     }
 
     /**

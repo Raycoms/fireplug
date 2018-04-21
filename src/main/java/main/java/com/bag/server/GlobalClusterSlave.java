@@ -15,6 +15,7 @@ import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.database.SparkseeDatabaseAccess;
 import main.java.com.bag.reconfiguration.sensors.CrashDetectionSensor;
+import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -92,10 +93,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final Timer timer = new Timer();
 
     /**
-     * Timer task to check for dead replicas.
+     * Constructor for the global cluster slave.
+     * @param id it's id.
+     * @param wrapper the wrapper it belongs to.
+     * @param instrumentation the instrumentation it logs to.
      */
-    private final CrashDetectionSensor task;
-
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
         super(id, GLOBAL_CONFIG_LOCATION, wrapper, instrumentation);
@@ -114,8 +116,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             positionToCheck = this.id + 1;
         }
-        task = new CrashDetectionSensor(positionToCheck, proxy, GLOBAL_CONFIG_LOCATION, id);
-        timer.scheduleAtFixedRate(task, 10000, 5000);
+        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, proxy, GLOBAL_CONFIG_LOCATION, id), 10000, 5000);
+        timer.scheduleAtFixedRate(new LoadSensor(), 5000, 5000);
     }
 
     /**
