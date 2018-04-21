@@ -95,8 +95,7 @@ public class ServerWrapper
                 @Override
                 public void run()
                 {
-                    globalCluster.close();
-                    localCluster.close();
+                    terminate();
                 }
             }, 60000);
         }
@@ -208,11 +207,11 @@ public class ServerWrapper
     {
         if(globalCluster != null)
         {
-            globalCluster.terminate();
+            globalCluster.close();
         }
         if(localCluster != null)
         {
-            localCluster.terminate();
+            localCluster.close();
         }
     }
 

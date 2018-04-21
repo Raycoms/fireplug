@@ -1,10 +1,8 @@
 package main.java.com.bag.server;
 
-import bftsmart.communication.server.ServersCommunicationLayer;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
-import bftsmart.tom.core.messages.TOMMessageType;
 import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -19,10 +17,8 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -77,25 +73,26 @@ public class LocalClusterSlave extends AbstractRecoverable
 
     final Timer timer = new Timer();
 
-    final TimerTask task = new TimerTask() {
+    final TimerTask task = new TimerTask()
+    {
         @Override
         public void run()
         {
             try(Socket socket = new Socket(proxy.getViewManager().getStaticConf().getHost(0), proxy.getViewManager().getStaticConf().getServerToServerPort(0)))
             {
-                if (socket.isConnected())
-                {
-                    Log.getLogger().error("Connected to socket, yay! Deconnecting again");
-                }
                 socket.close();
             }
-            catch (final UnknownHostException var8)
+            catch(final ConnectException ex)
             {
-                Log.getLogger().error(var8);
+                if (ex.getMessage().contains("refused"))
+                {
+                    Log.getLogger().error("BINGO!");
+                }
             }
-            catch (final IOException var9)
+            catch (final Exception ex)
             {
-                Log.getLogger().error(var9);
+                //This here is normal in the global cluster, let's ignore this.
+                Log.getLogger().info(ex);
             }
         }
     };
@@ -612,6 +609,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void close()
     {
+        timer.cancel();
         if (proxy != null)
         {
             proxy.close();
