@@ -100,7 +100,7 @@ public class CrashDetectionSensor extends TimerTask
             cluster = LOCAL_CLUSTER;
         }
 
-        final InetSocketAddress address = proxy.getViewManager().getStaticConf().getLocalAddress(idToCheck);
+        final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
         boolean needsReconfiguration = false;
         try (Socket socket = new Socket(address.getHostName(), address.getPort()))
         {
@@ -171,7 +171,6 @@ public class CrashDetectionSensor extends TimerTask
                     final ServiceProxy globalProxy = new ServiceProxy(4000 + this.id, GLOBAL_CONFIG_LOCATION);
 
                     final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getCurrentView().getAddress(newId);
-
                     if (newPrimaryAddress == null)
                     {
                         Log.getLogger().warn("Failed adding new cluster member to global cluster! Id: " + newId);
