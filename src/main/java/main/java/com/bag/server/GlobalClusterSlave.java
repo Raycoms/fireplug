@@ -115,8 +115,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             positionToCheck = this.id + 1;
         }
         task = new CrashDetectionSensor(positionToCheck, proxy, GLOBAL_CONFIG_LOCATION, id);
-        //todo turn this back on afterwards
-        //timer.scheduleAtFixedRate(task, 10000, 5000);
+        timer.scheduleAtFixedRate(task, 10000, 5000);
     }
 
     /**
