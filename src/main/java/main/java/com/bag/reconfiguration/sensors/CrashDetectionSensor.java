@@ -49,6 +49,11 @@ public class CrashDetectionSensor extends TimerTask
     private final Kryo kryo;
 
     /**
+     * The id of the local cluster.
+     */
+    private final int localClusterId;
+
+    /**
      * Creates a crash detection sensor.
      *
      * @param idToCheck      the id it checks.
@@ -57,13 +62,14 @@ public class CrashDetectionSensor extends TimerTask
      * @param id             it's id.
      * @param kryo           the kryo object.
      */
-    public CrashDetectionSensor(final int idToCheck, final ServiceProxy proxy, final String configLocation, final int id, final Kryo kryo)
+    public CrashDetectionSensor(final int idToCheck, final ServiceProxy proxy, final String configLocation, final int id, final Kryo kryo, final int localClusterId)
     {
         this.idToCheck = idToCheck;
         this.proxy = proxy;
         this.configLocation = configLocation;
         this.id = id;
         this.kryo = kryo;
+        this.localClusterId = localClusterId;
     }
 
     @Override
@@ -158,13 +164,17 @@ public class CrashDetectionSensor extends TimerTask
                     {
                         newId = id;
                     }
+                    newId = newId * 3 + localClusterId;
                     Log.getLogger().warn("Host with ID: " + newId + " has been elected!");
 
                     final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
-                    final InetSocketAddress newPrimaryAddress = proxy.getViewManager().getCurrentView().getAddress(newId);
+                    final ServiceProxy globalProxy = new ServiceProxy(4000 + this.id, GLOBAL_CONFIG_LOCATION);
+
+                    final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getCurrentView().getAddress(newId);
+
                     if (newPrimaryAddress == null)
                     {
-                        Log.getLogger().warn("Failed adding new cluster member to global cluster!");
+                        Log.getLogger().warn("Failed adding new cluster member to global cluster! Id: " + newId);
                     }
                     else
                     {
@@ -172,8 +182,9 @@ public class CrashDetectionSensor extends TimerTask
                         newGlobalViewManager.executeUpdates();
                         Thread.sleep(2000L);
                         newGlobalViewManager.close();
-                        Log.getLogger().warn("Finished adding new cluster member to global cluster!");
+                        Log.getLogger().warn("Finished adding new cluster member " + newId + " to global cluster!");
                     }
+                    globalProxy.close();
                 }
                 idToCheck += 1;
             }
