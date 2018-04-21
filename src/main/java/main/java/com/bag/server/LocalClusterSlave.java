@@ -109,7 +109,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
             Log.getLogger().warn("Entering Task");
             proxy.getViewManager().updateCurrentViewFromRepository();
-            
+
             if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
             {
                 positionToCheck = 0;
@@ -683,6 +683,7 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void close()
     {
+        Log.getLogger().warn("Closing local replica: " + id);
         timer.cancel();
         timer.purge();
         if (proxy != null)
