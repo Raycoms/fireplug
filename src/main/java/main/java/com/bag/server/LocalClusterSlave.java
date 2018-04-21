@@ -117,6 +117,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                             Log.getLogger().error("Unable to reconfigure", e);
                         }
                     }
+                    proxy.getViewManager().updateCurrentViewFromRepository();
                 }
             }
             catch (final Exception ex)
