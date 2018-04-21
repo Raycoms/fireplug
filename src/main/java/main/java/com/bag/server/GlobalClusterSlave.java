@@ -103,6 +103,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
+            if (proxy == null)
+            {
+                return;
+            }
+
             proxy.getViewManager().updateCurrentViewFromRepository();
 
             if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
@@ -960,6 +965,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (proxy != null)
         {
             proxy.close();
+            proxy = null;
         }
         super.terminate();
     }

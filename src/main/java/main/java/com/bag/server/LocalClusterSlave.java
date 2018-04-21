@@ -68,7 +68,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * The serviceProxy to establish communication with the other replicas.
      */
-    private final ServiceProxy proxy;
+    private ServiceProxy proxy;
 
     /**
      * The id of the local cluster.
@@ -103,6 +103,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
+            if (proxy == null)
+            {
+                return;
+            }
+
             proxy.getViewManager().updateCurrentViewFromRepository();
 
             if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
@@ -670,9 +675,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     public void close()
     {
         timer.cancel();
+        timer.purge();
         if (proxy != null)
         {
             proxy.close();
+            proxy = null;
         }
         super.terminate();
     }
