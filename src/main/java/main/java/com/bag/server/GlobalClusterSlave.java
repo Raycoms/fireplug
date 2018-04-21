@@ -14,6 +14,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.database.SparkseeDatabaseAccess;
+import main.java.com.bag.reconfiguration.sensors.CrashDetectionSensor;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -91,67 +92,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final Timer timer = new Timer();
 
     /**
-     * The position in the list of the server this server has to check if still alive
-     */
-    private int positionToCheck = 0;
-
-    /**
      * Timer task to check for dead replicas.
      */
-    final TimerTask task = new TimerTask()
-    {
-        @Override
-        public void run()
-        {
-            if (proxy == null)
-            {
-                return;
-            }
-
-            if (positionToCheck > 1)
-            {
-                return;
-            }
-
-            proxy.getViewManager().updateCurrentViewFromRepository();
-
-            positionToCheck = 1;
-            final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
-            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
-
-            final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
-            try(Socket socket = new Socket(address.getHostName(), address.getPort()))
-            {
-                new DataOutputStream(socket.getOutputStream()).writeInt(id+1);
-                Log.getLogger().info("Connection established");
-            }
-            catch(final ConnectException ex)
-            {
-                if (ex.getMessage().contains("refused"))
-                {
-                    Log.getLogger().warn("Starting reconfiguration!");
-                    try
-                    {
-                        final ViewManager viewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
-                        viewManager.removeServer(idToCheck);
-                        viewManager.executeUpdates();
-                        Thread.sleep(2000L);
-                        viewManager.close();
-                        positionToCheck += 1;
-                    }
-                    catch (final InterruptedException e)
-                    {
-                        Log.getLogger().error("Unable to reconfigure", e);
-                    }
-                }
-            }
-            catch (final Exception ex)
-            {
-                //This here is normal in the global cluster, let's ignore this.
-                Log.getLogger().info(ex);
-            }
-        }
-    };
+    private final CrashDetectionSensor task;
 
     GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
     {
@@ -162,16 +105,18 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Log.getLogger().info("Turning on client proxy with id:" + idClient);
         this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
         Log.getLogger().info("Turned on global cluster with id:" + id);
+        final int positionToCheck;
         if (this.id + 1 >= proxy.getViewManager().getCurrentViewN())
         {
-            this.positionToCheck = 0;
+            positionToCheck = 0;
         }
         else
         {
-            this.positionToCheck = this.id + 1;
+            positionToCheck = this.id + 1;
         }
-        //todo enable this later again
-        //timer.scheduleAtFixedRate(task, 50000, 5000);
+        task = new CrashDetectionSensor(positionToCheck, proxy, GLOBAL_CONFIG_LOCATION, id);
+        //todo turn this back on afterwards
+        //timer.scheduleAtFixedRate(task, 10000, 5000);
     }
 
     /**

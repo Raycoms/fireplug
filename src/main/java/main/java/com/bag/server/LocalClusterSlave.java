@@ -12,6 +12,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
+import main.java.com.bag.reconfiguration.sensors.CrashDetectionSensor;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -86,75 +87,9 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final Timer timer = new Timer();
 
     /**
-     * The position in the list of the server this server has to check if still alive
-     */
-    private int positionToCheck = 0;
-
-    /**
      * Timer task to check for dead replicas.
      */
-    final TimerTask task = new TimerTask()
-    {
-        @Override
-        public void run()
-        {
-            if (proxy == null)
-            {
-                Log.getLogger().warn("Proxy became null, not executing analysis!");
-                return;
-            }
-
-            proxy.getViewManager().updateCurrentViewFromRepository();
-
-            if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
-            {
-                positionToCheck = 0;
-            }
-
-            final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
-            Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
-            final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
-            boolean needsReconfiguration = false;
-            try(Socket socket = new Socket(address.getHostName(), address.getPort()))
-            {
-                new DataOutputStream(socket.getOutputStream()).writeInt(id+1);
-                Log.getLogger().info("Connection established");
-            }
-            catch(final ConnectException ex)
-            {
-                if (ex.getMessage().contains("refused"))
-                {
-                   needsReconfiguration = true;
-                }
-            }
-            catch (final Exception ex)
-            {
-                //This here is normal in the global cluster, let's ignore this.
-                Log.getLogger().info(ex);
-            }
-
-            if (needsReconfiguration)
-            {
-                Log.getLogger().warn("Starting reconfiguration!");
-                try
-                {
-                    final ViewManager viewManager = new ViewManager(String.format(LOCAL_CONFIG_LOCATION, localClusterId));
-                    viewManager.removeServer(idToCheck);
-                    viewManager.executeUpdates();
-                    Thread.sleep(2000L);
-                    viewManager.close();
-                    positionToCheck += 1;
-                    Log.getLogger().warn("Finished reconfiguration!");
-                    proxy.getViewManager().updateCurrentViewFromRepository();
-                    Log.getLogger().warn("Finished updating old view!");
-                }
-                catch (final InterruptedException e)
-                {
-                    Log.getLogger().error("Unable to reconfigure", e);
-                }
-            }
-        }
-    };
+    private final CrashDetectionSensor task;
 
     /**
      * Public constructor used to create a local cluster slave.
@@ -172,14 +107,16 @@ public class LocalClusterSlave extends AbstractRecoverable
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         this.primaryId = 0;
         Log.getLogger().info("Turned on local cluster with id: " + id);
+        final int positionToCheck;
         if (this.id + 1 >= proxy.getViewManager().getCurrentViewN())
         {
-            this.positionToCheck = 0;
+            positionToCheck = 0;
         }
         else
         {
-            this.positionToCheck = this.id + 1;
+            positionToCheck = this.id + 1;
         }
+        task = new CrashDetectionSensor(positionToCheck, proxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id);
         timer.scheduleAtFixedRate(task, 10000, 5000);
     }
 
