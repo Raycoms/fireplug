@@ -142,13 +142,17 @@ public class CrashDetectionSensor extends TimerTask
 
                     final byte[] response = proxy.invokeOrdered(returnBytes);
 
-                    if (response != null)
+                    int newId = -1;
+                    if (response == null)
                     {
                         Log.getLogger().error("Null response from primary election message, this is very bad!");
                     }
+                    else
+                    {
+                        final Input input = new Input(response);
+                        newId = kryo.readObject(input, Integer.class);
+                    }
 
-                    final Input input = new Input(response);
-                    int newId = kryo.readObject(input, Integer.class);
                     if (newId < 0)
                     {
                         newId = id;
