@@ -121,7 +121,7 @@ public class CrashDetectionSensor extends TimerTask
             {
                 if (cluster.equalsIgnoreCase(GLOBAL_CLUSTER))
                 {
-                    Thread.sleep(1000L);
+                    Thread.sleep(2000L);
                 }
                 final ViewManager viewManager = new ViewManager(configLocation);
                 viewManager.removeServer(idToCheck);

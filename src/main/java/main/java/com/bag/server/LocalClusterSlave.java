@@ -116,7 +116,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, proxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow()), 10000, 6000);
+        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, proxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow()), 10000, 8000);
         timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), new ServiceProxy(2000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId)), id), 10000, 10000);
     }
 
