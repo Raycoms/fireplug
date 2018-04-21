@@ -109,11 +109,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
 
             proxy.getViewManager().updateCurrentViewFromRepository();
-
-            if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
-            {
-                positionToCheck = 0;
-            }
+            positionToCheck = 0;
 
             final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
             Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);

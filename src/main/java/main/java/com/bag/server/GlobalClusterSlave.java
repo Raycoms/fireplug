@@ -110,11 +110,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             proxy.getViewManager().updateCurrentViewFromRepository();
 
-            if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
-            {
-                positionToCheck = 0;
-            }
-
+            positionToCheck = 1;
             final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
             Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
 
