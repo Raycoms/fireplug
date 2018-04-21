@@ -70,8 +70,8 @@ public class LoadSensor extends TimerTask
             try
             {
                 desc.cpuUsage = (desc.cpuUsage + getProcessCpuLoad()) * 2;
-                Log.getLogger().warn("CPU: Current load: " + desc.cpuUsage);
-                Log.getLogger().warn("Memory: " + desc.maxMemory + " / " + desc.allocatedMemory + " / " + desc.freeMemory);
+                Log.getLogger().info("CPU: Current load: " + desc.cpuUsage);
+                Log.getLogger().info("Memory: " + desc.maxMemory + " / " + desc.allocatedMemory + " / " + desc.freeMemory);
             }
             catch (final Exception e)
             {

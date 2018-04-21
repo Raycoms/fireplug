@@ -196,7 +196,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 }
                 else if(Constants.PERFORMANCE_UPDATE_MESSAGE.equals(type))
                 {
-                    Log.getLogger().warn("Received performance update message");
+                    Log.getLogger().info("Received performance update message");
                     handlePerformanceUpdateMessage(input, kryo);
                     input.close();
                     allResults[i] = new byte[0];
