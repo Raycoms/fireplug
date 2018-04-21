@@ -151,6 +151,7 @@ public class CrashDetectionSensor extends TimerTask
                     {
                         final Input input = new Input(response);
                         newId = kryo.readObject(input, Integer.class);
+                        input.close();
                     }
 
                     if (newId < 0)
@@ -166,7 +167,6 @@ public class CrashDetectionSensor extends TimerTask
                     Thread.sleep(2000L);
                     newGlobalViewManager.close();
                     Log.getLogger().warn("Finished adding new cluster member to global cluster!");
-                    input.close();
                 }
                 idToCheck += 1;
             }
