@@ -103,18 +103,17 @@ public class LocalClusterSlave extends AbstractRecoverable
         @Override
         public void run()
         {
-            if (proxy == null)
-            {
-                return;
-            }
-
-            if (positionToCheck > 1)
+            if (proxy == null || positionToCheck != 0)
             {
                 return;
             }
 
             proxy.getViewManager().updateCurrentViewFromRepository();
-            positionToCheck = 0;
+
+            if (positionToCheck >= proxy.getViewManager().getCurrentView().getProcesses().length)
+            {
+                positionToCheck = 0;
+            }
 
             final int idToCheck = proxy.getViewManager().getCurrentViewProcesses()[positionToCheck];
             Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()) + " at: " + id + " checking on: " + idToCheck);
@@ -138,6 +137,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                         Thread.sleep(2000L);
                         viewManager.close();
                         positionToCheck += 1;
+                        proxy.getViewManager().updateCurrentViewFromRepository();
                     }
                     catch (final InterruptedException e)
                     {
@@ -177,7 +177,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             this.positionToCheck = this.id + 1;
         }
-        timer.scheduleAtFixedRate(task, 50000, 1000);
+        timer.scheduleAtFixedRate(task, 5000, 1000);
     }
 
     /**

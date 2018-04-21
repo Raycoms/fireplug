@@ -170,7 +170,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             this.positionToCheck = this.id + 1;
         }
-        timer.scheduleAtFixedRate(task, 50000, 1000);
+        //todo enable this later again
+        //timer.scheduleAtFixedRate(task, 50000, 1000);
     }
 
     /**
