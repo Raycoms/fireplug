@@ -68,7 +68,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     /**
      * The serviceProxy to establish communication with the other replicas.
      */
-    private final ServiceProxy proxy;
+    private ServiceProxy proxy;
 
     /**
      * SignatureStorageCache lock to be sure that we compare correctly.
