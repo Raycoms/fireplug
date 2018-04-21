@@ -82,6 +82,10 @@ public class CrashDetectionSensor extends TimerTask
             Log.getLogger().warn("Starting reconfiguration at cluster: " + cluster);
             try
             {
+                if (cluster.equalsIgnoreCase("global"))
+                {
+                    Thread.sleep(1000L);
+                }
                 final ViewManager viewManager = new ViewManager(configLocation);
                 viewManager.removeServer(idToCheck);
                 viewManager.executeUpdates();
@@ -95,6 +99,11 @@ public class CrashDetectionSensor extends TimerTask
             catch (final InterruptedException e)
             {
                 Log.getLogger().error("Unable to reconfigure at cluster: " + cluster, e);
+            }
+            catch (final NullPointerException ex)
+            {
+                Log.getLogger().warn("NPE - restarting!", ex);
+                run();
             }
         }
     }
