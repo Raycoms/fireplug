@@ -109,7 +109,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().warn("Servers : " + Arrays.toString(proxy.getViewManager().getCurrentView().getProcesses()));
 
-            if (proxy.getViewManager().getCurrentViewProcesses().length < positionToCheck)
+            if (proxy.getViewManager().getCurrentViewProcesses().length <= positionToCheck)
             {
                 positionToCheck = 0;
             }
