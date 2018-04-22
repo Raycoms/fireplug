@@ -326,7 +326,9 @@ public class ServerWrapper
      */
     public void initNewGlobalClusterInstance()
     {
-        Log.getLogger().error("Turning it on with new GlobalServerId: " + globalServerId);
+        Log.getLogger().warn("----------------------------------------------------");
+        Log.getLogger().warn("Starting Replica: " + globalServerId + " in global Cluster!");
+        Log.getLogger().warn("----------------------------------------------------");
         globalCluster = new GlobalClusterSlave(globalServerId, this, new ServerInstrumentation(globalServerId));
     }
 
