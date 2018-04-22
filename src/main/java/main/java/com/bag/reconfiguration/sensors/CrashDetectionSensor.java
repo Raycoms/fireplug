@@ -127,7 +127,7 @@ public class CrashDetectionSensor extends TimerTask
 
         if (needsReconfiguration)
         {
-            Log.getLogger().warn("Starting reconfiguration at cluster: " + cluster);
+            Log.getLogger().warn("Starting reconfiguration at cluster: " + cluster + " with config: "  + configLocation);
             try
             {
                 if (cluster.equalsIgnoreCase(GLOBAL_CLUSTER))
@@ -139,7 +139,7 @@ public class CrashDetectionSensor extends TimerTask
                 viewManager.executeUpdates();
                 Thread.sleep(2000L);
                 viewManager.close();
-                Log.getLogger().warn("Finished reconfiguration at cluster: " + cluster);
+                Log.getLogger().warn("Finished reconfiguration at cluster: " + cluster + " with config: "  + configLocation);
                 proxy.getViewManager().updateCurrentViewFromRepository();
                 Log.getLogger().warn("Finished updating old view at cluster: " + cluster);
                 if (cluster.equalsIgnoreCase(LOCAL_CLUSTER))
