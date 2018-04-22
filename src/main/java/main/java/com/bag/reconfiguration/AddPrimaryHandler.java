@@ -109,7 +109,6 @@ public class AddPrimaryHandler extends TimerTask
                 newGlobalViewManager.close();
                 Log.getLogger().warn("Finished adding new cluster member " + newId + " to global cluster!");
             }
-            globalProxy.getViewManager().updateCurrentViewFromRepository();
             globalProxy.close();
         }
         catch(final Exception ex)
