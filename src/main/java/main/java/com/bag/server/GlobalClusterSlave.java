@@ -478,7 +478,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 kryo.writeObject(messageOutput, signatureStorage);
                 kryo.writeObject(messageOutput, consensusId);
 
-                if (wrapper.getLocalCluster().getId() == 0)
+                if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                 {
                     final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
                     service.submit(runnable);

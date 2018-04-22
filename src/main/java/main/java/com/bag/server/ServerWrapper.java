@@ -59,6 +59,9 @@ public class ServerWrapper
      */
     private final int localClusterSlaveId;
 
+    /**
+     * The timer class.
+     */
     private final Timer timer = new Timer();
 
     /**

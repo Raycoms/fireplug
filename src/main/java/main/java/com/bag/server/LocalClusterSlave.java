@@ -96,6 +96,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final Timer timer = new Timer();
 
     /**
+     * If the local cluster member had to jump in for its primary.
+     */
+    private boolean substitutesPrimary = false;
+
+    /**
      * Hashmap which has the information about all local node performances.
      */
     private final HashMap<Integer, LoadSensor.LoadDesc> performanceMap = new HashMap<>();
@@ -279,7 +284,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         if (id == leadingReplica)
         {
             Log.getLogger().error("Instantiating new global cluster");
-
+            substitutesPrimary = true;
             final Thread t = new Thread(new Runnable()
             {
                 @Override
@@ -738,6 +743,15 @@ public class LocalClusterSlave extends AbstractRecoverable
             crashProxy = null;
         }
         super.terminate();
+    }
+
+    /**
+     * Check if the local cluster member substitutes its primary.
+     * @return true if so.
+     */
+    public boolean isPrimarySubstitute()
+    {
+        return substitutesPrimary;
     }
 
     /**
