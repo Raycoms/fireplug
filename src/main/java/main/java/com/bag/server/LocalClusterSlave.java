@@ -76,6 +76,16 @@ public class LocalClusterSlave extends AbstractRecoverable
     private ServiceProxy proxy;
 
     /**
+     * The serviceProxy to establish communication with the other replicas.
+     */
+    private ServiceProxy crashProxy;
+
+    /**
+     * The serviceProxy to establish communication with the other replicas.
+     */
+    private ServiceProxy loadProxy;
+
+    /**
      * Queue to catch messages out of order.
      */
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
@@ -116,8 +126,10 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, new ServiceProxy(3000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId)), String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId), 10000, 8000);
-        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), new ServiceProxy(2000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId)), id), 10000, 10000);
+        crashProxy = new ServiceProxy(3000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        loadProxy = new ServiceProxy(2000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId), 10000, 8000);
+        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), loadProxy, id), 10000, 10000);
     }
 
     /**
@@ -714,6 +726,16 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             proxy.close();
             proxy = null;
+        }
+        if (loadProxy != null)
+        {
+            loadProxy.close();
+            loadProxy = null;
+        }
+        if (crashProxy != null)
+        {
+            crashProxy.close();
+            crashProxy = null;
         }
         super.terminate();
     }

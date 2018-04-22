@@ -69,6 +69,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private ServiceProxy proxy;
 
     /**
+     * The serviceProxy to establish communication with the other replicas.
+     */
+    private ServiceProxy crashProxy;
+
+    /**
      * SignatureStorageCache lock to be sure that we compare correctly.
      */
     private static final Object lock = new Object();
@@ -114,7 +119,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, new ServiceProxy(1000 + this.idClient, GLOBAL_CONFIG_LOCATION), GLOBAL_CONFIG_LOCATION, id, pool.borrow(), -1), 10000, 6000);
+        crashProxy = new ServiceProxy(1000 + this.idClient, GLOBAL_CONFIG_LOCATION);
+        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, crashProxy
+                , GLOBAL_CONFIG_LOCATION, id, pool.borrow(), -1), 10000, 6000);
     }
 
     /**
@@ -906,6 +913,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             proxy.close();
             proxy = null;
+        }
+        if (crashProxy != null)
+        {
+            crashProxy.close();
+            crashProxy = null;
         }
         super.terminate();
     }
