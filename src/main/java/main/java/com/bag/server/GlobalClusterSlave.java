@@ -227,7 +227,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             // Wait until he got initiated!
         }
-        
+
         Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -671,6 +671,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Output output = new Output(1, 804800);
         byte[] returnValue;
 
+        while (wrapper == null)
+        {
+            // Do nothing and wait until server is fully initialized!
+        }
+
         try
         {
             switch (messageType)
@@ -716,7 +721,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     return handleRegisteringSlave(input, kryo);
                 case Constants.COMMIT:
                     Log.getLogger().info("Received commit message: " + input.getBuffer().length);
-                    if (wrapper == null || wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
+                    if (wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
                     {
                         input.close();
                         pool.release(kryo);
