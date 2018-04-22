@@ -65,7 +65,10 @@ public class AddPrimaryHandler extends TimerTask
     {
         try(ServiceProxy globalProxy = new ServiceProxy(4000 + this.id, GLOBAL_CONFIG_LOCATION))
         {
+            Log.getLogger().warn("----------------------------------------------------");
             Log.getLogger().warn("Starting new primary election!");
+            Log.getLogger().warn("----------------------------------------------------");
+
             final Output output = new Output(128);
             kryo.writeObject(output, PRIMARY_ELECTION_MESSAGE);
             kryo.writeObject(output, idToCheck);
