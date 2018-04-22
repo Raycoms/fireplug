@@ -105,12 +105,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         this.id = id;
         this.idClient = id + 1000;
         this.wrapper = wrapper;
-        if (wrapper == null)
-        {
-            Log.getLogger().warn("----------------------------------------------------");
-            Log.getLogger().warn("Wrapper NULL!!!");
-            Log.getLogger().warn("----------------------------------------------------");
-        }
         Log.getLogger().info("Turning on client proxy with id:" + idClient);
         this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
         Log.getLogger().info("Turned on global cluster with id:" + id);
@@ -229,6 +223,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
     {
+        while (wrapper == null)
+        {
+            // Wait until he got initiated!
+        }
+        
         Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
