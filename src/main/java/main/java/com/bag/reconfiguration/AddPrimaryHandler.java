@@ -21,27 +21,27 @@ public class AddPrimaryHandler extends TimerTask
     /**
      * The kryo object for serialization.
      */
-    final Kryo kryo;
+    private final Kryo kryo;
 
     /**
      * The id to be replaced.
      */
-    final int  idToCheck;
+    private final int  idToCheck;
 
     /**
      * The local cluster id.
      */
-    final int  localClusterId;
+    private final int  localClusterId;
 
     /**
      * The proxy to consult.
      */
-    final ServiceProxy proxy;
+    private ServiceProxy proxy;
 
     /**
      * The id of the local server.
      */
-    final int id;
+    private final int id;
 
     /**
      * Create a new primary election handler.
@@ -74,6 +74,9 @@ public class AddPrimaryHandler extends TimerTask
 
             final byte[] response = proxy.invokeOrdered(returnBytes);
             proxy.close();
+            proxy = null;
+
+
             int newId = -1;
             if (response == null)
             {
@@ -92,6 +95,8 @@ public class AddPrimaryHandler extends TimerTask
             }
             newId = newId * 3 + localClusterId;
             Log.getLogger().warn("Host with ID: " + newId + " has been elected!");
+
+            Thread.sleep(2000L);
 
             final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
 
