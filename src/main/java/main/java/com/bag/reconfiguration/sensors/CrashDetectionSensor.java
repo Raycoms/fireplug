@@ -170,7 +170,7 @@ public class CrashDetectionSensor extends TimerTask
 
                     final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
                     final ServiceProxy globalProxy = new ServiceProxy(4000 + this.id, GLOBAL_CONFIG_LOCATION);
-
+                    globalProxy.getViewManager().updateCurrentViewFromRepository();
                     final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getStaticConf().getRemoteAddress(newId);
                     if (newPrimaryAddress == null)
                     {
@@ -184,6 +184,7 @@ public class CrashDetectionSensor extends TimerTask
                         newGlobalViewManager.close();
                         Log.getLogger().warn("Finished adding new cluster member " + newId + " to global cluster!");
                     }
+                    globalProxy.getViewManager().updateCurrentViewFromRepository();
                     globalProxy.close();
                 }
                 idToCheck += 1;
