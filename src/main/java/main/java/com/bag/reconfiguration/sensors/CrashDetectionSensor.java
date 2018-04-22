@@ -130,10 +130,10 @@ public class CrashDetectionSensor extends TimerTask
             Log.getLogger().warn("Starting reconfiguration at cluster: " + cluster);
             try
             {
-                /*if (cluster.equalsIgnoreCase(GLOBAL_CLUSTER))
+                if (cluster.equalsIgnoreCase(GLOBAL_CLUSTER))
                 {
                     Thread.sleep(2000L);
-                }*/
+                }
                 final ViewManager viewManager = new ViewManager(configLocation);
                 viewManager.removeServer(idToCheck);
                 viewManager.executeUpdates();

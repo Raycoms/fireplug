@@ -74,7 +74,6 @@ public class AddPrimaryHandler extends TimerTask
 
             final byte[] response = proxy.invokeOrdered(returnBytes);
             proxy.close();
-
             int newId = -1;
             if (response == null)
             {
