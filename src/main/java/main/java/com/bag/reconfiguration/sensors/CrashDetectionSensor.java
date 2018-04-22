@@ -3,16 +3,15 @@ package main.java.com.bag.reconfiguration.sensors;
 import bftsmart.reconfiguration.ViewManager;
 import bftsmart.tom.ServiceProxy;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import main.java.com.bag.reconfiguration.AddPrimaryHandler;
 import main.java.com.bag.util.Log;
 
 import java.io.DataOutputStream;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.Arrays;
+import java.util.Timer;
 import java.util.TimerTask;
 
 import static main.java.com.bag.server.GlobalClusterSlave.GLOBAL_CONFIG_LOCATION;
@@ -53,6 +52,11 @@ public class CrashDetectionSensor extends TimerTask
      * The id of the local cluster.
      */
     private final int localClusterId;
+
+    /**
+     * Timer to schedule the election.
+     */
+    final Timer electionTimer = new Timer();
 
     /**
      * Creates a crash detection sensor.
@@ -118,7 +122,7 @@ public class CrashDetectionSensor extends TimerTask
         catch (final Exception ex)
         {
             //This here is normal in the global cluster, let's ignore this.
-            Log.getLogger().warn(ex);
+            Log.getLogger().warn("Something is going down here", ex);
         }
 
         if (needsReconfiguration)
@@ -126,10 +130,10 @@ public class CrashDetectionSensor extends TimerTask
             Log.getLogger().warn("Starting reconfiguration at cluster: " + cluster);
             try
             {
-                if (cluster.equalsIgnoreCase(GLOBAL_CLUSTER))
+                /*if (cluster.equalsIgnoreCase(GLOBAL_CLUSTER))
                 {
                     Thread.sleep(2000L);
-                }
+                }*/
                 final ViewManager viewManager = new ViewManager(configLocation);
                 viewManager.removeServer(idToCheck);
                 viewManager.executeUpdates();
@@ -140,52 +144,7 @@ public class CrashDetectionSensor extends TimerTask
                 Log.getLogger().warn("Finished updating old view at cluster: " + cluster);
                 if (cluster.equalsIgnoreCase(LOCAL_CLUSTER))
                 {
-                    Log.getLogger().warn("Starting new primary election!");
-                    final Output output = new Output(128);
-                    kryo.writeObject(output, PRIMARY_ELECTION_MESSAGE);
-                    kryo.writeObject(output, idToCheck);
-                    final byte[] returnBytes = output.getBuffer();
-                    output.close();
-
-                    final byte[] response = proxy.invokeOrdered(returnBytes);
-
-                    int newId = -1;
-                    if (response == null)
-                    {
-                        Log.getLogger().error("Null response from primary election message, this is very bad!");
-                    }
-                    else
-                    {
-                        final Input input = new Input(response);
-                        newId = kryo.readObject(input, Integer.class);
-                        input.close();
-                    }
-
-                    if (newId < 0)
-                    {
-                        newId = id;
-                    }
-                    newId = newId * 3 + localClusterId;
-                    Log.getLogger().warn("Host with ID: " + newId + " has been elected!");
-
-                    final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
-                    final ServiceProxy globalProxy = new ServiceProxy(4000 + this.id, GLOBAL_CONFIG_LOCATION);
-                    globalProxy.getViewManager().updateCurrentViewFromRepository();
-                    final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getStaticConf().getRemoteAddress(newId);
-                    if (newPrimaryAddress == null)
-                    {
-                        Log.getLogger().warn("Failed adding new cluster member to global cluster! Id: " + newId);
-                    }
-                    else
-                    {
-                        newGlobalViewManager.addServer(newId, newPrimaryAddress.getAddress().getHostAddress(), newPrimaryAddress.getPort());
-                        newGlobalViewManager.executeUpdates();
-                        Thread.sleep(2000L);
-                        newGlobalViewManager.close();
-                        Log.getLogger().warn("Finished adding new cluster member " + newId + " to global cluster!");
-                    }
-                    globalProxy.getViewManager().updateCurrentViewFromRepository();
-                    globalProxy.close();
+                    electionTimer.schedule(new AddPrimaryHandler(kryo, idToCheck, localClusterId, proxy, id), 1000);
                 }
                 idToCheck += 1;
             }
