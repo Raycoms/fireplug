@@ -105,6 +105,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
         this.id = id;
         this.idClient = id + 1000;
         this.wrapper = wrapper;
+        if (wrapper == null)
+        {
+            Log.getLogger().warn("----------------------------------------------------");
+            Log.getLogger().warn("Wrapper NULL!!!");
+            Log.getLogger().warn("----------------------------------------------------");
+        }
         Log.getLogger().info("Turning on client proxy with id:" + idClient);
         this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
         Log.getLogger().info("Turned on global cluster with id:" + id);

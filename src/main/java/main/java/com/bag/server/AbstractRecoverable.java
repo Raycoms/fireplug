@@ -569,6 +569,15 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     }
 
     /**
+     * Get the server instrumentation.
+     * @return the instrumentation object.
+     */
+    public ServerInstrumentation getInstrumentation()
+    {
+        return instrumentation;
+    }
+
+    /**
      * Getter for the id.
      *
      * @return the id.

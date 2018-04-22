@@ -332,7 +332,7 @@ public class ServerWrapper
         Log.getLogger().warn("----------------------------------------------------");
         Log.getLogger().warn("Starting Replica: " + globalServerId + " in global Cluster!");
         Log.getLogger().warn("----------------------------------------------------");
-        globalCluster = new GlobalClusterSlave(globalServerId, this, new ServerInstrumentation(globalServerId));
+        globalCluster = new GlobalClusterSlave(globalServerId, this, localCluster.getInstrumentation());
     }
 
     /**
