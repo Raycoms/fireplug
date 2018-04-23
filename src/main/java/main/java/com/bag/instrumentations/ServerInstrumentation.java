@@ -80,7 +80,7 @@ public class ServerInstrumentation
             abortedTransactions.addAndGet(aborts);
         }
 
-        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 60.0)
+        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 30.0)
         {
             synchronized (resultsFileLock)
             {
