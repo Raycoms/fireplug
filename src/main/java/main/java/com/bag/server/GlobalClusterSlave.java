@@ -3,6 +3,7 @@ package main.java.com.bag.server;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
+import bftsmart.tom.core.messages.TOMMessageType;
 import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -123,13 +124,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId());
         }
 
-        if (messageContexts != null && (messageContexts[0].isNoOp() || messageContexts[0].readOnly) /*lastBatch > messageContexts[0].getConsensusId()*/)
-        {
-            Log.getLogger().error("----------------------------------");
-            Log.getLogger().error("Batch is read only!!!!! " + messageContexts[0].getConsensusId() + " : " + lastBatch);
-            Log.getLogger().error("----------------------------------");
-        }
-
         final byte[][] allResults = new byte[message.length][];
         for (int i = 0; i < message.length; i++)
         {
@@ -137,8 +131,15 @@ public class GlobalClusterSlave extends AbstractRecoverable
             {
                 if (lastBatch != messageContexts[i].getConsensusId())
                 {
+                    if (lastBatch > messageContexts[i].getConsensusId())
+                    {
+                        Log.getLogger().error("----------------------------------");
+                        Log.getLogger().error("Supposently old message!!!!! " + messageContexts[i].getConsensusId() + " : " + lastBatch + " " + messageContexts[i].readOnly + " " + messageContexts[i].isNoOp() + " " + messageContexts[i].getOperationId() + " " + messageContexts[i].getType().name());
+                        Log.getLogger().error("----------------------------------");
+                    }
                     lastBatch = messageContexts[i].getConsensusId();
                 }
+
 
                 final Input input = new Input(message[i]);
                 final String type = kryo.readObject(input, String.class);
