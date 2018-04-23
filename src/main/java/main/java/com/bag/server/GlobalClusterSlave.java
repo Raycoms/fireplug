@@ -262,7 +262,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && ( wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
         {
             Log.getLogger().info("Distribute commit to slave!");
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
@@ -552,7 +552,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
-        final Output messageOutput = new Output(100096);
+        final Output messageOutput = new Output(1000096);
 
         kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
         kryo.writeObject(messageOutput, decision);
