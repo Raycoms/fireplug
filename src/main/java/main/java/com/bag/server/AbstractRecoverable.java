@@ -140,18 +140,17 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         this.instrumentation = instrumentation;
         this.lastBatch = lastBatch;
         globalSnapshotId = 1;
+        globalWriteSet = new ConcurrentSkipListMap<>();
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
-        Log.getLogger().error("Instantiating abstract recoverable of id: " + id + " at config directory: " + configDirectory);
-        //the default verifier is instantiated with null in the ServerReplica.
-        this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());
-
-        Log.getLogger().error("Finished instantiating abstract recoverable of id: " + id);
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
-
-        globalWriteSet = new ConcurrentSkipListMap<>();
+        
+        Log.getLogger().error("Instantiating abstract recoverable of id: " + id + " at config directory: " + configDirectory);
+        //the default verifier is instantiated with null in the ServerReplica.
+        this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());
+        Log.getLogger().error("Finished instantiating abstract recoverable of id: " + id);
 
         Log.getLogger().error("Instantiating fileWriter.");
         try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
