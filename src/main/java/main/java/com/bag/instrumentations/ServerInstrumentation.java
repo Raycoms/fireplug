@@ -85,7 +85,7 @@ public class ServerInstrumentation
             synchronized (resultsFileLock)
             {
                 final double elapsed = ((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER);
-                if (elapsed >= 60.0)
+                if (elapsed >= 30.0)
                 {
                     lastCommit = System.nanoTime();
                     minutesElapsed += 1;
