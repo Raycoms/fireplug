@@ -562,7 +562,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Starting thread to update to slave signed by all members: " + snapShotId);
 
-        if (wrapper.getLocalCluster().getId() == 0)
+        if (wrapper.getLocalCluster().getId() == 0  || wrapper.getLocalCluster().isPrimarySubstitute())
         {
             final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
             service.submit(runnable);
@@ -882,7 +882,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
             if (signatureStorage.isProcessed())
             {
-
                 final Output messageOutput = new Output(100096);
 
                 kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
@@ -893,6 +892,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                 {
+                    if (wrapper.getLocalCluster().isPrimarySubstitute())
+                    {
+                        Log.getLogger().warn("Is primary substitute!!!!!");
+                    }
                     final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
                     service.submit(runnable);
                 }
