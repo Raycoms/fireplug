@@ -80,12 +80,12 @@ public class ServerInstrumentation
             abortedTransactions.addAndGet(aborts);
         }
 
-        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 30.0)
+        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 10.0)
         {
             synchronized (resultsFileLock)
             {
                 final double elapsed = ((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER);
-                if (elapsed >= 30.0)
+                if (elapsed >= 10.0)
                 {
                     lastCommit = System.nanoTime();
                     minutesElapsed += 1;
