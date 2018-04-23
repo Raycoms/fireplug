@@ -562,8 +562,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Starting thread to update to slave signed by all members: " + snapShotId);
 
-        if (wrapper.getLocalCluster().getId() == 0  || wrapper.getLocalCluster().isPrimarySubstitute())
+        if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
         {
+            if (wrapper.getLocalCluster().isPrimarySubstitute())
+            {
+                Log.getLogger().warn("Is primary substitute!!!!!");
+            }
             final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
             service.submit(runnable);
         }
@@ -892,10 +896,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                 {
-                    if (wrapper.getLocalCluster().isPrimarySubstitute())
-                    {
-                        Log.getLogger().warn("Is primary substitute!!!!!");
-                    }
                     final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
                     service.submit(runnable);
                 }
