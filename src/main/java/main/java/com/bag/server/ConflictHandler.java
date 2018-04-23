@@ -77,7 +77,6 @@ public class ConflictHandler
         {
             if (!writeSet.isEmpty() && snapshotId <= writeSet.lastKey())
             {
-
                 pastWrites = writeSet.entrySet()
                         .stream()
                         .filter(id -> id.getKey() > snapshotId)

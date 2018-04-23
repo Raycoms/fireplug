@@ -100,7 +100,7 @@ public class ServerWrapper
                 {
                     terminate();
                 }
-            }, 60000);
+            }, 90000);
         }
 
         if(isPrimary)

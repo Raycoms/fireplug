@@ -146,7 +146,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         kryo.register(NodeStorage.class, 100);
         kryo.register(RelationshipStorage.class, 200);
         pool.release(kryo);
-        
+
         Log.getLogger().error("Instantiating abstract recoverable of id: " + id + " at config directory: " + configDirectory);
         //the default verifier is instantiated with null in the ServerReplica.
         this.replica = new ServiceReplica(id, configDirectory, this, this, null, new DefaultReplier());

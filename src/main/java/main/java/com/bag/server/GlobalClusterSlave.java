@@ -543,7 +543,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final byte[] signature;
 
         signature = context.getProof().iterator().next().getValue();
-        final SignatureStorage signatureStorage = new SignatureStorage(getReplica().getReplicaContext().getStaticConfiguration().getF() + 1, message, decision);
+        final SignatureStorage signatureStorage = new SignatureStorage(1, message, decision);
 
         signatureStorage.setProcessed();
         Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);

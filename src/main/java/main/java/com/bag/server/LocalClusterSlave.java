@@ -743,6 +743,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                                 + localWriteSet.size()
                                 + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
                 kryo.writeObject(output, true);
+                updateCounts(0, 0, 0, 1);
                 return output;
             }
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
