@@ -138,7 +138,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (messageContexts != null && messageContexts[0].readOnly /*lastBatch > messageContexts[0].getConsensusId()*/)
         {
             Log.getLogger().error("----------------------------------");
-            Log.getLogger().error("Batch is read only!!!!! " + messageContexts[0].readOnly);
+            Log.getLogger().error("Batch is read only!!!!! " + messageContexts[0].getConsensusId() + " : " + lastBatch);
             Log.getLogger().error("----------------------------------");
         }
 
@@ -564,10 +564,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
         {
-            if (wrapper.getLocalCluster().isPrimarySubstitute())
-            {
-                Log.getLogger().warn("Is primary substitute!!!!!");
-            }
             final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
             service.submit(runnable);
         }
