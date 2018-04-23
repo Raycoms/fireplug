@@ -1,23 +1,35 @@
-package main.java.com.bag.reconfiguration;
+package main.java.com.bag.reconfiguration.adaptations;
 
 import bftsmart.reconfiguration.ViewManager;
 import bftsmart.tom.ServiceProxy;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import main.java.com.bag.reconfiguration.sensors.BftDetectionSensor;
 import main.java.com.bag.util.Log;
 
 import java.net.InetSocketAddress;
 import java.util.TimerTask;
 
 import static main.java.com.bag.server.GlobalClusterSlave.GLOBAL_CONFIG_LOCATION;
+import static main.java.com.bag.util.Constants.BFT_PRIMARY_ELECTION_MESSAGE;
 import static main.java.com.bag.util.Constants.PRIMARY_ELECTION_MESSAGE;
 
 /**
  * Class which handles the primary election.
  */
-public class AddPrimaryHandler extends TimerTask
+public class AddBftPrimaryHandler extends TimerTask
 {
+    /**
+     * If the bft election should consider it as a mixed setup.
+     */
+    private boolean mixedSetup = false;
+
+    /**
+     * If mixedSetup is true, this is the setup of the replicas:
+     */
+    private String[] mixedReplicas = new String[]{"Neo4j, OrientDB, Neo4j, OrientDB, Neo4j, OrientDB, Neo4j, OrientDB, Neo4j, OrientDB, Neo4j, OrientDB"};
+
     /**
      * The kryo object for serialization.
      */
@@ -44,20 +56,33 @@ public class AddPrimaryHandler extends TimerTask
     private final int id;
 
     /**
+     * The bft detection sensor.
+     */
+    private final BftDetectionSensor sensor;
+
+    /**
      * Create a new primary election handler.
      * @param kryo the kryo object.
      * @param idToCheck the id to replaced.
      * @param localClusterId the local cluster id.
      * @param proxy the proxy.
      * @param id the id of this server.
+     * @param bftDetectionSensor
      */
-    public AddPrimaryHandler(final Kryo kryo, final int idToCheck, final int localClusterId, final ServiceProxy proxy, final int id)
+    public AddBftPrimaryHandler(
+            final Kryo kryo,
+            final int idToCheck,
+            final int localClusterId,
+            final ServiceProxy proxy,
+            final int id,
+            final BftDetectionSensor bftDetectionSensor)
     {
         this.kryo = kryo;
         this.idToCheck = idToCheck;
         this.localClusterId = localClusterId;
         this.proxy = proxy;
         this.id = id;
+        this.sensor = bftDetectionSensor;
     }
 
     @Override
@@ -70,8 +95,11 @@ public class AddPrimaryHandler extends TimerTask
             Log.getLogger().warn("----------------------------------------------------");
 
             final Output output = new Output(128);
-            kryo.writeObject(output, PRIMARY_ELECTION_MESSAGE);
+            kryo.writeObject(output, BFT_PRIMARY_ELECTION_MESSAGE);
             kryo.writeObject(output, idToCheck);
+            kryo.writeObject(output, mixedSetup);
+            kryo.writeObject(output, mixedReplicas[idToCheck]);
+
             final byte[] returnBytes = output.getBuffer();
             output.close();
 
@@ -89,6 +117,7 @@ public class AddPrimaryHandler extends TimerTask
             {
                 final Input input = new Input(response);
                 newId = kryo.readObject(input, Integer.class);
+                sensor.setPrimaryId(newId);
                 input.close();
             }
 
@@ -102,7 +131,6 @@ public class AddPrimaryHandler extends TimerTask
             Thread.sleep(2000L);
 
             final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
-
             globalProxy.getViewManager().updateCurrentViewFromRepository();
             final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getStaticConf().getRemoteAddress(newId);
             if (newPrimaryAddress == null)

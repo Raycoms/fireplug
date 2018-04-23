@@ -106,7 +106,7 @@ public class ServerWrapper
         if(isPrimary)
         {
             Log.getLogger().error("Turn on global cluster with id: " + globalServerId);
-            globalCluster = new GlobalClusterSlave(globalServerId, this, instrumentation);
+            globalCluster = new GlobalClusterSlave(globalServerId, this, instrumentation, 0);
             Log.getLogger().error("Finished turning on global cluster with id: " + globalServerId);
         }
 
@@ -326,13 +326,14 @@ public class ServerWrapper
 
     /**
      * Turn on a new instance of the global cluster.
+     * @param lastBatch the last executed batch.
      */
-    public void initNewGlobalClusterInstance()
+    public void initNewGlobalClusterInstance(final long lastBatch)
     {
         Log.getLogger().warn("----------------------------------------------------");
         Log.getLogger().warn("Starting Replica: " + globalServerId + " in global Cluster!");
         Log.getLogger().warn("----------------------------------------------------");
-        globalCluster = new GlobalClusterSlave(globalServerId, this, localCluster.getInstrumentation());
+        globalCluster = new GlobalClusterSlave(globalServerId, this, localCluster.getInstrumentation(), lastBatch);
     }
 
     /**

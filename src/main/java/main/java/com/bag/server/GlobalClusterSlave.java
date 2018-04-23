@@ -1,6 +1,5 @@
 package main.java.com.bag.server;
 
-import bftsmart.reconfiguration.ViewManager;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
@@ -15,7 +14,6 @@ import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.database.SparkseeDatabaseAccess;
 import main.java.com.bag.reconfiguration.sensors.CrashDetectionSensor;
-import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -37,11 +35,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * Name of the location of the global config.
      */
     public static final String GLOBAL_CONFIG_LOCATION = "global/config";
-
-    /**
-     * The wrapper class instance. Used to access the global cluster if possible.
-     */
-    private final ServerWrapper wrapper;
 
     /**
      * The the id of the replica inside the global cluster, on default this is the id of the local cluster as well.
@@ -98,13 +91,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * @param id it's id.
      * @param wrapper the wrapper it belongs to.
      * @param instrumentation the instrumentation it logs to.
+     * @param lastBatch the last received batch.
      */
-    GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
+    GlobalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final ServerInstrumentation instrumentation, final long lastBatch)
     {
-        super(id, GLOBAL_CONFIG_LOCATION, wrapper, instrumentation);
+        super(id, GLOBAL_CONFIG_LOCATION, wrapper, instrumentation, lastBatch);
         this.id = id;
         this.idClient = id + 1000;
-        this.wrapper = wrapper;
         Log.getLogger().info("Turning on client proxy with id:" + idClient);
         this.proxy = new ServiceProxy(this.idClient, GLOBAL_CONFIG_LOCATION);
         Log.getLogger().info("Turned on global cluster with id:" + id);
@@ -142,11 +135,23 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId());
         }
 
+        if (messageContexts != null && messageContexts[0].readOnly /*lastBatch > messageContexts[0].getConsensusId()*/)
+        {
+            Log.getLogger().error("----------------------------------");
+            Log.getLogger().error("Batch is read only!!!!! " + messageContexts[0].readOnly);
+            Log.getLogger().error("----------------------------------");
+        }
+
         final byte[][] allResults = new byte[message.length][];
         for (int i = 0; i < message.length; i++)
         {
             if (messageContexts != null && messageContexts[i] != null)
             {
+                if (lastBatch != messageContexts[i].getConsensusId())
+                {
+                    lastBatch = messageContexts[i].getConsensusId();
+                }
+
                 final Input input = new Input(message[i]);
                 final String type = kryo.readObject(input, String.class);
 
@@ -223,11 +228,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
     {
-        while (wrapper == null)
-        {
-            // Wait until he got initiated!
-        }
-
         Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -262,7 +262,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && wrapper.getLocalClusterSlaveId() == 0)
+        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && ( wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
         {
             Log.getLogger().info("Distribute commit to slave!");
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
@@ -671,11 +671,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         Output output = new Output(1, 804800);
         byte[] returnValue;
 
-        while (wrapper == null)
-        {
-            // Do nothing and wait until server is fully initialized!
-        }
-
         try
         {
             switch (messageType)
@@ -719,6 +714,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     input.close();
                     pool.release(kryo);
                     return handleRegisteringSlave(input, kryo);
+                case Constants.AM_I_OUTDATED_MESSAGE:
+                    Log.getLogger().info("Received amIUnordered? message");
+                    pool.release(kryo);
+                    handleAmIOutdated(output, input, kryo);
+                    break;
                 case Constants.COMMIT:
                     Log.getLogger().info("Received commit message: " + input.getBuffer().length);
                     if (wrapper.getDataBaseAccess() instanceof SparkseeDatabaseAccess)
@@ -754,6 +754,24 @@ public class GlobalClusterSlave extends AbstractRecoverable
         return returnValue;
     }
 
+    /**
+     * Method to handle AmIUnordered commits.
+     * @param output the output to be filled.
+     * @param input the incoming message.
+     * @param kryo the kryo object to deserialize.
+     */
+    private void handleAmIOutdated(final Output output, final Input input, final Kryo kryo)
+    {
+        final long incomingSnapshot = kryo.readObject(input, Long.class);
+        kryo.writeObject(output, (getGlobalSnapshotId() - incomingSnapshot) > (100 + getGlobalSnapshotId() / 4));
+    }
+
+    /**
+     * Method to handle readOnly commits.
+     * @param input the input of them.
+     * @param kryo the kryo object to deserialize.
+     * @return the response array.
+     */
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
     {
         final Long timeStamp = kryo.readObject(input, Long.class);

@@ -3,7 +3,7 @@ package main.java.com.bag.reconfiguration.sensors;
 import bftsmart.reconfiguration.ViewManager;
 import bftsmart.tom.ServiceProxy;
 import com.esotericsoftware.kryo.Kryo;
-import main.java.com.bag.reconfiguration.AddPrimaryHandler;
+import main.java.com.bag.reconfiguration.adaptations.AddPrimaryHandler;
 import main.java.com.bag.util.Log;
 
 import java.io.DataOutputStream;
@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static main.java.com.bag.server.GlobalClusterSlave.GLOBAL_CONFIG_LOCATION;
 import static main.java.com.bag.util.Constants.*;
 
 /**

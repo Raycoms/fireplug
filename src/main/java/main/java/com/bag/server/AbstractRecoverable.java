@@ -75,6 +75,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     private final ConcurrentSkipListMap<Long, List<IOperation>> globalWriteSet;
 
     /**
+     * The last batch which has been executed.
+     */
+    protected long lastBatch = 0;
+
+    /**
      * Write set cache of the nodes contains updates and deletes but only of the last x transactions.
      */
     private final Cache<Long, List<IOperation>> latestWritesSet = Caffeine.newBuilder()
@@ -95,14 +100,9 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
             }).build();
 
     /**
-     * Object to lock on commits.
-     */
-    private final Object commitLock = new Object();
-
-    /**
      * The wrapper class instance. Used to access the global cluster if possible.
      */
-    private final ServerWrapper wrapper;
+    protected final ServerWrapper wrapper;
 
     /**
      * Server instrumentation to print the results.
@@ -127,17 +127,18 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
 
     /**
      * Creates an instance of the abstract recoverable.
-     *
-     * @param id              with the id.
+     *  @param id              with the id.
      * @param configDirectory the config directory.
      * @param wrapper         the overlying wrapper class.
      * @param instrumentation the instrumentation for evaluation.
+     * @param lastBatch
      */
-    protected AbstractRecoverable(final int id, final String configDirectory, final ServerWrapper wrapper, final ServerInstrumentation instrumentation)
+    protected AbstractRecoverable(final int id, final String configDirectory, final ServerWrapper wrapper, final ServerInstrumentation instrumentation, final long lastBatch)
     {
         this.id = id;
         this.wrapper = wrapper;
         this.instrumentation = instrumentation;
+        this.lastBatch = lastBatch;
         globalSnapshotId = 1;
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
@@ -469,6 +470,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      */
     void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient, final long clientSnapshot, final int consensusId)
     {
+        //todo some way we have to detect what we executed already, to not try to catch up too much!
         if (!clients.containsKey(idClient) || clients.get(idClient) < clientSnapshot)
         {
             clients.put(idClient, clientSnapshot);

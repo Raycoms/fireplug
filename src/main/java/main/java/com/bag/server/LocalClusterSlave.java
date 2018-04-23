@@ -46,11 +46,6 @@ public class LocalClusterSlave extends AbstractRecoverable
     private static final double CPU_IMPORTANCE_MULTIPLIER = 10.0;
 
     /**
-     * The wrapper class instance. Used to access the global cluster if possible.
-     */
-    private final ServerWrapper wrapper;
-
-    /**
      * Checks if this replica is primary in his cluster.
      */
     private boolean isPrimary = false;
@@ -114,9 +109,8 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public LocalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final int localClusterId, final ServerInstrumentation instrumentation)
     {
-        super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation);
+        super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation, 0);
         this.id = id;
-        this.wrapper = wrapper;
         this.proxy = new ServiceProxy(1000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         this.primaryId = 0;
         Log.getLogger().info("Turned on local cluster with id: " + id);
@@ -211,6 +205,16 @@ public class LocalClusterSlave extends AbstractRecoverable
                     output.close();
                     input.close();
                 }
+                else if(Constants.BFT_PRIMARY_ELECTION_MESSAGE.equals(type))
+                {
+                    final Output output;
+                    Log.getLogger().error("Received bft primary election message ordered");
+                    output = handleBftPrimaryElection(input, kryo);
+                    Log.getLogger().error("Leaving bft primary election message ordered");
+                    allResults[i] = output.getBuffer();
+                    output.close();
+                    input.close();
+                }
                 else if(Constants.PERFORMANCE_UPDATE_MESSAGE.equals(type))
                 {
                     Log.getLogger().info("Received performance update message");
@@ -290,7 +294,72 @@ public class LocalClusterSlave extends AbstractRecoverable
                 @Override
                 public void run()
                 {
-                    wrapper.initNewGlobalClusterInstance();
+                    wrapper.initNewGlobalClusterInstance(lastBatch);
+                }
+            });
+            t.start();
+        }
+
+        Log.getLogger().warn("Decided on: " + leadingReplica);
+        kryo.writeObject(output, leadingReplica);
+        return output;
+    }
+
+    /**
+     * Method to handle the primary election.
+     * @param input the input.
+     * @param kryo the kryo object.
+     * @return the output to respond.
+     */
+    private Output handleBftPrimaryElection(final Input input, final Kryo kryo)
+    {
+        final int failedReplica = kryo.readObject(input, Integer.class);
+        final Output output = new Output(0, 1024);
+
+        if (checkIfFailedReplicaIsGone(failedReplica))
+        {
+            kryo.writeObject(output, failedReplica);
+            return output;
+        }
+
+        LoadSensor.LoadDesc best = null;
+        int leadingReplica = -1;
+        for (final Map.Entry<Integer, LoadSensor.LoadDesc> entry: performanceMap.entrySet())
+        {
+            if (entry.getKey() != failedReplica)
+            {
+                final LoadSensor.LoadDesc thisDesc = entry.getValue();
+                if (best == null)
+                {
+                    best = thisDesc;
+                    leadingReplica = entry.getKey();
+                }
+                else
+                {
+                    double score = (best.getCpuUsage() - thisDesc.getCpuUsage()) * CPU_IMPORTANCE_MULTIPLIER;
+                    score += (best.getAllocatedMemory() - thisDesc.getAllocatedMemory()) / 800000.0;
+                    score += (best.getMaxMemory() - thisDesc.getMaxMemory()) / 800000.0;
+                    score += (best.getFreeMemory() - thisDesc.getFreeMemory()) / 800000.0;
+
+                    if (score < 0)
+                    {
+                        best = thisDesc;
+                        leadingReplica = entry.getKey();
+                    }
+                }
+            }
+        }
+
+        if (id == leadingReplica)
+        {
+            Log.getLogger().error("Instantiating new global cluster");
+            substitutesPrimary = true;
+            final Thread t = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    wrapper.initNewGlobalClusterInstance(lastBatch);
                 }
             });
             t.start();
@@ -583,6 +652,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             return output;
         }
         final int consensusId = kryo.readObject(input, Integer.class);
+        lastBatch = consensusId;
 
         final Input messageInput = new Input(storage.getMessage());
 
