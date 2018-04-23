@@ -529,7 +529,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final MessageContext context)
     {
         //Might not be enough, might have to think about increasing the buffer size in the future.
-        final Output output = new Output(0, 100240);
+        final Output output = new Output(0, 1000240);
 
         kryo.writeObject(output, Constants.SIGNATURE_MESSAGE);
         kryo.writeObject(output, decision);
