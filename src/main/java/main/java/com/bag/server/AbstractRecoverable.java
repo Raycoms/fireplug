@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -108,6 +110,16 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
      * Server instrumentation to print the results.
      */
     private final ServerInstrumentation instrumentation;
+
+    /**
+     * Thread pool for message sending.
+     */
+    protected final ExecutorService service = Executors.newSingleThreadExecutor();
+
+    /**
+     * Thread pool for message sending.
+     */
+    protected final ExecutorService localDis = Executors.newSingleThreadExecutor();
 
     /**
      * Factory for all Kryo related parts. Will give you a kryo object and receives it on release, to avoid memory leaks.

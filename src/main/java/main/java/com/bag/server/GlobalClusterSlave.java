@@ -23,8 +23,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Class handling server communication in the global cluster.
@@ -70,16 +68,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * SignatureStorageCache lock to be sure that we compare correctly.
      */
     private static final Object lock = new Object();
-
-    /**
-     * Thread pool for message sending.
-     */
-    private final ExecutorService service = Executors.newSingleThreadExecutor();
-
-    /**
-     * Thread pool for message sending.
-     */
-    private final ExecutorService localDis = Executors.newSingleThreadExecutor();
 
     /**
      * Timer object to execute functions in intervals
@@ -135,7 +123,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId());
         }
 
-        if (messageContexts != null && messageContexts[0].readOnly /*lastBatch > messageContexts[0].getConsensusId()*/)
+        if (messageContexts != null && (messageContexts[0].isNoOp() || messageContexts[0].readOnly) /*lastBatch > messageContexts[0].getConsensusId()*/)
         {
             Log.getLogger().error("----------------------------------");
             Log.getLogger().error("Batch is read only!!!!! " + messageContexts[0].getConsensusId() + " : " + lastBatch);
