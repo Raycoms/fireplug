@@ -337,6 +337,8 @@ public class TestClient implements BAGClient, ReplyListener
                 oldViewId = globalProxy.getViewManager().getCurrentViewId();
                 needsReset = true;
                 localProxy.getViewManager().updateCurrentViewFromRepository();
+                localProxy.notifyAll();
+                globalProxy.notifyAll();
             }
         }
 
@@ -344,14 +346,7 @@ public class TestClient implements BAGClient, ReplyListener
         {
             Log.getLogger().warn("----------------------------------------");
             Log.getLogger().warn("Reset sets! " + readQueue.size());
-            try
-            {
-                readQueue.put(FINISHED_READING);
-            }
-            catch (final InterruptedException e)
-            {
-                e.printStackTrace();
-            }
+            readQueue.add(FINISHED_READING);
             Log.getLogger().warn("----------------------------------------");
             resetSets();
         }
