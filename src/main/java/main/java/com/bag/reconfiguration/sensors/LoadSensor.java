@@ -165,6 +165,15 @@ public class LoadSensor extends TimerTask
         private String db;
 
         /**
+         * Default constructor for Serialization.
+         */
+        public LoadDesc()
+        {
+            this.maxMemory = Runtime.getRuntime().maxMemory();
+            this.db = "neo4j";
+        }
+
+        /**
          * Load desc constructor.
          */
         public LoadDesc(final String db)
