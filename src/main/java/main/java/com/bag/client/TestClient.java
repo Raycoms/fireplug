@@ -346,7 +346,10 @@ public class TestClient implements BAGClient, ReplyListener
                 needsReset = true;
                 localProxy.getViewManager().updateCurrentViewFromRepository();
                 localProxy.getCommunicationSystem().updateConnections();
+                globalProxy.getCommunicationSystem().updateConnections();
+                Log.getLogger().warn("I want to remove the global proxy");
                 globalProxy.close();
+                Log.getLogger().warn("I want to start a new one");
                 globalProxy = new AsynchServiceProxy(100 + localProxy.getProcessId(), "global/config", comparator, null);
             }
         }
