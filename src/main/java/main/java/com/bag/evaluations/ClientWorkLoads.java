@@ -509,7 +509,7 @@ public class ClientWorkLoads
                         {
                             while (client.getReadQueue().take() != TestClient.FINISHED_READING)
                             {
-                                ;
+                                Log.getLogger().warn("Still reading");
                             }
                         }
                         catch (final InterruptedException e)
@@ -545,7 +545,7 @@ public class ClientWorkLoads
                         {
                             while (client.getReadQueue().take() != TestClient.FINISHED_READING)
                             {
-                                ;
+                                Log.getLogger().warn("Still reading");
                             }
                         }
                         catch (final InterruptedException e)
@@ -563,6 +563,7 @@ public class ClientWorkLoads
                          * Wait until the commit finished.
                          * Log.getLogger().info("Commit not finished yet");
                         */
+                        Log.getLogger().warn("Still comitting");
                     }
                     commits += 1;
                 }

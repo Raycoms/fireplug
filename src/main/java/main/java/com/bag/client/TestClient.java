@@ -353,6 +353,7 @@ public class TestClient implements BAGClient, ReplyListener
             Log.getLogger().warn("Reset sets!");
             Log.getLogger().warn("----------------------------------------");
             resetSets();
+            readQueue.add(FINISHED_READING);
         }
         Log.getLogger().warn("Finishing cleanup task!");
     }
@@ -453,6 +454,7 @@ public class TestClient implements BAGClient, ReplyListener
             input.close();
             pool.release(kryo);
             resetSets();
+            readQueue.add(FINISHED_READING);
             return;
         }
 
@@ -773,7 +775,6 @@ public class TestClient implements BAGClient, ReplyListener
         writeSet = new ArrayList<>();
         isCommitting = false;
         bagReplyListener.reset();
-        readQueue.add(FINISHED_READING);
         //serverProcess = random.nextInt(4);
     }
 
