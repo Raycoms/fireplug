@@ -91,7 +91,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * The proxy to use during communication with the globalCluster.
      */
-    private final AsynchServiceProxy globalProxy;
+    private AsynchServiceProxy globalProxy;
 
     private final Random random = new Random();
 
@@ -346,11 +346,8 @@ public class TestClient implements BAGClient, ReplyListener
                 needsReset = true;
                 localProxy.getViewManager().updateCurrentViewFromRepository();
                 localProxy.getCommunicationSystem().updateConnections();
-                globalProxy.getCommunicationSystem().updateConnections();
-                for(int i = lastAsynchRequest-10; i < lastAsynchRequest+10; i++)
-                {
-                    globalProxy.cleanAsynchRequest(i);
-                }
+                globalProxy.close();
+                globalProxy = new AsynchServiceProxy(100 + localProxy.getProcessId(), "global/config", comparator, null);
             }
         }
 
