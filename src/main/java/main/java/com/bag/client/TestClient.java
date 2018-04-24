@@ -190,7 +190,6 @@ public class TestClient implements BAGClient, ReplyListener
     {
         super();
         localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
-
         if (localClusterId != -1)
         {
             globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
@@ -335,13 +334,11 @@ public class TestClient implements BAGClient, ReplyListener
                 Log.getLogger().warn("----------------------------------------");
                 Log.getLogger().warn("Different view!!!");
                 Log.getLogger().warn("----------------------------------------");
-                globalProxy.getCommunicationSystem().updateConnections();
                 oldViewId = globalProxy.getViewManager().getCurrentViewId();
                 needsReset = true;
                 if (localProxy != null)
                 {
                     localProxy.getViewManager().updateCurrentViewFromRepository();
-                    localProxy.getCommunicationSystem().updateConnections();
                 }
             }
         }
