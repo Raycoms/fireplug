@@ -108,6 +108,7 @@ public class AddPrimaryHandler extends TimerTask
             {
                 Thread.sleep(1000L);
                 globalProxy.getViewManager().updateCurrentViewFromRepository();
+                Log.getLogger().error("Waiting until global server replica is gone!");
             }
 
             final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getStaticConf().getRemoteAddress(newId);
