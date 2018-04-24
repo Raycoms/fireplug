@@ -726,6 +726,14 @@ public class TestClient implements BAGClient, ReplyListener
         writeSet = new ArrayList<>();
         isCommitting = false;
         bagReplyListener.reset();
+        if (globalProxy != null)
+        {
+            globalProxy.getViewManager().updateCurrentViewFromRepository();
+        }
+        if (localProxy != null)
+        {
+            localProxy.getViewManager().updateCurrentViewFromRepository();
+        }
         //serverProcess = random.nextInt(4);
     }
 
