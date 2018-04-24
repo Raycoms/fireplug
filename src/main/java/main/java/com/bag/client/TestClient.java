@@ -71,7 +71,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * Lock object to let the thread wait for a read return.
      */
-    private final BlockingQueue<Object> readQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<Object> readQueue = new LinkedBlockingQueue<>();
 
     /**
      * The last object in read queue.
@@ -329,27 +329,26 @@ public class TestClient implements BAGClient, ReplyListener
         if (globalProxy != null)
         {
             globalProxy.getViewManager().updateCurrentViewFromRepository();
-            if(oldViewId != globalProxy.getViewManager().getCurrentViewId())
+            if (oldViewId != globalProxy.getViewManager().getCurrentViewId())
             {
                 Log.getLogger().warn("----------------------------------------");
                 Log.getLogger().warn("Different view!!!");
                 Log.getLogger().warn("----------------------------------------");
                 oldViewId = globalProxy.getViewManager().getCurrentViewId();
                 needsReset = true;
-                if (localProxy != null)
-                {
-                    localProxy.getViewManager().updateCurrentViewFromRepository();
-                }
+                localProxy.getViewManager().updateCurrentViewFromRepository();
             }
         }
 
         if (needsReset)
         {
+            readQueue.add(FINISHED_READING);
             Log.getLogger().warn("----------------------------------------");
-            Log.getLogger().warn("Reset sets!");
+            Log.getLogger().warn("Reset sets! " + readQueue.size());
+            readQueue = new LinkedBlockingQueue<Object>();
+            readQueue.add(FINISHED_READING);
             Log.getLogger().warn("----------------------------------------");
             resetSets();
-            readQueue.add(FINISHED_READING);
         }
     }
 
