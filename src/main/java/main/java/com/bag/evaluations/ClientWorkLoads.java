@@ -552,7 +552,6 @@ public class ClientWorkLoads
                             /*
                              * Intentionally left empty.
                              */
-                            System.out.println("Still comitting");
                         }
                     }
 
@@ -563,6 +562,7 @@ public class ClientWorkLoads
                          * Wait until the commit finished.
                          * Log.getLogger().info("Commit not finished yet");
                         */
+                        System.out.println("Still comitting");
                     }
                     commits += 1;
                 }
