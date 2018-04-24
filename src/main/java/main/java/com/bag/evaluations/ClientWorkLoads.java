@@ -491,7 +491,7 @@ public class ClientWorkLoads
                         {
                             while (client.getReadQueue().take() != TestClient.FINISHED_READING)
                             {
-                                ;
+                                Log.getLogger().warn("Still reading");
                             }
                         }
                         catch (final InterruptedException e)
