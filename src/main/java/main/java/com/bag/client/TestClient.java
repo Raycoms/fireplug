@@ -322,14 +322,14 @@ public class TestClient implements BAGClient, ReplyListener
     private void updateConnection()
     {
         if (globalProxy != null)
-
         {
             globalProxy.getViewManager().updateCurrentViewFromRepository();
+            globalProxy.getCommunicationSystem().updateConnections();
         }
         if (localProxy != null)
-
         {
             localProxy.getViewManager().updateCurrentViewFromRepository();
+            localProxy.getCommunicationSystem().updateConnections();
         }
     }
 
