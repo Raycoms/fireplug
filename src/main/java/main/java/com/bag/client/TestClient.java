@@ -321,15 +321,30 @@ public class TestClient implements BAGClient, ReplyListener
 
     private void updateConnection()
     {
+        boolean needsReset = false;
         if (globalProxy != null)
         {
+            int oldViewId = globalProxy.getViewManager().getCurrentViewId();
             globalProxy.getViewManager().updateCurrentViewFromRepository();
             globalProxy.getCommunicationSystem().updateConnections();
+            if(oldViewId != globalProxy.getViewManager().getCurrentViewId())
+            {
+                needsReset = true;
+            }
         }
         if (localProxy != null)
         {
+            int oldViewId = globalProxy.getViewManager().getCurrentViewId();
             localProxy.getViewManager().updateCurrentViewFromRepository();
             localProxy.getCommunicationSystem().updateConnections();
+            if(oldViewId != localProxy.getViewManager().getCurrentViewId())
+            {
+                needsReset = true;
+            }
+        }
+        if (needsReset)
+        {
+            resetSets();
         }
     }
 
