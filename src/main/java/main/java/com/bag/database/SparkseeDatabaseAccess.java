@@ -273,6 +273,12 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
+    public String getName()
+    {
+        return Constants.SPARKSEE;
+    }
+
+    @Override
     public boolean compareRelationship(final RelationshipStorage storage)
     {
         final Session sess = db.newSession();

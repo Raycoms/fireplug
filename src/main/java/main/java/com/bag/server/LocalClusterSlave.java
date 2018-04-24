@@ -128,7 +128,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         crashProxy = new ServiceProxy(3000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         loadProxy = new ServiceProxy(2000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId), 10000, 8000);
-        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), loadProxy, id), 10000, 10000);
+        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), loadProxy, id, wrapper.getDataBaseAccess().getName()), 10000, 10000);
     }
 
     /**
@@ -209,7 +209,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 {
                     final Output output;
                     Log.getLogger().error("Received bft primary election message ordered");
-                    output = handleBftPrimaryElection(input, kryo);
+                    output = handlePrimaryElection(input, kryo);
                     Log.getLogger().error("Leaving bft primary election message ordered");
                     allResults[i] = output.getBuffer();
                     output.close();
@@ -250,83 +250,18 @@ public class LocalClusterSlave extends AbstractRecoverable
         final int failedReplica = kryo.readObject(input, Integer.class);
         final Output output = new Output(0, 1024);
 
-
         if (checkIfFailedReplicaIsGone(failedReplica))
         {
             kryo.writeObject(output, failedReplica);
             return output;
         }
 
+        final LoadSensor.LoadDesc failedLoad = performanceMap.get(failedReplica);
         LoadSensor.LoadDesc best = null;
         int leadingReplica = -1;
         for (final Map.Entry<Integer, LoadSensor.LoadDesc> entry: performanceMap.entrySet())
         {
-            if (entry.getKey() != failedReplica)
-            {
-                final LoadSensor.LoadDesc thisDesc = entry.getValue();
-                if (best == null)
-                {
-                    best = thisDesc;
-                    leadingReplica = entry.getKey();
-                }
-                else
-                {
-                    double score = (best.getCpuUsage() - thisDesc.getCpuUsage()) * CPU_IMPORTANCE_MULTIPLIER;
-                    score += (best.getAllocatedMemory() - thisDesc.getAllocatedMemory()) / 800000.0;
-                    score += (best.getMaxMemory() - thisDesc.getMaxMemory()) / 800000.0;
-                    score += (best.getFreeMemory() - thisDesc.getFreeMemory()) / 800000.0;
-
-                    if (score < 0)
-                    {
-                        best = thisDesc;
-                        leadingReplica = entry.getKey();
-                    }
-                }
-            }
-        }
-
-        if (id == leadingReplica)
-        {
-            Log.getLogger().error("Instantiating new global cluster");
-            substitutesPrimary = true;
-            final Thread t = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    wrapper.initNewGlobalClusterInstance(lastBatch);
-                }
-            });
-            t.start();
-        }
-
-        Log.getLogger().warn("Decided on: " + leadingReplica);
-        kryo.writeObject(output, leadingReplica);
-        return output;
-    }
-
-    /**
-     * Method to handle the primary election.
-     * @param input the input.
-     * @param kryo the kryo object.
-     * @return the output to respond.
-     */
-    private Output handleBftPrimaryElection(final Input input, final Kryo kryo)
-    {
-        final int failedReplica = kryo.readObject(input, Integer.class);
-        final Output output = new Output(0, 1024);
-
-        if (checkIfFailedReplicaIsGone(failedReplica))
-        {
-            kryo.writeObject(output, failedReplica);
-            return output;
-        }
-
-        LoadSensor.LoadDesc best = null;
-        int leadingReplica = -1;
-        for (final Map.Entry<Integer, LoadSensor.LoadDesc> entry: performanceMap.entrySet())
-        {
-            if (entry.getKey() != failedReplica)
+            if (entry.getKey() != failedReplica && failedLoad.getDb().equalsIgnoreCase(entry.getValue().getDb()))
             {
                 final LoadSensor.LoadDesc thisDesc = entry.getValue();
                 if (best == null)

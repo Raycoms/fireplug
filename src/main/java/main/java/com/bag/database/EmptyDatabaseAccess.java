@@ -2,6 +2,7 @@ package main.java.com.bag.database;
 
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
+import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
@@ -172,5 +173,11 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     public boolean shouldFollow(final int sequence)
     {
         return true;
+    }
+
+    @Override
+    public String getName()
+    {
+        return "empty";
     }
 }

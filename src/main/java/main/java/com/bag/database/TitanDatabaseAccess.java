@@ -69,6 +69,12 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         return true;
     }
 
+    @Override
+    public String getName()
+    {
+        return Constants.TITAN;
+    }
+
     /**
      * Creates a transaction which will get a list of nodes.
      *

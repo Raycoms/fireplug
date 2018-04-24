@@ -312,6 +312,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         return sequence != 9;
     }
 
+    @Override
+    public String getName()
+    {
+        return Constants.NEO4J;
+    }
+
     /**
      * Transforms a map of properties to a map of params for neo4j.
      *

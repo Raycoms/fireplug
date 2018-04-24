@@ -154,4 +154,10 @@ public interface IDatabaseAccess
      * @return true if so.
      */
     boolean shouldFollow(int sequence);
+
+    /**
+     * Used to get the db description string.
+     * @return the name of the db.
+     */
+    String getName();
 }

@@ -67,6 +67,12 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         return true;
     }
 
+    @Override
+    public String getName()
+    {
+        return Constants.ORIENTDB;
+    }
+
     /**
      * Creates a transaction which will get a list of nodes.
      *

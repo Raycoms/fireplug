@@ -48,11 +48,15 @@ public class LoadSensor extends TimerTask
     //todo in the future make this an extra program which delivers it via socket.
     /**
      * Constructor for the load sensor.
+     * @param kryo the kryo instance to serialize.
+     * @param proxy the proxy of it to send it.
+     * @param localHostId the id of the local host.
+     * @param db the db associated to it.
      */
-    public LoadSensor(final Kryo kryo, final ServiceProxy proxy, final int localHostId)
+    public LoadSensor(final Kryo kryo, final ServiceProxy proxy, final int localHostId, final String db)
     {
         this.kryo = kryo;
-        desc = new LoadDesc();
+        desc = new LoadDesc(db);
         this.proxy = proxy;
         this.localHostId = localHostId;
     }
@@ -156,11 +160,17 @@ public class LoadSensor extends TimerTask
         private double cpuUsage;
 
         /**
+         * The database of the server.
+         */
+        private String db;
+
+        /**
          * Load desc constructor.
          */
-        public LoadDesc()
+        public LoadDesc(final String db)
         {
             this.maxMemory = Runtime.getRuntime().maxMemory();
+            this.db = db;
         }
 
         /**
@@ -210,6 +220,15 @@ public class LoadSensor extends TimerTask
         public double getCpuUsage()
         {
             return cpuUsage;
+        }
+
+        /**
+         * Getter for the db.
+         * @return the db string.
+         */
+        public String getDb()
+        {
+            return db;
         }
     }
 }
