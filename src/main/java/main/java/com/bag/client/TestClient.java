@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static main.java.com.bag.util.ReadModes.*;
 
@@ -110,6 +109,11 @@ public class TestClient implements BAGClient, ReplyListener
      * The ReadMode of this client.
      */
     private final ReadModes readMode;
+
+    /**
+     * Timer object to execute functions in intervals
+     */
+    private final Timer timer = new Timer();
 
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
@@ -198,6 +202,13 @@ public class TestClient implements BAGClient, ReplyListener
         readMode = ReadModes.values()[readModeId];
         bagReplyListener = new BAGReplyListener(this, readMode);
         Log.getLogger().error("Starting client " + processId + " with read-mode: " + readMode.name());
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run()
+            {
+                updateConnection();
+            }
+        }, 3000, 3000);
     }
 
     /**
@@ -330,7 +341,6 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void read(final Object... identifiers)
     {
-        updateConnection();
         final long timeStampToSend = firstRead ? -1 : localTimestamp;
 
         for (final Object identifier : identifiers)
@@ -532,7 +542,6 @@ public class TestClient implements BAGClient, ReplyListener
 
         Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
         final byte[] bytes = serializeAll();
-        updateConnection();
         if (readOnly)
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
