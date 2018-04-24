@@ -483,6 +483,8 @@ public class ClientWorkLoads
 
                 if (isRead)
                 {
+                    Log.getLogger().warn("Start read - clientWorkLoads");
+
                     if (readNodeStorage != null)
                     {
                         client.read(readNodeStorage);
@@ -518,6 +520,8 @@ public class ClientWorkLoads
                                  */
                         }
                     }
+                    Log.getLogger().warn("end read - clientWorkLoads");
+
                 }
                 else
                 {
@@ -542,10 +546,14 @@ public class ClientWorkLoads
                         client.read(new NodeStorage(true));
                         try
                         {
+                            Log.getLogger().warn("Start last read - clientWorkLoads");
+
                             while (client.getReadQueue().take() != TestClient.FINISHED_READING)
                             {
 
                             }
+                            Log.getLogger().warn("end last read - clientWorkLoads");
+
                         }
                         catch (final InterruptedException e)
                         {
@@ -556,6 +564,7 @@ public class ClientWorkLoads
                     }
 
                     client.commit();
+                    Log.getLogger().warn("Start comitting - clientWorkLoads");
                     while(client.isCommitting())
                     {
                         /*
@@ -563,6 +572,7 @@ public class ClientWorkLoads
                          * Log.getLogger().info("Commit not finished yet");
                         */
                     }
+                    Log.getLogger().warn("End comitting - clientWorkLoads");
                     commits += 1;
                 }
 

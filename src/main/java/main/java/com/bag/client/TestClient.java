@@ -614,8 +614,9 @@ public class TestClient implements BAGClient, ReplyListener
                             rand = random.nextInt(viewProcesses.length);
                         }
 
-                        Log.getLogger().info("Send to global Cluster to: " + serverProcess + " and: " + rand);
+                        Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
                         globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
                         return;
                     }
                     else if (readMode == TO_1_OTHER)
@@ -670,8 +671,9 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (localClusterId == -1)
         {
-            Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn("Distribute commit with snapshotId: " + this.localTimestamp);
             processCommitReturn(localProxy.invokeOrdered(bytes));
+            Log.getLogger().warn("Finish commit with snapshotId: " + this.localTimestamp);
         }
         else
         {
