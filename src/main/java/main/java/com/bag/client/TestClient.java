@@ -353,6 +353,7 @@ public class TestClient implements BAGClient, ReplyListener
             Log.getLogger().warn("Reset sets!");
             Log.getLogger().warn("----------------------------------------");
             resetSets();
+            Thread.dumpStack();
             readQueue.add(FINISHED_READING);
         }
         Log.getLogger().warn("Finishing cleanup task!");
