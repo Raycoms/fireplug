@@ -71,7 +71,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * Lock object to let the thread wait for a read return.
      */
-    private BlockingQueue<Object> readQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Object> readQueue = new LinkedBlockingQueue<>();
 
     /**
      * The last object in read queue.
@@ -120,6 +120,14 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private int oldViewId;
 
+    /**
+     * Id of the last asynch request.
+     */
+    private int lastAsynchRequest = 0;
+
+    /**
+     * Custom comparator required for correct bft detection.
+     */
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
         if (Arrays.equals(o1, o2))
@@ -339,6 +347,10 @@ public class TestClient implements BAGClient, ReplyListener
                 localProxy.getViewManager().updateCurrentViewFromRepository();
                 localProxy.getCommunicationSystem().updateConnections();
                 globalProxy.getCommunicationSystem().updateConnections();
+                for(int i = lastAsynchRequest-10; i < lastAsynchRequest+10; i++)
+                {
+                    globalProxy.cleanAsynchRequest(i);
+                }
             }
         }
 
@@ -367,11 +379,11 @@ public class TestClient implements BAGClient, ReplyListener
             if (identifier instanceof NodeStorage)
             {
                 //this sends the message straight to server 0 not to the others.
-                localProxy.invokeAsynchRequest(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier),  new int[] {serverProcess}, this, TOMMessageType.UNORDERED_REQUEST);
+                lastAsynchRequest = localProxy.invokeAsynchRequest(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier),  new int[] {serverProcess}, this, TOMMessageType.UNORDERED_REQUEST);
             }
             else if (identifier instanceof RelationshipStorage)
             {
-                localProxy.invokeAsynchRequest(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier),
+                lastAsynchRequest = localProxy.invokeAsynchRequest(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier),
                         new int[] {serverProcess},
                         this,
                         TOMMessageType.UNORDERED_REQUEST);
@@ -576,7 +588,7 @@ public class TestClient implements BAGClient, ReplyListener
                     final int rand = random.nextInt(viewProcesses.length);
 
                     Log.getLogger().info("Send to local Cluster to: " + rand);
-                    localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                    lastAsynchRequest = localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                     return;
                 }
                 answer = localProxy.invokeUnordered(bytes);
@@ -596,7 +608,7 @@ public class TestClient implements BAGClient, ReplyListener
                         }
 
                         Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
-                        localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        lastAsynchRequest = localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                         return;
                     }
 
@@ -615,7 +627,7 @@ public class TestClient implements BAGClient, ReplyListener
                         }
 
                         Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
-                        globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                         Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
                         return;
                     }
@@ -625,7 +637,7 @@ public class TestClient implements BAGClient, ReplyListener
                         final int rand = random.nextInt(viewProcesses.length);
 
                         Log.getLogger().info("Send to global Cluster to: " + rand);
-                        globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                         return;
                     }
                     else if(readMode == PESSIMISTIC)
