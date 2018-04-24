@@ -91,7 +91,9 @@ public class ServerWrapper
         this.globalServerId = globalServerId;
         this.localClusterSlaveId = localClusterSlaveId;
         lastTransactionId = 0;
-
+        databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion, pool);
+        databaseAccess.start();
+        
         if (this.globalServerId == 1)
         {
             timer.schedule(new TimerTask() {
@@ -127,8 +129,7 @@ public class ServerWrapper
 
         final KryoFactory pool = globalCluster != null ? globalCluster.getFactory() : localCluster.getFactory();
 
-        databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion, pool);
-        databaseAccess.start();
+
 
         if(isPrimary && localClusterSlaveId != -1)
         {
