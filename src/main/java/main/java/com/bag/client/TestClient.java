@@ -326,7 +326,6 @@ public class TestClient implements BAGClient, ReplyListener
 
     private void updateConnection()
     {
-        Log.getLogger().warn("Starting cleanup task!");
         boolean needsReset = false;
         if (globalProxy != null)
         {
@@ -354,16 +353,7 @@ public class TestClient implements BAGClient, ReplyListener
             Log.getLogger().warn("----------------------------------------");
             resetSets();
             readQueue.add(FINISHED_READING);
-            readQueue.add(FINISHED_READING);
-            readQueue.add(FINISHED_READING);
-            readQueue.add(FINISHED_READING);
-            readQueue.add(FINISHED_READING);
-            readQueue.add(FINISHED_READING);
-            readQueue.add(FINISHED_READING);
-            readQueue.add(FINISHED_READING);
-            readQueue.add(FINISHED_READING);
         }
-        Log.getLogger().warn("Finishing cleanup task!");
     }
 
     /**
