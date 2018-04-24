@@ -1,5 +1,6 @@
 package main.java.com.bag.database;
 
+import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.sparsity.sparksee.gdb.*;
 import com.sparsity.sparksee.gdb.Objects;
 import main.java.com.bag.exceptions.OutDatedDataException;
@@ -696,5 +697,11 @@ public class SparkseeDatabaseAccess implements IDatabaseAccess
         }
         sess.close();
         return true;
+    }
+
+    @Override
+    public void setPool(final KryoFactory pool)
+    {
+        //Do nothing!
     }
 }

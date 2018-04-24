@@ -73,7 +73,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * Pool for kryo objects.
      */
     @Nullable
-    private final KryoPool pool;
+    private KryoPool pool;
 
     /**
      * Public constructor.
@@ -87,6 +87,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         this.multiVersion = multiVersion;
 
         this.pool = pool == null ? null : new KryoPool.Builder(pool).softReferences().build();
+    }
+
+    @Override
+    public void setPool(final KryoFactory pool)
+    {
+        this.pool = new KryoPool.Builder(pool).softReferences().build();
     }
 
     @Override

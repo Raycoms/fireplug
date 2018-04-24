@@ -1,5 +1,6 @@
 package main.java.com.bag.database;
 
+import com.esotericsoftware.kryo.pool.KryoFactory;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.Constants;
@@ -179,5 +180,11 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     public String getName()
     {
         return "empty";
+    }
+
+    @Override
+    public void setPool(final KryoFactory pool)
+    {
+        //Do nothing!
     }
 }

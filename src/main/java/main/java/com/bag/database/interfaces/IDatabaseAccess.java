@@ -1,6 +1,7 @@
 package main.java.com.bag.database.interfaces;
 
 
+import com.esotericsoftware.kryo.pool.KryoFactory;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
@@ -160,4 +161,10 @@ public interface IDatabaseAccess
      * @return the name of the db.
      */
     String getName();
+
+    /**
+     * Sets the kryo pool.
+     * @param pool the pool to set.
+     */
+    void setPool(KryoFactory pool);
 }

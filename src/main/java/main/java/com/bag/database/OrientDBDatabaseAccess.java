@@ -1,5 +1,6 @@
 package main.java.com.bag.database;
 
+import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.sql.parser.TokenMgrError;
 import com.tinkerpop.blueprints.Direction;
@@ -529,5 +530,11 @@ public class OrientDBDatabaseAccess implements IDatabaseAccess
         }
 
         return false;
+    }
+
+    @Override
+    public void setPool(final KryoFactory pool)
+    {
+        //Do nothing!
     }
 }

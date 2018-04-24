@@ -1,5 +1,6 @@
 package main.java.com.bag.database;
 
+import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
 import main.java.com.bag.exceptions.OutDatedDataException;
@@ -640,5 +641,11 @@ public class TitanDatabaseAccess implements IDatabaseAccess
         }
 
         return tempOutput;
+    }
+
+    @Override
+    public void setPool(final KryoFactory pool)
+    {
+        //Do nothing!
     }
 }
