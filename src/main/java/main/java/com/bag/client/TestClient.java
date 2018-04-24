@@ -337,8 +337,8 @@ public class TestClient implements BAGClient, ReplyListener
                 oldViewId = globalProxy.getViewManager().getCurrentViewId();
                 needsReset = true;
                 localProxy.getViewManager().updateCurrentViewFromRepository();
-                localProxy.notifyAll();
-                globalProxy.notifyAll();
+                localProxy.getCommunicationSystem().updateConnections();
+                globalProxy.getCommunicationSystem().updateConnections();
             }
         }
 
@@ -675,11 +675,11 @@ public class TestClient implements BAGClient, ReplyListener
         }
         else
         {
-            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
             Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
-            Log.getLogger().info(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
-
             processCommitReturn(globalProxy.invokeOrdered(bytes));
+            Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
+
         }
     }
 
