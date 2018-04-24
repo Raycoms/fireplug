@@ -97,10 +97,6 @@ public class CrashDetectionSensor extends TimerTask
         final String cluster;
         if (configLocation.contains(GLOBAL_CLUSTER))
         {
-            if (proxy.getViewManager().getCurrentViewN() < 4)
-            {
-                return;
-            }
             cluster = GLOBAL_CLUSTER;
         }
         else

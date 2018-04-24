@@ -102,8 +102,14 @@ public class AddPrimaryHandler extends TimerTask
             Thread.sleep(2000L);
 
             final ViewManager newGlobalViewManager = new ViewManager(GLOBAL_CONFIG_LOCATION);
-
             globalProxy.getViewManager().updateCurrentViewFromRepository();
+
+            while (globalProxy.getViewManager().getCurrentViewN() >= 4)
+            {
+                Thread.sleep(1000L);
+                globalProxy.getViewManager().updateCurrentViewFromRepository();
+            }
+
             final InetSocketAddress newPrimaryAddress = globalProxy.getViewManager().getStaticConf().getRemoteAddress(newId);
             if (newPrimaryAddress == null)
             {
