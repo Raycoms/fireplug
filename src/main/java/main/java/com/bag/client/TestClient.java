@@ -326,12 +326,16 @@ public class TestClient implements BAGClient, ReplyListener
 
     private void updateConnection()
     {
+        Log.getLogger().warn("Starting cleanup task!");
         boolean needsReset = false;
         if (globalProxy != null)
         {
             globalProxy.getViewManager().updateCurrentViewFromRepository();
             if(oldViewId != globalProxy.getViewManager().getCurrentViewId())
             {
+                Log.getLogger().warn("----------------------------------------");
+                Log.getLogger().warn("Different view!!!");
+                Log.getLogger().warn("----------------------------------------");
                 globalProxy.getCommunicationSystem().updateConnections();
                 oldViewId = globalProxy.getViewManager().getCurrentViewId();
                 needsReset = true;
@@ -345,8 +349,12 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (needsReset)
         {
+            Log.getLogger().warn("----------------------------------------");
+            Log.getLogger().warn("Reset sets!");
+            Log.getLogger().warn("----------------------------------------");
             resetSets();
         }
+        Log.getLogger().warn("Finishing cleanup task!");
     }
 
     /**
