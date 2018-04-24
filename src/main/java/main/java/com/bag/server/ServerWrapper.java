@@ -91,9 +91,10 @@ public class ServerWrapper
         this.globalServerId = globalServerId;
         this.localClusterSlaveId = localClusterSlaveId;
         lastTransactionId = 0;
+        final KryoFactory pool = globalCluster != null ? globalCluster.getFactory() : localCluster.getFactory();
         databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion, pool);
         databaseAccess.start();
-        
+
         if (this.globalServerId == 1)
         {
             timer.schedule(new TimerTask() {
@@ -126,10 +127,6 @@ public class ServerWrapper
             }
             Log.getLogger().error("Finished turning on local cluster slave with id: " + localClusterSlaveId);
         }
-
-        final KryoFactory pool = globalCluster != null ? globalCluster.getFactory() : localCluster.getFactory();
-
-
 
         if(isPrimary && localClusterSlaveId != -1)
         {

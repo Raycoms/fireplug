@@ -924,6 +924,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     public void close()
     {
+        timer.purge();
         timer.cancel();
         if (proxy != null)
         {
