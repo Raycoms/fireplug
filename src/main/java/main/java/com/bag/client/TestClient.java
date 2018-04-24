@@ -342,11 +342,16 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (needsReset)
         {
-            readQueue.add(FINISHED_READING);
             Log.getLogger().warn("----------------------------------------");
             Log.getLogger().warn("Reset sets! " + readQueue.size());
-            readQueue = new LinkedBlockingQueue<Object>();
-            readQueue.add(FINISHED_READING);
+            try
+            {
+                readQueue.put(FINISHED_READING);
+            }
+            catch (final InterruptedException e)
+            {
+                e.printStackTrace();
+            }
             Log.getLogger().warn("----------------------------------------");
             resetSets();
         }
