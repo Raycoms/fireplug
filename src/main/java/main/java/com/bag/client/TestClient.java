@@ -117,11 +117,11 @@ public class TestClient implements BAGClient, ReplyListener
         {
             return 0;
         }
-        
+
         final Kryo kryo = new Kryo();
         try (final Input input1 = new Input(o1); final Input input2 = new Input(o2))
         {
-            if(o1.length == 0 || o2.length == 0)
+            if (o1.length == 0 || o2.length == 0)
             {
                 Log.getLogger().error("WOW, 1 of the messages has 0 length");
                 return 0;
@@ -308,6 +308,20 @@ public class TestClient implements BAGClient, ReplyListener
         }
     }
 
+    private void updateConnection()
+    {
+        if (globalProxy != null)
+
+        {
+            globalProxy.getViewManager().updateCurrentViewFromRepository();
+        }
+        if (localProxy != null)
+
+        {
+            localProxy.getViewManager().updateCurrentViewFromRepository();
+        }
+    }
+
     /**
      * ReadRequests.(Directly read database) send the request to the db.
      *
@@ -316,6 +330,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void read(final Object... identifiers)
     {
+        updateConnection();
         final long timeStampToSend = firstRead ? -1 : localTimestamp;
 
         for (final Object identifier : identifiers)
@@ -517,7 +532,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
         final byte[] bytes = serializeAll();
-
+        updateConnection();
         if (readOnly)
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
@@ -726,14 +741,6 @@ public class TestClient implements BAGClient, ReplyListener
         writeSet = new ArrayList<>();
         isCommitting = false;
         bagReplyListener.reset();
-        if (globalProxy != null)
-        {
-            globalProxy.getViewManager().updateCurrentViewFromRepository();
-        }
-        if (localProxy != null)
-        {
-            localProxy.getViewManager().updateCurrentViewFromRepository();
-        }
         //serverProcess = random.nextInt(4);
     }
 
