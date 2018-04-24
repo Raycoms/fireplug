@@ -115,6 +115,11 @@ public class TestClient implements BAGClient, ReplyListener
      */
     private final Timer timer = new Timer();
 
+    /**
+     * The last view Id connected to us.
+     */
+    private int oldViewId;
+
     private static final Comparator<byte[]> comparator = (o1, o2) ->
     {
         if (Arrays.equals(o1, o2))
@@ -324,23 +329,19 @@ public class TestClient implements BAGClient, ReplyListener
         boolean needsReset = false;
         if (globalProxy != null)
         {
-            int oldViewId = globalProxy.getViewManager().getCurrentViewId();
             globalProxy.getViewManager().updateCurrentViewFromRepository();
             globalProxy.getCommunicationSystem().updateConnections();
             if(oldViewId != globalProxy.getViewManager().getCurrentViewId())
             {
+                oldViewId = globalProxy.getViewManager().getCurrentViewId();
                 needsReset = true;
             }
         }
+
         if (localProxy != null)
         {
-            int oldViewId = globalProxy.getViewManager().getCurrentViewId();
             localProxy.getViewManager().updateCurrentViewFromRepository();
             localProxy.getCommunicationSystem().updateConnections();
-            if(oldViewId != localProxy.getViewManager().getCurrentViewId())
-            {
-                needsReset = true;
-            }
         }
         if (needsReset)
         {
