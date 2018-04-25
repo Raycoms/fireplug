@@ -358,7 +358,7 @@ public class TestClient implements BAGClient, ReplyListener
             if (globalProxy != null)
             {
                 globalProxy.getCommunicationSystem().updateConnections();
-                globalProxy.getCommunicationSystem().close()
+                globalProxy.getCommunicationSystem().close();
                 globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
                 Log.getLogger().warn("Finished reloading global proxy");
             }
