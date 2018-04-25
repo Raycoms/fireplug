@@ -71,7 +71,12 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * The id of the local server process the client is communicating with.
      */
-    private int serverProcess;
+    private final int localServerProcess;
+
+    /**
+     * The id of the local server process the client is communicating with.
+     */
+    private int globalServerProcess = 0;
 
     /**
      * Lock object to let the thread wait for a read return.
@@ -122,11 +127,6 @@ public class TestClient implements BAGClient, ReplyListener
      * Timer object to execute functions in intervals
      */
     private final Timer timer = new Timer();
-
-    /**
-     * The last view Id connected to us.
-     */
-    private int oldViewId;
 
     /**
      * Custom comparator required for correct bft detection.
@@ -203,15 +203,15 @@ public class TestClient implements BAGClient, ReplyListener
         localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
         if (localClusterId != -1)
         {
-            globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
+            globalProxy = new AsynchServiceProxy(100 + processId, GLOBAL_CONFIG_LOCATION, comparator, null);
         }
         else
         {
             globalProxy = null;
         }
 
-        this.serverProcess = serverId;
-        //todo if serverProcess is not reachable anymore, choose random server process from local view!
+        this.localServerProcess = serverId;
+        //todo if localServerProcess is not reachable anymore, choose random server process from local view!
         this.localClusterId = localClusterId;
         initClient();
         readMode = ReadModes.values()[readModeId];
@@ -339,10 +339,10 @@ public class TestClient implements BAGClient, ReplyListener
         if (globalProxy != null)
         {
             globalProxy.getViewManager().updateCurrentViewFromRepository();
-            if (!globalProxy.getViewManager().isCurrentViewMember(serverProcess))
+            if (!globalProxy.getViewManager().isCurrentViewMember(globalServerProcess))
             {
                 Log.getLogger().error("Serverprocess not existing anymore, redirecting to random new one.");
-                serverProcess = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(globalProxy.getViewManager().getCurrentViewProcesses().length)];
+                globalServerProcess = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(globalProxy.getViewManager().getCurrentViewProcesses().length)];
             }
         }
 
@@ -364,7 +364,7 @@ public class TestClient implements BAGClient, ReplyListener
 
                 globalProxy.close();
                 Log.getLogger().warn("Restarting global proxy");
-                globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
+                globalProxy = new AsynchServiceProxy(100 + processId, GLOBAL_CONFIG_LOCATION, comparator, null);
                 Log.getLogger().warn("Finished reloading global proxy");
                 globalProxy.getViewManager().updateCurrentViewFromRepository();
             }
@@ -395,12 +395,12 @@ public class TestClient implements BAGClient, ReplyListener
             if (identifier instanceof NodeStorage)
             {
                 //this sends the message straight to server 0 not to the others.
-                localProxy.invokeAsynchRequest(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier),  new int[] {serverProcess}, this, TOMMessageType.UNORDERED_REQUEST);
+                localProxy.invokeAsynchRequest(this.serialize(Constants.READ_MESSAGE, timeStampToSend, identifier),  new int[] {localServerProcess}, this, TOMMessageType.UNORDERED_REQUEST);
             }
             else if (identifier instanceof RelationshipStorage)
             {
                 localProxy.invokeAsynchRequest(this.serialize(Constants.RELATIONSHIP_READ_MESSAGE, timeStampToSend, identifier),
-                        new int[] {serverProcess},
+                        new int[] {localServerProcess},
                         this,
                         TOMMessageType.UNORDERED_REQUEST);
             }
@@ -645,13 +645,13 @@ public class TestClient implements BAGClient, ReplyListener
                         {
                             final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                             int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
-                            while (0 == rand)
+                            while (globalServerProcess == rand)
                             {
                                 rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             }
 
-                            Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
-                            localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                            Log.getLogger().info("Send to local Cluster to: " + globalServerProcess + " and: " + rand);
+                            localProxy.invokeAsynchRequest(bytes, new int[]{globalServerProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                             currentThread.interrupt();
                             return;
                         }
@@ -665,22 +665,22 @@ public class TestClient implements BAGClient, ReplyListener
                         {
                             final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
                             int rand = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
-                            while (serverProcess == rand)
+                            while (globalServerProcess == rand)
                             {
                                 rand = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             }
 
-                            Log.getLogger().info("Send to global Cluster to: " + serverProcess + " and: " + rand);
-                            globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                            Log.getLogger().info("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
+                            Log.getLogger().info("Send to global Cluster to: " + globalServerProcess + " and: " + rand);
+                            globalProxy.invokeAsynchRequest(bytes, new int[] {globalServerProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                            Log.getLogger().info("Finish send to global Cluster to: " + globalServerProcess + " and: " + rand);
                             pool.release(kryo);
                             currentThread.interrupt();
                             return;
                         }
                         else if (readMode == TO_1_OTHER)
                         {
-                            final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                            final int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
+                            final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
+                            final int rand = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
 
                             Log.getLogger().info("Send to global Cluster to: " + rand);
                             globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
@@ -778,7 +778,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void commit()
     {
-        Thread thread = new CommitThread(Thread.currentThread());
+       final  Thread thread = new CommitThread(Thread.currentThread());
         thread.start();
 
         try
@@ -883,7 +883,7 @@ public class TestClient implements BAGClient, ReplyListener
         bagReplyListener.reset();
 
         Log.getLogger().info("Resetting sets!");
-        //serverProcess = random.nextInt(4);
+        //localServerProcess = random.nextInt(4);
     }
 
     /**
@@ -905,7 +905,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public int getID()
     {
-        return this.serverProcess;
+        return this.localServerProcess;
     }
 
     @Override
@@ -913,33 +913,7 @@ public class TestClient implements BAGClient, ReplyListener
     {
         return !readsSetNode.isEmpty() && !readsSetRelationship.isEmpty();
     }
-
-    /**
-     * Get the primary of the cluster.
-     *
-     * @param kryo the kryo instance.
-     * @return the primary id.
-     */
-    private int getPrimary(final Kryo kryo)
-    {
-        final byte[] response = localProxy.invoke(serialize(Constants.GET_PRIMARY), TOMMessageType.UNORDERED_REQUEST);
-        if (response == null)
-        {
-            Log.getLogger().error("Server returned null, something went incredibly wrong there");
-            return -1;
-        }
-
-        final Input input = new Input(response);
-        kryo.readObject(input, String.class);
-        final int primaryId = kryo.readObject(input, Integer.class);
-
-        Log.getLogger().info("Received id: " + primaryId);
-
-        input.close();
-
-        return primaryId;
-    }
-
+    
     @Override
     public void reset()
     {
