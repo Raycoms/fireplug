@@ -347,10 +347,6 @@ public class TestClient implements BAGClient, ReplyListener
                 localProxy.getViewManager().updateCurrentViewFromRepository();
                 localProxy.getCommunicationSystem().updateConnections();
                 globalProxy.getCommunicationSystem().updateConnections();
-                //Log.getLogger().warn("I want to remove the global proxy");
-                //globalProxy.close();
-                //Log.getLogger().warn("I want to start a new one");
-                //globalProxy = new AsynchServiceProxy(100 + localProxy.getProcessId(), "global/config", comparator, null);
             }
         }
 
@@ -626,6 +622,10 @@ public class TestClient implements BAGClient, ReplyListener
                             rand = random.nextInt(viewProcesses.length);
                         }
                         globalProxy.getViewManager().updateCurrentViewFromRepository();
+                        if (oldViewId != globalProxy.getViewManager().getCurrentViewId())
+                        {
+                            return;
+                        }
                         if (globalProxy.getViewManager().getCurrentViewN() >= 4)
                         {
                             Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
