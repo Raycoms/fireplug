@@ -215,7 +215,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
     {
-        proxy.getViewManager().updateCurrentViewFromRepository();
+        if (proxy != null)
+        {
+            proxy.getViewManager().updateCurrentViewFromRepository();
+        }
         Log.getLogger().warn("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
