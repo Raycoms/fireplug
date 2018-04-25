@@ -740,13 +740,10 @@ public class TestClient implements BAGClient, ReplyListener
 
         try
         {
-            Log.getLogger().error("Going to sleep!");
             Thread.sleep(2000);
-            Log.getLogger().error("Waking up!");
         }
         catch (final InterruptedException e)
         {
-            Log.getLogger().error("Interruped!");
             return;
         }
 
