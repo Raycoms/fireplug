@@ -590,6 +590,9 @@ public class TestClient implements BAGClient, ReplyListener
         @Override
         public void run()
         {
+            globalProxy.getViewManager().updateCurrentViewFromRepository();
+            localProxy.getViewManager().updateCurrentViewFromRepository();
+            
             firstRead = true;
             final boolean readOnly = isReadOnly();
             Log.getLogger().info("Starting commit");
