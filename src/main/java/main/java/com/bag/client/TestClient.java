@@ -592,10 +592,10 @@ public class TestClient implements BAGClient, ReplyListener
         {
             globalProxy.getViewManager().updateCurrentViewFromRepository();
             localProxy.getViewManager().updateCurrentViewFromRepository();
-            
+
             firstRead = true;
             final boolean readOnly = isReadOnly();
-            Log.getLogger().info("Starting commit");
+            Log.getLogger().warn("Starting commit");
 
             if (readOnly && readMode == UNSAFE)
             {
@@ -851,6 +851,7 @@ public class TestClient implements BAGClient, ReplyListener
         writeSet = new ArrayList<>();
         isCommitting = false;
         bagReplyListener.reset();
+        Log.getLogger().warn("Resetting sets!");
         //serverProcess = random.nextInt(4);
     }
 
