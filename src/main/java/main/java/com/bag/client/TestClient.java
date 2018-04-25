@@ -602,6 +602,7 @@ public class TestClient implements BAGClient, ReplyListener
                 Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
                 firstRead = true;
                 resetSets();
+                currentThread.interrupt();
                 return;
             }
 
@@ -623,6 +624,7 @@ public class TestClient implements BAGClient, ReplyListener
 
                         Log.getLogger().info("Send to local Cluster to: " + rand);
                         localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        currentThread.interrupt();
                         return;
                     }
                     answer = localProxy.invokeUnordered(bytes);
@@ -643,6 +645,7 @@ public class TestClient implements BAGClient, ReplyListener
 
                             Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
                             localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                            currentThread.interrupt();
                             return;
                         }
 
@@ -664,6 +667,7 @@ public class TestClient implements BAGClient, ReplyListener
                             globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                             Log.getLogger().info("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
                             pool.release(kryo);
+                            currentThread.interrupt();
                             return;
                         }
                         else if (readMode == TO_1_OTHER)
@@ -674,6 +678,7 @@ public class TestClient implements BAGClient, ReplyListener
                             Log.getLogger().info("Send to global Cluster to: " + rand);
                             globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                             pool.release(kryo);
+                            currentThread.interrupt();
                             return;
                         }
                         else if(readMode == PESSIMISTIC)
@@ -682,6 +687,7 @@ public class TestClient implements BAGClient, ReplyListener
                             {
                                 resetSets();
                                 pool.release(kryo);
+                                currentThread.interrupt();
                                 return;
                             }
                             answer = globalProxy.invokeOrdered(bytes);
@@ -692,6 +698,7 @@ public class TestClient implements BAGClient, ReplyListener
                             {
                                 resetSets();
                                 pool.release(kryo);
+                                currentThread.interrupt();
                                 return;
                             }
 
@@ -711,6 +718,7 @@ public class TestClient implements BAGClient, ReplyListener
                     resetSets();
                     firstRead = true;
                     pool.release(kryo);
+                    currentThread.interrupt();
                     return;
                 }
 
@@ -722,17 +730,20 @@ public class TestClient implements BAGClient, ReplyListener
                     firstRead = true;
                     Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                     pool.release(kryo);
+                    currentThread.interrupt();
                     return;
                 }
 
                 pool.release(kryo);
                 resetSets();
+                currentThread.interrupt();
                 return;
             }
 
             if (globalProxy.getViewManager().getCurrentViewN() < 4)
             {
                 resetSets();
+                currentThread.interrupt();
                 return;
             }
 
@@ -749,7 +760,7 @@ public class TestClient implements BAGClient, ReplyListener
                 processCommitReturn(globalProxy.invokeOrdered(bytes));
                 Log.getLogger().info(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + localTimestamp);
             }
-            //currentThread.interrupt();
+            currentThread.interrupt();
         }
 
     }
@@ -760,9 +771,10 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void commit()
     {
+        Thread thread = new CommitThread(Thread.currentThread());
         thread.run();
 
-        /*try
+        try
         {
             Thread.sleep(10000);
         }
@@ -773,7 +785,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         thread.stop();
         Log.getLogger().error("I don't care anymore, just kill that thread so we can resume!");
-        resetSets();*/
+        resetSets();
     }
 
     /**
