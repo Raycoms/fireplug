@@ -596,6 +596,7 @@ public class TestClient implements BAGClient, ReplyListener
             firstRead = true;
             final boolean readOnly = isReadOnly();
             Log.getLogger().warn("Starting commit");
+            Log.getLogger().warn(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
 
             if (readOnly && readMode == UNSAFE)
             {
@@ -643,7 +644,7 @@ public class TestClient implements BAGClient, ReplyListener
                                 rand = random.nextInt(viewProcesses.length);
                             }
 
-                            Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
+                            Log.getLogger().warn("Send to local Cluster to: " + 0 + " and: " + rand);
                             localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                             //currentThread.interrupt();
                             return;
@@ -851,6 +852,7 @@ public class TestClient implements BAGClient, ReplyListener
         writeSet = new ArrayList<>();
         isCommitting = false;
         bagReplyListener.reset();
+
         Log.getLogger().warn("Resetting sets!");
         //serverProcess = random.nextInt(4);
     }
