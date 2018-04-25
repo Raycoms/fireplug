@@ -691,16 +691,16 @@ public class TestClient implements BAGClient, ReplyListener
 
         if (localClusterId == -1)
         {
-            Log.getLogger().info("Distribute commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn("Distribute commit with snapshotId: " + this.localTimestamp);
             processCommitReturn(localProxy.invokeOrdered(bytes));
-            Log.getLogger().info("Finish commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn("Finish commit with snapshotId: " + this.localTimestamp);
         }
         else
         {
-            Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
+            Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
             Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
             processCommitReturn(globalProxy.invokeOrdered(bytes));
-            Log.getLogger().info(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
+            Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
 
         }
     }
