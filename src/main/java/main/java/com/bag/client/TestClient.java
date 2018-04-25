@@ -720,6 +720,7 @@ public class TestClient implements BAGClient, ReplyListener
             e.printStackTrace();
         }
 
+        thread.stop();
         resetSets();
     }
 
