@@ -336,13 +336,17 @@ public class TestClient implements BAGClient, ReplyListener
 
     private void updateConnection()
     {
-        if (!globalProxy.getViewManager().isCurrentViewMember(serverProcess))
+        if (globalProxy != null)
         {
-            Log.getLogger().error("Serverprocess not existing anymore, redirecting to random new one.");
-            serverProcess = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(globalProxy.getViewManager().getCurrentViewProcesses().length)];
+            globalProxy.getViewManager().updateCurrentViewFromRepository();
+            if (!globalProxy.getViewManager().isCurrentViewMember(serverProcess))
+            {
+                Log.getLogger().error("Serverprocess not existing anymore, redirecting to random new one.");
+                serverProcess = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(globalProxy.getViewManager().getCurrentViewProcesses().length)];
+            }
         }
 
-        if (localTimestamp != lastLocalTimestamp)
+        if (localTimestamp == lastLocalTimestamp)
         {
             lastLocalTimestamp = localTimestamp;
             Log.getLogger().warn("----------------------------------------");
@@ -362,6 +366,7 @@ public class TestClient implements BAGClient, ReplyListener
                 Log.getLogger().warn("Restarting global proxy");
                 globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
                 Log.getLogger().warn("Finished reloading global proxy");
+                globalProxy.getViewManager().updateCurrentViewFromRepository();
             }
 
             localProxy.getViewManager().updateCurrentViewFromRepository();
@@ -370,6 +375,7 @@ public class TestClient implements BAGClient, ReplyListener
 
             Log.getLogger().warn("Restarting local proxy");
             localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
+            localProxy.getViewManager().updateCurrentViewFromRepository();
             Log.getLogger().warn("Finished reloading proxies");
         }
     }
