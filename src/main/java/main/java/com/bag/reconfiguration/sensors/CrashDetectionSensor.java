@@ -143,7 +143,7 @@ public class CrashDetectionSensor extends TimerTask
                 Log.getLogger().warn("Finished updating old view at cluster: " + cluster);
                 if (cluster.equalsIgnoreCase(LOCAL_CLUSTER))
                 {
-                    electionTimer.schedule(new AddPrimaryHandler(kryo, idToCheck, localClusterId, proxy, id), 5000);
+                    electionTimer.schedule(new AddPrimaryHandler(kryo, idToCheck, localClusterId, proxy, id), 1000);
                 }
                 idToCheck += 1;
             }
