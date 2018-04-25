@@ -590,8 +590,13 @@ public class TestClient implements BAGClient, ReplyListener
         @Override
         public void run()
         {
-            globalProxy.getViewManager().updateCurrentViewFromRepository();
+            if (globalProxy != null)
+            {
+                globalProxy.getViewManager().updateCurrentViewFromRepository();
+                globalProxy.getCommunicationSystem().updateConnections();
+            }
             localProxy.getViewManager().updateCurrentViewFromRepository();
+            localProxy.getCommunicationSystem().updateConnections();
 
             firstRead = true;
             final boolean readOnly = isReadOnly();
