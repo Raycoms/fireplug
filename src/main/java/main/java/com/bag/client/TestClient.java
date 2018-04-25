@@ -347,10 +347,10 @@ public class TestClient implements BAGClient, ReplyListener
                 localProxy.getViewManager().updateCurrentViewFromRepository();
                 localProxy.getCommunicationSystem().updateConnections();
                 globalProxy.getCommunicationSystem().updateConnections();
-                Log.getLogger().warn("I want to remove the global proxy");
-                globalProxy.close();
-                Log.getLogger().warn("I want to start a new one");
-                globalProxy = new AsynchServiceProxy(100 + localProxy.getProcessId(), "global/config", comparator, null);
+                //Log.getLogger().warn("I want to remove the global proxy");
+                //globalProxy.close();
+                //Log.getLogger().warn("I want to start a new one");
+                //globalProxy = new AsynchServiceProxy(100 + localProxy.getProcessId(), "global/config", comparator, null);
             }
         }
 
@@ -625,7 +625,9 @@ public class TestClient implements BAGClient, ReplyListener
                         {
                             rand = random.nextInt(viewProcesses.length);
                         }
-
+                        globalProxy.getViewManager().updateCurrentViewFromRepository();
+                        globalProxy.getCommunicationSystem().updateConnections();
+                        
                         Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
                         lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                         Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
