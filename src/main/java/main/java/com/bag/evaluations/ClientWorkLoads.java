@@ -483,7 +483,7 @@ public class ClientWorkLoads
 
                 if (isRead)
                 {
-                    Log.getLogger().warn("Start read - clientWorkLoads");
+                    Log.getLogger().info("Start read - clientWorkLoads");
 
                     if (readNodeStorage != null)
                     {
@@ -520,7 +520,7 @@ public class ClientWorkLoads
                                  */
                         }
                     }
-                    Log.getLogger().warn("end read - clientWorkLoads");
+                    Log.getLogger().info("end read - clientWorkLoads");
 
                 }
                 else
@@ -546,13 +546,13 @@ public class ClientWorkLoads
                         client.read(new NodeStorage(true));
                         try
                         {
-                            Log.getLogger().warn("Start last read - clientWorkLoads");
+                            Log.getLogger().info("Start last read - clientWorkLoads");
 
                             while (client.getReadQueue().take() != TestClient.FINISHED_READING)
                             {
 
                             }
-                            Log.getLogger().warn("end last read - clientWorkLoads");
+                            Log.getLogger().info("end last read - clientWorkLoads");
 
                         }
                         catch (final InterruptedException e)
@@ -564,7 +564,7 @@ public class ClientWorkLoads
                     }
 
                     client.commit();
-                    Log.getLogger().warn("Start comitting - clientWorkLoads");
+                    Log.getLogger().info("Start comitting - clientWorkLoads");
                     while(client.isCommitting())
                     {
                         /*
@@ -572,7 +572,7 @@ public class ClientWorkLoads
                          * Log.getLogger().info("Commit not finished yet");
                         */
                     }
-                    Log.getLogger().warn("End comitting - clientWorkLoads");
+                    Log.getLogger().info("End comitting - clientWorkLoads");
                     commits += 1;
                 }
 
