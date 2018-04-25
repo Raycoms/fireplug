@@ -643,9 +643,9 @@ public class TestClient implements BAGClient, ReplyListener
 
                             if (globalProxy.getViewManager().isCurrentViewMember(rand) && globalProxy.getViewManager().isCurrentViewMember(serverProcess))
                             {
-                                Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
+                                Log.getLogger().info("Send to global Cluster to: " + serverProcess + " and: " + rand);
                                 lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                                Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
+                                Log.getLogger().info("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
                             }
                             else
                             {
@@ -713,16 +713,16 @@ public class TestClient implements BAGClient, ReplyListener
 
             if (localClusterId == -1)
             {
-                Log.getLogger().warn("Distribute commit with snapshotId: " + localTimestamp);
+                Log.getLogger().info("Distribute commit with snapshotId: " + localTimestamp);
                 processCommitReturn(localProxy.invokeOrdered(bytes));
-                Log.getLogger().warn("Finish commit with snapshotId: " + localTimestamp);
+                Log.getLogger().info("Finish commit with snapshotId: " + localTimestamp);
             }
             else
             {
-                Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + localTimestamp);
+                Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + localTimestamp);
                 Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
                 processCommitReturn(globalProxy.invokeOrdered(bytes));
-                Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + localTimestamp);
+                Log.getLogger().info(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + localTimestamp);
             }
             currentThread.interrupt();
         }
@@ -740,7 +740,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         try
         {
-            Thread.sleep(2000);
+            Thread.sleep(4000);
         }
         catch (final InterruptedException e)
         {
