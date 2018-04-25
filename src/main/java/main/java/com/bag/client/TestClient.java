@@ -354,6 +354,19 @@ public class TestClient implements BAGClient, ReplyListener
             Log.getLogger().warn("Reset sets! ");
             Log.getLogger().warn("----------------------------------------");
             resetSets();
+
+            Log.getLogger().warn("Client is failing, trying to restart the connection and proxy");
+            final int processId = localProxy.getProcessId();
+            localProxy.close();
+            if (globalProxy != null)
+            {
+                globalProxy.close();
+            }
+            localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
+            if (localClusterId != -1)
+            {
+                globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
+            }
         }
     }
 
@@ -734,21 +747,6 @@ public class TestClient implements BAGClient, ReplyListener
         catch (final InterruptedException e)
         {
             return;
-        }
-
-        Log.getLogger().warn("Client is failing, trying to restart the connection and proxy");
-        final int processId = localProxy.getProcessId();
-        localProxy.getCommunicationSystem().updateConnections();
-        localProxy.close();
-        if (globalProxy != null)
-        {
-            globalProxy.getCommunicationSystem().updateConnections();
-            globalProxy.close();
-        }
-        localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
-        if (localClusterId != -1)
-        {
-            globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
         }
 
         thread.stop();
