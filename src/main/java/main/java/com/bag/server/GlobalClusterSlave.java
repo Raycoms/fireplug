@@ -161,7 +161,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 updateCounts(0, 0, 0, 1);
             }
         }
-        Log.getLogger().error("Leaving batch: " + currentConsensusId);
+        Log.getLogger().info("Leaving batch: " + currentConsensusId);
 
         lastBatch = currentConsensusId;
         pool.release(kryo);

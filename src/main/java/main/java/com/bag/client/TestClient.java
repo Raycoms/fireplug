@@ -64,6 +64,11 @@ public class TestClient implements BAGClient, ReplyListener
     private long localTimestamp = -1;
 
     /**
+     * Local timestamp of the current transaction.
+     */
+    private long lastLocalTimestamp = -2;
+
+    /**
      * The id of the local server process the client is communicating with.
      */
     private final int serverProcess;
@@ -217,13 +222,13 @@ public class TestClient implements BAGClient, ReplyListener
         readMode = ReadModes.values()[readModeId];
         bagReplyListener = new BAGReplyListener(this, readMode);
         Log.getLogger().error("Starting client " + processId + " with read-mode: " + readMode.name());
-        /*timer.scheduleAtFixedRate(new TimerTask() {
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run()
             {
                 updateConnection();
             }
-        }, 3000, 3000);*/
+        }, 10000, 5000);
     }
 
     /**
@@ -336,22 +341,9 @@ public class TestClient implements BAGClient, ReplyListener
 
     private void updateConnection()
     {
-        /*boolean needsReset = false;
-        if (globalProxy != null)
+        if (localTimestamp == lastLocalTimestamp)
         {
-            globalProxy.getViewManager().updateCurrentViewFromRepository();
-            if (oldViewId != globalProxy.getViewManager().getCurrentViewId())
-            {
-                Log.getLogger().warn("----------------------------------------");
-                Log.getLogger().warn("Different view!!!");
-                Log.getLogger().warn("----------------------------------------");
-                oldViewId = globalProxy.getViewManager().getCurrentViewId();
-                needsReset = true;
-            }
-        }
-
-        if (needsReset)
-        {
+            lastLocalTimestamp = localTimestamp;
             Log.getLogger().warn("----------------------------------------");
             Log.getLogger().warn("Reset sets! ");
             Log.getLogger().warn("----------------------------------------");
@@ -362,21 +354,23 @@ public class TestClient implements BAGClient, ReplyListener
 
             if (globalProxy != null)
             {
+                globalProxy.getViewManager().updateCurrentViewFromRepository();
                 globalProxy.getCommunicationSystem().updateConnections();
+
+                /*globalProxy.close();
                 Log.getLogger().warn("Restarting global proxy");
                 globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
-                globalProxy.getViewManager().updateCurrentViewFromRepository();
-                oldViewId = globalProxy.getViewManager().getCurrentViewId();
-                Log.getLogger().warn("Finished reloading global proxy");
+                Log.getLogger().warn("Finished reloading global proxy");*/
             }
 
             localProxy.getViewManager().updateCurrentViewFromRepository();
             localProxy.getCommunicationSystem().updateConnections();
+            /*localProxy.close();
+
             Log.getLogger().warn("Restarting local proxy");
             localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
-            Log.getLogger().warn("Finished reloading proxies");
-            localProxy.getViewManager().updateCurrentViewFromRepository();
-        }*/
+            Log.getLogger().warn("Finished reloading proxies");*/
+        }
     }
 
     /**
