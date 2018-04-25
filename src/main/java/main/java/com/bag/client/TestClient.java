@@ -626,11 +626,12 @@ public class TestClient implements BAGClient, ReplyListener
                             rand = random.nextInt(viewProcesses.length);
                         }
                         globalProxy.getViewManager().updateCurrentViewFromRepository();
-                        globalProxy.getCommunicationSystem().updateConnections();
-                        
-                        Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
-                        lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                        Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
+                        if (globalProxy.getViewManager().getCurrentViewN() >= 4)
+                        {
+                            Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
+                            lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                            Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
+                        }
                         return;
                     }
                     else if (readMode == TO_1_OTHER)
