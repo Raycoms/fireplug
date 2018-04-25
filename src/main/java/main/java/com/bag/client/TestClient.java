@@ -711,16 +711,14 @@ public class TestClient implements BAGClient, ReplyListener
         final CommitThread thread = new CommitThread();
         thread.start();
 
-        try
+        int aliveChecks = 0;
+        while (thread.isAlive() && aliveChecks < 100)
         {
-            Thread.sleep(2000);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
+            aliveChecks++;
         }
 
         thread.stop();
+        Log.getLogger().error("I don't care anymore, just kill that thread so we can resume!");
         resetSets();
     }
 

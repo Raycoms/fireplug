@@ -1,12 +1,13 @@
 package main.java.com.bag.instrumentations;
 
-import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -25,11 +26,6 @@ public class ServerInstrumentation
     private AtomicInteger committedTransactions = new AtomicInteger(0);
 
     /**
-     * Time of last commit.
-     */
-    private long lastCommit;
-
-    /**
      * Reads performed during the last measurement
      */
     private AtomicInteger readsPerformed = new AtomicInteger(0);
@@ -45,20 +41,55 @@ public class ServerInstrumentation
     private final Object resultsFileLock = new Object();
 
     /**
-     * Server's id
-     */
-    private final int id;
-
-    /**
      * Minutes elapsed since the start.
      */
     private int minutesElapsed;
 
+    /**
+     * Timer for the instrumentation.
+     */
+    private final Timer instrumentationTimer = new Timer();
+
     public ServerInstrumentation(final int id)
     {
-        this.id = id;
-        lastCommit = System.nanoTime();
         minutesElapsed = 0;
+        instrumentationTimer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+
+                synchronized (resultsFileLock)
+                {
+                    minutesElapsed += 1;
+
+                    try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
+                         final BufferedWriter bw = new BufferedWriter(file);
+                         final PrintWriter out = new PrintWriter(bw))
+                    {
+                        //out.print(elapsed + ";");
+                        //out.print(abortedTransactions.get() + ";");
+                        //out.print(committedTransactions.get() + ";");
+                        //out.print(readsPerformed.get() + ";");
+                        //out.print(writesPerformed.get() + ";");
+                        out.println(readsPerformed.get() + writesPerformed.get());
+                        //out.println();
+
+                        System.out.println(String.format("Elapsed: (%d seconds)\nAborted: %d\nCommited: %d\nReads: %d\nWrites: %d\nThroughput: %d\n\n", minutesElapsed, abortedTransactions.get(), committedTransactions.get(), readsPerformed.get(),
+                                writesPerformed.get(), readsPerformed.get() + writesPerformed.get()));
+
+                        abortedTransactions = new AtomicInteger(0);
+                        committedTransactions = new AtomicInteger(0);
+                        readsPerformed = new AtomicInteger(0);
+                        writesPerformed = new AtomicInteger(0);
+                    }
+                    catch (final IOException e)
+                    {
+                        Log.getLogger().info("Problem while writing to file!", e);
+                    }
+                }
+            }
+        }, 1000, 1000);
     }
 
     public void updateCounts(final int writes, final int reads, final int commits, final int aborts)
@@ -78,45 +109,6 @@ public class ServerInstrumentation
         if (aborts > 0)
         {
             abortedTransactions.addAndGet(aborts);
-        }
-
-        if (((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER) >= 1.0)
-        {
-            synchronized (resultsFileLock)
-            {
-                final double elapsed = ((System.nanoTime() - lastCommit) / Constants.NANO_TIME_DIVIDER);
-                if (elapsed >= 1.0)
-                {
-                    lastCommit = System.nanoTime();
-                    minutesElapsed += 1;
-
-                    try (final FileWriter file = new FileWriter(System.getProperty("user.home") + "/results" + id + ".txt", true);
-                         final BufferedWriter bw = new BufferedWriter(file);
-                         final PrintWriter out = new PrintWriter(bw))
-                    {
-                        //out.print(elapsed + ";");
-                        //out.print(abortedTransactions.get() + ";");
-                        //out.print(committedTransactions.get() + ";");
-                        //out.print(readsPerformed.get() + ";");
-                        //out.print(writesPerformed.get() + ";");
-                        out.println(readsPerformed.get() + writesPerformed.get());
-                        //out.println();
-
-                        System.out.println(String.format("Elapsed: %.3fs (%d minutes)\nAborted: %d\nCommited: %d\nReads: %d\nWrites: %d\nThroughput: %d\n\n",
-                                elapsed, minutesElapsed, abortedTransactions.get(), committedTransactions.get(), readsPerformed.get(),
-                                writesPerformed.get(), readsPerformed.get() + writesPerformed.get()));
-
-                        abortedTransactions = new AtomicInteger(0);
-                        committedTransactions = new AtomicInteger(0);
-                        readsPerformed = new AtomicInteger(0);
-                        writesPerformed = new AtomicInteger(0);
-                    }
-                    catch (final IOException e)
-                    {
-                        Log.getLogger().info("Problem while writing to file!", e);
-                    }
-                }
-            }
         }
     }
 }
