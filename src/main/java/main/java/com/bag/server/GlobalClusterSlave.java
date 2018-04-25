@@ -116,14 +116,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
     @Override
     public byte[][] appExecuteBatch(final byte[][] message, final MessageContext[] messageContexts, final boolean noop)
     {
-        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-        final Kryo kryo = pool.borrow();
-
-        for(int i = 0; i < message.length; i++)
-        {
-            Log.getLogger().info("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId());
-        }
-
         if(messageContexts == null || messageContexts.length == 0)
         {
             return new byte[0][0];
@@ -137,6 +129,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().error("----------------------------------");
             return new byte[0][0];
         }
+
+        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+        final Kryo kryo = pool.borrow();
 
         final byte[][] allResults = new byte[message.length][];
         for (int i = 0; i < message.length; i++)
@@ -220,7 +215,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
     {
-        Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
+        Log.getLogger().warn("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
         final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
@@ -323,7 +318,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final byte[] returnBytes = output.getBuffer();
         output.close();
-        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
+        Log.getLogger().warn("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
         return returnBytes;
     }
