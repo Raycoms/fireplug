@@ -312,7 +312,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             updateCounts(0, 0, 1, 0);
         }
-
+        //todo the whole system doesn't show any progress anymore!
+        //todo, let's try to reinstantiated the client proxies to test if that solves the issue!
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
 
