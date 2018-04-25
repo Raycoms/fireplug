@@ -549,160 +549,178 @@ public class TestClient implements BAGClient, ReplyListener
         pool.release(kryo);
     }
 
+    public class CommitThread extends Thread
+    {
+        @Override
+        public void run()
+        {
+            firstRead = true;
+            final boolean readOnly = isReadOnly();
+            Log.getLogger().info("Starting commit");
+
+            if (readOnly && readMode == UNSAFE)
+            {
+                Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
+                firstRead = true;
+                resetSets();
+                return;
+            }
+
+            Log.getLogger().info("Starting commit process for: " + localTimestamp);
+            final byte[] bytes = serializeAll();
+            if (readOnly)
+            {
+                final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+                final Kryo kryo = pool.borrow();
+                Log.getLogger().info(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + localTimestamp);
+
+                final byte[] answer;
+                if (localClusterId == -1)
+                {
+                    if (readMode == TO_1_OTHER)
+                    {
+                        final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
+                        final int rand = random.nextInt(viewProcesses.length);
+
+                        Log.getLogger().info("Send to local Cluster to: " + rand);
+                        lastAsynchRequest = localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                        return;
+                    }
+                    answer = localProxy.invokeUnordered(bytes);
+                }
+                else
+                {
+                    //Do it in optimistic mode in local cluster (if >= 4 replicas)
+                    if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && (readMode == TO_F_PLUS_1_LOCALLY || readMode == LOCALLY_UNORDERED))
+                    {
+                        if (readMode == TO_F_PLUS_1_LOCALLY)
+                        {
+                            final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
+                            int rand = random.nextInt(viewProcesses.length);
+                            while (0 == rand)
+                            {
+                                rand = random.nextInt(viewProcesses.length);
+                            }
+
+                            Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
+                            lastAsynchRequest = localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                            return;
+                        }
+
+                        Log.getLogger().info("To Local proxy:");
+                        answer = localProxy.invokeUnordered(bytes);
+                    }
+                    else
+                    {
+                        if (readMode == TO_F_PLUS_1_GLOBALLY)
+                        {
+                            final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
+                            int rand = random.nextInt(viewProcesses.length);
+                            while (serverProcess == rand)
+                            {
+                                rand = random.nextInt(viewProcesses.length);
+                            }
+
+                            if (globalProxy.getViewManager().isCurrentViewMember(rand) && globalProxy.getViewManager().isCurrentViewMember(serverProcess))
+                            {
+                                Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
+                                lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                                Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
+                            }
+                            else
+                            {
+                                globalProxy.getViewManager().updateCurrentViewFromRepository();
+                                globalProxy.getCommunicationSystem().updateConnections();
+                                resetSets();
+                            }
+                            return;
+                        }
+                        else if (readMode == TO_1_OTHER)
+                        {
+                            final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
+                            final int rand = random.nextInt(viewProcesses.length);
+
+                            Log.getLogger().info("Send to global Cluster to: " + rand);
+                            lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                            return;
+                        }
+                        else if(readMode == PESSIMISTIC)
+                        {
+                            answer = globalProxy.invokeOrdered(bytes);
+                        }
+                        else
+                        {
+                            answer = globalProxy.invokeUnordered(bytes);
+                        }
+                    }
+                }
+
+                Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + localTimestamp);
+
+                final Input input = new Input(answer);
+                final String messageType = kryo.readObject(input, String.class);
+
+                if (!Constants.COMMIT_RESPONSE.equals(messageType))
+                {
+                    Log.getLogger().error("Incorrect response type to client from server!" + localProxy.getProcessId());
+                    resetSets();
+                    firstRead = true;
+                    pool.release(kryo);
+                    return;
+                }
+
+                final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
+                if (commit)
+                {
+                    localTimestamp = kryo.readObject(input, Long.class);
+                    resetSets();
+                    firstRead = true;
+                    Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
+                    pool.release(kryo);
+                    return;
+                }
+
+                pool.release(kryo);
+                resetSets();
+                return;
+            }
+
+            if (localClusterId == -1)
+            {
+                Log.getLogger().warn("Distribute commit with snapshotId: " + localTimestamp);
+                processCommitReturn(localProxy.invokeOrdered(bytes));
+                Log.getLogger().warn("Finish commit with snapshotId: " + localTimestamp);
+            }
+            else
+            {
+                Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + localTimestamp);
+                Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
+                processCommitReturn(globalProxy.invokeOrdered(bytes));
+                Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + localTimestamp);
+
+            }
+        }
+    }
+
     /**
      * Commit reaches the server, if secure commit send to all, else only send to one
      */
     @Override
     public void commit()
     {
-        firstRead = true;
-        final boolean readOnly = isReadOnly();
-        Log.getLogger().info("Starting commit");
+        final CommitThread thread = new CommitThread();
+        thread.start();
 
-        if (readOnly && readMode == UNSAFE)
+        try
         {
-            Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
-            firstRead = true;
-            resetSets();
-            return;
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
         }
 
-        Log.getLogger().info("Starting commit process for: " + this.localTimestamp);
-        final byte[] bytes = serializeAll();
-        if (readOnly)
-        {
-            final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-            final Kryo kryo = pool.borrow();
-            Log.getLogger().info(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + this.localTimestamp);
-
-            final byte[] answer;
-            if (localClusterId == -1)
-            {
-                if (readMode == TO_1_OTHER)
-                {
-                    final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                    final int rand = random.nextInt(viewProcesses.length);
-
-                    Log.getLogger().info("Send to local Cluster to: " + rand);
-                    lastAsynchRequest = localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                    return;
-                }
-                answer = localProxy.invokeUnordered(bytes);
-            }
-            else
-            {
-                //Do it in optimistic mode in local cluster (if >= 4 replicas)
-                if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && (readMode == TO_F_PLUS_1_LOCALLY || readMode == LOCALLY_UNORDERED))
-                {
-                    if (readMode == TO_F_PLUS_1_LOCALLY)
-                    {
-                        final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                        int rand = random.nextInt(viewProcesses.length);
-                        while (0 == rand)
-                        {
-                            rand = random.nextInt(viewProcesses.length);
-                        }
-
-                        Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
-                        lastAsynchRequest = localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                        return;
-                    }
-
-                    Log.getLogger().info("To Local proxy:");
-                    answer = localProxy.invokeUnordered(bytes);
-                }
-                else
-                {
-                    if (readMode == TO_F_PLUS_1_GLOBALLY)
-                    {
-                        final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
-                        int rand = random.nextInt(viewProcesses.length);
-                        while (serverProcess == rand)
-                        {
-                            rand = random.nextInt(viewProcesses.length);
-                        }
-
-                        globalProxy.getViewManager().updateCurrentViewFromRepository();
-                        globalProxy.getCommunicationSystem().updateConnections();
-                        if (oldViewId != globalProxy.getViewManager().getCurrentViewId())
-                        {
-                            return;
-                        }
-                        if (globalProxy.getViewManager().isCurrentViewMember(rand) && globalProxy.getViewManager().isCurrentViewMember(serverProcess))
-                        {
-                            int timeout = globalProxy.getInvokeTimeout();
-                            globalProxy.setInvokeTimeout(0);
-                            Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand + " prev timeout: " + timeout);
-                            lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                            globalProxy.setInvokeTimeout(timeout);
-                            Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
-                        }
-                        return;
-                    }
-                    else if (readMode == TO_1_OTHER)
-                    {
-                        final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                        final int rand = random.nextInt(viewProcesses.length);
-
-                        Log.getLogger().info("Send to global Cluster to: " + rand);
-                        lastAsynchRequest = globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                        return;
-                    }
-                    else if(readMode == PESSIMISTIC)
-                    {
-                        answer = globalProxy.invokeOrdered(bytes);
-                    }
-                    else
-                    {
-                        answer = globalProxy.invokeUnordered(bytes);
-                    }
-                }
-            }
-
-            Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + this.localTimestamp);
-
-            final Input input = new Input(answer);
-            final String messageType = kryo.readObject(input, String.class);
-
-            if (!Constants.COMMIT_RESPONSE.equals(messageType))
-            {
-                Log.getLogger().error("Incorrect response type to client from server!" + localProxy.getProcessId());
-                resetSets();
-                firstRead = true;
-                pool.release(kryo);
-                return;
-            }
-
-            final boolean commit = Constants.COMMIT.equals(kryo.readObject(input, String.class));
-            if (commit)
-            {
-                localTimestamp = kryo.readObject(input, Long.class);
-                resetSets();
-                firstRead = true;
-                Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
-                pool.release(kryo);
-                return;
-            }
-
-            pool.release(kryo);
-            resetSets();
-            return;
-        }
-
-        if (localClusterId == -1)
-        {
-            Log.getLogger().warn("Distribute commit with snapshotId: " + this.localTimestamp);
-            processCommitReturn(localProxy.invokeOrdered(bytes));
-            Log.getLogger().warn("Finish commit with snapshotId: " + this.localTimestamp);
-        }
-        else
-        {
-            Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + this.localTimestamp);
-            Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
-            processCommitReturn(globalProxy.invokeOrdered(bytes));
-            Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + this.localTimestamp);
-
-        }
+        resetSets();
     }
 
     /**
