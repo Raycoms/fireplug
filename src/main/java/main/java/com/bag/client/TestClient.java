@@ -665,9 +665,9 @@ public class TestClient implements BAGClient, ReplyListener
                             }
 
 
-                            Log.getLogger().info("Send to global Cluster to: " + serverProcess + " and: " + rand);
+                            Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
                             globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                            Log.getLogger().info("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
+                            Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
                             currentThread.interrupt();
                             return;
                         }
