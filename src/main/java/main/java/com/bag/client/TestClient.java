@@ -71,7 +71,7 @@ public class TestClient implements BAGClient, ReplyListener
     /**
      * The id of the local server process the client is communicating with.
      */
-    private final int serverProcess;
+    private int serverProcess;
 
     /**
      * Lock object to let the thread wait for a read return.
@@ -341,6 +341,12 @@ public class TestClient implements BAGClient, ReplyListener
 
     private void updateConnection()
     {
+        if (!globalProxy.getViewManager().isCurrentViewMember(serverProcess))
+        {
+            final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
+            serverProcess = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
+        }
+
         if (localTimestamp != lastLocalTimestamp)
         {
             lastLocalTimestamp = localTimestamp;
@@ -620,7 +626,7 @@ public class TestClient implements BAGClient, ReplyListener
                     if (readMode == TO_1_OTHER)
                     {
                         final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                        final int rand = random.nextInt(viewProcesses.length);
+                        final int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
 
                         Log.getLogger().info("Send to local Cluster to: " + rand);
                         localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
