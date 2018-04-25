@@ -217,13 +217,13 @@ public class TestClient implements BAGClient, ReplyListener
         readMode = ReadModes.values()[readModeId];
         bagReplyListener = new BAGReplyListener(this, readMode);
         Log.getLogger().error("Starting client " + processId + " with read-mode: " + readMode.name());
-        timer.scheduleAtFixedRate(new TimerTask() {
+        /*timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run()
             {
                 updateConnection();
             }
-        }, 3000, 3000);
+        }, 3000, 3000);*/
     }
 
     /**
@@ -595,8 +595,8 @@ public class TestClient implements BAGClient, ReplyListener
 
             firstRead = true;
             final boolean readOnly = isReadOnly();
-            Log.getLogger().warn("Starting commit");
-            Log.getLogger().warn(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
+            Log.getLogger().info("Starting commit");
+            Log.getLogger().info(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
 
             if (readOnly && readMode == UNSAFE)
             {
@@ -642,7 +642,7 @@ public class TestClient implements BAGClient, ReplyListener
                                 rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             }
 
-                            Log.getLogger().warn("Send to local Cluster to: " + 0 + " and: " + rand);
+                            Log.getLogger().info("Send to local Cluster to: " + 0 + " and: " + rand);
                             localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                             return;
                         }
@@ -661,9 +661,9 @@ public class TestClient implements BAGClient, ReplyListener
                                 rand = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             }
 
-                            Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
+                            Log.getLogger().info("Send to global Cluster to: " + serverProcess + " and: " + rand);
                             globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                            Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
+                            Log.getLogger().info("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
                             pool.release(kryo);
                             return;
                         }
@@ -864,7 +864,7 @@ public class TestClient implements BAGClient, ReplyListener
         isCommitting = false;
         bagReplyListener.reset();
 
-        Log.getLogger().warn("Resetting sets!");
+        Log.getLogger().info("Resetting sets!");
         //serverProcess = random.nextInt(4);
     }
 

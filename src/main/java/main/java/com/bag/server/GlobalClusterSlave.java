@@ -132,7 +132,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
-        Log.getLogger().error("Received batch: " + currentConsensusId);
+        Log.getLogger().info("Received batch: " + currentConsensusId);
         final byte[][] allResults = new byte[message.length][];
         for (int i = 0; i < message.length; i++)
         {
@@ -221,7 +221,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             proxy.getViewManager().updateCurrentViewFromRepository();
             proxy.getCommunicationSystem().updateConnections();
         }
-        Log.getLogger().warn("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId());
+        Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
         final List readsSetRelationshipX = kryo.readObject(input, ArrayList.class);
@@ -325,7 +325,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final byte[] returnBytes = output.getBuffer();
         output.close();
-        Log.getLogger().warn("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
+        Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
         return returnBytes;
     }
