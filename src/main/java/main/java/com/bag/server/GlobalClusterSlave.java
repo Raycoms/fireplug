@@ -141,7 +141,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final byte[][] allResults = new byte[message.length][];
         for (int i = 0; i < message.length; i++)
         {
-            if (messageContexts != null && messageContexts[i] != null)
+            if (messageContexts[i] != null)
             {
                 final Input input = new Input(message[i]);
                 final String type = kryo.readObject(input, String.class);

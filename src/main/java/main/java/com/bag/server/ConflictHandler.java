@@ -198,7 +198,7 @@ public class ConflictHandler
         final boolean eq = access.equalHash(readSetNode) && access.equalHash(readSetRelationship);
         if (!eq)
         {
-            Log.getLogger().info("Aborting because of incorrect read");
+            Log.getLogger().warn("Aborting because of incorrect read");
         }
         return eq;
     }
