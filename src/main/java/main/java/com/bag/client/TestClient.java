@@ -341,7 +341,7 @@ public class TestClient implements BAGClient, ReplyListener
 
     private void updateConnection()
     {
-        if (localTimestamp == lastLocalTimestamp)
+        if (localTimestamp != lastLocalTimestamp)
         {
             lastLocalTimestamp = localTimestamp;
             Log.getLogger().warn("----------------------------------------");
