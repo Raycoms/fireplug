@@ -603,7 +603,6 @@ public class TestClient implements BAGClient, ReplyListener
                 Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
                 firstRead = true;
                 resetSets();
-                //currentThread.interrupt();
                 return;
             }
 
@@ -625,7 +624,6 @@ public class TestClient implements BAGClient, ReplyListener
 
                         Log.getLogger().info("Send to local Cluster to: " + rand);
                         localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                        //currentThread.interrupt();
                         return;
                     }
                     answer = localProxy.invokeUnordered(bytes);
@@ -646,7 +644,6 @@ public class TestClient implements BAGClient, ReplyListener
 
                             Log.getLogger().warn("Send to local Cluster to: " + 0 + " and: " + rand);
                             localProxy.invokeAsynchRequest(bytes, new int[]{0, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                            //currentThread.interrupt();
                             return;
                         }
 
@@ -667,7 +664,7 @@ public class TestClient implements BAGClient, ReplyListener
                             Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
                             globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                             Log.getLogger().warn("Finish send to global Cluster to: " + serverProcess + " and: " + rand);
-                            currentThread.interrupt();
+                            pool.release(kryo);
                             return;
                         }
                         else if (readMode == TO_1_OTHER)
@@ -677,15 +674,28 @@ public class TestClient implements BAGClient, ReplyListener
 
                             Log.getLogger().info("Send to global Cluster to: " + rand);
                             globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
-                            //currentThread.interrupt();
+                            pool.release(kryo);
                             return;
                         }
                         else if(readMode == PESSIMISTIC)
                         {
+                            if (globalProxy.getViewManager().getCurrentViewN() < 4)
+                            {
+                                resetSets();
+                                pool.release(kryo);
+                                return;
+                            }
                             answer = globalProxy.invokeOrdered(bytes);
                         }
                         else
                         {
+                            if (globalProxy.getViewManager().getCurrentViewN() < 4)
+                            {
+                                resetSets();
+                                pool.release(kryo);
+                                return;
+                            }
+
                             answer = globalProxy.invokeUnordered(bytes);
                         }
                     }
@@ -702,7 +712,6 @@ public class TestClient implements BAGClient, ReplyListener
                     resetSets();
                     firstRead = true;
                     pool.release(kryo);
-                    //currentThread.interrupt();
                     return;
                 }
 
@@ -714,14 +723,17 @@ public class TestClient implements BAGClient, ReplyListener
                     firstRead = true;
                     Log.getLogger().info(String.format("Transaction with local transaction id: %d successfully committed", localTimestamp));
                     pool.release(kryo);
-
-                    //currentThread.interrupt();
                     return;
                 }
 
                 pool.release(kryo);
                 resetSets();
-                //currentThread.interrupt();
+                return;
+            }
+
+            if (globalProxy.getViewManager().getCurrentViewN() < 4)
+            {
+                resetSets();
                 return;
             }
 
