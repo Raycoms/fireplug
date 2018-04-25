@@ -740,7 +740,7 @@ public class TestClient implements BAGClient, ReplyListener
 
         try
         {
-            Thread.sleep(4000);
+            Thread.sleep(10000);
         }
         catch (final InterruptedException e)
         {
