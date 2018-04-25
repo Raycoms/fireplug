@@ -124,25 +124,25 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("Committed: " + getGlobalSnapshotId() + " consensus: " + messageContexts[i].getConsensusId() + " sequence: " + messageContexts[i].getSequence() + " op: " + messageContexts[i].getOperationId());
         }
 
+        if(messageContexts == null || messageContexts.length == 0)
+        {
+            return new byte[0][0];
+        }
+
+        final int currentConsensusId = messageContexts[0].getConsensusId();
+        if (lastBatch != currentConsensusId && lastBatch > currentConsensusId)
+        {
+            Log.getLogger().error("----------------------------------");
+            Log.getLogger().error("Supposently old message!!!!! " + currentConsensusId + " : " + lastBatch + " ");
+            Log.getLogger().error("----------------------------------");
+            return new byte[0][0];
+        }
+
         final byte[][] allResults = new byte[message.length][];
         for (int i = 0; i < message.length; i++)
         {
             if (messageContexts != null && messageContexts[i] != null)
             {
-                final int currentConsensusId = messageContexts[i].getConsensusId();
-                if (lastBatch != currentConsensusId)
-                {
-                    if (lastBatch > currentConsensusId)
-                    {
-                        Log.getLogger().error("----------------------------------");
-                        Log.getLogger().error("Supposently old message!!!!! " + currentConsensusId + " : " + lastBatch + " " + messageContexts[i].readOnly + " " + messageContexts[i].isNoOp() + " " + messageContexts[i].getOperationId() + " " + messageContexts[i].getType().name());
-                        Log.getLogger().error("----------------------------------");
-                        continue;
-                    }
-                    lastBatch = currentConsensusId;
-                }
-
-
                 final Input input = new Input(message[i]);
                 final String type = kryo.readObject(input, String.class);
 
@@ -167,6 +167,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
         }
 
+        lastBatch = currentConsensusId;
         pool.release(kryo);
         return allResults;
     }
