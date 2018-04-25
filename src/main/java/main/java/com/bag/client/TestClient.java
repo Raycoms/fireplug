@@ -129,11 +129,6 @@ public class TestClient implements BAGClient, ReplyListener
     private int oldViewId;
 
     /**
-     * The commit thread.
-     */
-    final CommitThread thread = new CommitThread(Thread.currentThread());
-
-    /**
      * Custom comparator required for correct bft detection.
      */
     private static final Comparator<byte[]> comparator = (o1, o2) ->
@@ -343,8 +338,8 @@ public class TestClient implements BAGClient, ReplyListener
     {
         if (!globalProxy.getViewManager().isCurrentViewMember(serverProcess))
         {
-            final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
-            serverProcess = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
+            Log.getLogger().error("Serverprocess not existing anymore, redirecting to random new one.");
+            serverProcess = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(globalProxy.getViewManager().getCurrentViewProcesses().length)];
         }
 
         if (localTimestamp != lastLocalTimestamp)
@@ -778,11 +773,11 @@ public class TestClient implements BAGClient, ReplyListener
     public void commit()
     {
         Thread thread = new CommitThread(Thread.currentThread());
-        thread.run();
+        thread.start();
 
         try
         {
-            Thread.sleep(10000);
+            Thread.sleep(5000);
         }
         catch (final InterruptedException e)
         {
