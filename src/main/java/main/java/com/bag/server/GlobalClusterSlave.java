@@ -218,6 +218,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (proxy != null)
         {
             proxy.getViewManager().updateCurrentViewFromRepository();
+            proxy.getCommunicationSystem().updateConnections();
         }
         Log.getLogger().warn("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId());
         //Read the inputStream.

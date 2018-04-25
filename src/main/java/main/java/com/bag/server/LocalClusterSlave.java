@@ -548,6 +548,8 @@ public class LocalClusterSlave extends AbstractRecoverable
     private synchronized Output handleSlaveUpdateMessage(final Input input, @NotNull final Output output, final Kryo kryo)
     {
         proxy.getViewManager().updateCurrentViewFromRepository();
+        proxy.getCommunicationSystem().updateConnections();
+        
         //Not required. Is primary already dealt with it.
         if (wrapper.getGlobalCluster() != null)
         {
