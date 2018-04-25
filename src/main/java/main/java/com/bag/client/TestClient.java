@@ -360,6 +360,8 @@ public class TestClient implements BAGClient, ReplyListener
                 globalProxy.getCommunicationSystem().updateConnections();
                 Log.getLogger().warn("Restarting global proxy");
                 globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
+                globalProxy.getViewManager().updateCurrentViewFromRepository();
+                oldViewId = globalProxy.getViewManager().getCurrentViewId();
                 Log.getLogger().warn("Finished reloading global proxy");
             }
 
@@ -368,7 +370,7 @@ public class TestClient implements BAGClient, ReplyListener
             Log.getLogger().warn("Restarting local proxy");
             localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
             Log.getLogger().warn("Finished reloading proxies");
-
+            localProxy.getViewManager().updateCurrentViewFromRepository();
         }
     }
 
