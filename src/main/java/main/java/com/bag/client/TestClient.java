@@ -357,10 +357,17 @@ public class TestClient implements BAGClient, ReplyListener
 
             if (globalProxy != null)
             {
+                globalProxy.getCommunicationSystem().updateConnections();
+                globalProxy.getCommunicationSystem().close();
+                Log.getLogger().warn("Restarting global proxy");
                 globalProxy = new AsynchServiceProxy(100 + processId, "global/config", comparator, null);
                 Log.getLogger().warn("Finished reloading global proxy");
             }
 
+            localProxy.getViewManager().updateCurrentViewFromRepository();
+            localProxy.getCommunicationSystem().updateConnections();
+            localProxy.getCommunicationSystem().close();
+            Log.getLogger().warn("Restarting local proxy");
             localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
             Log.getLogger().warn("Finished reloading proxies");
 
