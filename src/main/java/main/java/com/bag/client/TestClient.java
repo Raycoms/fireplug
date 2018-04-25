@@ -638,10 +638,10 @@ public class TestClient implements BAGClient, ReplyListener
                         if (readMode == TO_F_PLUS_1_LOCALLY)
                         {
                             final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                            int rand = random.nextInt(viewProcesses.length);
+                            int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             while (0 == rand)
                             {
-                                rand = random.nextInt(viewProcesses.length);
+                                rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             }
 
                             Log.getLogger().warn("Send to local Cluster to: " + 0 + " and: " + rand);
@@ -658,12 +658,11 @@ public class TestClient implements BAGClient, ReplyListener
                         if (readMode == TO_F_PLUS_1_GLOBALLY)
                         {
                             final int[] viewProcesses = globalProxy.getViewManager().getCurrentViewProcesses();
-                            int rand = random.nextInt(viewProcesses.length);
+                            int rand = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             while (serverProcess == rand)
                             {
-                                rand = random.nextInt(viewProcesses.length);
+                                rand = globalProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             }
-
 
                             Log.getLogger().warn("Send to global Cluster to: " + serverProcess + " and: " + rand);
                             globalProxy.invokeAsynchRequest(bytes, new int[] {serverProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
@@ -674,7 +673,7 @@ public class TestClient implements BAGClient, ReplyListener
                         else if (readMode == TO_1_OTHER)
                         {
                             final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
-                            final int rand = random.nextInt(viewProcesses.length);
+                            final int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
 
                             Log.getLogger().info("Send to global Cluster to: " + rand);
                             globalProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
