@@ -331,7 +331,7 @@ public class TestClient implements BAGClient, ReplyListener
 
     private void updateConnection()
     {
-        boolean needsReset = false;
+        /*boolean needsReset = false;
         if (globalProxy != null)
         {
             globalProxy.getViewManager().updateCurrentViewFromRepository();
@@ -371,7 +371,7 @@ public class TestClient implements BAGClient, ReplyListener
             localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
             Log.getLogger().warn("Finished reloading proxies");
             localProxy.getViewManager().updateCurrentViewFromRepository();
-        }
+        }*/
     }
 
     /**
