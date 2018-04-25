@@ -549,7 +549,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         proxy.getViewManager().updateCurrentViewFromRepository();
         proxy.getCommunicationSystem().updateConnections();
-        
+
         //Not required. Is primary already dealt with it.
         if (wrapper.getGlobalCluster() != null)
         {
