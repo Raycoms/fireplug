@@ -738,18 +738,16 @@ public class TestClient implements BAGClient, ReplyListener
         final CommitThread thread = new CommitThread(Thread.currentThread());
         thread.start();
 
-
-
-            try
-            {
-                Thread.sleep(2000);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-
-
+        try
+        {
+            Thread.sleep(2000);
+        }
+        catch (final InterruptedException e)
+        {
+            Log.getLogger().error("Interruped!");
+            return;
+        }
+        
         thread.stop();
         Log.getLogger().error("I don't care anymore, just kill that thread so we can resume!");
         resetSets();
