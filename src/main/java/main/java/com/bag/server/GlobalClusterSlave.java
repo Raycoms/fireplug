@@ -129,15 +129,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             if (messageContexts != null && messageContexts[i] != null)
             {
-                if (lastBatch != messageContexts[i].getConsensusId())
+                final int currentConsensusId = messageContexts[i].getConsensusId();
+                if (lastBatch != currentConsensusId)
                 {
-                    if (lastBatch > messageContexts[i].getConsensusId())
+                    if (lastBatch > currentConsensusId)
                     {
                         Log.getLogger().error("----------------------------------");
-                        Log.getLogger().error("Supposently old message!!!!! " + messageContexts[i].getConsensusId() + " : " + lastBatch + " " + messageContexts[i].readOnly + " " + messageContexts[i].isNoOp() + " " + messageContexts[i].getOperationId() + " " + messageContexts[i].getType().name());
+                        Log.getLogger().error("Supposently old message!!!!! " + currentConsensusId + " : " + lastBatch + " " + messageContexts[i].readOnly + " " + messageContexts[i].isNoOp() + " " + messageContexts[i].getOperationId() + " " + messageContexts[i].getType().name());
                         Log.getLogger().error("----------------------------------");
+                        continue;
                     }
-                    lastBatch = messageContexts[i].getConsensusId();
+                    lastBatch = currentConsensusId;
                 }
 
 
