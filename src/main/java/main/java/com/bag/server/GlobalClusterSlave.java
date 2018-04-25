@@ -132,7 +132,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         final Kryo kryo = pool.borrow();
-
+        Log.getLogger().error("Received batch: " + currentConsensusId);
         final byte[][] allResults = new byte[message.length][];
         for (int i = 0; i < message.length; i++)
         {
@@ -161,6 +161,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 updateCounts(0, 0, 0, 1);
             }
         }
+        Log.getLogger().error("Leaving batch: " + currentConsensusId);
 
         lastBatch = currentConsensusId;
         pool.release(kryo);
