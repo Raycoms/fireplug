@@ -755,6 +755,8 @@ public class TestClient implements BAGClient, ReplyListener
 
         thread.stop();
         Log.getLogger().error("I don't care anymore, just kill that thread so we can resume!");
+        Log.getLogger().warn(Arrays.toString(localProxy.getViewManager().getCurrentViewProcesses()));
+        Log.getLogger().warn(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
         resetSets();
     }
 
