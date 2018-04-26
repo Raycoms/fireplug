@@ -200,6 +200,12 @@ public class TestClient implements BAGClient, ReplyListener
     public TestClient(final int processId, final int serverId, final int localClusterId, final int readModeId)
     {
         super();
+        readMode = ReadModes.values()[readModeId];
+        Log.getLogger().error("Starting client " + processId + " with read-mode: " + readMode.name());
+        this.localClusterId = localClusterId;
+        this.localServerProcess = serverId;
+        bagReplyListener = new BAGReplyListener(this, readMode);
+        
         localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
         if (localClusterId != -1)
         {
@@ -210,13 +216,7 @@ public class TestClient implements BAGClient, ReplyListener
             globalProxy = null;
         }
 
-        this.localServerProcess = serverId;
-        //todo if localServerProcess is not reachable anymore, choose random server process from local view!
-        this.localClusterId = localClusterId;
         initClient();
-        readMode = ReadModes.values()[readModeId];
-        bagReplyListener = new BAGReplyListener(this, readMode);
-        Log.getLogger().error("Starting client " + processId + " with read-mode: " + readMode.name());
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run()
