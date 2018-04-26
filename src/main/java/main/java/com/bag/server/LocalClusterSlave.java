@@ -215,7 +215,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 {
                     final Output output;
                     Log.getLogger().error("Received primary election message ordered");
-                    output = handlePrimaryElection(input, kryo);
+                    output = handlePrimaryElection(input, kryo, false);
                     Log.getLogger().error("Leaving primary election message ordered");
                     allResults[i] = output.getBuffer();
                     output.close();
@@ -225,7 +225,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                 {
                     final Output output;
                     Log.getLogger().error("Received bft primary election message ordered");
-                    output = handlePrimaryElection(input, kryo);
+                    output = handlePrimaryElection(input, kryo, true);
                     Log.getLogger().error("Leaving bft primary election message ordered");
                     allResults[i] = output.getBuffer();
                     output.close();
@@ -261,12 +261,12 @@ public class LocalClusterSlave extends AbstractRecoverable
      * @param kryo the kryo object.
      * @return the output to respond.
      */
-    private Output handlePrimaryElection(final Input input, final Kryo kryo)
+    private Output handlePrimaryElection(final Input input, final Kryo kryo, final boolean bft)
     {
         final int failedReplica = kryo.readObject(input, Integer.class);
         final Output output = new Output(0, 1024);
 
-        if (checkIfFailedReplicaIsGone(failedReplica))
+        if (checkIfFailedReplicaIsGone(failedReplica) && !bft)
         {
             kryo.writeObject(output, failedReplica);
             return output;
