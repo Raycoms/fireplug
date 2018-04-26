@@ -650,13 +650,13 @@ public class TestClient implements BAGClient, ReplyListener
                         {
                             final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                             int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
-                            while (globalServerProcess == rand)
+                            while (localServerProcess == rand)
                             {
                                 rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
                             }
 
-                            Log.getLogger().info("Send to local Cluster to: " + globalServerProcess + " and: " + rand);
-                            localProxy.invokeAsynchRequest(bytes, new int[]{globalServerProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
+                            Log.getLogger().info("Send to local Cluster to: " + localServerProcess + " and: " + rand);
+                            localProxy.invokeAsynchRequest(bytes, new int[]{localServerProcess, rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                            //currentThread.interrupt();
                             return;
                         }
