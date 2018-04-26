@@ -104,6 +104,11 @@ public class BftDetectionSensor extends TimerTask
         proxy.getViewManager().updateCurrentViewFromRepository();
         globalProxy.getViewManager().updateCurrentViewFromRepository();
 
+        if (!proxy.getViewManager().isCurrentViewMember(primaryId))
+        {
+            return;
+        }
+
         final Output output = new Output(128);
         kryo.writeObject(output, AM_I_OUTDATED_MESSAGE);
         kryo.writeObject(output, localSlave.getGlobalSnapshotId());
@@ -143,6 +148,7 @@ public class BftDetectionSensor extends TimerTask
                 proxy.getViewManager().updateCurrentViewFromRepository();
                 Log.getLogger().warn("Finished updating old view at cluster: " + configLocation);
                 electionTimer.schedule(new AddBftPrimaryHandler(kryo, primaryId, localClusterId, proxy, id, this), 5000);
+                primaryId = 1;
             }
             catch (final InterruptedException e)
             {
