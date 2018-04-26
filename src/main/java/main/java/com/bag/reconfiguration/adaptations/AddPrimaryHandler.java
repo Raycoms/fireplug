@@ -63,7 +63,7 @@ public class AddPrimaryHandler extends TimerTask
     @Override
     public void run()
     {
-        try(ServiceProxy globalProxy = new ServiceProxy(4000 + this.id, GLOBAL_CONFIG_LOCATION))
+        try(ServiceProxy globalProxy = new ServiceProxy(4000 + (this.id * 3 + localClusterId), GLOBAL_CONFIG_LOCATION))
         {
             Log.getLogger().warn("----------------------------------------------------");
             Log.getLogger().warn("Starting new primary election!");
