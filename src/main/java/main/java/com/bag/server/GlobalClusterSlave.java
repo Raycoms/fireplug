@@ -255,7 +255,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty()  && id != 1 && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
         {
             Log.getLogger().info("Distribute commit to slave!");
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
@@ -757,7 +757,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private void handleAmIOutdated(final Output output, final Input input, final Kryo kryo)
     {
         final long incomingSnapshot = kryo.readObject(input, Long.class);
-        final boolean decision = (getGlobalSnapshotId() - incomingSnapshot) > (500 + (getGlobalSnapshotId() / 4));
+        final boolean decision = (getGlobalSnapshotId() - incomingSnapshot) > (100 + (getGlobalSnapshotId() / 4));
         if (decision)
         {
             Log.getLogger().warn("Server is outdated, returning true!!!");
