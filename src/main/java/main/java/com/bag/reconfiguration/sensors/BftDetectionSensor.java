@@ -83,7 +83,7 @@ public class BftDetectionSensor extends TimerTask
         this.id = id;
         this.kryo = kryo;
         this.localClusterId = localClusterId;
-        this.globalProxy = new ServiceProxy(5000 + this.id, GLOBAL_CONFIG_LOCATION);
+        this.globalProxy = new ServiceProxy(5000 + (this.id * 3 + localClusterId), GLOBAL_CONFIG_LOCATION);
         this.localSlave = slave;
     }
 
