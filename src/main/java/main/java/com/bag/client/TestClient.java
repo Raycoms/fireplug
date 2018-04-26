@@ -205,11 +205,11 @@ public class TestClient implements BAGClient, ReplyListener
         this.localClusterId = localClusterId;
         this.localServerProcess = serverId;
         bagReplyListener = new BAGReplyListener(this, readMode);
-        
-        localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
+
+        localProxy = new AsynchServiceProxy(7000 + processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
         if (localClusterId != -1)
         {
-            globalProxy = new AsynchServiceProxy(100 + processId, GLOBAL_CONFIG_LOCATION, comparator, null);
+            globalProxy = new AsynchServiceProxy(7000 + processId, GLOBAL_CONFIG_LOCATION, comparator, null);
         }
         else
         {
@@ -364,7 +364,7 @@ public class TestClient implements BAGClient, ReplyListener
 
                 globalProxy.close();
                 Log.getLogger().warn("Restarting global proxy");
-                globalProxy = new AsynchServiceProxy(100 + processId, GLOBAL_CONFIG_LOCATION, comparator, null);
+                globalProxy = new AsynchServiceProxy(7000 + processId, GLOBAL_CONFIG_LOCATION, comparator, null);
                 Log.getLogger().warn("Finished reloading global proxy");
                 globalProxy.getViewManager().updateCurrentViewFromRepository();
             }
@@ -374,7 +374,7 @@ public class TestClient implements BAGClient, ReplyListener
             localProxy.close();
 
             Log.getLogger().warn("Restarting local proxy");
-            localProxy = new AsynchServiceProxy(processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
+            localProxy = new AsynchServiceProxy(7000 + processId, localClusterId == -1 ? GLOBAL_CONFIG_LOCATION : String.format(LOCAL_CONFIG_LOCATION, localClusterId), comparator, null);
             localProxy.getViewManager().updateCurrentViewFromRepository();
             Log.getLogger().warn("Finished reloading proxies");
         }
