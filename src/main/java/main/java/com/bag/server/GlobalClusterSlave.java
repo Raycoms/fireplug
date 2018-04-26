@@ -709,7 +709,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     pool.release(kryo);
                     return handleRegisteringSlave(input, kryo);
                 case Constants.AM_I_OUTDATED_MESSAGE:
-                    Log.getLogger().warn("Received amIUnordered? message");
+                    Log.getLogger().info("Received amIUnordered? message");
                     pool.release(kryo);
                     handleAmIOutdated(output, input, kryo);
                     break;
@@ -758,7 +758,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
     {
         final long incomingSnapshot = kryo.readObject(input, Long.class);
         final boolean decision = (getGlobalSnapshotId() - incomingSnapshot) > (100 + getGlobalSnapshotId() / 4);
-        Log.getLogger().warn("Outdated: " + decision);
+        if (decision)
+        {
+            Log.getLogger().warn("Server is outdated, returning true!!!");
+        }
         kryo.writeObject(output, decision);
     }
 
