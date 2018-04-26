@@ -120,6 +120,13 @@ public class CrashDetectionSensor extends TimerTask
 
         final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(idToCheck);
         boolean needsReconfiguration = false;
+
+        if (address == null)
+        {
+            idToCheck++;
+            return;
+        }
+
         try (Socket socket = new Socket(address.getHostName(), address.getPort()))
         {
             new DataOutputStream(socket.getOutputStream()).writeInt(id + 1);
