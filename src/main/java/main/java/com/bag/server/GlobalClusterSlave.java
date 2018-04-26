@@ -757,7 +757,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private void handleAmIOutdated(final Output output, final Input input, final Kryo kryo)
     {
         final long incomingSnapshot = kryo.readObject(input, Long.class);
-        final boolean decision = (getGlobalSnapshotId() - incomingSnapshot) > (250 + (getGlobalSnapshotId() / 4));
+        final boolean decision = (getGlobalSnapshotId() - incomingSnapshot) > (500 + (getGlobalSnapshotId() / 4));
         if (decision)
         {
             Log.getLogger().warn("Server is outdated, returning true!!!");
