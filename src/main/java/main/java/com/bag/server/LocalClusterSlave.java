@@ -107,6 +107,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     private final HashMap<Integer, LoadSensor.LoadDesc> performanceMap = new HashMap<>();
 
     /**
+     * If currently a new primary is being elected.
+     */
+    private boolean currentlyElectingNewPrimary = false;
+
+    /**
      * Public constructor used to create a local cluster slave.
      *
      * @param id             its unique id in the local cluster.
@@ -133,7 +138,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         crashProxy = new ServiceProxy(3000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         loadProxy = new ServiceProxy(2000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
-        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId), 10000, 8000);
+        timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId, this), 10000, 8000);
 
         bftProxy = new ServiceProxy(4000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         timer.scheduleAtFixedRate(new BftDetectionSensor(crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId, this), 10000, 9000);
@@ -325,6 +330,12 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         final InetSocketAddress address = proxy.getViewManager().getCurrentView().getAddress(failedReplica);
         boolean needsReconfiguration = false;
+
+        if (address == null)
+        {
+            return true;
+        }
+
         try (Socket socket = new Socket(address.getHostName(), address.getPort()))
         {
             new DataOutputStream(socket.getOutputStream()).writeInt(id + 1);
@@ -789,5 +800,23 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             Log.getLogger().error("Slave update failed, no response, trying again!");
         }
+    }
+
+    /**
+     * Method to check if currently a new primary is being elected.
+     * @return true if so.
+     */
+    public boolean isCurrentlyElectingNewPrimary()
+    {
+        return currentlyElectingNewPrimary;
+    }
+
+    /**
+     * Method to set that a new primary elecetion started.
+     * @param decision if so.
+     */
+    public void setIsCurrentlyElectingNewPrimary(final boolean decision)
+    {
+        this.currentlyElectingNewPrimary = decision;
     }
 }

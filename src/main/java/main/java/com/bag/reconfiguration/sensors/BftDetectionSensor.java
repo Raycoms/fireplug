@@ -66,7 +66,7 @@ public class BftDetectionSensor extends TimerTask
     /**
      * Connection to the local cluster slave which started this task.
      */
-    private final LocalClusterSlave localSlave;
+    public final LocalClusterSlave localSlave;
 
     /**
      * Creates a crash detection sensor.
@@ -93,6 +93,11 @@ public class BftDetectionSensor extends TimerTask
         if (proxy == null)
         {
             Log.getLogger().warn("Proxy became null, not executing analysis!");
+            return;
+        }
+
+        if (localSlave.isCurrentlyElectingNewPrimary())
+        {
             return;
         }
 
@@ -127,6 +132,7 @@ public class BftDetectionSensor extends TimerTask
             Log.getLogger().error("------------------------------------------");
             try
             {
+                localSlave.setIsCurrentlyElectingNewPrimary(true);
                 // Removing the server from the local view (we don't trust it anymore).
                 final ViewManager viewManager = new ViewManager(configLocation);
                 viewManager.removeServer(primaryId);

@@ -21,16 +21,6 @@ import static main.java.com.bag.util.Constants.PRIMARY_ELECTION_MESSAGE;
 public class AddBftPrimaryHandler extends TimerTask
 {
     /**
-     * If the bft election should consider it as a mixed setup.
-     */
-    private boolean mixedSetup = false;
-
-    /**
-     * If mixedSetup is true, this is the setup of the replicas:
-     */
-    private String[] mixedReplicas = new String[]{"Neo4j, OrientDB, Neo4j, OrientDB, Neo4j, OrientDB, Neo4j, OrientDB, Neo4j, OrientDB, Neo4j, OrientDB"};
-
-    /**
      * The kryo object for serialization.
      */
     private final Kryo kryo;
@@ -67,7 +57,7 @@ public class AddBftPrimaryHandler extends TimerTask
      * @param localClusterId the local cluster id.
      * @param proxy the proxy.
      * @param id the id of this server.
-     * @param bftDetectionSensor
+     * @param bftDetectionSensor the detection sensor.
      */
     public AddBftPrimaryHandler(
             final Kryo kryo,
@@ -97,8 +87,6 @@ public class AddBftPrimaryHandler extends TimerTask
             final Output output = new Output(128);
             kryo.writeObject(output, BFT_PRIMARY_ELECTION_MESSAGE);
             kryo.writeObject(output, idToCheck);
-            kryo.writeObject(output, mixedSetup);
-            kryo.writeObject(output, mixedReplicas[idToCheck]);
 
             final byte[] returnBytes = output.getBuffer();
             output.close();
@@ -152,6 +140,7 @@ public class AddBftPrimaryHandler extends TimerTask
                 Log.getLogger().warn("Finished removing old primary we don't trust anymore!");
                 proxy.getViewManager().updateCurrentViewFromRepository();
 
+                sensor.localSlave.setIsCurrentlyElectingNewPrimary(false);
             }
             globalProxy.close();
         }

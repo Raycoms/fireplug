@@ -103,7 +103,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         crashProxy = new ServiceProxy(1000 + this.idClient, GLOBAL_CONFIG_LOCATION);
         timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, crashProxy
-                , GLOBAL_CONFIG_LOCATION, id, pool.borrow(), -1), 10000, 6000);
+                , GLOBAL_CONFIG_LOCATION, id, pool.borrow(), -1, null), 10000, 6000);
     }
 
     /**

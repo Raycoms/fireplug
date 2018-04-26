@@ -5,7 +5,9 @@ import bftsmart.tom.ServiceProxy;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import main.java.com.bag.server.LocalClusterSlave;
 import main.java.com.bag.util.Log;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.util.TimerTask;
@@ -44,20 +46,28 @@ public class AddPrimaryHandler extends TimerTask
     private final int id;
 
     /**
+     * The local cluster slave.
+     */
+    @Nullable
+    private final LocalClusterSlave slave;
+
+    /**
      * Create a new primary election handler.
      * @param kryo the kryo object.
      * @param idToCheck the id to replaced.
      * @param localClusterId the local cluster id.
      * @param proxy the proxy.
      * @param id the id of this server.
+     * @param slave the local cluster slave.
      */
-    public AddPrimaryHandler(final Kryo kryo, final int idToCheck, final int localClusterId, final ServiceProxy proxy, final int id)
+    public AddPrimaryHandler(final Kryo kryo, final int idToCheck, final int localClusterId, final ServiceProxy proxy, final int id, @Nullable final LocalClusterSlave slave)
     {
         this.kryo = kryo;
         this.idToCheck = idToCheck;
         this.localClusterId = localClusterId;
         this.proxy = proxy;
         this.id = id;
+        this.slave = slave;
     }
 
     @Override
@@ -123,6 +133,10 @@ public class AddPrimaryHandler extends TimerTask
                 Thread.sleep(2000L);
                 newGlobalViewManager.close();
                 Log.getLogger().warn("Finished adding new cluster member " + newId + " to global cluster!");
+            }
+            if (slave != null)
+            {
+                slave.setIsCurrentlyElectingNewPrimary(false);
             }
             globalProxy.close();
         }

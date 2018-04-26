@@ -4,7 +4,9 @@ import bftsmart.reconfiguration.ViewManager;
 import bftsmart.tom.ServiceProxy;
 import com.esotericsoftware.kryo.Kryo;
 import main.java.com.bag.reconfiguration.adaptations.AddPrimaryHandler;
+import main.java.com.bag.server.LocalClusterSlave;
 import main.java.com.bag.util.Log;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.DataOutputStream;
 import java.net.ConnectException;
@@ -55,7 +57,13 @@ public class CrashDetectionSensor extends TimerTask
     /**
      * Timer to schedule the election.
      */
-    final Timer electionTimer = new Timer();
+    private final Timer electionTimer = new Timer();
+
+    /**
+     * The local cluster slave reference.
+     */
+    @Nullable
+    private final LocalClusterSlave slave;
 
     /**
      * Creates a crash detection sensor.
@@ -66,7 +74,7 @@ public class CrashDetectionSensor extends TimerTask
      * @param id             it's id.
      * @param kryo           the kryo object.
      */
-    public CrashDetectionSensor(final int idToCheck, final ServiceProxy proxy, final String configLocation, final int id, final Kryo kryo, final int localClusterId)
+    public CrashDetectionSensor(final int idToCheck, final ServiceProxy proxy, final String configLocation, final int id, final Kryo kryo, final int localClusterId, @Nullable final LocalClusterSlave slave)
     {
         this.idToCheck = idToCheck;
         this.proxy = proxy;
@@ -74,6 +82,7 @@ public class CrashDetectionSensor extends TimerTask
         this.id = id;
         this.kryo = kryo;
         this.localClusterId = localClusterId;
+        this.slave = slave;
     }
 
     @Override
@@ -82,6 +91,11 @@ public class CrashDetectionSensor extends TimerTask
         if (proxy == null || id == idToCheck)
         {
             Log.getLogger().warn("Proxy became null, not executing analysis!");
+            return;
+        }
+
+        if (slave != null && slave.isCurrentlyElectingNewPrimary())
+        {
             return;
         }
 
@@ -143,7 +157,11 @@ public class CrashDetectionSensor extends TimerTask
                 Log.getLogger().warn("Finished updating old view at cluster: " + cluster);
                 if (cluster.equalsIgnoreCase(LOCAL_CLUSTER))
                 {
-                    electionTimer.schedule(new AddPrimaryHandler(kryo, idToCheck, localClusterId, proxy, id), 1000);
+                    if (slave != null)
+                    {
+                        slave.setIsCurrentlyElectingNewPrimary(true);
+                    }
+                    electionTimer.schedule(new AddPrimaryHandler(kryo, idToCheck, localClusterId, proxy, id, slave), 1000);
                 }
                 idToCheck += 1;
             }
