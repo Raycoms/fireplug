@@ -89,7 +89,7 @@ public class ServerInstrumentation
                     }
                 }
             }
-        }, 20000, 60000);
+        }, 20000, 1000);
     }
 
     public void updateCounts(final int writes, final int reads, final int commits, final int aborts)

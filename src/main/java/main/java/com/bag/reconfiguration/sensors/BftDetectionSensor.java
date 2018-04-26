@@ -121,9 +121,13 @@ public class BftDetectionSensor extends TimerTask
 
         if (needsReconfiguration)
         {
+            Log.getLogger().error("------------------------------------------");
+            Log.getLogger().error("Detected byzantine primary!!!");
             Log.getLogger().warn("Starting reconfiguration at cluster: " + configLocation + " with config: "  + configLocation);
+            Log.getLogger().error("------------------------------------------");
             try
             {
+                // Removing the server from the local view (we don't trust it anymore).
                 final ViewManager viewManager = new ViewManager(configLocation);
                 viewManager.removeServer(primaryId);
                 viewManager.executeUpdates();

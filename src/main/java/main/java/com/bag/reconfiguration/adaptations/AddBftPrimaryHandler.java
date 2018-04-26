@@ -142,8 +142,16 @@ public class AddBftPrimaryHandler extends TimerTask
                 newGlobalViewManager.addServer(newId, newPrimaryAddress.getAddress().getHostAddress(), newPrimaryAddress.getPort());
                 newGlobalViewManager.executeUpdates();
                 Thread.sleep(2000L);
-                newGlobalViewManager.close();
                 Log.getLogger().warn("Finished adding new cluster member " + newId + " to global cluster!");
+
+                Log.getLogger().warn("Removing old primary we don't trust anymore!");
+                newGlobalViewManager.removeServer(idToCheck * 3 + localClusterId);
+                newGlobalViewManager.executeUpdates();
+                Thread.sleep(2000L);
+                newGlobalViewManager.close();
+                Log.getLogger().warn("Finished removing old primary we don't trust anymore!");
+                proxy.getViewManager().updateCurrentViewFromRepository();
+
             }
             globalProxy.close();
         }

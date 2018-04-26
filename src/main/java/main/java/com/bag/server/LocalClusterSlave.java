@@ -10,6 +10,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
+import main.java.com.bag.reconfiguration.sensors.BftDetectionSensor;
 import main.java.com.bag.reconfiguration.sensors.CrashDetectionSensor;
 import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.util.Constants;
@@ -81,6 +82,11 @@ public class LocalClusterSlave extends AbstractRecoverable
     private ServiceProxy loadProxy;
 
     /**
+     * The serviceProxy to establish communication with the other replicas.
+     */
+    private ServiceProxy bftProxy;
+
+    /**
      * Queue to catch messages out of order.
      */
     private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
@@ -128,7 +134,12 @@ public class LocalClusterSlave extends AbstractRecoverable
         crashProxy = new ServiceProxy(3000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         loadProxy = new ServiceProxy(2000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId), 10000, 8000);
+
+        bftProxy = new ServiceProxy(3000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
+        timer.scheduleAtFixedRate(new BftDetectionSensor(crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId, this), 10000, 9000);
+
         timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), loadProxy, id, wrapper.getDataBaseAccess().getName()), 10000, 10000);
+
     }
 
     /**
@@ -750,6 +761,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             crashProxy.close();
             crashProxy = null;
+        }
+        if (bftProxy != null)
+        {
+            bftProxy.close();
+            bftProxy = null;
         }
         super.terminate();
     }
