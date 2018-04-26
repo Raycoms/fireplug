@@ -94,7 +94,7 @@ public class ServerWrapper
         databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion, null);
         databaseAccess.start();
 
-        if (this.globalServerId == 1)
+        /*if (this.globalServerId == 1)
         {
             timer.schedule(new TimerTask() {
                 @Override
@@ -103,7 +103,7 @@ public class ServerWrapper
                     terminate();
                 }
             }, 60000);
-        }
+        }*/
 
         if(isPrimary)
         {

@@ -913,7 +913,7 @@ public class TestClient implements BAGClient, ReplyListener
     {
         return !readsSetNode.isEmpty() && !readsSetRelationship.isEmpty();
     }
-    
+
     @Override
     public void reset()
     {
