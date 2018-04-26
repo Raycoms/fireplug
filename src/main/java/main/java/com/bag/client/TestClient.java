@@ -222,13 +222,13 @@ public class TestClient implements BAGClient, ReplyListener
         readMode = ReadModes.values()[readModeId];
         bagReplyListener = new BAGReplyListener(this, readMode);
         Log.getLogger().error("Starting client " + processId + " with read-mode: " + readMode.name());
-        timer.scheduleAtFixedRate(new TimerTask() {
+        /*timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run()
             {
                 updateConnection();
             }
-        }, 10000, 5000);
+        }, 10000, 5000);*/
     }
 
     /**
