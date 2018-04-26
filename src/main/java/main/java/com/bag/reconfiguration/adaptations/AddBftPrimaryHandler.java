@@ -92,8 +92,7 @@ public class AddBftPrimaryHandler extends TimerTask
             output.close();
 
             final byte[] response = proxy.invokeOrdered(returnBytes);
-            proxy.close();
-            proxy = null;
+
 
 
             int newId = -1;
@@ -142,6 +141,8 @@ public class AddBftPrimaryHandler extends TimerTask
 
                 sensor.localSlave.setIsCurrentlyElectingNewPrimary(false);
             }
+            proxy.close();
+            proxy = null;
             globalProxy.close();
         }
         catch(final Exception ex)
