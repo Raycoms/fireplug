@@ -92,9 +92,6 @@ public class AddBftPrimaryHandler extends TimerTask
             output.close();
 
             final byte[] response = proxy.invokeOrdered(returnBytes);
-
-
-
             int newId = -1;
             if (response == null)
             {
