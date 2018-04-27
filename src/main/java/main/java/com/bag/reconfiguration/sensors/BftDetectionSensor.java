@@ -26,7 +26,7 @@ public class BftDetectionSensor extends TimerTask
     /**
      * Proxy to send messages and get view.
      */
-    private final ServiceProxy proxy;
+    private ServiceProxy proxy;
 
     /**
      * The config location on disk.
@@ -147,7 +147,7 @@ public class BftDetectionSensor extends TimerTask
                 Log.getLogger().warn("Finished reconfiguration at cluster: " + configLocation + " with config: "  + configLocation);
                 proxy.getViewManager().updateCurrentViewFromRepository();
                 Log.getLogger().warn("Finished updating old view at cluster: " + configLocation);
-                electionTimer.schedule(new AddBftPrimaryHandler(kryo, primaryId, localClusterId, proxy, id, this), 5000);
+                electionTimer.schedule(new AddBftPrimaryHandler(kryo, primaryId, localClusterId, proxy, id, this), 1000);
                 primaryId = 1;
             }
             catch (final InterruptedException e)
@@ -159,6 +159,7 @@ public class BftDetectionSensor extends TimerTask
                 Log.getLogger().warn("NPE - restarting!", ex);
                 run();
             }
+            proxy = null;
         }
     }
 
