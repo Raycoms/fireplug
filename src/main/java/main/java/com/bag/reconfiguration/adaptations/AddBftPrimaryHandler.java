@@ -131,7 +131,7 @@ public class AddBftPrimaryHandler extends TimerTask
                 Thread.sleep(2000L);
                 Log.getLogger().warn("Finished adding new cluster member " + newId + " to global cluster!");
 
-                Log.getLogger().warn("Removing old primary we don't trust anymore!");
+                Log.getLogger().warn("Removing old primary we don't trust anymore! " + idToCheck * 3 + localClusterId);
                 newGlobalViewManager.removeServer(idToCheck * 3 + localClusterId);
                 newGlobalViewManager.executeUpdates();
                 Thread.sleep(2000L);
