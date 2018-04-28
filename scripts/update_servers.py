@@ -112,7 +112,7 @@ def update_latency_lines(lines, string):
 # stop latencies
 for i in range(0, total_servers):
 	cluster = i % total_clusters
-	host = 'nova-%d'%servers[i]
+	host = partial_ip+'.%d'%servers[i]
 	command = '~/addlatency%d.sh stop'%cluster
 	subprocess.Popen(['ssh', host, command], shell=False)
 
@@ -145,7 +145,7 @@ if latency == 1:
 	# restart latencies
 	for i in range(0, total_servers):
 		cluster = i % total_clusters
-		host = 'nova-%d'%servers[i]
+		host = partial_ip+'.%d'%servers[i]
 		command = '~/addlatency%d.sh start'%cluster
 		subprocess.Popen(['ssh', host, command], shell=False)
 
