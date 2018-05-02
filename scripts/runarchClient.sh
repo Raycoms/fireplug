@@ -7,6 +7,7 @@ fi
 NAME=$1
 NUMCLI=$2
 PERCWRITES=$3
+writemode=$4
 i=-1
 x=0
 
@@ -20,7 +21,7 @@ server=(0 1 0 1 2 3 2 3)
 j=0
 for HOST in ${BAG_HOSTS} ; do
    echo "Running $NUMCLI clients on $ID (pid: $j, cluster: $i) with $PERCWRITES writes: ~/runclientA.sh $j $i $NUMCLI $PERCWRITES -$x >> clientOutput$j.txt";
-   ssh $HOST "~/runclientA.sh $j ${id[$j]} $NUMCLI $PERCWRITES -${server[$j]} 2 >> clientOutput$j.txt" &
+   ssh $HOST "~/runclientA.sh $j ${id[$j]} $NUMCLI $PERCWRITES -${server[$j]} writemode >> clientOutput$j.txt" &
    ((j++))
 done
 

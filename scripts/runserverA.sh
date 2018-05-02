@@ -8,8 +8,9 @@ ID=$1
 LEADER=$2
 LOCAL=$3
 DB=$4
-mode=$5
-mode2=$6
+flag=$5
+mode=$6
+mode2=$7
 if [ "$DB" = "mixed" ]; then
   if [ "$ID" = "0" ]; then
     DB="neo4j"
@@ -32,10 +33,10 @@ rm local1/config/currentView
 rm local2/config/currentView
 rm local3/config/currentView
 
-if [ "$LEADER" = "0" ]; then
+if [ "$flag" = "1" ]; then
 echo "LEADER Starting with: $ID $DB $LOCAL $LEADER"
-java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.server.ServerWrapper $ID $DB $LEADER $LOCAL true false $mode $mode2 > ~/output$ID.txt 2>&1
+java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.server.ServerWrapper $ID $DB $LOCAL $LEADER true false $mode $mode2 > ~/output$ID.txt 2>&1
 else
 echo "Starting with: $ID $DB $LOCAL $LEADER"
-java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.server.ServerWrapper $ID $DB $LEADER $LOCAL false false $mode $mode2 > ~/output$ID.txt 2>&1
+java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.server.ServerWrapper $ID $DB $LOCAL $LEADER false false $mode $mode2 > ~/output$ID.txt 2>&1
 fi

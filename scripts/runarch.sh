@@ -34,7 +34,7 @@ i=0
 flag=1
 for HOST in ${BAG_HOSTS} ; do
   DB=${DBS[i]}
-  echo "Running global server $i on $HOST : ~/runserverA.sh $i ${localClusterId[$i]} ${idInLocalCluster[$i]} $DB $flag ";
+  echo "Running global server $i on $HOST : ~/runserverA.sh $i ${localClusterId[$i]} ${idInLocalCluster[$i]} $DB $flag with $multi $mode";
   ssh $HOST "~/runserverA.sh $i ${localClusterId[$i]} ${idInLocalCluster[$i]} $DB $flag $multi $mode" &
   if [ "$i" = "3" ]; then
     ((flag--))
