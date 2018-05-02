@@ -114,7 +114,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Thread pool for message sending.
      */
-    protected final ExecutorService service = Executors.newFixedThreadPool(10);
+    protected final ExecutorService service = Executors.newSingleThreadExecutor();
 
     /**
      * Thread pool for message sending.
