@@ -255,22 +255,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty()  && id != 1 && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty()  && (id != 1 || getGlobalSnapshotId() < 30) && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
         {
             Log.getLogger().info("Distribute commit to slave!");
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
         }
-
-        /*if (messageContext.getConsensusId() < wrapper.getLastTransactionId())
-        {
-            kryo.writeObject(output, Constants.COMMIT);
-            kryo.writeObject(output, getGlobalSnapshotId());
-
-            final byte[] returnBytes = output.getBuffer();
-            output.close();
-            Log.getLogger().error("Old transaction, pulling it: " + getGlobalSnapshotId() + " compared to: " + messageContext.getConsensusId());
-            return returnBytes;
-        }*/
 
         Log.getLogger().info("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
 
@@ -318,8 +307,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             updateCounts(0, 0, 1, 0);
         }
-        //todo the whole system doesn't show any progress anymore!
-        //todo, let's try to reinstantiated the client proxies to test if that solves the issue!
+
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
 
