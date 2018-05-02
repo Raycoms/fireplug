@@ -11,10 +11,10 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.operations.IOperation;
 import main.java.com.bag.reconfiguration.sensors.BftDetectionSensor;
-import main.java.com.bag.reconfiguration.sensors.CrashDetectionSensor;
 import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
+import main.java.com.bag.util.storage.LocalSlaveUpdateStorage;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import main.java.com.bag.util.storage.SignatureStorage;
@@ -89,7 +89,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Queue to catch messages out of order.
      */
-    private final Map<Long, List<IOperation>> buffer = new TreeMap<>();
+    private final Map<Long, LocalSlaveUpdateStorage> buffer = new TreeMap<>();
 
     /**
      * Timer object to execute functions in intervals
@@ -688,38 +688,39 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
 
+        buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, snapShotId));
         if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
         {
-            if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
-                    super.getLatestWritesSet(),
-                    new ArrayList<>(localWriteSet),
-                    readSetNode,
-                    readsSetRelationship,
-                    snapShotId,
-                    wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
-            {
-                Log.getLogger()
-                        .info("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                                + localWriteSet.size()
-                                + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-                kryo.writeObject(output, true);
-                updateCounts(0, 0, 0, 1);
-                return output;
-            }
-            final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
-            executeCommit(localWriteSet, rsaLoader, id, snapShotId, consensusId);
-
             long requiredKey = lastKey + 1;
             while (buffer.containsKey(requiredKey))
             {
-                executeCommit(buffer.remove(requiredKey), rsaLoader, id, snapShotId, consensusId);
+                final LocalSlaveUpdateStorage updateStorage = buffer.remove(requiredKey);
+                if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                        super.getLatestWritesSet(),
+                        new ArrayList<>(updateStorage.getLocalWriteSet()),
+                        updateStorage.getReadSetNode(),
+                        updateStorage.getReadsSetRelationship(),
+                        updateStorage.getSnapShotId(),
+                        wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+                {
+                    Log.getLogger()
+                            .info("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                                    + localWriteSet.size()
+                                    + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+                    kryo.writeObject(output, true);
+                    updateCounts(0, 0, 0, 1);
+                    return output;
+                }
+                final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
+                executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
+                buffer.remove(requiredKey);
                 requiredKey++;
             }
 
             kryo.writeObject(output, true);
             return output;
         }
-        buffer.put(snapShotId, localWriteSet);
+
         Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
         if(buffer.size() % 200 == 0)
         {
