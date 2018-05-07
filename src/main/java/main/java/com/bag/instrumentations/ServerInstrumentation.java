@@ -36,6 +36,16 @@ public class ServerInstrumentation
     private AtomicInteger writesPerformed = new AtomicInteger(0);
 
     /**
+     * Reads performed during the last measurement
+     */
+    private AtomicInteger averageCommitTime = new AtomicInteger(0);
+
+    /**
+     * Writes performed during the last measurement
+     */
+    private AtomicInteger averageValidationTime = new AtomicInteger(0);
+
+    /**
      * Lock used to synchronize writes to the results file.
      */
     private final Object resultsFileLock = new Object();
@@ -68,11 +78,14 @@ public class ServerInstrumentation
                          final PrintWriter out = new PrintWriter(bw))
                     {
                         //out.print(elapsed + ";");
-                        out.print(abortedTransactions.get() + ";");
+                        //out.print(abortedTransactions.get() + ";");
                         //out.print(committedTransactions.get() + ";");
                         //out.print(readsPerformed.get() + ";");
-                        out.print(writesPerformed.get() + ";");
-                        out.println(readsPerformed.get() + writesPerformed.get());
+                        //out.print(writesPerformed.get() + ";");
+                        out.println(readsPerformed.get() + writesPerformed.get() + ",");
+                        out.println(averageCommitTime.get() + "/" + averageValidationTime.get());
+
+
                         //out.println();
 
                         System.out.println(String.format("Elapsed: (%d seconds)\nAborted: %d\nCommited: %d\nReads: %d\nWrites: %d\nThroughput: %d\n\n", minutesElapsed, abortedTransactions.get(), committedTransactions.get(), readsPerformed.get(),
@@ -92,6 +105,45 @@ public class ServerInstrumentation
         }, 20000, 10000);
     }
 
+    /**
+     * Sets the commit time, average.
+     * @param time the new time.
+     */
+    public void setCommitTime(final int time)
+    {
+        if (averageCommitTime.get() == 0)
+        {
+            averageCommitTime.set(time);
+        }
+        else
+        {
+            averageCommitTime.set((averageCommitTime.get() + time) / 2);
+        }
+    }
+
+    /**
+     * Sets the validation time, average.
+     * @param time the new time.
+     */
+    public void setValidationTime(final int time)
+    {
+        if (averageValidationTime.get() == 0)
+        {
+            averageValidationTime.set(time);
+        }
+        else
+        {
+            averageValidationTime.set((averageValidationTime.get() + time) / 2);
+        }
+    }
+
+    /**
+     * Updates the counts.
+     * @param writes the write count to update.
+     * @param reads the read count to update.
+     * @param commits the commit count to update.
+     * @param aborts the abort count to update.
+     */
     public void updateCounts(final int writes, final int reads, final int commits, final int aborts)
     {
         if (writes > 0)

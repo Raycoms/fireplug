@@ -261,7 +261,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         Log.getLogger().info("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
-
+        long nanos = System.nanoTime();
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
                 new ArrayList<>(localWriteSet),
@@ -270,7 +270,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 timeStamp,
                 wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
         {
+            final double dif = (System.nanoTime() - nanos) / Constants.NANO_TIME_DIVIDER;
             updateCounts(0, 0, 0, 1);
+            getInstrumentation().setValidationTime((int) dif);
 
             Log.getLogger()
                     .info("Found conflict " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
@@ -289,12 +291,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
             output.close();
             return returnBytes;
         }
+        double dif = (System.nanoTime() - nanos) / Constants.NANO_TIME_DIVIDER;
+        getInstrumentation().setValidationTime((int) dif);
 
         if (!localWriteSet.isEmpty())
         {
+            nanos = System.nanoTime();
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
             Log.getLogger().info("Comitting: " + "signatures" + " " + "commit" + " " + getGlobalSnapshotId() + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
+            dif = (System.nanoTime() - nanos) / Constants.NANO_TIME_DIVIDER;
+            getInstrumentation().setCommitTime((int) dif);
 
             if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
