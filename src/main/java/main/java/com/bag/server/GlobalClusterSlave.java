@@ -257,11 +257,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         //  && (id != 1 || getGlobalSnapshotId() < 30) add this to add a byzantine failure.
         if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
         {
-            Log.getLogger().warn("Distribute commit to slave!");
+            Log.getLogger().info("Distribute commit to slave!");
             distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
         }
 
-        Log.getLogger().warn("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
+        Log.getLogger().info("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
         long nanos = System.nanoTime();
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                 super.getLatestWritesSet(),
@@ -274,11 +274,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final double dif = (System.nanoTime() - nanos);
             updateCounts(0, 0, 0, 1);
             getInstrumentation().setValidationTime((int) dif);
-
-            if (!localWriteSet.isEmpty())
-            {
-                Log.getLogger().warn("Aborting write!");
-            }
 
             Log.getLogger()
                     .info("Found conflict " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
