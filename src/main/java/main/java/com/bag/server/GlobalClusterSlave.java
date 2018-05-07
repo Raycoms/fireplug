@@ -270,7 +270,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 timeStamp,
                 wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
         {
-            final double dif = (System.nanoTime() - nanos) / Constants.NANO_TIME_DIVIDER;
+            final double dif = (System.nanoTime() - nanos) / 1000000.0;
             updateCounts(0, 0, 0, 1);
             getInstrumentation().setValidationTime((int) dif);
 
@@ -291,7 +291,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             output.close();
             return returnBytes;
         }
-        double dif = (System.nanoTime() - nanos) / Constants.NANO_TIME_DIVIDER;
+        double dif = (System.nanoTime() - nanos) / 1000000.0;
         getInstrumentation().setValidationTime((int) dif);
 
         if (!localWriteSet.isEmpty())
@@ -300,7 +300,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
             Log.getLogger().info("Comitting: " + "signatures" + " " + "commit" + " " + getGlobalSnapshotId() + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
-            dif = (System.nanoTime() - nanos) / Constants.NANO_TIME_DIVIDER;
+            dif = (System.nanoTime() - nanos) / 1000000.0;
             getInstrumentation().setCommitTime((int) dif);
 
             if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
