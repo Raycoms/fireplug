@@ -95,6 +95,8 @@ public class ServerInstrumentation
                         committedTransactions = new AtomicInteger(0);
                         readsPerformed = new AtomicInteger(0);
                         writesPerformed = new AtomicInteger(0);
+                        averageCommitTime = new AtomicInteger(0);
+                        averageValidationTime = new AtomicInteger(0);
                     }
                     catch (final IOException e)
                     {
