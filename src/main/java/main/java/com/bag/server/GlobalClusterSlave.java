@@ -275,6 +275,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateCounts(0, 0, 0, 1);
             getInstrumentation().setValidationTime((int) dif);
 
+            if (!localWriteSet.isEmpty())
+            {
+                Log.getLogger().warn("Aborting write!");
+            }
+
             Log.getLogger()
                     .info("Found conflict " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                             + Arrays.toString(localWriteSet.toArray())
