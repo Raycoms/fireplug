@@ -82,8 +82,8 @@ public class ServerInstrumentation
                         //out.print(committedTransactions.get() + ";");
                         //out.print(readsPerformed.get() + ";");
                         //out.print(writesPerformed.get() + ";");
-                        out.println(readsPerformed.get() + writesPerformed.get() + ",");
-                        out.println(averageCommitTime.get() + "/" + averageValidationTime.get());
+                        out.println(readsPerformed.get() + writesPerformed.get());
+                        //out.println(averageCommitTime.get() + "/" + averageValidationTime.get());
 
 
                         //out.println();
