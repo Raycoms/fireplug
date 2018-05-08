@@ -86,6 +86,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<BAGMessage>
     @Override
     public void channelRead0(ChannelHandlerContext ctx, BAGMessage msg)
     {
+        Log.getLogger().warn("Received response");
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
         final Input input = new Input(msg.buffer);
@@ -93,14 +94,16 @@ public class ClientHandler extends SimpleChannelInboundHandler<BAGMessage>
         input.close();
         pool.release(kryo);
 
-        for (Object item : returnValue) {
-            if (item instanceof DeleteOperation) {
-                Log.getLogger().info("Finished Reading");
+        for (Object item : returnValue)
+        {
+            if (item instanceof DeleteOperation)
+            {
+                Log.getLogger().warn("Finished handler adding finished to queue.");
                 readQueue.add(TestClient.FINISHED_READING);
             }
-            else {
-                if (Log.getLogger().getLevel() == Level.INFO)
-                    Log.getLogger().info("Received: " + item.toString());
+            else
+            {
+                Log.getLogger().info("Received: " + item.toString());
                 readQueue.add(item);
             }
         }
