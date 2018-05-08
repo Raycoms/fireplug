@@ -140,16 +140,19 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         Log.getLogger().info("Received message!");
         final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
 
+
         for (final Object obj : returnValue)
         {
             if (obj instanceof IOperation)
             {
+                Log.getLogger().warn("Starting write!");
                 ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, 0);
                 instrumentation.updateCounts(1, 0, 0, 0);
                 writesPerformed += 1;
             }
             else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
             {
+                Log.getLogger().warn("Starting read!");
                 try
                 {
                     final List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT);
