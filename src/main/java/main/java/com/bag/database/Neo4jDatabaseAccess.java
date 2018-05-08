@@ -9,6 +9,7 @@ import main.java.com.bag.database.interfaces.IDatabaseAccess;
 import main.java.com.bag.util.*;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
+import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.neo4j.cluster.ClusterSettings;
@@ -115,9 +116,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         else
         {
+            Log.getLogger().setLevel(Level.ALL);
             Log.getLogger().error("Turning on Neo4j HA with path: " + dbPath.toString());
             final GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath);
-            final String[] addresses = haAddresses.split(" ");
+            final String[] addresses = haAddresses.split("");
             Log.getLogger().error("Addresses: " + Arrays.toString(addresses));
             final  List<String> initialHosts = new ArrayList<>();
             final List<String> servers = new ArrayList<>();
