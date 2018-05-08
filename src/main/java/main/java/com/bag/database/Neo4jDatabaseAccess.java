@@ -123,13 +123,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final List<String> servers = new ArrayList<>();
             for (int i = 0; i < addresses.length; i++)
             {
-                initialHosts.add(String.format("%s:500%d", addresses[i], (i + 1)));
-                servers.add(String.format("%s:600%d", addresses[i], (i + 1)));
+                initialHosts.add(String.format("%s:500%d", addresses[i], (i)));
+                servers.add(String.format("%s:600%d", addresses[i], (i)));
             }
-            builder.setConfig(ClusterSettings.server_id, Integer.toString(id + 1));
+            builder.setConfig(ClusterSettings.server_id, Integer.toString(id));
             builder.setConfig(ClusterSettings.initial_hosts, String.join(",", initialHosts));
             builder.setConfig(HaSettings.ha_server, servers.get(0));
-            builder.setConfig(ClusterSettings.cluster_server, initialHosts.get(id));
+            builder.setConfig(ClusterSettings.cluster_server, initialHosts.get(id-1));
             graphDb = builder.newGraphDatabase();
             Log.getLogger().error("HA neo4j database started " + id);
 
