@@ -166,6 +166,10 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     instrumentation.updateCounts(0, 0, 0, 1);
                 }
             }
+            else
+            {
+                Log.getLogger().warn("Got commit!");
+            }
         }
 
         Log.getLogger().warn("Finished server execution, preparing response!");

@@ -132,10 +132,12 @@ public class DirectAccessClient implements BAGClient
         {
             operation = new UpdateOperation((Serializable) identifier, (Serializable) value);
         }
+        final List<IOperation> toSend = new ArrayList<>();
+        toSend.add(operation);
 
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
-        kryo.writeObject(output, operation);
+        kryo.writeObject(output, toSend);
 
         handler.sendMessage(output.getBuffer());
 
@@ -214,7 +216,7 @@ public class DirectAccessClient implements BAGClient
         Log.getLogger().warn("Sending commit!");
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
-        kryo.writeObject(output, COMMIT);
+        kryo.writeObject(output, new ArrayList<>());
 
         handler.sendMessage(output.getBuffer());
         output.close();
