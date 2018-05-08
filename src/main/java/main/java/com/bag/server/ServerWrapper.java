@@ -91,7 +91,7 @@ public class ServerWrapper
         this.globalServerId = globalServerId;
         this.localClusterSlaveId = localClusterSlaveId;
         lastTransactionId = 0;
-        databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion, null);
+        databaseAccess = DatabaseLoader.instantiateDBAccess(instance, globalServerId, multiVersion, null, null);
         databaseAccess.start();
 
         /*if (this.globalServerId == 1)

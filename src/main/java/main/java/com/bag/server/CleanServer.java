@@ -202,7 +202,8 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         final String tempInstance = args[2];
         final ServerInstrumentation instrumentation = new ServerInstrumentation(id);
 
-        final IDatabaseAccess access = DatabaseLoader.instantiateDBAccess(tempInstance.toLowerCase(), id, false, null);
+
+        final IDatabaseAccess access = DatabaseLoader.instantiateDBAccess(tempInstance.toLowerCase(), id, false, null, args[3]);
         if (args.length >= 4)
         {
             final boolean useLogging = Boolean.parseBoolean(args[3]);

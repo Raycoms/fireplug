@@ -144,15 +144,16 @@ public class DatabaseLoader
      * @param globalServerId the global server id (used to find the folder)
      * @param multiVersion if multi-version mode.
      * @param pool the kryo factory.
+     * @param haAddresses the ha addresses.
      * @return the access object.
      */
     @NotNull
-    public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId, final boolean multiVersion, final @Nullable KryoFactory pool)
+    public static IDatabaseAccess instantiateDBAccess(@NotNull final String instance, final int globalServerId, final boolean multiVersion, final @Nullable KryoFactory pool, @Nullable final String haAddresses)
     {
         switch (instance.toLowerCase())
         {
             case Constants.NEO4J:
-                return new Neo4jDatabaseAccess(globalServerId, null, multiVersion, pool);
+                return new Neo4jDatabaseAccess(globalServerId, haAddresses, multiVersion, pool);
             case Constants.TITAN:
                 return new TitanDatabaseAccess(globalServerId);
             case Constants.SPARKSEE:
@@ -181,7 +182,7 @@ public class DatabaseLoader
 
         Log.getLogger().setLevel(Level.WARN);
 
-        final IDatabaseAccess access = instantiateDBAccess(databaseId, 0, false, null);
+        final IDatabaseAccess access = instantiateDBAccess(databaseId, 0, false, null, null);
         System.out.printf("Starting %s database%n", databaseId);
         access.start();
         System.out.printf("Loading...");
