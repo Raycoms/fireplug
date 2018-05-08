@@ -104,6 +104,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
         if (haAddresses == null)
         {
+            Log.getLogger().warn("Starting Neo4j not HA.");
             graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath).newGraphDatabase();
             registerShutdownHook(graphDb);
             try (Transaction tx = graphDb.beginTx())
@@ -114,10 +115,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         else
         {
-            Log.getLogger().warn("Turning on Neo4j HA with path: " + dbPath.toString());
+            Log.getLogger().error("Turning on Neo4j HA with path: " + dbPath.toString());
             final GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath);
             final String[] addresses = haAddresses.split(";");
-            Log.getLogger().warn("Addresses: " + Arrays.toString(addresses));
+            Log.getLogger().error("Addresses: " + Arrays.toString(addresses));
             final  List<String> initialHosts = new ArrayList<>();
             final List<String> servers = new ArrayList<>();
             for (int i = 0; i < addresses.length; i++)
