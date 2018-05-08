@@ -117,7 +117,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         {
             Log.getLogger().error("Turning on Neo4j HA with path: " + dbPath.toString());
             final GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath);
-            final String[] addresses = haAddresses.split(";");
+            final String[] addresses = haAddresses.split(" ");
             Log.getLogger().error("Addresses: " + Arrays.toString(addresses));
             final  List<String> initialHosts = new ArrayList<>();
             final List<String> servers = new ArrayList<>();
