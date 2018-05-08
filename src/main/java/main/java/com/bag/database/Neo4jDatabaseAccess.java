@@ -128,8 +128,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             final List<String> servers = new ArrayList<>();
             for (int i = 0; i < addresses.length; i++)
             {
-                initialHosts.add(String.format("%s:500%d", addresses[i], (i)));
-                servers.add(String.format("%s:600%d", addresses[i], (i)));
+                initialHosts.add(String.format("%s:500%d", addresses[i], (i+1)));
+                servers.add(String.format("%s:600%d", addresses[i], (i+1)));
             }
             Log.getLogger().error("initialHosts: " + Arrays.toString(initialHosts.toArray()));
             Log.getLogger().error("servers: " + Arrays.toString(servers.toArray()));
