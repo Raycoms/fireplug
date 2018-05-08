@@ -131,6 +131,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                 initialHosts.add(String.format("%s:500%d", addresses[i], (i)));
                 servers.add(String.format("%s:600%d", addresses[i], (i)));
             }
+            Log.getLogger().error("initialHosts: " + Arrays.toString(initialHosts.toArray()));
+            Log.getLogger().error("servers: " + Arrays.toString(servers.toArray()));
+            Log.getLogger().error("Id: " + id);
+            Log.getLogger().error("Intitial host: " + String.join(",", initialHosts));
+            Log.getLogger().error("HaServer: " + servers.get(0));
+            Log.getLogger().error("clusterServer: " + initialHosts.get(id-1));
+
             builder.setConfig(ClusterSettings.server_id, Integer.toString(id));
             builder.setConfig(ClusterSettings.initial_hosts, String.join(",", initialHosts));
             builder.setConfig(HaSettings.ha_server, servers.get(0));
