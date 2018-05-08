@@ -143,6 +143,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             builder.setConfig(HaSettings.ha_server, servers.get(0));
             builder.setConfig(ClusterSettings.cluster_server, initialHosts.get(id-1));
             graphDb = builder.newGraphDatabase();
+            Log.getLogger().warn("Finished setup trying empty transaction.");
+            registerShutdownHook(graphDb);
+            try (Transaction tx = graphDb.beginTx())
+            {
+                graphDb.execute("CREATE INDEX ON :Node(idx)");
+                tx.success();
+            }
             Log.getLogger().error("HA neo4j database started " + id);
 
             if (id > 0)
