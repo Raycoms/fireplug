@@ -99,7 +99,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        final File dbPath = new File(BASE_PATH + id);
+        final File dbPath = new File(BASE_PATH + (id-1));
         Log.getLogger().error("Starting neo4j database service on " + id);
         Log.getLogger().error("Starting neo4j database with multiVersion " + multiVersion);
 
