@@ -95,7 +95,7 @@ public class MultipleClientRunner
                     serverPartner = i % directAddresses.length;
                     final String[] address = directAddresses[serverPartner].split(":");
                     cmd = String.format("java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.main.RunTests false %s %s %d %s",
-                            address[0], address[1], clientId, String.valueOf(percOfWrites).replace(',', '.'));
+                            address[0], address[1], processId, String.valueOf(percOfWrites).replace(',', '.'));
                 }
                 else
                 {

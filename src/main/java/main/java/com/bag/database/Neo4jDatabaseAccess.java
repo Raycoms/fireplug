@@ -99,12 +99,13 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public void start()
     {
-        final File dbPath = new File(BASE_PATH + (id-1));
         Log.getLogger().error("Starting neo4j database service on " + id);
         Log.getLogger().error("Starting neo4j database with multiVersion " + multiVersion);
 
         if (haAddresses == null)
         {
+            final File dbPath = new File(BASE_PATH + id);
+
             Log.getLogger().warn("Starting Neo4j not HA.");
             graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath).newGraphDatabase();
             registerShutdownHook(graphDb);
@@ -116,6 +117,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         else
         {
+            final File dbPath = new File(BASE_PATH + (id-1));
+
             Log.getLogger().setLevel(Level.ALL);
             Log.getLogger().error("Turning on Neo4j HA with path: " + dbPath.toString());
             final GraphDatabaseBuilder builder = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbPath);
