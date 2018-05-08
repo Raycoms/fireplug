@@ -105,6 +105,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         {
             Log.getLogger().info("Problem while writing to file!", e);
         }
+        Log.getLogger().setLevel(Level.WARN);
     }
 
     /**
