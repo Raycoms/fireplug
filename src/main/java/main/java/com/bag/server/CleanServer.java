@@ -167,6 +167,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             }
         }
 
+        Log.getLogger().warn("Finished server execution, preparing response!");
         readObjects.add(new DeleteOperation<>());
 
         if (writesPerformed > 0)
