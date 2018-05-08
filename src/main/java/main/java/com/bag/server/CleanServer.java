@@ -191,7 +191,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
     {
         if (args.length < 3)
         {
-            System.out.println("Usage: CleanServer serverPort id databaseType");
+            Log.getLogger().error("Usage: CleanServer serverPort id databaseType");
             return;
         }
 
@@ -200,12 +200,6 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         final int serverPort = Integer.parseInt(args[0]);
         final int id = Integer.parseInt(args[1]);
         final String tempInstance = args[2];
-        String haAddresses = null;
-        if (args.length > 3)
-        {
-            haAddresses = args[3];
-        }
-
         final ServerInstrumentation instrumentation = new ServerInstrumentation(id);
 
         final IDatabaseAccess access = DatabaseLoader.instantiateDBAccess(tempInstance.toLowerCase(), id, false, null);
@@ -249,7 +243,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             // Start the server.
             final ChannelFuture future = boot.bind(serverPort).sync();
             // Wait until the server socket is closed.
-            System.out.println("Direct server " + id + " started.");
+            Log.getLogger().error("Direct server " + id + " started.");
             future.channel().closeFuture().sync();
         }
         catch (final InterruptedException e)

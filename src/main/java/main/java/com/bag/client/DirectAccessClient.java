@@ -12,7 +12,6 @@ import io.netty.channel.udt.UdtChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import main.java.com.bag.evaluations.NettyClient;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
@@ -26,31 +25,30 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.apache.log4j.Level;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadFactory;
+
+import static main.java.com.bag.util.Constants.COMMIT;
+import static main.java.com.bag.util.Constants.WRITE_REQUEST;
 
 /**
  * Class used to simulate a client acessing the database directly.
  */
 public class DirectAccessClient implements BAGClient
 {
-
-    private NettyClient           server;
-    private BlockingQueue<Object> readQueue;
-    private final EventLoopGroup  connectGroup;
-    private ClientHandler         handler;
-    private String                host;
-    private int                   hostPort;
-    private KryoPool              kryoPool;
-    private ArrayList<IOperation> writeSet;
+    private final EventLoopGroup        connectGroup;
+    private final ClientHandler         handler;
+    private final String                host;
+    private final int                   hostPort;
+    private final KryoPool              kryoPool;
 
     /**
      * Create a threadsafe version of kryo.
      */
-    public KryoFactory factory = () ->
+    private final KryoFactory factory = () ->
     {
         Kryo kryo = new Kryo();
         kryo.register(NodeStorage.class, 100);
@@ -62,22 +60,21 @@ public class DirectAccessClient implements BAGClient
         return kryo;
     };
 
-
-    public DirectAccessClient(String host, int hostPort) {
+    public DirectAccessClient(final String host, final int hostPort)
+    {
         kryoPool = new KryoPool.Builder(factory).softReferences().build();
-        writeSet = new ArrayList<>();
-        this.readQueue = new ArrayBlockingQueue<>(500);
         final ThreadFactory connectFactory = new DefaultThreadFactory("connect");
         connectGroup = new NioEventLoopGroup(1,
                 connectFactory, NioUdtProvider.BYTE_PROVIDER);
 
         this.host = host;
         this.hostPort = hostPort;
+        handler = new ClientHandler();
 
         try
         {
             final Bootstrap boot = new Bootstrap();
-            handler = new ClientHandler();
+
             boot.group(connectGroup)
                     .channelFactory(NioUdtProvider.BYTE_CONNECTOR)
                     .handler(new ChannelInitializer<UdtChannel>()
@@ -96,14 +93,15 @@ public class DirectAccessClient implements BAGClient
             // Start the client.
             boot.connect(this.host, this.hostPort).sync();
         }
-        catch (InterruptedException e)
+        catch (final Exception e)
         {
-            e.printStackTrace();
+            Log.getLogger().error("Error instantiating DirectAccessClient", e);
         }
     }
 
     @Override
-    public BlockingQueue<Object> getReadQueue() {
+    public BlockingQueue<Object> getReadQueue()
+    {
         return handler.getReadQueue();
     }
 
@@ -113,110 +111,62 @@ public class DirectAccessClient implements BAGClient
     @Override
     public void write(final Object identifier, final Object value)
     {
-        if(identifier == null && value == null)
+        if (identifier == null && value == null)
         {
             Log.getLogger().error("Unsupported write operation");
             return;
         }
 
+        final IOperation operation;
         //Must be a create request.
-        if(identifier == null)
+        if (identifier == null)
         {
-            handleCreateRequest(value);
-            return;
+            operation = new CreateOperation<>((Serializable) value);
         }
-
-        //Must be a delete request.
-        if(value == null)
+        else if (value == null)
         {
-            handleDeleteRequest(identifier);
-            return;
-        }
-
-        handleUpdateRequest(identifier, value);
-    }
-
-    /**
-     * Fills the updateSet in the case of an update request.
-     * @param identifier the value to write to.
-     * @param value what should be written.
-     */
-    private void handleUpdateRequest(Object identifier, Object value)
-    {
-        //todo edit create request if equal.
-        if(identifier instanceof NodeStorage && value instanceof NodeStorage)
-        {
-            writeSet.add(new UpdateOperation<>((NodeStorage) identifier,(NodeStorage) value));
-        }
-        else if(identifier instanceof RelationshipStorage && value instanceof RelationshipStorage)
-        {
-            writeSet.add(new UpdateOperation<>((RelationshipStorage) identifier,(RelationshipStorage) value));
+            operation = new DeleteOperation<>((Serializable) identifier);
         }
         else
         {
-            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
+            operation = new UpdateOperation((Serializable) identifier, (Serializable) value);
         }
-    }
 
-    /**
-     * Fills the createSet in the case of a create request.
-     * @param value object to fill in the createSet.
-     */
-    private void handleCreateRequest(Object value)
-    {
-        if(value instanceof NodeStorage)
-        {
-            writeSet.add(new CreateOperation<>((NodeStorage) value));
-        }
-        else if(value instanceof RelationshipStorage)
-        {
-            writeSet.add(new CreateOperation<>((RelationshipStorage) value));
-        }
-        else
-        {
-            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
-        }
-    }
+        final Kryo kryo = kryoPool.borrow();
+        final Output output = new Output(0, 10240);
+        kryo.writeObject(output, operation);
 
-    /**
-     * Fills the deleteSet in the case of a delete requests and deletes the node also from the create set and updateSet.
-     * @param identifier the object to delete.
-     */
-    private void handleDeleteRequest(Object identifier)
-    {
-        //todo we can delete creates here.
-        if(identifier instanceof NodeStorage)
-        {
-            writeSet.add(new DeleteOperation<>((NodeStorage) identifier));
-        }
-        else if(identifier instanceof RelationshipStorage)
-        {
-            writeSet.add(new DeleteOperation<>((RelationshipStorage) identifier));
-        }
-        else
-        {
-            Log.getLogger().error("Unsupported update operation can't update a node with a relationship or vice versa");
-        }
+        handler.sendMessage(output.getBuffer());
+        output.close();
+        kryoPool.release(kryo);
     }
 
     @Override
-    public void read(Object... identifiers) {
-        List<Object> list = new ArrayList<>();
+    public void read(final Object... identifiers)
+    {
+        final List<Object> list = new ArrayList<>();
 
-        for (Object item : identifiers)
+        for (final Object item : identifiers)
         {
             if (item instanceof NodeStorage || item instanceof RelationshipStorage)
+            {
                 list.add(item);
+            }
             else
+            {
                 Log.getLogger().error("Invalid type to read " + item.getClass().getName());
+            }
         }
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
         kryo.writeObject(output, list);
 
-        if (Log.getLogger().getLevel() == Level.INFO) {
-            for (Object item : list)
+        if (Log.getLogger().getLevel() == Level.INFO)
+        {
+            for (final Object item : list)
+            {
                 Log.getLogger().info("Reading: " + item.toString());
+            }
         }
 
         handler.sendMessage(output.getBuffer());
@@ -225,28 +175,28 @@ public class DirectAccessClient implements BAGClient
     }
 
     @Override
-    public void commit() {
+    public void commit()
+    {
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
-        kryo.writeObject(output, writeSet);
-
-
-        if (Log.getLogger().getLevel() == Level.INFO) {
-            for (Object item : writeSet)
-                Log.getLogger().info("Commiting: " + item.toString());
-
-            if (writeSet.size() == 0)
-                Log.getLogger().info("Commiting empty writeSet");
-        }
+        kryo.writeObject(output, COMMIT);
 
         handler.sendMessage(output.getBuffer());
         output.close();
         kryoPool.release(kryo);
-        writeSet.clear();
-        try {
-            while (getReadQueue().take() != TestClient.FINISHED_READING);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+        try
+        {
+            while (getReadQueue().take() != TestClient.FINISHED_READING)
+            {
+                /**
+                 * Do nothing, continue trying, pal.
+                 */
+            }
+        }
+        catch (final Exception e)
+        {
+            Log.getLogger().error("Error comitting", e);
         }
     }
 

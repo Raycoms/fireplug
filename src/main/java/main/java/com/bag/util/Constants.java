@@ -32,6 +32,7 @@ public class Constants
     public static final String PERFORMANCE_UPDATE_MESSAGE   = "performanceUpdate";
     public static final String BFT_PRIMARY_ELECTION_MESSAGE = "bftPrimaryElection";
     public static final String AM_I_OUTDATED_MESSAGE        = "amIOutdated?";
+    public static final String WRITE_REQUEST                = "writeRequest";
 
     /**
      * Used to convert nano time to seconds.
