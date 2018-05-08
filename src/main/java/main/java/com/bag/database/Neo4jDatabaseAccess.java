@@ -209,7 +209,16 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         final ArrayList<Object> returnStorage = new ArrayList<>();
         try (Transaction tx = graphDb.beginTx())
         {
-            final Kryo kryo = pool.borrow();
+            final Kryo kryo;
+            if (multiVersion)
+            {
+                kryo = pool.borrow();
+            }
+            else
+            {
+                kryo = null;
+            }
+
             final StringBuilder builder = new StringBuilder(MATCH);
             final Map<String, Object> properties;
 
@@ -530,7 +539,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
     {
-        final Kryo kryo = pool.borrow();
+        final Kryo kryo;
+        if (multiVersion)
+        {
+            kryo = pool.borrow();
+        }
+        else
+        {
+            kryo = null;
+        }
         try
         {
             graphDb.beginTx();
@@ -644,7 +661,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     @Override
     public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
     {
-        final Kryo kryo = pool.borrow();
+        final Kryo kryo;
+        if (multiVersion)
+        {
+            kryo = pool.borrow();
+        }
+        else
+        {
+            kryo = null;
+        }
         try
         {
             //Transform relationship params.
