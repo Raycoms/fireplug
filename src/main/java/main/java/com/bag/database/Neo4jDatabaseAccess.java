@@ -337,7 +337,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
                 }
             }
-            pool.release(kryo);
+            if (pool != null)
+            {
+                pool.release(kryo);
+            }
             tx.success();
         }
         return returnStorage;
@@ -521,7 +524,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             Log.getLogger().error("Couldn't execute SHA1 for node " + nodeStorage.toString(), e);
                         }
-                        pool.release(kryo);
+                        if (pool != null)
+                        {
+                            pool.release(kryo);
+                        }
 
                         break;
                     }
@@ -593,7 +599,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            pool.release(kryo);
+            if (pool != null)
+            {
+                pool.release(kryo);
+            }
         }
         Log.getLogger().info("Executed update node transaction in server:  " + id);
         return true;
@@ -727,7 +736,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         finally
         {
-            pool.release(kryo);
+            if (pool != null)
+            {
+                pool.release(kryo);
+            }
         }
         Log.getLogger().info("Executed update relationship transaction in server:  " + id);
         return true;
@@ -869,7 +881,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     {
                         Log.getLogger().error("Couldn't execute SHA1 for relationship", e);
                     }
-                    pool.release(kryo);
+                    if (pool != null)
+                    {
+                        pool.release(kryo);
+                    }
                     break;
                 }
             }
