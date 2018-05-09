@@ -28,7 +28,7 @@ dependencies {
     compile group: 'org.apache.tinkerpop', name: 'gremlin-core', version: '3.0.0.M9-incubating'
     compile group: 'com.thinkaurelius.titan', name: 'titan-berkeleyje', version: '1.0.0'
     compile group: 'org.apache.tinkerpop', name: 'gremlin-core', version: '3.0.1-incubating'
-    compile group: 'io.netty', name: 'netty-all', version: '4.0.36.Final'
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
     compile group: 'com.sparsity', name: 'sparkseejava', version: '5.2.0'
     compile group: 'com.orientechnologies', name: 'orientdb-graphdb', version: '2.2.11'
     compile group: 'org.jboss.spec.javax.ws.rs', name: 'jboss-jaxrs-api_2.0_spec', version: '1.0.0.Final'
