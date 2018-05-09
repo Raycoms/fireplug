@@ -8,10 +8,9 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.udt.UdtChannel;
-import io.netty.channel.udt.nio.NioUdtProvider;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
 import main.java.com.bag.operations.IOperation;
@@ -29,7 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadFactory;
 
 import static main.java.com.bag.util.Constants.COMMIT;
 import static main.java.com.bag.util.Constants.WRITE_REQUEST;
@@ -60,12 +58,11 @@ public class DirectAccessClient implements BAGClient
         return kryo;
     };
 
+
     public DirectAccessClient(final String host, final int hostPort)
     {
         kryoPool = new KryoPool.Builder(factory).softReferences().build();
-        final ThreadFactory connectFactory = new DefaultThreadFactory("connect");
-        connectGroup = new NioEventLoopGroup(1,
-                connectFactory, NioUdtProvider.BYTE_PROVIDER);
+        connectGroup = new NioEventLoopGroup();
 
         this.host = host;
         this.hostPort = hostPort;
@@ -75,11 +72,11 @@ public class DirectAccessClient implements BAGClient
         final Bootstrap boot = new Bootstrap();
 
         boot.group(connectGroup)
-                .channelFactory(NioUdtProvider.BYTE_CONNECTOR)
-                .handler(new ChannelInitializer<UdtChannel>()
+                .channel(NioServerSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>()
                 {
                     @Override
-                    public void initChannel(final UdtChannel ch)
+                    public void initChannel(final SocketChannel ch)
                             throws Exception
                     {
                         ch.pipeline().addLast(

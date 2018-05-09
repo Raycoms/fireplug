@@ -10,11 +10,10 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 
-import io.netty.channel.udt.UdtChannel;
-import io.netty.channel.udt.nio.NioUdtProvider;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.instrumentations.ServerInstrumentation;
 import main.java.com.bag.main.DatabaseLoader;
@@ -41,7 +40,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Server used to communicate with graph databases directly without the use of BAG.
@@ -233,23 +231,21 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
 
         access.start();
 
-        final ThreadFactory acceptFactory = new DefaultThreadFactory("accept");
-        final ThreadFactory connectFactory = new DefaultThreadFactory("connect");
-        final NioEventLoopGroup acceptGroup = new NioEventLoopGroup(1, acceptFactory, NioUdtProvider.BYTE_PROVIDER);
-        final NioEventLoopGroup connectGroup = new NioEventLoopGroup(1, connectFactory, NioUdtProvider.BYTE_PROVIDER);
+        final NioEventLoopGroup acceptGroup = new NioEventLoopGroup();
+        final NioEventLoopGroup connectGroup = new NioEventLoopGroup();
 
         // Configure the server.
         try
         {
             final ServerBootstrap boot = new ServerBootstrap();
             boot.group(acceptGroup, connectGroup)
-                    .channelFactory(NioUdtProvider.BYTE_ACCEPTOR)
+                    .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 10)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new ChannelInitializer<UdtChannel>()
+                    .childHandler(new ChannelInitializer<SocketChannel>()
                     {
                         @Override
-                        public void initChannel(final UdtChannel ch)
+                        public void initChannel(final SocketChannel ch)
                                 throws Exception
                         {
                             ch.pipeline().addLast(
