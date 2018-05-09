@@ -72,7 +72,7 @@ public class DirectAccessClient implements BAGClient
         final Bootstrap boot = new Bootstrap();
 
         boot.group(connectGroup)
-                .channel(NioServerSocketChannel.class)
+                .channel(SocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>()
                 {
                     @Override
