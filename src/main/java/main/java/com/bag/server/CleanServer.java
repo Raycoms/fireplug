@@ -153,7 +153,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 }
                 catch (final Exception e)
                 {
-                    Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString(), e);
+                    Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString());
                     instrumentation.updateCounts(0, 0, 0, 1);
                 }
                 instrumentation.updateCounts(1, 0, 0, 0);
