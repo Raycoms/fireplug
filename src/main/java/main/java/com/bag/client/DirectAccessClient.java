@@ -71,25 +71,28 @@ public class DirectAccessClient implements BAGClient
         this.hostPort = hostPort;
         handler = new ClientHandler();
         Log.getLogger().warn("Setting up connecting with host: " + host + " at port: " + hostPort);
+
+        final Bootstrap boot = new Bootstrap();
+
+        boot.group(connectGroup)
+                .channelFactory(NioUdtProvider.BYTE_CONNECTOR)
+                .handler(new ChannelInitializer<UdtChannel>()
+                {
+                    @Override
+                    public void initChannel(final UdtChannel ch)
+                            throws Exception
+                    {
+                        ch.pipeline().addLast(
+                                new BAGMessageEncoder(),
+                                new BAGMessageDecoder(),
+                                new LoggingHandler(Log.BAG_DESC),
+                                handler);
+                    }
+                });
+
         try
         {
-            final Bootstrap boot = new Bootstrap();
-
-            boot.group(connectGroup)
-                    .channelFactory(NioUdtProvider.BYTE_CONNECTOR)
-                    .handler(new ChannelInitializer<UdtChannel>()
-                    {
-                        @Override
-                        public void initChannel(final UdtChannel ch)
-                                throws Exception
-                        {
-                            ch.pipeline().addLast(
-                                    new BAGMessageEncoder(),
-                                    new BAGMessageDecoder(),
-                                    new LoggingHandler(Log.BAG_DESC),
-                                    handler);
-                        }
-                    });
+            Log.getLogger().warn("Trying to connect: " + host + " at port: " + hostPort);
             // Start the client.
             boot.connect(this.host, this.hostPort).sync();
         }

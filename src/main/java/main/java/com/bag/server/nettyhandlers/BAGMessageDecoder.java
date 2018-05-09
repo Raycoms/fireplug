@@ -7,22 +7,27 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 
 /**
- * Created by danie on 04/04/2017.
+ * Message decoder for all netty messages for the direct access client/server communication.
  */
-public class BAGMessageDecoder extends ByteToMessageDecoder {
+public class BAGMessageDecoder extends ByteToMessageDecoder
+{
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception
+    {
         if (in.readableBytes() < 4)
+        {
             return;
+        }
         in.markReaderIndex();
-        int length = in.readInt();
-        if (in.readableBytes() < length) {
+        final int length = in.readInt();
+        if (in.readableBytes() < length)
+        {
             in.resetReaderIndex();
             return;
         }
 
-        BAGMessage message = new BAGMessage();
+        final BAGMessage message = new BAGMessage();
         message.size = length;
         message.buffer = new byte[length];
         in.readBytes(message.buffer);
