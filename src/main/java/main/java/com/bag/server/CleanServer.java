@@ -37,6 +37,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -211,7 +213,14 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         final String tempInstance = args[2];
         final ServerInstrumentation instrumentation = new ServerInstrumentation(id);
 
-        Log.getLogger().warn("Setting up clean server with port: " + serverPort + " at id: " + id);
+        try
+        {
+            Log.getLogger().warn("Setting up clean server with port: " + serverPort + " at id: " + id + " at: " + InetAddress.getLocalHost().toString());
+        }
+        catch (final UnknownHostException e)
+        {
+            e.printStackTrace();
+        }
         final IDatabaseAccess access = DatabaseLoader.instantiateDBAccess(tempInstance.toLowerCase(), id, false, null, args[3]);
         if (args.length >= 4)
         {
