@@ -18,6 +18,7 @@ import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
+import org.neo4j.kernel.configuration.Settings;
 import org.neo4j.kernel.ha.HaSettings;
 import org.neo4j.kernel.impl.core.NodeProxy;
 import org.neo4j.kernel.impl.core.RelationshipProxy;
@@ -137,6 +138,15 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().error("Id: " + id);
             Log.getLogger().error("Intitial host: " + String.join(",", initialHosts));
             Log.getLogger().error("HaServer: " + servers.get(0));
+
+            if (id == 1)
+            {
+                builder.setConfig(HaSettings.slave_only, Settings.FALSE);
+            }
+            else
+            {
+                builder.setConfig(HaSettings.slave_only, Settings.TRUE);
+            }
             Log.getLogger().error("clusterServer: " + initialHosts.get(id-1));
 
             builder.setConfig(ClusterSettings.server_id, Integer.toString(id)); //This is correct
