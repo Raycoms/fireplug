@@ -31,6 +31,7 @@ import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
+import org.neo4j.graphdb.TransactionTerminatedException;
 import org.neo4j.kernel.DeadlockDetectedException;
 
 import java.io.BufferedWriter;
@@ -151,10 +152,17 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 try
                 {
                     ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, 0);
+                    instrumentation.updateCounts(1, 0, 0, 0);
+                    writesPerformed += 1;
                 }
                 catch (final DeadlockDetectedException e)
                 {
                     Log.getLogger().info("Dead-lock: ", e);
+                    instrumentation.updateCounts(0, 0, 0, 1);
+                }
+                catch (final TransactionTerminatedException e)
+                {
+                    Log.getLogger().info("Transaction terminated: ", e);
                     instrumentation.updateCounts(0, 0, 0, 1);
                 }
                 catch (final Exception e)
@@ -163,8 +171,6 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     instrumentation.updateCounts(0, 0, 0, 1);
                 }
 
-                instrumentation.updateCounts(1, 0, 0, 0);
-                writesPerformed += 1;
             }
             else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
             {
