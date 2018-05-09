@@ -13,6 +13,7 @@ import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.neo4j.cluster.ClusterSettings;
+import org.neo4j.cluster.protocol.cluster.Cluster;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -138,9 +139,9 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             Log.getLogger().error("HaServer: " + servers.get(0));
             Log.getLogger().error("clusterServer: " + initialHosts.get(id-1));
 
-            builder.setConfig(ClusterSettings.server_id, Integer.toString(id));
-            builder.setConfig(ClusterSettings.initial_hosts, String.join(",", initialHosts));
-            builder.setConfig(HaSettings.ha_server, servers.get(0));
+            builder.setConfig(ClusterSettings.server_id, Integer.toString(id)); //This is correct
+            builder.setConfig(ClusterSettings.initial_hosts, String.join(",", initialHosts)); // This is correct
+            builder.setConfig(HaSettings.ha_server, initialHosts.get(id-1));
             builder.setConfig(ClusterSettings.cluster_server, initialHosts.get(id-1));
             graphDb = builder.newGraphDatabase();
             Log.getLogger().warn("Finished setup trying empty transaction.");
