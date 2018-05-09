@@ -237,34 +237,32 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         // Configure the server.
         try
         {
-            final ServerBootstrap boot = new ServerBootstrap();
-            boot.group(acceptGroup, connectGroup)
+            final ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap.group(acceptGroup, connectGroup)
                     .channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG, 10)
+                    .option(ChannelOption.SO_BACKLOG, 1024)
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new ChannelInitializer<SocketChannel>()
                     {
-                        @Override
-                        public void initChannel(final SocketChannel ch)
-                                throws Exception
+                        protected void initChannel(final SocketChannel sc) throws Exception
                         {
-                            ch.pipeline().addLast(
+                            sc.pipeline().addLast(
                                     new LoggingHandler(),
                                     new BAGMessageEncoder(),
                                     new BAGMessageDecoder(),
                                     new CleanServer(access, id, instrumentation));
                         }
                     });
+
             // Start the server.
-            final ChannelFuture future = boot.bind(serverPort).sync();
+            final ChannelFuture future = serverBootstrap.bind(serverPort).sync();
             // Wait until the server socket is closed.
             Log.getLogger().error("Direct server " + id + " started.");
             future.channel().closeFuture().sync();
         }
-        catch (final InterruptedException e)
+        catch (final Exception e)
         {
-            Thread.currentThread().interrupt();
-            Log.getLogger().info("Netty server got interrupted", e);
+            Log.getLogger().info("Netty server ran into a issue", e);
         }
         finally
         {
