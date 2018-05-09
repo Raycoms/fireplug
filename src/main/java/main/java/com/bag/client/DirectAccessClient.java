@@ -88,9 +88,7 @@ public class DirectAccessClient implements BAGClient
                                     handler);
                         }
                     });
-
-            final ChannelFuture cf = boot.connect().sync();
-            cf.channel().closeFuture().sync();
+            boot.connect().sync();
         }
         catch (final Exception e)
         {
