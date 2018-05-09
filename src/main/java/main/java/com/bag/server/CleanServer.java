@@ -147,7 +147,15 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             if (obj instanceof IOperation)
             {
                 Log.getLogger().info("Starting write!");
-                ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, 0);
+                try
+                {
+                    ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, 0);
+                }
+                catch (final Exception e)
+                {
+                    Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString(), e);
+                    instrumentation.updateCounts(0, 0, 0, 1);
+                }
                 instrumentation.updateCounts(1, 0, 0, 0);
                 writesPerformed += 1;
             }
@@ -160,7 +168,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     readObjects.addAll(read);
                     instrumentation.updateCounts(0, 1, 0, 0);
                 }
-                catch (final OutDatedDataException e)
+                catch (final Exception e)
                 {
                     Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
                     instrumentation.updateCounts(0, 0, 0, 1);
