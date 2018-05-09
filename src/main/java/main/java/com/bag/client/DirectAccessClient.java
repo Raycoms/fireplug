@@ -100,6 +100,8 @@ public class DirectAccessClient implements BAGClient
         {
             Log.getLogger().error("Error instantiating DirectAccessClient", e);
         }
+
+        Log.getLogger().setLevel(Level.WARN);
     }
 
     @Override

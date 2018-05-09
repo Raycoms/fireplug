@@ -211,7 +211,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         final String tempInstance = args[2];
         final ServerInstrumentation instrumentation = new ServerInstrumentation(id);
 
-
+        Log.getLogger().warn("Setting up clean server with port: " + serverPort + " at id: " + id);
         final IDatabaseAccess access = DatabaseLoader.instantiateDBAccess(tempInstance.toLowerCase(), id, false, null, args[3]);
         if (args.length >= 4)
         {
