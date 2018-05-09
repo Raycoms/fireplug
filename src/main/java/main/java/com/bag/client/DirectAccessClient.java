@@ -9,7 +9,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
@@ -23,8 +22,10 @@ import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.apache.log4j.Level;
-
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -62,36 +63,34 @@ public class DirectAccessClient implements BAGClient
     public DirectAccessClient(final String host, final int hostPort)
     {
         kryoPool = new KryoPool.Builder(factory).softReferences().build();
-        connectGroup = new NioEventLoopGroup();
 
         this.host = host;
         this.hostPort = hostPort;
         handler = new ClientHandler();
         Log.getLogger().warn("Setting up connecting with host: " + host + " at port: " + hostPort);
 
-        final Bootstrap boot = new Bootstrap();
-
-        boot.group(connectGroup)
-                .channel(SocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>()
-                {
-                    @Override
-                    public void initChannel(final SocketChannel ch)
-                            throws Exception
-                    {
-                        ch.pipeline().addLast(
-                                new BAGMessageEncoder(),
-                                new BAGMessageDecoder(),
-                                new LoggingHandler(Log.BAG_DESC),
-                                handler);
-                    }
-                });
-
+        connectGroup = new NioEventLoopGroup();
         try
         {
-            Log.getLogger().warn("Trying to connect: " + host + " at port: " + hostPort);
-            // Start the client.
-            boot.connect(this.host, this.hostPort).sync();
+            final Bootstrap boot = new Bootstrap();
+            boot.group(connectGroup)
+                    .channel(NioSocketChannel.class)
+                    .remoteAddress(new InetSocketAddress(this.host, this.hostPort))
+                    .handler(new ChannelInitializer<SocketChannel>()
+                    {
+                        @Override
+                        protected void initChannel(final SocketChannel ch) throws Exception
+                        {
+                            ch.pipeline().addLast(
+                                    new BAGMessageEncoder(),
+                                    new BAGMessageDecoder(),
+                                    new LoggingHandler(Log.BAG_DESC),
+                                    handler);
+                        }
+                    });
+
+            final ChannelFuture cf = boot.connect().sync();
+            cf.channel().closeFuture().sync();
         }
         catch (final Exception e)
         {
