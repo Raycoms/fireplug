@@ -146,10 +146,14 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             graphDb = builder.newGraphDatabase();
             Log.getLogger().warn("Finished setup trying empty transaction.");
             registerShutdownHook(graphDb);
-            try (Transaction tx = graphDb.beginTx())
+
+            if (id == 1)
             {
-                graphDb.execute("CREATE INDEX ON :Node(idx)");
-                tx.success();
+                try (Transaction tx = graphDb.beginTx())
+                {
+                    graphDb.execute("CREATE INDEX ON :Node(idx)");
+                    tx.success();
+                }
             }
             Log.getLogger().error("HA neo4j database started " + id);
 
