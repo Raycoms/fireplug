@@ -141,20 +141,6 @@ public class DirectAccessClient implements BAGClient
 
         handler.sendMessage(output.getBuffer());
 
-        try
-        {
-            while (getReadQueue().take() != TestClient.FINISHED_READING)
-            {
-                /**
-                 * Do nothing, continue trying, pal.
-                 */
-            }
-        }
-        catch (final Exception e)
-        {
-            Log.getLogger().error("Error writing", e);
-        }
-
         Log.getLogger().warn("Finishing write!");
         output.close();
         kryoPool.release(kryo);
@@ -190,21 +176,6 @@ public class DirectAccessClient implements BAGClient
         }
 
         handler.sendMessage(output.getBuffer());
-
-        try
-        {
-            while (getReadQueue().take() != TestClient.FINISHED_READING)
-            {
-                /**
-                 * Do nothing, continue trying, pal.
-                 */
-            }
-        }
-        catch (final Exception e)
-        {
-            Log.getLogger().error("Error reading", e);
-        }
-
         Log.getLogger().warn("Finishing read!");
         output.close();
         kryoPool.release(kryo);
@@ -221,21 +192,6 @@ public class DirectAccessClient implements BAGClient
         handler.sendMessage(output.getBuffer());
         output.close();
         kryoPool.release(kryo);
-
-        try
-        {
-            while (getReadQueue().take() != TestClient.FINISHED_READING)
-            {
-                /**
-                 * Do nothing, continue trying, pal.
-                 */
-            }
-        }
-        catch (final Exception e)
-        {
-            Log.getLogger().error("Error comitting", e);
-        }
-
         Log.getLogger().warn("Finishing commit!");
     }
 

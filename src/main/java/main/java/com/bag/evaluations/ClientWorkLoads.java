@@ -537,6 +537,20 @@ public class ClientWorkLoads
                     {
                         client.write(null, ((CreateOperation) operation).getObject());
                     }
+
+                    try
+                    {
+                        while (client.getReadQueue().take() != TestClient.FINISHED_READING)
+                        {
+
+                        }
+                    }
+                    catch (final InterruptedException e)
+                    {
+                        /*
+                         * Intentionally left empty.
+                         */
+                    }
                 }
 
                 if (i % commitAfter == 0)
