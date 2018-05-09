@@ -141,7 +141,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
             builder.setConfig(ClusterSettings.server_id, Integer.toString(id)); //This is correct
             builder.setConfig(ClusterSettings.initial_hosts, String.join(",", initialHosts)); // This is correct
-            builder.setConfig(HaSettings.ha_server, initialHosts.get(id-1));
+            builder.setConfig(HaSettings.ha_server, servers.get(id-1));
             builder.setConfig(ClusterSettings.cluster_server, initialHosts.get(id-1));
             graphDb = builder.newGraphDatabase();
             Log.getLogger().warn("Finished setup trying empty transaction.");
