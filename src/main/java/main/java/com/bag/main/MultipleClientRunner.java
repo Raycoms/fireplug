@@ -112,7 +112,7 @@ public class MultipleClientRunner
                 Process proc = pb.start();*/
                 final Process proc = Runtime.getRuntime().exec(cmd);
 
-                final OutputPrinter printer = new MultipleClientRunner.OutputPrinter("Client " + clientId, proc.getInputStream());
+                final OutputPrinter printer = new MultipleClientRunner.OutputPrinter("Client " + processId, proc.getInputStream());
                 printer.start();
                 procs.add(proc);
                 clientId += 1;
