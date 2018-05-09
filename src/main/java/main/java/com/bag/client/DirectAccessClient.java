@@ -70,7 +70,7 @@ public class DirectAccessClient implements BAGClient
         this.host = host;
         this.hostPort = hostPort;
         handler = new ClientHandler();
-
+        Log.getLogger().warn("Setting up connecting with host: " + host + " at port: " + hostPort);
         try
         {
             final Bootstrap boot = new Bootstrap();
