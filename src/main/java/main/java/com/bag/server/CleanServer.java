@@ -255,7 +255,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     });
 
             // Start the server.
-            Log.getLogger().error("Direct server " + id + " started.");
+            Log.getLogger().error("Direct server " + id + " started at port: " + serverPort);
             final ChannelFuture future = serverBootstrap.bind(serverPort).sync();
             // Wait until the server socket is closed.
 
