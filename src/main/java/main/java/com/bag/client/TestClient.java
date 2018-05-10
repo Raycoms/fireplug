@@ -391,7 +391,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void read(final Object... identifiers)
     {
-        Log.getLogger().warn("Sending read!");
+        Log.getLogger().info("Sending read!");
         final long timeStampToSend = firstRead ? -1 : localTimestamp;
 
         for (final Object identifier : identifiers)
