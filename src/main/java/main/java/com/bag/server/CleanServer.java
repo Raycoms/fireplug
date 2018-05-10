@@ -281,10 +281,11 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             // Wait until the server socket is closed.
 
             future.channel().closeFuture().sync();
+            Log.getLogger().error("Closed already, wth!");
         }
         catch (final Exception e)
         {
-            Log.getLogger().info("Netty server ran into a issue", e);
+            Log.getLogger().warn("Netty server ran into a issue", e);
         }
         finally
         {
