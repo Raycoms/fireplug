@@ -607,24 +607,27 @@ public class TestClient implements BAGClient, ReplyListener
             firstRead = true;
             final boolean readOnly = isReadOnly();
             Log.getLogger().warn("Starting commit");
-            Log.getLogger().info(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
+            if (globalProxy != null)
+            {
+                Log.getLogger().info(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
+            }
 
             if (readOnly && readMode == UNSAFE)
             {
-                Log.getLogger().warn(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
+                Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
                 firstRead = true;
                 resetSets();
                //currentThread.interrupt();
                 return;
             }
 
-            Log.getLogger().warn("Starting commit process for: " + localTimestamp);
+            Log.getLogger().info("Starting commit process for: " + localTimestamp);
             final byte[] bytes = serializeAll();
             if (readOnly)
             {
                 final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
                 final Kryo kryo = pool.borrow();
-                Log.getLogger().warn(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + localTimestamp);
+                Log.getLogger().info(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + localTimestamp);
 
                 final byte[] answer;
                 if (localClusterId == -1)
@@ -634,17 +637,15 @@ public class TestClient implements BAGClient, ReplyListener
                         final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                         final int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
 
-                        Log.getLogger().warn("Send to local Cluster to: " + rand);
+                        Log.getLogger().info("Send to local Cluster to: " + rand);
                         localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                        //currentThread.interrupt();
                         return;
                     }
-                    Log.getLogger().warn("Send to local Cluster unordered");
                     answer = localProxy.invokeUnordered(bytes);
                 }
                 else
                 {
-                    Log.getLogger().warn("Architecture read mode: " + readMode.name());
                     //Do it in optimistic mode in local cluster (if >= 4 replicas)
                     if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && (readMode == TO_F_PLUS_1_LOCALLY || readMode == LOCALLY_UNORDERED))
                     {
@@ -721,7 +722,7 @@ public class TestClient implements BAGClient, ReplyListener
                     }
                 }
 
-                Log.getLogger().warn(localProxy.getProcessId() + "Committed with snapshotId " + localTimestamp);
+                Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + localTimestamp);
 
                 final Input input = new Input(answer);
                 final String messageType = kryo.readObject(input, String.class);
@@ -763,16 +764,16 @@ public class TestClient implements BAGClient, ReplyListener
 
             if (localClusterId == -1)
             {
-                Log.getLogger().warn("Distribute commit with snapshotId: " + localTimestamp);
+                Log.getLogger().info("Distribute commit with snapshotId: " + localTimestamp);
                 processCommitReturn(localProxy.invokeOrdered(bytes));
-                Log.getLogger().warn("Finish commit with snapshotId: " + localTimestamp);
+                Log.getLogger().info("Finish commit with snapshotId: " + localTimestamp);
             }
             else
             {
-                Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + localTimestamp);
+                Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + localTimestamp);
                 Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
                 processCommitReturn(globalProxy.invokeOrdered(bytes));
-                Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + localTimestamp);
+                Log.getLogger().info(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + localTimestamp);
             }
             //currentThread.interrupt();
         }
