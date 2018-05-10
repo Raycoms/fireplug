@@ -610,7 +610,7 @@ public class TestClient implements BAGClient, ReplyListener
             final boolean readOnly = isReadOnly();
             Log.getLogger().info("Starting commit");
 
-            if (readOnly && readMode == UNSAFE)
+            if (true || (readOnly && readMode == UNSAFE))
             {
                 Log.getLogger().info(String.format("Read only unsecure Transaction with local transaction id: %d successfully committed", localTimestamp));
                 firstRead = true;
@@ -630,7 +630,7 @@ public class TestClient implements BAGClient, ReplyListener
                 final byte[] answer;
                 if (localClusterId == -1)
                 {
-                    if (true || readMode == TO_1_OTHER)
+                    if (readMode == TO_1_OTHER)
                     {
                         final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                         final int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
