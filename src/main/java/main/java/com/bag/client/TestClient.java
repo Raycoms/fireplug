@@ -255,6 +255,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void write(final Object identifier, final Object value)
     {
+        Log.getLogger().warn("Executing write!");
         if (identifier == null && value == null)
         {
             Log.getLogger().error("Unsupported write operation");
@@ -390,6 +391,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void read(final Object... identifiers)
     {
+        Log.getLogger().warn("Sending read!");
         final long timeStampToSend = firstRead ? -1 : localTimestamp;
 
         for (final Object identifier : identifiers)
@@ -417,6 +419,7 @@ public class TestClient implements BAGClient, ReplyListener
     @Override
     public void replyReceived(final RequestContext requestContext, final TOMMessage tomMessage)
     {
+        Log.getLogger().warn("Read return received!");
         final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
         final Kryo kryo = pool.borrow();
 
@@ -603,7 +606,7 @@ public class TestClient implements BAGClient, ReplyListener
 
             firstRead = true;
             final boolean readOnly = isReadOnly();
-            Log.getLogger().info("Starting commit");
+            Log.getLogger().warn("Starting commit");
             Log.getLogger().info(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
 
             if (readOnly && readMode == UNSAFE)
