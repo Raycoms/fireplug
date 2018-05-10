@@ -720,7 +720,7 @@ public class TestClient implements BAGClient, ReplyListener
                     }
                 }
 
-                Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + localTimestamp);
+                Log.getLogger().warn(localProxy.getProcessId() + "Committed with snapshotId " + localTimestamp);
 
                 final Input input = new Input(answer);
                 final String messageType = kryo.readObject(input, String.class);
