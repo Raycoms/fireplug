@@ -624,7 +624,7 @@ public class TestClient implements BAGClient, ReplyListener
             {
                 final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
                 final Kryo kryo = pool.borrow();
-                Log.getLogger().info(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + localTimestamp);
+                Log.getLogger().warn(localProxy.getProcessId() + " Read-only Commit with snapshotId: " + localTimestamp);
 
                 final byte[] answer;
                 if (localClusterId == -1)
@@ -644,6 +644,7 @@ public class TestClient implements BAGClient, ReplyListener
                 }
                 else
                 {
+                    Log.getLogger().warn("Architecture read mode: " + readMode.name());
                     //Do it in optimistic mode in local cluster (if >= 4 replicas)
                     if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && (readMode == TO_F_PLUS_1_LOCALLY || readMode == LOCALLY_UNORDERED))
                     {
