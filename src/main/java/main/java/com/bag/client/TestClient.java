@@ -763,9 +763,9 @@ public class TestClient implements BAGClient, ReplyListener
 
             if (localClusterId == -1)
             {
-                Log.getLogger().info("Distribute commit with snapshotId: " + localTimestamp);
+                Log.getLogger().warn("Distribute commit with snapshotId: " + localTimestamp);
                 processCommitReturn(localProxy.invokeOrdered(bytes));
-                Log.getLogger().info("Finish commit with snapshotId: " + localTimestamp);
+                Log.getLogger().warn("Finish commit with snapshotId: " + localTimestamp);
             }
             else
             {
