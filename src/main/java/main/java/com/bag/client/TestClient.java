@@ -618,7 +618,7 @@ public class TestClient implements BAGClient, ReplyListener
                 return;
             }
 
-            Log.getLogger().info("Starting commit process for: " + localTimestamp);
+            Log.getLogger().warn("Starting commit process for: " + localTimestamp);
             final byte[] bytes = serializeAll();
             if (readOnly)
             {
@@ -769,10 +769,10 @@ public class TestClient implements BAGClient, ReplyListener
             }
             else
             {
-                Log.getLogger().info("Commit with snapshotId directly to global cluster. TimestampId: " + localTimestamp);
+                Log.getLogger().warn("Commit with snapshotId directly to global cluster. TimestampId: " + localTimestamp);
                 Log.getLogger().info("WriteSet: " + writeSet.size() + " readSetNode: " + readsSetNode.size() + " readSetRs: " + readsSetRelationship.size());
                 processCommitReturn(globalProxy.invokeOrdered(bytes));
-                Log.getLogger().info(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + localTimestamp);
+                Log.getLogger().warn(localProxy.getProcessId() + " Write (Ordered) Commit with snapshotId: " + localTimestamp);
             }
             //currentThread.interrupt();
         }
