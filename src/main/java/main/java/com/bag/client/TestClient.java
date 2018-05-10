@@ -634,11 +634,12 @@ public class TestClient implements BAGClient, ReplyListener
                         final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                         final int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
 
-                        Log.getLogger().info("Send to local Cluster to: " + rand);
+                        Log.getLogger().warn("Send to local Cluster to: " + rand);
                         localProxy.invokeAsynchRequest(bytes, new int[] {rand}, bagReplyListener, TOMMessageType.UNORDERED_REQUEST);
                        //currentThread.interrupt();
                         return;
                     }
+                    Log.getLogger().warn("Send to local Cluster unordered");
                     answer = localProxy.invokeUnordered(bytes);
                 }
                 else
