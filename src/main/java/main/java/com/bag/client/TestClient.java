@@ -630,7 +630,7 @@ public class TestClient implements BAGClient, ReplyListener
                 final byte[] answer;
                 if (localClusterId == -1)
                 {
-                    if (readMode == TO_1_OTHER)
+                    if (true || readMode == TO_1_OTHER)
                     {
                         final int[] viewProcesses = localProxy.getViewManager().getCurrentViewProcesses();
                         final int rand = localProxy.getViewManager().getCurrentViewProcesses()[random.nextInt(viewProcesses.length)];
