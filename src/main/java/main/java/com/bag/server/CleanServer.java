@@ -148,7 +148,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
         {
             if (obj instanceof IOperation)
             {
-                Log.getLogger().info("Starting write!");
+                Log.getLogger().warn("Starting write!");
                 try
                 {
                     ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, 0);
@@ -174,7 +174,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             }
             else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
             {
-                Log.getLogger().info("Starting read!");
+                Log.getLogger().warn("Starting read!");
                 try
                 {
                     final List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT);
@@ -193,7 +193,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             }
         }
 
-        Log.getLogger().info("Finished server execution, preparing response!");
+        Log.getLogger().warn("Finished server execution, preparing response!");
         readObjects.add(new DeleteOperation<>());
 
         if (writesPerformed > 0)
