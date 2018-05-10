@@ -600,17 +600,15 @@ public class TestClient implements BAGClient, ReplyListener
             {
                 globalProxy.getViewManager().updateCurrentViewFromRepository();
                 globalProxy.getCommunicationSystem().updateConnections();
+                Log.getLogger().info(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
             }
+
             localProxy.getViewManager().updateCurrentViewFromRepository();
             localProxy.getCommunicationSystem().updateConnections();
 
             firstRead = true;
             final boolean readOnly = isReadOnly();
             Log.getLogger().info("Starting commit");
-            if (globalProxy != null)
-            {
-                Log.getLogger().info(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
-            }
 
             if (readOnly && readMode == UNSAFE)
             {
@@ -644,7 +642,7 @@ public class TestClient implements BAGClient, ReplyListener
                     }
                     answer = localProxy.invokeUnordered(bytes);
                 }
-                else
+                else if (globalProxy != null)
                 {
                     //Do it in optimistic mode in local cluster (if >= 4 replicas)
                     if(localProxy.getViewManager().getCurrentViewProcesses().length >= 4 && (readMode == TO_F_PLUS_1_LOCALLY || readMode == LOCALLY_UNORDERED))
@@ -721,6 +719,12 @@ public class TestClient implements BAGClient, ReplyListener
                         }
                     }
                 }
+                else
+                {
+                    Log.getLogger().warn("Something going wrong, went into the wrong!");
+                    return;
+                }
+
 
                 Log.getLogger().info(localProxy.getProcessId() + "Committed with snapshotId " + localTimestamp);
 
@@ -755,11 +759,14 @@ public class TestClient implements BAGClient, ReplyListener
                 return;
             }
 
-            if (globalProxy.getViewManager().getCurrentViewN() < 4)
+            if (globalProxy != null)
             {
-                resetSets();
-                //currentThread.interrupt();
-                return;
+                if (globalProxy.getViewManager().getCurrentViewN() < 4)
+                {
+                    resetSets();
+                    //currentThread.interrupt();
+                    return;
+                }
             }
 
             if (localClusterId == -1)
