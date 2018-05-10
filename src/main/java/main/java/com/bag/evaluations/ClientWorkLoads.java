@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import main.java.com.bag.client.BAGClient;
+import main.java.com.bag.client.DirectAccessClient;
 import main.java.com.bag.client.TestClient;
 import main.java.com.bag.operations.CreateOperation;
 import main.java.com.bag.operations.DeleteOperation;
@@ -538,18 +539,21 @@ public class ClientWorkLoads
                         client.write(null, ((CreateOperation) operation).getObject());
                     }
 
-                    try
+                    if (client instanceof DirectAccessClient)
                     {
-                        while (client.getReadQueue().take() != TestClient.FINISHED_READING)
+                        try
                         {
+                            while (client.getReadQueue().take() != TestClient.FINISHED_READING)
+                            {
 
+                            }
                         }
-                    }
-                    catch (final InterruptedException e)
-                    {
-                        /*
-                         * Intentionally left empty.
-                         */
+                        catch (final InterruptedException e)
+                        {
+                            /*
+                             * Intentionally left empty.
+                             */
+                        }
                     }
                 }
 
