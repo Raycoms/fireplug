@@ -603,8 +603,8 @@ public class TestClient implements BAGClient, ReplyListener
                 Log.getLogger().info(Arrays.toString(globalProxy.getViewManager().getCurrentViewProcesses()));
             }
 
-            localProxy.getViewManager().updateCurrentViewFromRepository();
-            localProxy.getCommunicationSystem().updateConnections();
+            //localProxy.getViewManager().updateCurrentViewFromRepository();
+            //localProxy.getCommunicationSystem().updateConnections();
 
             firstRead = true;
             final boolean readOnly = isReadOnly();
