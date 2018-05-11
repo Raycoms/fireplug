@@ -119,7 +119,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Thread pool for message sending.
      */
-    protected final ExecutorService localDis = Executors.newFixedThreadPool(3);
+    protected final ExecutorService localDis = Executors.newSingleThreadExecutor();
 
     /**
      * Factory for all Kryo related parts. Will give you a kryo object and receives it on release, to avoid memory leaks.
