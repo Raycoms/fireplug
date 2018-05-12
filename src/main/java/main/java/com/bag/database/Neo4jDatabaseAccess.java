@@ -513,21 +513,10 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             {
                                 return true;
                             }
-                            Log.getLogger().error("NS: Different SHA! " + newSha + " : " + n.getProperty(Constants.TAG_HASH) + " more results: " + result.hasNext() + " in map: " + value.size());
-                            final NodeStorage temp = new NodeStorage(n.getLabels().iterator().next().name(), n.getAllProperties());
-
-                            Log.getLogger().error(temp.toString());
-                            Log.getLogger().error("----VS----");
-                            Log.getLogger().error(nodeStorage.toString());
                         }
                         catch (final NoSuchAlgorithmException e)
                         {
                             Log.getLogger().error("Couldn't execute SHA1 for node", e);
-                        }
-                        catch (final Exception e)
-                        {
-                            Log.getLogger().error("Something went wrong with comparison!", e);
-                            return false;
                         }
 
                         if (!multiVersion)
@@ -877,25 +866,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             return true;
                         }
-                        Log.getLogger().error("RS: Different SHA! " + newSha + " : " + r.getProperty(Constants.TAG_HASH) + " more results: " + result.hasNext() + " in map: " + value.size());
-                        final NodeStorage start = new NodeStorage(r.getStartNode().getLabels().iterator().next().name(), r.getStartNode().getAllProperties());
-                        final NodeStorage end = new NodeStorage(r.getEndNode().getLabels().iterator().next().name(), r.getEndNode().getAllProperties());
-                        final RelationshipStorage temp = new RelationshipStorage(r.getType().name(), r.getAllProperties(), start, end);
-
-                        Log.getLogger().error(temp.toString());
-                        Log.getLogger().error("----VS----");
-                        Log.getLogger().error(relationshipStorage.toString());
                     }
                     catch (final NoSuchAlgorithmException e)
                     {
                         Log.getLogger().error("Couldn't execute SHA1 for rs", e);
                     }
-                    catch (final Exception e)
-                    {
-                        Log.getLogger().error("Something went wrong with comparison!", e);
-                        return false;
-                    }
-
 
                     if (!multiVersion)
                     {
