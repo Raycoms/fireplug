@@ -549,7 +549,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(messageOutput, signatureStorage);
         kryo.writeObject(messageOutput, context.getConsensusId());
 
-        Log.getLogger().info("Starting thread to update to slave signed by all members: " + snapShotId);
+        Log.getLogger().warn("Starting thread to update to slave signed by all members: " + snapShotId + " at: " + wrapper.getLocalCluster().getId());
 
         if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
         {
