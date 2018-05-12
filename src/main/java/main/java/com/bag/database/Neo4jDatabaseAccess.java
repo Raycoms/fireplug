@@ -513,7 +513,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             {
                                 return true;
                             }
-                            Log.getLogger().error("Different SHA! " + newSha + " : " + r.getProperty(Constants.TAG_HASH) + " more results: " + result.hasNext() + " in map: " + value.size());
+                            Log.getLogger().error("Different SHA! " + newSha + " : " + n.getProperty(Constants.TAG_HASH) + " more results: " + result.hasNext() + " in map: " + value.size());
                         }
                         catch (final NoSuchAlgorithmException e)
                         {
