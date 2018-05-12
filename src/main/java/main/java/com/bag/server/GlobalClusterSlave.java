@@ -990,7 +990,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         }
 
         /**
-         * Update the slave with a transaction.
+         * Send the message between the servers!
          *
          * @param message the message to propagate.
          */

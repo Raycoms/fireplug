@@ -797,13 +797,13 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void propagateUpdate(final byte[] message)
     {
-        while (proxy.invokeUnordered(message) == null)
+        /*while (proxy.invokeUnordered(message) == null)
         {
             /**
              * Try again.
              */
-        }
-        //proxy.sendMessageToTargets(message, 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        //}
+        proxy.sendMessageToTargets(message, 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
     }
 
     /**
