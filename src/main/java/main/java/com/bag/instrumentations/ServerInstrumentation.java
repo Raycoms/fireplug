@@ -21,6 +21,11 @@ public class ServerInstrumentation
     private AtomicInteger abortedTransactions = new AtomicInteger(0);
 
     /**
+     * Amount of aborts since last reset.
+     */
+    private AtomicInteger abortedWrites = new AtomicInteger(0);
+
+    /**
      * Amount of commits since last reset.
      */
     private AtomicInteger committedTransactions = new AtomicInteger(0);
@@ -88,8 +93,8 @@ public class ServerInstrumentation
 
                         //out.println();
 
-                        System.out.println(String.format("Elapsed: (%d seconds)\nAborted: %d\nCommited: %d\nReads: %d\nWrites: %d\nThroughput: %d\n\n", minutesElapsed, abortedTransactions.get(), committedTransactions.get(), readsPerformed.get(),
-                                writesPerformed.get(), readsPerformed.get() + writesPerformed.get()));
+                        System.out.println(String.format("Elapsed: (%d seconds)\nAborted: %d\nCommited: %d\nReads: %d\nWrites: %d\nThroughput: %d\n \nAborted Writes: %d\n ",  minutesElapsed, abortedTransactions.get(), committedTransactions.get(), readsPerformed.get(),
+                                writesPerformed.get(), readsPerformed.get() + writesPerformed.get(), abortedWrites.get()));
 
                         abortedTransactions = new AtomicInteger(0);
                         committedTransactions = new AtomicInteger(0);
@@ -97,6 +102,7 @@ public class ServerInstrumentation
                         writesPerformed = new AtomicInteger(0);
                         averageCommitTime = new AtomicInteger(0);
                         averageValidationTime = new AtomicInteger(0);
+                        abortedWrites = new AtomicInteger(0);
                     }
                     catch (final IOException e)
                     {
@@ -137,6 +143,14 @@ public class ServerInstrumentation
         {
             averageValidationTime.set((averageValidationTime.get() + time) / 2);
         }
+    }
+
+    /**
+     * Increment the aborted writes.
+     */
+    public void updateAbortedWrites()
+    {
+        abortedWrites.incrementAndGet();
     }
 
     /**
