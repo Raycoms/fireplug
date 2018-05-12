@@ -722,7 +722,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
-        if(buffer.size() % 200 == 0)
+        if(buffer.size() % 50 == 0)
         {
             Log.getLogger().error("Missing more than: " + buffer.size() + " messages, something is broken!" + lastKey);
         }
