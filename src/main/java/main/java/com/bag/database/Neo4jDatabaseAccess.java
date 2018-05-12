@@ -524,6 +524,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                         {
                             Log.getLogger().error("Couldn't execute SHA1 for node", e);
                         }
+                        catch (final Exception e)
+                        {
+                            Log.getLogger().error("Something went wrong with comparison!", e);
+                            return false;
+                        }
 
                         if (!multiVersion)
                         {
@@ -883,8 +888,14 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
                     catch (final NoSuchAlgorithmException e)
                     {
-                        Log.getLogger().error("Couldn't execute SHA1 for node", e);
+                        Log.getLogger().error("Couldn't execute SHA1 for rs", e);
                     }
+                    catch (final Exception e)
+                    {
+                        Log.getLogger().error("Something went wrong with comparison!", e);
+                        return false;
+                    }
+
 
                     if (!multiVersion)
                     {
@@ -912,6 +923,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     {
                         Log.getLogger().error("Couldn't execute SHA1 for relationship", e);
                     }
+
                     if (pool != null)
                     {
                         pool.release(kryo);
