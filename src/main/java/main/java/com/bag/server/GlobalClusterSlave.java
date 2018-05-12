@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class handling server communication in the global cluster.
@@ -74,6 +75,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
      * Timer object to execute functions in intervals
      */
     private final Timer timer = new Timer();
+
+    private final AtomicInteger threadCount = new AtomicInteger(0);
 
     /**
      * Constructor for the global cluster slave.
@@ -554,6 +557,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
         {
             final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
             service.submit(runnable);
+            final int count = threadCount.getAndIncrement();
+            if (count > 50)
+            {
+                Log.getLogger().error("Woooow, tons of cached threads!!! " + count);
+            }
         }
         messageOutput.close();
 
@@ -971,6 +979,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Notifying local cluster!");
                 wrapper.getLocalCluster().propagateUpdate(message);
             }
+            threadCount.decrementAndGet();
         }
     }
 
