@@ -722,7 +722,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
-        if(buffer.size() % 50 == 0)
+        if(buffer.size() % 200 == 0)
         {
             Log.getLogger().error("Missing more than: " + buffer.size() + " messages, something is broken!" + lastKey);
         }
@@ -797,13 +797,13 @@ public class LocalClusterSlave extends AbstractRecoverable
      */
     public void propagateUpdate(final byte[] message)
     {
-        /*while (proxy.invokeUnordered(message) == null)
+        while (proxy.invokeUnordered(message) == null)
         {
             /**
              * Try again.
              */
-        //}
-        proxy.sendMessageToTargets(message, 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
+        }
+        //proxy.sendMessageToTargets(message, 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
     }
 
     /**

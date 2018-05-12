@@ -76,6 +76,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private final Timer timer = new Timer();
 
+    /**
+     * Counter to check how many active threads there are to send messages to the client.
+     */
     private final AtomicInteger threadCount = new AtomicInteger(0);
 
     /**
