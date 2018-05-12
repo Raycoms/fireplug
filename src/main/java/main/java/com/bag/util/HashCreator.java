@@ -6,9 +6,7 @@ import main.java.com.bag.util.storage.RelationshipStorage;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static main.java.com.bag.util.Constants.TAG_PRE;
-import static main.java.com.bag.util.Constants.TAG_SNAPSHOT_ID;
-import static main.java.com.bag.util.Constants.TAG_VERSION;
+import static main.java.com.bag.util.Constants.*;
 
 /**
  * Class used to create a Hash out of a node or relationship.
@@ -36,6 +34,7 @@ public class HashCreator
         final NodeStorage copy = new NodeStorage(node);
         copy.removeProperty(TAG_VERSION);
         copy.removeProperty(TAG_PRE);
+        copy.removeProperty(TAG_HASH);
         copy.removeProperty(TAG_SNAPSHOT_ID);
 
         final MessageDigest mDigest = MessageDigest.getInstance("SHA1");
@@ -62,6 +61,7 @@ public class HashCreator
         final RelationshipStorage copy = new RelationshipStorage(relationShip);
         copy.removeProperty(TAG_VERSION);
         copy.removeProperty(TAG_PRE);
+        copy.removeProperty(TAG_HASH);
         copy.removeProperty(TAG_SNAPSHOT_ID);
 
         final MessageDigest mDigest = MessageDigest.getInstance("SHA1");
