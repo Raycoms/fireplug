@@ -508,10 +508,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
 
                         try
                         {
-                            if (HashCreator.sha1FromNode(nodeStorage).equals(n.getProperty(Constants.TAG_HASH)))
+                            final String newSha = HashCreator.sha1FromNode(nodeStorage);
+                            if (newSha.equals(n.getProperty(Constants.TAG_HASH)))
                             {
                                 return true;
                             }
+                            Log.getLogger().error("Different SHA! " + newSha + " : " + n.getProperty(Constants.TAG_HASH));
                         }
                         catch (final NoSuchAlgorithmException e)
                         {
@@ -860,10 +862,12 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     final RelationshipProxy r = (RelationshipProxy) entry.getValue();
                     try
                     {
-                        if (HashCreator.sha1FromRelationship(relationshipStorage).equals(r.getProperty(Constants.TAG_HASH)))
+                        final String newSha = HashCreator.sha1FromRelationship(relationshipStorage);
+                        if (newSha.equals(r.getProperty(Constants.TAG_HASH)))
                         {
                             return true;
                         }
+                        Log.getLogger().error("Different SHA! " + newSha + " : " + r.getProperty(Constants.TAG_HASH));
                     }
                     catch (final NoSuchAlgorithmException e)
                     {

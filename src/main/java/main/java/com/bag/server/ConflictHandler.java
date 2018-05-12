@@ -49,15 +49,8 @@ public class ConflictHandler
             final IDatabaseAccess access,
             final boolean multiVersion)
     {
-        final boolean upDate = isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId, multiVersion);
-        final boolean correct = isCorrect(readSetNode, readSetRelationship, access);
-
-        if (!localWriteSet.isEmpty() && !correct)
-        {
-            Log.getLogger().warn("We got a write transaction abort because of the read transaction part.");
-        }
         //Commented out during first experiments because implementation is buggy
-        return upDate && correct;
+        return isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId, multiVersion) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
     /**
