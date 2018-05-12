@@ -518,6 +518,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final ArrayList<RelationshipStorage> readsSetRelationship,
             final MessageContext context)
     {
+        if (true)
+        {
+            return;
+        }
         //Might not be enough, might have to think about increasing the buffer size in the future.
         final Output output = new Output(0, 1000240);
 
