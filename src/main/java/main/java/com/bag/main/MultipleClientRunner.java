@@ -81,7 +81,7 @@ public class MultipleClientRunner
                 directAddresses = addresses.split(",");
             }
 
-            int clientId = Integer.parseInt(Integer.toString(processId) + Integer.toString(numOfClients));
+            int clientId = Integer.parseInt(Integer.toString(processId*10) + Integer.toString(numOfClients));
 
             for (int i = 0; i < numOfClients; i++)
             {
