@@ -474,7 +474,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                 {
-                    Log.getLogger().warn("Got enough signatures, got: " + signatureStorage.getSignatures().size() + " signatures!");
+                    Log.getLogger().info("Got enough signatures, got: " + signatureStorage.getSignatures().size() + " signatures!");
                     final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
                     service.submit(runnable);
                 }
@@ -885,7 +885,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
                 if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                 {
-                    Log.getLogger().warn("Got enough signatures, got: " + signatureStorage.getSignatures().size() + " signatures!");
+                    Log.getLogger().info("Got enough signatures, got: " + signatureStorage.getSignatures().size() + " signatures!");
                     final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
                     service.submit(runnable);
                 }
