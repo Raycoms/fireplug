@@ -282,7 +282,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             getInstrumentation().setValidationTime((int) dif);
             getInstrumentation().updateAbortedWrites();
             Log.getLogger()
-                    .info("Found conflict " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                    .warn("Found conflict " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                             + Arrays.toString(localWriteSet.toArray())
                             + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
             kryo.writeObject(output, Constants.ABORT);
