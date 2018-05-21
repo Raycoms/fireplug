@@ -39,7 +39,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -79,6 +78,11 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
      * Used to measure and save performance info
      */
     private final ServerInstrumentation instrumentation;
+
+    /**
+     * A lock.
+     */
+    private final Object lock = new Object();
 
     /**
      * Create an instance of this server.
@@ -136,85 +140,95 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, final BAGMessage msg)
     {
-        final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
-        final Kryo kryo = pool.borrow();
-        final Input input = new Input(msg.buffer);
-        int writesPerformed = 0;
-        final List<Object> readObjects = new ArrayList<>();
-        final int clientId = kryo.readObject(input, Integer.class);
-        final String operation = kryo.readObject(input, String.class);
-        final List returnValue = kryo.readObject(input, ArrayList.class);
-        Log.getLogger().info("Received message!");
-        final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
-
-        if (operation.equals(Constants.COMMIT))
+        synchronized (lock)
         {
-            for (final Object obj : returnValue)
+            final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
+            final Kryo kryo = pool.borrow();
+            final Input input = new Input(msg.buffer);
+            int writesPerformed = 0;
+            final List<Object> readObjects = new ArrayList<>();
+            final int clientId = kryo.readObject(input, Integer.class);
+            final String operation = kryo.readObject(input, String.class);
+            final List returnValue = kryo.readObject(input, ArrayList.class);
+            Log.getLogger().info("Received message!");
+            final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
+
+            if (operation.equals(Constants.COMMIT))
             {
-                if (obj instanceof IOperation)
+                for (final Object obj : returnValue)
                 {
-                    Log.getLogger().info("Starting write!");
-                    try
+                    if (obj instanceof IOperation)
                     {
-                        ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId);
-                        instrumentation.updateCounts(1, 0, 0, 0);
-                        writesPerformed += 1;
+                        boolean finished = false;
+                        while (!finished)
+                        {
+                            Log.getLogger().info("Starting write!");
+                            try
+                            {
+                                ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId);
+                                instrumentation.updateCounts(1, 0, 0, 0);
+                                writesPerformed += 1;
+                                finished = true;
+                            }
+                            catch (final DeadlockDetectedException e)
+                            {
+                                Log.getLogger().info("Dead-lock: ", e);
+                                instrumentation.updateCounts(0, 0, 0, 1);
+                                finished = true;
+                            }
+                            catch (final TransactionTerminatedException e)
+                            {
+                                Log.getLogger().info("Transaction terminated: ", e);
+                                instrumentation.updateCounts(0, 0, 0, 1);
+                            }
+                            catch (final Exception e)
+                            {
+                                Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString());
+                                instrumentation.updateCounts(0, 0, 0, 1);
+                                finished = true;
+                            }
+                        }
                     }
-                    catch (final DeadlockDetectedException e)
+                    else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
                     {
-                        Log.getLogger().info("Dead-lock: ", e);
-                        instrumentation.updateCounts(0, 0, 0, 1);
+                        Log.getLogger().info("Starting read!");
+                        try
+                        {
+                            final List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT, clientId);
+                            readObjects.addAll(read);
+                            instrumentation.updateCounts(0, 1, 0, 0);
+                        }
+                        catch (final Exception e)
+                        {
+                            Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
+                            instrumentation.updateCounts(0, 0, 0, 1);
+                        }
                     }
-                    catch (final TransactionTerminatedException e)
+                    else
                     {
-                        Log.getLogger().info("Transaction terminated: ", e);
-                        instrumentation.updateCounts(0, 0, 0, 1);
-                    }
-                    catch (final Exception e)
-                    {
-                        Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString());
-                        instrumentation.updateCounts(0, 0, 0, 1);
+                        Log.getLogger().info("Got commit!");
                     }
                 }
-                else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
-                {
-                    Log.getLogger().info("Starting read!");
-                    try
-                    {
-                        final List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT, clientId);
-                        readObjects.addAll(read);
-                        instrumentation.updateCounts(0, 1, 0, 0);
-                    }
-                    catch (final Exception e)
-                    {
-                        Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
-                        instrumentation.updateCounts(0, 0, 0, 1);
-                    }
-                }
-                else
-                {
-                    Log.getLogger().info("Got commit!");
-                }
+                instrumentation.updateCounts(0, 0, 1, 0);
             }
-            instrumentation.updateCounts(0, 0, 1, 0);
-        }
 
-        Log.getLogger().info("Finished server execution, preparing response!");
-        readObjects.add(new DeleteOperation<>());
+            Log.getLogger().info("Finished server execution, preparing response!");
+            readObjects.add(new DeleteOperation<>());
 
-        if (operation.equals(Constants.READ_MESSAGE))
-        {
-            instrumentation.updateCounts(0, 1, 0, 0);
-        }
+            if (operation.equals(Constants.READ_MESSAGE))
+            {
+                instrumentation.updateCounts(0, 1, 0, 0);
+            }
 
-        try (final Output output = new Output(0, 10240000))
-        {
-            kryo.writeObject(output, readObjects);
-            final BAGMessage message = new BAGMessage();
-            message.buffer = output.getBuffer();
-            message.size = message.buffer.length;
-            pool.release(kryo);
-            ctx.writeAndFlush(message);
+            try (final Output output = new Output(0, 10240000))
+            {
+                kryo.writeObject(output, readObjects);
+                final BAGMessage message = new BAGMessage();
+                message.buffer = output.getBuffer();
+                message.size = message.buffer.length;
+                pool.release(kryo);
+                ctx.writeAndFlush(message);
+            }
         }
     }
 
