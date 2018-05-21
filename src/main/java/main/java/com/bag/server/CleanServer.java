@@ -140,6 +140,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, final BAGMessage msg)
     {
+        Log.getLogger().warn("Received message!");
         synchronized (lock)
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
@@ -150,7 +151,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             final int clientId = kryo.readObject(input, Integer.class);
             final String operation = kryo.readObject(input, String.class);
             final List returnValue = kryo.readObject(input, ArrayList.class);
-            Log.getLogger().warn("Received message!");
+
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
 
             if (operation.equals(Constants.COMMIT))
@@ -234,6 +235,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 Log.getLogger().warn("Error responding to client!", ex);
             }
         }
+        Log.getLogger().warn("Finished server execution, preparing response!");
     }
 
     /**
