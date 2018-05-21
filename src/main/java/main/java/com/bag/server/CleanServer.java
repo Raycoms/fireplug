@@ -150,7 +150,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             final int clientId = kryo.readObject(input, Integer.class);
             final String operation = kryo.readObject(input, String.class);
             final List returnValue = kryo.readObject(input, ArrayList.class);
-            Log.getLogger().info("Received message!");
+            Log.getLogger().warn("Received message!");
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
 
             if (operation.equals(Constants.COMMIT))
@@ -160,7 +160,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     if (obj instanceof IOperation)
                     {
                         boolean finished = false;
-                        while (!finished)
+                        //while (!finished)
                         {
                             Log.getLogger().info("Starting write!");
                             try
@@ -212,7 +212,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 instrumentation.updateCounts(0, 0, 1, 0);
             }
 
-            Log.getLogger().info("Finished server execution, preparing response!");
+            Log.getLogger().warn("Finished server execution, preparing response!");
             readObjects.add(new DeleteOperation<>());
 
             if (operation.equals(Constants.READ_MESSAGE))
