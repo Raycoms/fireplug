@@ -18,12 +18,13 @@ import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.server.nettyhandlers.BAGMessageDecoder;
 import main.java.com.bag.server.nettyhandlers.BAGMessageEncoder;
 import main.java.com.bag.server.nettyhandlers.ClientHandler;
+import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
 import org.apache.log4j.Level;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.socket.nio.NioSocketChannel;
+
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -38,11 +39,35 @@ import static main.java.com.bag.util.Constants.WRITE_REQUEST;
  */
 public class DirectAccessClient implements BAGClient
 {
-    private final EventLoopGroup        connectGroup;
-    private final ClientHandler         handler;
-    private final String                host;
-    private final int                   hostPort;
-    private final KryoPool              kryoPool;
+    /**
+     * The EventLoopGroup to connect.
+     */
+    private final EventLoopGroup connectGroup;
+
+    /**
+     * The client handler.
+     */
+    private final ClientHandler handler;
+
+    /**
+     * The host.
+     */
+    private final String host;
+
+    /**
+     * The port of the host.
+     */
+    private final int hostPort;
+
+    /**
+     * The kryo pool.
+     */
+    private final KryoPool kryoPool;
+
+    /**
+     * The reads and writes.
+     */
+    private final ArrayList<Object> readsAndWrites = new ArrayList<Object>();
 
     /**
      * Create a threadsafe version of kryo.
@@ -58,7 +83,6 @@ public class DirectAccessClient implements BAGClient
         kryo.register(LoadSensor.LoadDesc.class, 400);
         return kryo;
     };
-
 
     public DirectAccessClient(final String host, final int hostPort)
     {
@@ -131,11 +155,15 @@ public class DirectAccessClient implements BAGClient
         {
             operation = new UpdateOperation((Serializable) identifier, (Serializable) value);
         }
+
+        readsAndWrites.add(operation);
         final List<IOperation> toSend = new ArrayList<>();
         toSend.add(operation);
 
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
+        kryo.writeObject(output, getID());
+        kryo.writeObject(output, Constants.WRITE_REQUEST);
         kryo.writeObject(output, toSend);
 
         handler.sendMessage(output.getBuffer());
@@ -162,8 +190,13 @@ public class DirectAccessClient implements BAGClient
                 Log.getLogger().info("Invalid type to read " + item.getClass().getName());
             }
         }
+
+        readsAndWrites.addAll(list);
+
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
+        kryo.writeObject(output, getID());
+        kryo.writeObject(output, Constants.READ_MESSAGE);
         kryo.writeObject(output, list);
 
         if (Log.getLogger().getLevel() == Level.INFO)
@@ -186,7 +219,9 @@ public class DirectAccessClient implements BAGClient
         Log.getLogger().info("Sending commit!");
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
-        kryo.writeObject(output, new ArrayList<>());
+        kryo.writeObject(output, getID());
+        kryo.writeObject(output, Constants.COMMIT);
+        kryo.writeObject(output, readsAndWrites);
 
         handler.sendMessage(output.getBuffer());
         output.close();

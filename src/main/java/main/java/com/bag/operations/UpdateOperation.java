@@ -28,24 +28,19 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
+    public void apply(final IDatabaseAccess access, final long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
-        final byte[] signature;
         try
         {
             if (key instanceof NodeStorage)
             {
                 final NodeStorage tempStorage = (NodeStorage) value;
-                //signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                //tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
-                access.applyUpdate((NodeStorage) key, tempStorage, snapshotId);
+                access.applyUpdate((NodeStorage) key, tempStorage, snapshotId, idClient);
             }
             else if (value instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) value;
-                //signature = TOMUtil.signMessage(keyLoader.loadPrivateKey(), tempStorage.getBytes());
-                //tempStorage.addProperty("signature" + idClient, new String(signature, "UTF-8"));
-                access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId);
+                access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId, idClient);
             }
             else
             {
@@ -85,7 +80,7 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public boolean equals(Object e)
+    public boolean equals(final Object e)
     {
         if((key instanceof NodeStorage && e instanceof NodeStorage) || (key instanceof RelationshipStorage && e instanceof RelationshipStorage))
         {

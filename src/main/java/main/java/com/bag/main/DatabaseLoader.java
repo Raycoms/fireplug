@@ -78,7 +78,7 @@ public class DatabaseLoader
 
                 if (!cache.contains(origin))
                 {
-                    dbAccess.applyCreate(nodeOrigin, 1);
+                    dbAccess.applyCreate(nodeOrigin, 1, 0);
                     nodeOperations += 1;
                     count += 1;
                     cache.add(origin);
@@ -86,14 +86,14 @@ public class DatabaseLoader
 
                 if (!cache.contains(destination))
                 {
-                    dbAccess.applyCreate(nodeDest, 1);
+                    dbAccess.applyCreate(nodeDest, 1, 0);
                     nodeOperations += 1;
                     count += 1;
                     cache.add(destination);
                 }
 
                 RelationshipStorage rel = new RelationshipStorage(fields[1], nodeOrigin, nodeDest);
-                dbAccess.applyCreate(rel, 1);
+                dbAccess.applyCreate(rel, 1, 0);
 
                 /*List<Object> lst = dbAccess.readObject(rel, 1);
                 for (Object l : lst)

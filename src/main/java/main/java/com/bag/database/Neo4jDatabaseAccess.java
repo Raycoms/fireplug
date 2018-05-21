@@ -13,7 +13,6 @@ import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.neo4j.cluster.ClusterSettings;
-import org.neo4j.cluster.protocol.cluster.Cluster;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -193,10 +192,11 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
      * Creates a transaction which will get a list of nodes.
      *
      * @param identifier the nodes which should be retrieved.
+     * @param clientId
      * @return the result nodes as a List of NodeStorages..
      */
     @NotNull
-    public List<Object> readObject(@NotNull final Object identifier, final long snapshotId) throws OutDatedDataException
+    public List<Object> readObject(@NotNull final Object identifier, final long snapshotId, final int clientId) throws OutDatedDataException
     {
         NodeStorage nodeStorage = null;
         RelationshipStorage relationshipStorage = null;
@@ -285,7 +285,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             {
                                 OutDatedDataException.checkSnapshotId(sId, snapshotId);
                             }
-                            //temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         temp.removeProperty(Constants.TAG_HASH);
 
@@ -327,7 +326,6 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                             {
                                 OutDatedDataException.checkSnapshotId(sId, snapshotId);
                             }
-                            //temp.removeProperty(Constants.TAG_SNAPSHOT_ID);
                         }
                         temp.removeProperty(Constants.TAG_HASH);
                         if (multiVersion)
@@ -559,7 +557,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
+    public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId, final int clientId)
     {
         final Kryo kryo;
         if (multiVersion)
@@ -570,9 +568,8 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         {
             kryo = null;
         }
-        try
+        try (Transaction tx = graphDb.beginTx())
         {
-            graphDb.beginTx();
             final Map<String, Object> tempProperties = transFormToPropertyMap(key.getProperties(), "");
             final Result result = graphDb.execute(MATCH + buildNodeString(key, "") + " RETURN n", tempProperties);
 
@@ -606,7 +603,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
                     }
                 }
             }
-
+            tx.success();
         }
         catch (final Exception e)
         {
@@ -625,7 +622,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyCreate(final NodeStorage storage, final long snapshotId)
+    public boolean applyCreate(final NodeStorage storage, final long snapshotId, final int clientId)
     {
         try (Transaction tx = graphDb.beginTx())
         {
@@ -656,7 +653,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyDelete(final NodeStorage storage, final long snapshotId)
+    public boolean applyDelete(final NodeStorage storage, final long snapshotId, final int clientId)
     {
         try
         {
@@ -664,7 +661,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             {
                 final NodeStorage value = new NodeStorage(storage);
                 value.addProperty(TAG_VERSION, -1);
-                return applyUpdate(storage, value, snapshotId);
+                return applyUpdate(storage, value, snapshotId, clientId);
             }
             else
             {
@@ -684,7 +681,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
+    public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId, final int clientId)
     {
         final Kryo kryo;
         if (multiVersion)
@@ -762,7 +759,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
+    public boolean applyCreate(final RelationshipStorage storage, final long snapshotId, final int clientId)
     {
         try
         {
@@ -802,7 +799,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyDelete(final RelationshipStorage storage, final long snapshotId)
+    public boolean applyDelete(final RelationshipStorage storage, final long snapshotId, final int clientId)
     {
         try
         {
@@ -810,7 +807,7 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
             {
                 final RelationshipStorage value = new RelationshipStorage(storage);
                 value.addProperty(TAG_VERSION, -1);
-                return applyUpdate(storage, value, snapshotId);
+                return applyUpdate(storage, value, snapshotId, clientId);
             }
             else
             {
@@ -834,6 +831,18 @@ public class Neo4jDatabaseAccess implements IDatabaseAccess
         }
         Log.getLogger().info("Executed delete relationship transaction in server:  " + id);
         return true;
+    }
+
+    @Override
+    public boolean startTransaction()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean commitTransaction()
+    {
+        return false;
     }
 
     @Override

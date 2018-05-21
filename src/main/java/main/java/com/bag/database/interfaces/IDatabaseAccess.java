@@ -109,45 +109,58 @@ public interface IDatabaseAccess
      * Applies a node update to the database.
      * @return true if successful.
      */
-    boolean applyUpdate(NodeStorage key, NodeStorage value, long snapshotId);
+    boolean applyUpdate(NodeStorage key, NodeStorage value, long snapshotId, final int clientId);
 
     /**
      * Applies a node create to the database.
      * @return true if successful.
      */
-    boolean applyCreate(NodeStorage storage, long snapshotId);
+    boolean applyCreate(NodeStorage storage, long snapshotId, final int clientId);
 
     /**
      * Applies a node delete to the database.
      * @return true if successful.
      */
-    boolean applyDelete(NodeStorage storage, long snapshotId);
+    boolean applyDelete(NodeStorage storage, long snapshotId, final int clientId);
 
     /**
      * Applies a node update to the database.
      * @return true if successful.
      */
-    boolean applyUpdate(RelationshipStorage key, RelationshipStorage value, long snapshotId);
+    boolean applyUpdate(RelationshipStorage key, RelationshipStorage value, long snapshotId, final int clientId);
 
     /**
      * Applies a node create to the database.
      * @return true if successful.
      */
-    boolean applyCreate(RelationshipStorage storage, long snapshotId);
+    boolean applyCreate(RelationshipStorage storage, long snapshotId, final int clientId);
 
     /**
      * Applies a node delete to the database.
      * @return true if successful.
      */
-    boolean applyDelete(RelationshipStorage storage, long snapshotId);
+    boolean applyDelete(RelationshipStorage storage, long snapshotId, final int clientId);
+
+    /**
+     * Starts a transaction.
+     * @return true if succesfully.
+     */
+    boolean startTransaction();
+
+    /**
+     * Committs a transaction.
+     * @return true if succesfully.
+     */
+    boolean commitTransaction();
 
     /**
      * Method to read an object from the database.
      * @param identifier identifier of the object.
      * @param localSnapshotId snapshotId.
+     * @param clientId the id of the client.
      * @return list of objects.
      */
-    List<Object> readObject(Object identifier, long localSnapshotId) throws OutDatedDataException;
+    List<Object> readObject(Object identifier, long localSnapshotId, final int clientId) throws OutDatedDataException;
 
     /**
      * Checks if this db should try to check requests with this sequence number.

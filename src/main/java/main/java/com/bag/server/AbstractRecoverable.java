@@ -308,7 +308,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         {
             try
             {
-                returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId));
+                returnList = new ArrayList<>(wrapper.getDataBaseAccess().readObject(identifier, localSnapshotId, clientId));
             }
             catch (final OutDatedDataException e)
             {
@@ -429,7 +429,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         Log.getLogger().info("Get info from databaseAccess");
         try
         {
-            returnList = new ArrayList<>((wrapper.getDataBaseAccess()).readObject(identifier, localSnapshotId));
+            returnList = new ArrayList<>((wrapper.getDataBaseAccess()).readObject(identifier, localSnapshotId, clientId));
         }
         catch (final OutDatedDataException e)
         {

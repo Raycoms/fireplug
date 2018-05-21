@@ -3,7 +3,6 @@ package main.java.com.bag.database;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import main.java.com.bag.exceptions.OutDatedDataException;
 import main.java.com.bag.database.interfaces.IDatabaseAccess;
-import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
@@ -55,7 +54,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId)
+    public boolean applyUpdate(final NodeStorage key, final NodeStorage value, final long snapshotId, final int clientId)
     {
         try
         {
@@ -71,7 +70,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyCreate(final NodeStorage storage, final long snapshotId)
+    public boolean applyCreate(final NodeStorage storage, final long snapshotId, final int clientId)
     {
         try
         {
@@ -87,7 +86,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyDelete(final NodeStorage storage, final long snapshotId)
+    public boolean applyDelete(final NodeStorage storage, final long snapshotId, final int clientId)
     {
         try
         {
@@ -103,7 +102,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId)
+    public boolean applyUpdate(final RelationshipStorage key, final RelationshipStorage value, final long snapshotId, final int clientId)
     {
         try
         {
@@ -119,7 +118,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyCreate(final RelationshipStorage storage, final long snapshotId)
+    public boolean applyCreate(final RelationshipStorage storage, final long snapshotId, final int clientId)
     {
         try
         {
@@ -135,7 +134,7 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public boolean applyDelete(final RelationshipStorage storage, final long snapshotId)
+    public boolean applyDelete(final RelationshipStorage storage, final long snapshotId, final int clientId)
     {
         try
         {
@@ -151,7 +150,19 @@ public class EmptyDatabaseAccess implements IDatabaseAccess
     }
 
     @Override
-    public List<Object> readObject(final Object identifier, final long localSnapshotId) throws OutDatedDataException
+    public boolean startTransaction()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean commitTransaction()
+    {
+        return true;
+    }
+
+    @Override
+    public List<Object> readObject(final Object identifier, final long localSnapshotId, final int clientId) throws OutDatedDataException
     {
         final List<Object> returnList = new ArrayList<>();
         returnList.add(identifier);

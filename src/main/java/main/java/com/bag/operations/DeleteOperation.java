@@ -27,15 +27,15 @@ public class DeleteOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(@NotNull final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
+    public void apply(@NotNull final IDatabaseAccess access, final long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
         if(storage instanceof NodeStorage)
         {
-            access.applyDelete((NodeStorage) storage, snapshotId);
+            access.applyDelete((NodeStorage) storage, snapshotId, idClient);
         }
         else if(storage instanceof RelationshipStorage)
         {
-            access.applyDelete((RelationshipStorage) storage, snapshotId);
+            access.applyDelete((RelationshipStorage) storage, snapshotId, idClient);
         }
         else
         {
@@ -59,7 +59,7 @@ public class DeleteOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public boolean equals(Object e)
+    public boolean equals(final Object e)
     {
         if((storage instanceof NodeStorage && e instanceof NodeStorage) || (storage instanceof RelationshipStorage && e instanceof RelationshipStorage))
         {
