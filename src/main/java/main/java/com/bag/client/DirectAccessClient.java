@@ -211,7 +211,7 @@ public class DirectAccessClient implements BAGClient
     {
         Log.getLogger().warn("Sending commit!");
         final Kryo kryo = kryoPool.borrow();
-        final Output output = new Output(0, 10240);
+        final Output output = new Output(0, 1024000);
         kryo.writeObject(output, getID());
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, readsAndWrites);

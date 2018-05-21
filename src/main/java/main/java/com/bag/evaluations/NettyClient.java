@@ -17,13 +17,13 @@ import java.util.concurrent.ThreadFactory;
  */
 public class NettyClient
 {
-    private        String        host;
-    private        int           hostPort;
+    private        final String        host;
+    private        final int           hostPort;
     private final EventLoopGroup connectGroup;
 
     private ClientHandler handler;
 
-    public NettyClient(String host, int hostPort)
+    public NettyClient(final String host, final int hostPort)
     {
         final ThreadFactory connectFactory = new DefaultThreadFactory("connect");
         connectGroup = new NioEventLoopGroup(1,
@@ -37,7 +37,7 @@ public class NettyClient
      * Send a message to the server.
      * @param message the byte array to send.
      */
-    public synchronized void sendMessage(byte[] message)
+    public synchronized void sendMessage(final byte[] message)
     {
         handler.sendMessage(message);
     }
@@ -72,7 +72,7 @@ public class NettyClient
             // Start the client.
             boot.connect(host, hostPort).sync();
         }
-        catch (InterruptedException e)
+        catch (final InterruptedException e)
         {
             e.printStackTrace();
         }

@@ -213,7 +213,6 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 instrumentation.updateCounts(0, 0, 1, 0);
             }
 
-            Log.getLogger().warn("Finished server execution, preparing response!");
             readObjects.add(new DeleteOperation<>());
 
             if (operation.equals(Constants.READ_MESSAGE))
