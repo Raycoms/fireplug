@@ -229,6 +229,10 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 pool.release(kryo);
                 ctx.writeAndFlush(message);
             }
+            catch (final Exception ex)
+            {
+                Log.getLogger().warn("Error responding to client!", ex);
+            }
         }
     }
 
