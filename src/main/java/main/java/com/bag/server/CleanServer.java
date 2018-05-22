@@ -215,11 +215,6 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
 
             readObjects.add(new DeleteOperation<>());
 
-            if (operation.equals(Constants.READ_MESSAGE))
-            {
-                instrumentation.updateCounts(0, 1, 0, 0);
-            }
-
             try (final Output output = new Output(0, 10240000))
             {
                 kryo.writeObject(output, readObjects);
