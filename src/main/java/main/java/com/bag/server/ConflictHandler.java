@@ -50,7 +50,7 @@ public class ConflictHandler
             final boolean multiVersion)
     {
         //Commented out during first experiments because implementation is buggy
-        return isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId, multiVersion) && isCorrect(readSetNode, readSetRelationship, access);
+        return isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId, multiVersion) && (true || isCorrect(readSetNode, readSetRelationship, access));
     }
 
     /**
