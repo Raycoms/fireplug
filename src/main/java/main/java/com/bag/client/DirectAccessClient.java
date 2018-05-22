@@ -134,7 +134,7 @@ public class DirectAccessClient implements BAGClient
     @Override
     public void write(final Object identifier, final Object value)
     {
-        Log.getLogger().warn("Sending write!");
+        Log.getLogger().info("Sending write!");
         if (identifier == null && value == null)
         {
             Log.getLogger().error("Unsupported write operation");
@@ -168,7 +168,7 @@ public class DirectAccessClient implements BAGClient
 
         handler.sendMessage(output.getBuffer());
 
-        Log.getLogger().warn("Finishing write!");
+        Log.getLogger().info("Finishing write!");
         output.close();
         kryoPool.release(kryo);
     }
@@ -176,7 +176,7 @@ public class DirectAccessClient implements BAGClient
     @Override
     public void read(final Object... identifiers)
     {
-        Log.getLogger().warn("Sending read!");
+        Log.getLogger().info("Sending read!");
         final List<Object> list = new ArrayList<>();
 
         for (final Object item : identifiers)
@@ -201,7 +201,7 @@ public class DirectAccessClient implements BAGClient
 
 
         handler.sendMessage(output.getBuffer());
-        Log.getLogger().warn("Finishing read!");
+        Log.getLogger().info("Finishing read!");
         output.close();
         kryoPool.release(kryo);
     }
@@ -209,7 +209,7 @@ public class DirectAccessClient implements BAGClient
     @Override
     public void commit()
     {
-        Log.getLogger().warn("Sending commit!");
+        Log.getLogger().info("Sending commit!");
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 1024000);
         kryo.writeObject(output, getID());
@@ -218,7 +218,7 @@ public class DirectAccessClient implements BAGClient
         handler.sendMessage(output.getBuffer());
         output.close();
         kryoPool.release(kryo);
-        Log.getLogger().warn("Finishing commit!");
+        Log.getLogger().info("Finishing commit!");
     }
 
     @Override

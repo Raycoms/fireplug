@@ -140,7 +140,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, final BAGMessage msg)
     {
-        Log.getLogger().warn("Received message!");
+        Log.getLogger().info("Received message!");
         synchronized (lock)
         {
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
@@ -161,7 +161,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     if (obj instanceof IOperation)
                     {
                         boolean finished = false;
-                        //while (!finished)
+                        while (!finished)
                         {
                             Log.getLogger().info("Starting write!");
                             try
@@ -234,7 +234,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 Log.getLogger().warn("Error responding to client!", ex);
             }
         }
-        Log.getLogger().warn("Finished server execution, preparing response!");
+        Log.getLogger().info("Finished server execution, preparing response!");
     }
 
     /**
