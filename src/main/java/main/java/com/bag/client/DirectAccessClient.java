@@ -157,7 +157,6 @@ public class DirectAccessClient implements BAGClient
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
         kryo.writeObject(output, getID());
-        kryo.writeObject(output, Constants.WRITE_REQUEST);
         kryo.writeObject(output, toSend);
 
         handler.sendMessage(output.getBuffer());
@@ -189,7 +188,6 @@ public class DirectAccessClient implements BAGClient
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
         kryo.writeObject(output, getID());
-        kryo.writeObject(output, Constants.READ_MESSAGE);
         kryo.writeObject(output, list);
 
 
@@ -206,7 +204,6 @@ public class DirectAccessClient implements BAGClient
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 1024000);
         kryo.writeObject(output, getID());
-        kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, new ArrayList<>());
         handler.sendMessage(output.getBuffer());
         output.close();

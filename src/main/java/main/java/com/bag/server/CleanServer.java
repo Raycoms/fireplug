@@ -26,7 +26,6 @@ import main.java.com.bag.reconfiguration.sensors.LoadSensor;
 import main.java.com.bag.server.nettyhandlers.BAGMessage;
 import main.java.com.bag.server.nettyhandlers.BAGMessageDecoder;
 import main.java.com.bag.server.nettyhandlers.BAGMessageEncoder;
-import main.java.com.bag.util.Constants;
 import main.java.com.bag.util.Log;
 import main.java.com.bag.util.storage.NodeStorage;
 import main.java.com.bag.util.storage.RelationshipStorage;
@@ -146,10 +145,8 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             final KryoPool pool = new KryoPool.Builder(factory).softReferences().build();
             final Kryo kryo = pool.borrow();
             final Input input = new Input(msg.buffer);
-            int writesPerformed = 0;
             final List<Object> readObjects = new ArrayList<>();
             final int clientId = kryo.readObject(input, Integer.class);
-            final String operation = kryo.readObject(input, String.class);
             final List returnValue = kryo.readObject(input, ArrayList.class);
 
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
@@ -160,14 +157,13 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                 if (obj instanceof IOperation)
                 {
                     boolean finished = false;
-                    while (!finished)
+                    //while (!finished)
                     {
                         Log.getLogger().info("Starting write!");
                         try
                         {
                             ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId);
                             instrumentation.updateCounts(1, 0, 0, 0);
-                            writesPerformed += 1;
                             finished = true;
                         }
                         catch (final DeadlockDetectedException e)
