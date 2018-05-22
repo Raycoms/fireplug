@@ -154,64 +154,62 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
 
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
 
-            if (operation.equals(Constants.COMMIT))
+
+            for (final Object obj : returnValue)
             {
-                for (final Object obj : returnValue)
+                if (obj instanceof IOperation)
                 {
-                    if (obj instanceof IOperation)
+                    boolean finished = false;
+                    while (!finished)
                     {
-                        boolean finished = false;
-                        while (!finished)
-                        {
-                            Log.getLogger().info("Starting write!");
-                            try
-                            {
-                                ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId);
-                                instrumentation.updateCounts(1, 0, 0, 0);
-                                writesPerformed += 1;
-                                finished = true;
-                            }
-                            catch (final DeadlockDetectedException e)
-                            {
-                                Log.getLogger().info("Dead-lock: ", e);
-                                instrumentation.updateCounts(0, 0, 0, 1);
-                                finished = true;
-                            }
-                            catch (final TransactionTerminatedException e)
-                            {
-                                Log.getLogger().info("Transaction terminated: ", e);
-                                instrumentation.updateCounts(0, 0, 0, 1);
-                            }
-                            catch (final Exception e)
-                            {
-                                Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString());
-                                instrumentation.updateCounts(0, 0, 0, 1);
-                                finished = true;
-                            }
-                        }
-                    }
-                    else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
-                    {
-                        Log.getLogger().info("Starting read!");
+                        Log.getLogger().info("Starting write!");
                         try
                         {
-                            final List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT, clientId);
-                            readObjects.addAll(read);
-                            instrumentation.updateCounts(0, 1, 0, 0);
+                            ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId);
+                            instrumentation.updateCounts(1, 0, 0, 0);
+                            writesPerformed += 1;
+                            finished = true;
+                        }
+                        catch (final DeadlockDetectedException e)
+                        {
+                            Log.getLogger().info("Dead-lock: ", e);
+                            instrumentation.updateCounts(0, 0, 0, 1);
+                            finished = true;
+                        }
+                        catch (final TransactionTerminatedException e)
+                        {
+                            Log.getLogger().info("Transaction terminated: ", e);
+                            instrumentation.updateCounts(0, 0, 0, 1);
                         }
                         catch (final Exception e)
                         {
-                            Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
+                            Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString());
                             instrumentation.updateCounts(0, 0, 0, 1);
+                            finished = true;
                         }
                     }
-                    else
+                }
+                else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
+                {
+                    Log.getLogger().info("Starting read!");
+                    try
                     {
-                        Log.getLogger().info("Got commit!");
+                        final List<Object> read = access.readObject(obj, OutDatedDataException.IGNORE_SNAPSHOT, clientId);
+                        readObjects.addAll(read);
+                        instrumentation.updateCounts(0, 1, 0, 0);
+                    }
+                    catch (final Exception e)
+                    {
+                        Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
+                        instrumentation.updateCounts(0, 0, 0, 1);
                     }
                 }
-                instrumentation.updateCounts(0, 0, 1, 0);
+                else
+                {
+                    Log.getLogger().info("Got commit!");
+                }
             }
+            instrumentation.updateCounts(0, 0, 1, 0);
 
             readObjects.add(new DeleteOperation<>());
 

@@ -65,11 +65,6 @@ public class DirectAccessClient implements BAGClient
     private final KryoPool kryoPool;
 
     /**
-     * The reads and writes.
-     */
-    private final ArrayList<Object> readsAndWrites = new ArrayList<Object>();
-
-    /**
      * Create a threadsafe version of kryo.
      */
     private final KryoFactory factory = () ->
@@ -156,7 +151,6 @@ public class DirectAccessClient implements BAGClient
             operation = new UpdateOperation((Serializable) identifier, (Serializable) value);
         }
 
-        readsAndWrites.add(operation);
         final List<IOperation> toSend = new ArrayList<>();
         toSend.add(operation);
 
@@ -191,7 +185,6 @@ public class DirectAccessClient implements BAGClient
             }
         }
 
-        readsAndWrites.addAll(list);
 
         final Kryo kryo = kryoPool.borrow();
         final Output output = new Output(0, 10240);
@@ -214,7 +207,7 @@ public class DirectAccessClient implements BAGClient
         final Output output = new Output(0, 1024000);
         kryo.writeObject(output, getID());
         kryo.writeObject(output, Constants.COMMIT);
-        kryo.writeObject(output, readsAndWrites);
+        kryo.writeObject(output, new ArrayList<>());
         handler.sendMessage(output.getBuffer());
         output.close();
         kryoPool.release(kryo);
