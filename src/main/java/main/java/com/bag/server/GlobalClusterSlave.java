@@ -315,13 +315,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                     {
+                        nanos = System.nanoTime();
                         distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
+                        dif = (System.nanoTime() - nanos)/1000;
+                        Log.getLogger().warn("Distribute to slave: " + dif);
                     }
                 }
                 else
                 {
                     Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
+                    nanos = System.nanoTime();
                     signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
+                    dif = (System.nanoTime() - nanos)/1000;
+                    Log.getLogger().warn("Distribute to slave: " + dif);
                 }
             }
         }
@@ -476,7 +482,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             signatureStorage.setProcessed();
             Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
-            Log.getLogger().warn("Signature size HB: " + signature.length);
             signatureStorage.addSignatures(idClient, signature);
             if (signatureStorage.hasEnough())
             {
@@ -554,7 +559,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         signature = context.getProof().iterator().next().getValue();
 
-        Log.getLogger().warn("Signature size: " + signature.length);
         final SignatureStorage signatureStorage = new SignatureStorage(1, message, decision);
 
         signatureStorage.setProcessed();
@@ -583,12 +587,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
         }
         messageOutput.close();
-
-        signatureStorage.setDistributed();
         lastSent = snapShotId;
-
         Log.getLogger().info("Finished to update to slave signed by all members: " + snapShotId);
-
     }
 
     /**
