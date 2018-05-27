@@ -260,13 +260,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        //  && (id != 1 || getGlobalSnapshotId() < 30) add this to add a byzantine failure.
-        if (wrapper.isGloballyVerified() && wrapper.getLocalCluster() != null && !localWriteSet.isEmpty() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
-        {
-            Log.getLogger().info("Distribute commit to slave!");
-            distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
-        }
-
         Log.getLogger().info("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
         long nanos = System.nanoTime();
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
@@ -310,10 +303,21 @@ public class GlobalClusterSlave extends AbstractRecoverable
             dif = (System.nanoTime() - nanos);
             getInstrumentation().setCommitTime((int) dif);
 
+            //  && (id != 1 || getGlobalSnapshotId() < 30) add this to add a byzantine failure.
             if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
-                Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
-                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
+                if (wrapper.isGloballyVerified())
+                {
+                    if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
+                    {
+                        distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
+                    }
+                }
+                else
+                {
+                    Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
+                    signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
+                }
             }
         }
         else
@@ -508,7 +512,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         final GlobalMessageThread messageThread = new GlobalMessageThread(output.getBuffer());
         localDis.submit(messageThread);
-        //proxy.sendMessageToTargets(output.getBuffer(), 0, 0, proxy.getViewManager().getCurrentViewProcesses(), TOMMessageType.UNORDERED_REQUEST);
         output.close();
     }
 
