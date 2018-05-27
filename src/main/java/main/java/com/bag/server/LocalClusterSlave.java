@@ -650,7 +650,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, false);
             return output;
         }
-        Log.getLogger().warn("Is globally verified: " + wrapper.isGloballyVerified());
+        Log.getLogger().warn("Is globally verified: " + wrapper.isGloballyVerified() +  " " + wrapper.isMultiVersion());
         if (!wrapper.isGloballyVerified())
         {
             int matchingSignatures = 0;
