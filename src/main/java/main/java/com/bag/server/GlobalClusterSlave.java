@@ -483,6 +483,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     Log.getLogger().info("Got enough signatures, got: " + signatureStorage.getSignatures().size() + " signatures!");
                     final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
                     service.submit(runnable);
+                    final int count = threadCount.getAndIncrement();
+                    if (count > 50)
+                    {
+                        Log.getLogger().error("Woooow, tons of cached threads!!! " + count);
+                    }
                 }
                 messageOutput.close();
 
@@ -1008,6 +1013,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
          */
         private void update(final byte[] message)
         {
+            Log.getLogger().warn("Sending signature messages unordered to the others.");
             while (proxy.invokeUnordered(message) == null)
             {
                 Log.getLogger().warn("Couldn't distribute the message in the global cluster");
