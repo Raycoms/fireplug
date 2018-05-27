@@ -311,7 +311,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             //  && (id != 1 || getGlobalSnapshotId() < 30) add this to add a byzantine failure.
             if (wrapper.getLocalCluster() != null)
             {
-                if (false && wrapper.isGloballyVerified())
+                if (wrapper.isGloballyVerified())
                 {
                     if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                     {
