@@ -260,6 +260,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
+        if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+        {
+            distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
+        }
+
         Log.getLogger().info("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
         long nanos = System.nanoTime();
         if (!ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
@@ -286,11 +291,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             }
 
-            if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
-            {
-                distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
-            }
-
             //Send abort to client and abort
             final byte[] returnBytes = output.getBuffer();
             output.close();
@@ -309,19 +309,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
             getInstrumentation().setCommitTime((int) dif);
 
             //  && (id != 1 || getGlobalSnapshotId() < 30) add this to add a byzantine failure.
-            if (wrapper.getLocalCluster() != null)
+            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
             {
-                if (wrapper.isGloballyVerified())
-                {
-                    if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
-                    {
-                        distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
-                    }
-                }
-                else
-                {
-                    signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
-                }
+                signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
             }
         }
         else
