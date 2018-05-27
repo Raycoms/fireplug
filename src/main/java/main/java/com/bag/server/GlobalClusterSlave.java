@@ -313,7 +313,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             {
                 if (wrapper.isGloballyVerified())
                 {
-                    if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
+                    //if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                     {
                         distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
                     }
