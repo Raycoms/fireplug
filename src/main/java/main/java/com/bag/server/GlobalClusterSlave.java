@@ -335,7 +335,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final byte[] returnBytes = output.getBuffer();
         output.close();
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
-
         return returnBytes;
     }
 
@@ -548,6 +547,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, context.getConsensusId());
 
         final byte[] message = output.toBytes();
+        output.close();
         final byte[] signature;
 
         signature = context.getProof().iterator().next().getValue();
