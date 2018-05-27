@@ -625,7 +625,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         List readsSetNodeX = new ArrayList<>();
         List readsSetRelationshipX = new ArrayList<>();
 
-        if (false && wrapper.isGloballyVerified())
+        if (wrapper.isGloballyVerified())
         {
             readsSetNodeX = kryo.readObject(messageInput, ArrayList.class);
             readsSetRelationshipX = kryo.readObject(messageInput, ArrayList.class);
@@ -638,7 +638,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         try
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
-            if (false && wrapper.isGloballyVerified() && !readsSetNodeX.isEmpty() && !readsSetRelationshipX.isEmpty())
+            if (wrapper.isGloballyVerified() && !readsSetNodeX.isEmpty() && !readsSetRelationshipX.isEmpty())
             {
                 readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
                 readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
@@ -694,7 +694,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             while (buffer.containsKey(requiredKey))
             {
                 final LocalSlaveUpdateStorage updateStorage = buffer.remove(requiredKey);
-                if (false && wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
                         super.getLatestWritesSet(),
                         new ArrayList<>(updateStorage.getLocalWriteSet()),
                         updateStorage.getReadSetNode(),

@@ -288,7 +288,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
             {
-                //distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
+                distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
             }
 
             //Send abort to client and abort
@@ -313,7 +313,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             {
                 if (wrapper.isGloballyVerified())
                 {
-                    //if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
+                    if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                     {
                         distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
                     }
@@ -478,7 +478,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (signatureStorage.hasEnough())
             {
                 Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
-                final Output messageOutput = new Output(100096);
+                final Output messageOutput = new Output(1000096);
                 kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
                 kryo.writeObject(messageOutput, decision);
                 kryo.writeObject(messageOutput, snapShotId);
@@ -488,7 +488,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                 {
                     Log.getLogger().info("Got enough signatures, got: " + signatureStorage.getSignatures().size() + " signatures!");
-                    final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
+                    final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.toBytes());
                     service.submit(runnable);
                     final int count = threadCount.getAndIncrement();
                     if (count > 50)
@@ -561,7 +561,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
-        final Output messageOutput = new Output(100096);
+        final Output messageOutput = new Output(1000096);
 
         kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
         kryo.writeObject(messageOutput, decision);
@@ -571,7 +571,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
         {
-            final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
+            final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.toBytes());
             service.submit(runnable);
             final int count = threadCount.getAndIncrement();
             if (count > 50)
