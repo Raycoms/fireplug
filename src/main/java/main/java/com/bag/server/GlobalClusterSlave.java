@@ -288,7 +288,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
             {
-                distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
+                //distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
             }
 
             //Send abort to client and abort
@@ -315,19 +315,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     if (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                     {
-                        nanos = System.nanoTime();
                         distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
-                        dif = (System.nanoTime() - nanos)/1000;
-                        Log.getLogger().warn("Distribute to slave: " + dif);
                     }
                 }
                 else
                 {
-                    Log.getLogger().info("Sending global: " + getGlobalSnapshotId() + " Consensus: " + messageContext.getConsensusId());
-                    nanos = System.nanoTime();
                     signCommitWithDecisionAndDistribute(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, messageContext.getConsensusId());
-                    dif = (System.nanoTime() - nanos)/1000;
-                    Log.getLogger().warn("Distribute to slave: " + dif);
                 }
             }
         }
