@@ -301,6 +301,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (!localWriteSet.isEmpty())
         {
+            Log.getLogger().warn("Is globally verified: " + wrapper.isGloballyVerified());
+
             nanos = System.nanoTime();
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
