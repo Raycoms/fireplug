@@ -286,6 +286,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             }
 
+            if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+            {
+                distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
+            }
+
             //Send abort to client and abort
             final byte[] returnBytes = output.getBuffer();
             output.close();
@@ -304,7 +309,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             getInstrumentation().setCommitTime((int) dif);
 
             //  && (id != 1 || getGlobalSnapshotId() < 30) add this to add a byzantine failure.
-            if (wrapper.getLocalCluster() != null && !wrapper.isGloballyVerified())
+            if (wrapper.getLocalCluster() != null)
             {
                 if (wrapper.isGloballyVerified())
                 {
