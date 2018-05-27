@@ -650,7 +650,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, false);
             return output;
         }
-        if (!wrapper.isGloballyVerified())
+        if (true || !wrapper.isGloballyVerified())
         {
             int matchingSignatures = 0;
             for (final Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
