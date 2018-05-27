@@ -561,7 +561,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
 
-        final Output messageOutput = new Output(1000096);
+        final Output messageOutput = new Output(100096);
 
         kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
         kryo.writeObject(messageOutput, decision);
