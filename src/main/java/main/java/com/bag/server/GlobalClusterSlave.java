@@ -286,10 +286,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             }
 
-            /*if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+            if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
             {
                 distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
-            }*/
+            }
 
             //Send abort to client and abort
             final byte[] returnBytes = output.getBuffer();
@@ -476,6 +476,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             signatureStorage.setProcessed();
             Log.getLogger().info("Set processed by global cluster: " + snapShotId + " by: " + idClient);
+            Log.getLogger().warn("Signature size HB: " + signature.length);
             signatureStorage.addSignatures(idClient, signature);
             if (signatureStorage.hasEnough())
             {
@@ -552,6 +553,8 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final byte[] signature;
 
         signature = context.getProof().iterator().next().getValue();
+
+        Log.getLogger().warn("Signature size: " + signature.length);
         final SignatureStorage signatureStorage = new SignatureStorage(1, message, decision);
 
         signatureStorage.setProcessed();
