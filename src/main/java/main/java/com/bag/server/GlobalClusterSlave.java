@@ -1013,7 +1013,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
          */
         private void update(final byte[] message)
         {
-            Log.getLogger().warn("Sending signature messages unordered to the others.");
             while (proxy.invokeUnordered(message) == null)
             {
                 Log.getLogger().warn("Couldn't distribute the message in the global cluster");
