@@ -286,10 +286,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             }
 
-            if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+            /*if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
             {
                 distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
-            }
+            }*/
 
             //Send abort to client and abort
             final byte[] returnBytes = output.getBuffer();
