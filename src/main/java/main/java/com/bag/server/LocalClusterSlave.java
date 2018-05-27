@@ -625,7 +625,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         List readsSetNodeX = new ArrayList<>();
         List readsSetRelationshipX = new ArrayList<>();
 
-        if (wrapper.isGloballyVerified())
+        if (false && wrapper.isGloballyVerified())
         {
             readsSetNodeX = kryo.readObject(messageInput, ArrayList.class);
             readsSetRelationshipX = kryo.readObject(messageInput, ArrayList.class);
@@ -638,7 +638,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         try
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
-            if (wrapper.isGloballyVerified() && !readsSetNodeX.isEmpty() && !readsSetRelationshipX.isEmpty())
+            if (false && wrapper.isGloballyVerified() && !readsSetNodeX.isEmpty() && !readsSetRelationshipX.isEmpty())
             {
                 readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
                 readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
@@ -650,7 +650,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, false);
             return output;
         }
-        Log.getLogger().warn("Is globally verified: " + wrapper.isGloballyVerified() +  " " + wrapper.isMultiVersion());
         if (!wrapper.isGloballyVerified())
         {
             int matchingSignatures = 0;
