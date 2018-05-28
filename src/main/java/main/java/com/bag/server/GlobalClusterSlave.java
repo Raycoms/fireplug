@@ -531,7 +531,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.SIGNATURE_MESSAGE);
         kryo.writeObject(output, decision);
         kryo.writeObject(output, snapShotId);
-        kryo.writeObject(output, timeStamp);
         kryo.writeObject(output, localWriteSet);
         kryo.writeObject(output, readSetNode);
         kryo.writeObject(output, readsSetRelationship);
@@ -557,6 +556,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
         kryo.writeObject(messageOutput, decision);
         kryo.writeObject(messageOutput, snapShotId);
+        kryo.writeObject(messageOutput, timeStamp);
         kryo.writeObject(messageOutput, signatureStorage);
         kryo.writeObject(messageOutput, context.getConsensusId());
 
