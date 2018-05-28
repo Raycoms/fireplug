@@ -69,6 +69,8 @@ public class ConflictHandler
             final List<NodeStorage> readSetNode,
             final List<RelationshipStorage> readSetRelationship, final long snapshotId, final boolean multiVersion)
     {
+        Log.getLogger().warn(writeSet.size());
+
         List<IOperation> pastWrites = new ArrayList<>();
         boolean commit = true;
         if (!readSetNode.isEmpty())
