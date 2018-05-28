@@ -641,10 +641,17 @@ public class LocalClusterSlave extends AbstractRecoverable
             try
             {
                 localWriteSet = (ArrayList<IOperation>) writeSet;
-                if (wrapper.isGloballyVerified() && !readsSetNodeX.isEmpty() && !readsSetRelationshipX.isEmpty())
+                if (wrapper.isGloballyVerified())
                 {
-                    readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
-                    readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+                    if (!readsSetNodeX.isEmpty())
+                    {
+                        readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+                    }
+
+                    if (!readsSetRelationshipX.isEmpty())
+                    {
+                        readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+                    }
                 }
             }
             catch (final ClassCastException e)
@@ -690,8 +697,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
             }
 
-
-            Log.getLogger().warn(readsSetRelationship.size() + " " + readSetNode.size() + " " + readsSetNodeX.size() + " " + readsSetRelationshipX.size());
             buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, snapShotId));
             if (lastKey + 1 == snapShotId)
             {
