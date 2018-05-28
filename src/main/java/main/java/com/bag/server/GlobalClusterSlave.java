@@ -278,7 +278,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final double dif = (System.nanoTime() - nanos);
             updateCounts(0, 0, 0, 1);
             getInstrumentation().setValidationTime((int) dif);
-            getInstrumentation().updateAbortedWrites();
             Log.getLogger()
                     .info("Found conflict " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
                             + Arrays.toString(localWriteSet.toArray())
@@ -288,6 +287,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
             if (!localWriteSet.isEmpty())
             {
+                getInstrumentation().updateAbortedWrites();
                 Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
             }
 
