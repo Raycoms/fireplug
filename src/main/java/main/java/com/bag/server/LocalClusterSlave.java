@@ -690,6 +690,8 @@ public class LocalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
             }
 
+
+            Log.getLogger().warn(readsSetRelationship.size() + " " + readSetNode.size() + " " + readsSetNodeX.size() + " " + readsSetRelationshipX.size());
             buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, snapShotId));
             if (lastKey + 1 == snapShotId)
             {
