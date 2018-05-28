@@ -569,163 +569,171 @@ public class LocalClusterSlave extends AbstractRecoverable
     @NotNull
     private synchronized Output handleSlaveUpdateMessage(final Input input, @NotNull final Output output, final Kryo kryo)
     {
-        proxy.getViewManager().updateCurrentViewFromRepository();
-        proxy.getCommunicationSystem().updateConnections();
-
-        //Not required. Is primary already dealt with it.
-        if (wrapper.getGlobalCluster() != null)
-        {
-            kryo.writeObject(output, true);
-            return output;
-        }
-
-        final String decision = kryo.readObject(input, String.class);
-        final long snapShotId = kryo.readObject(input, Long.class);
-        final long lastKey = getGlobalSnapshotId();
-
-        Log.getLogger().info("Received update slave message with decision: " + decision);
-
-        if (lastKey > snapShotId)
-        {
-            Log.getLogger().warn("Throwing away, incoming snapshotId: " + snapShotId + " smaller than existing: " + lastKey);
-            //Received a message which has been committed in the past already.
-            kryo.writeObject(output, true);
-            return output;
-        }
-        else if (lastKey == snapShotId && !wrapper.isGloballyVerified())
-        {
-            Log.getLogger().warn("Received already committed transaction.");
-            kryo.writeObject(output, true);
-            return output;
-        }
-
-        final SignatureStorage storage;
-
         try
         {
-            storage = kryo.readObject(input, SignatureStorage.class);
-        }
-        catch (final ClassCastException exp)
-        {
-            Log.getLogger().error("Unable to cast to SignatureStorage, something went wrong badly.", exp);
-            kryo.writeObject(output, false);
-            return output;
-        }
-        final int consensusId = kryo.readObject(input, Integer.class);
-        lastBatch = consensusId;
 
-        final Input messageInput = new Input(storage.getMessage());
+            proxy.getViewManager().updateCurrentViewFromRepository();
+            proxy.getCommunicationSystem().updateConnections();
 
-        kryo.readObject(messageInput, String.class);
-        kryo.readObject(messageInput, String.class);
-
-        kryo.readObject(messageInput, Long.class);
-
-        final List writeSet = kryo.readObject(messageInput, ArrayList.class);
-        List readsSetNodeX = new ArrayList<>();
-        List readsSetRelationshipX = new ArrayList<>();
-
-        if (wrapper.isGloballyVerified())
-        {
-            readsSetNodeX = kryo.readObject(messageInput, ArrayList.class);
-            readsSetRelationshipX = kryo.readObject(messageInput, ArrayList.class);
-        }
-        final ArrayList<IOperation> localWriteSet;
-        ArrayList<NodeStorage> readSetNode = new ArrayList<>();
-        ArrayList<RelationshipStorage> readsSetRelationship = new ArrayList<>();
-
-        messageInput.close();
-        try
-        {
-            localWriteSet = (ArrayList<IOperation>) writeSet;
-            if (wrapper.isGloballyVerified() && !readsSetNodeX.isEmpty() && !readsSetRelationshipX.isEmpty())
+            //Not required. Is primary already dealt with it.
+            if (wrapper.getGlobalCluster() != null)
             {
-                readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
-                readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
-            }
-        }
-        catch (final ClassCastException e)
-        {
-            Log.getLogger().error("Couldn't convert received signature message.", e);
-            kryo.writeObject(output, false);
-            return output;
-        }
-        if (!wrapper.isGloballyVerified())
-        {
-            int matchingSignatures = 0;
-            for (final Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
-            {
-                final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
-                try
-                {
-                    if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
-                    {
-                        Log.getLogger().error("Signature of server: " + entry.getKey() + " doesn't match");
-                        Log.getLogger().error(Arrays.toString(storage.getMessage()) + " : " + Arrays.toString(entry.getValue()));
-                    }
-                    else
-                    {
-                        Log.getLogger().info("Signature matches of server: " + entry.getKey());
-                        matchingSignatures++;
-                    }
-                }
-                catch (final Exception e)
-                {
-                    Log.getLogger().error("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
-                    kryo.writeObject(output, false);
-                    return output;
-                }
+                kryo.writeObject(output, true);
+                return output;
             }
 
-            if (matchingSignatures < 2)
+            final String decision = kryo.readObject(input, String.class);
+            final long snapShotId = kryo.readObject(input, Long.class);
+            final long lastKey = getGlobalSnapshotId();
+
+            Log.getLogger().info("Received update slave message with decision: " + decision);
+
+            if (lastKey > snapShotId)
             {
-                Log.getLogger().error("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
-                                + wrapper.getLocalClusterSlaveId());
+                Log.getLogger().warn("Throwing away, incoming snapshotId: " + snapShotId + " smaller than existing: " + lastKey);
+                //Received a message which has been committed in the past already.
+                kryo.writeObject(output, true);
+                return output;
+            }
+            else if (lastKey == snapShotId && !wrapper.isGloballyVerified())
+            {
+                Log.getLogger().warn("Received already committed transaction.");
+                kryo.writeObject(output, true);
+                return output;
+            }
+
+            final SignatureStorage storage;
+
+            try
+            {
+                storage = kryo.readObject(input, SignatureStorage.class);
+            }
+            catch (final ClassCastException exp)
+            {
+                Log.getLogger().error("Unable to cast to SignatureStorage, something went wrong badly.", exp);
                 kryo.writeObject(output, false);
                 return output;
             }
-            Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
-        }
+            final int consensusId = kryo.readObject(input, Integer.class);
+            lastBatch = consensusId;
 
-        buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, snapShotId));
-        if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
-        {
-            long requiredKey = lastKey + 1;
-            while (buffer.containsKey(requiredKey))
+            final Input messageInput = new Input(storage.getMessage());
+
+            kryo.readObject(messageInput, String.class);
+            kryo.readObject(messageInput, String.class);
+
+            kryo.readObject(messageInput, Long.class);
+
+            final List writeSet = kryo.readObject(messageInput, ArrayList.class);
+            List readsSetNodeX = new ArrayList<>();
+            List readsSetRelationshipX = new ArrayList<>();
+
+            if (wrapper.isGloballyVerified())
             {
-                final LocalSlaveUpdateStorage updateStorage = buffer.remove(requiredKey);
-                if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
-                        super.getLatestWritesSet(),
-                        new ArrayList<>(updateStorage.getLocalWriteSet()),
-                        updateStorage.getReadSetNode(),
-                        updateStorage.getReadsSetRelationship(),
-                        updateStorage.getSnapShotId(),
-                        wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+                readsSetNodeX = kryo.readObject(messageInput, ArrayList.class);
+                readsSetRelationshipX = kryo.readObject(messageInput, ArrayList.class);
+            }
+            final ArrayList<IOperation> localWriteSet;
+            ArrayList<NodeStorage> readSetNode = new ArrayList<>();
+            ArrayList<RelationshipStorage> readsSetRelationship = new ArrayList<>();
+
+            messageInput.close();
+            try
+            {
+                localWriteSet = (ArrayList<IOperation>) writeSet;
+                if (wrapper.isGloballyVerified() && !readsSetNodeX.isEmpty() && !readsSetRelationshipX.isEmpty())
                 {
-                    Log.getLogger()
-                            .warn("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                                    + localWriteSet.size()
-                                    + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-                    kryo.writeObject(output, true);
-                    updateCounts(0, 0, 0, 1);
+                    readSetNode = (ArrayList<NodeStorage>) readsSetNodeX;
+                    readsSetRelationship = (ArrayList<RelationshipStorage>) readsSetRelationshipX;
+                }
+            }
+            catch (final ClassCastException e)
+            {
+                Log.getLogger().error("Couldn't convert received signature message.", e);
+                kryo.writeObject(output, false);
+                return output;
+            }
+            if (!wrapper.isGloballyVerified())
+            {
+                int matchingSignatures = 0;
+                for (final Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
+                {
+                    final RSAKeyLoader rsaLoader = new RSAKeyLoader(entry.getKey(), GLOBAL_CONFIG_LOCATION, false);
+                    try
+                    {
+                        if (!TOMUtil.verifySignature(rsaLoader.loadPublicKey(), storage.getMessage(), entry.getValue()))
+                        {
+                            Log.getLogger().error("Signature of server: " + entry.getKey() + " doesn't match");
+                            Log.getLogger().error(Arrays.toString(storage.getMessage()) + " : " + Arrays.toString(entry.getValue()));
+                        }
+                        else
+                        {
+                            Log.getLogger().info("Signature matches of server: " + entry.getKey());
+                            matchingSignatures++;
+                        }
+                    }
+                    catch (final Exception e)
+                    {
+                        Log.getLogger().error("Unable to load public key on server " + id + " of server: " + entry.getKey(), e);
+                        kryo.writeObject(output, false);
+                        return output;
+                    }
+                }
+
+                if (matchingSignatures < 2)
+                {
+                    Log.getLogger().error("Something went incredibly wrong. Transaction came without correct signatures from the primary at localCluster: "
+                            + wrapper.getLocalClusterSlaveId());
+                    kryo.writeObject(output, false);
                     return output;
                 }
-                final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
-                executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
-                buffer.remove(requiredKey);
-                requiredKey++;
+                Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
             }
 
-            kryo.writeObject(output, true);
-            return output;
-        }
+            buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, snapShotId));
+            if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
+            {
+                long requiredKey = lastKey + 1;
+                while (buffer.containsKey(requiredKey))
+                {
+                    final LocalSlaveUpdateStorage updateStorage = buffer.remove(requiredKey);
+                    if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                            super.getLatestWritesSet(),
+                            new ArrayList<>(updateStorage.getLocalWriteSet()),
+                            updateStorage.getReadSetNode(),
+                            updateStorage.getReadsSetRelationship(),
+                            updateStorage.getSnapShotId(),
+                            wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+                    {
+                        Log.getLogger()
+                                .warn("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                                        + localWriteSet.size()
+                                        + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+                        kryo.writeObject(output, true);
+                        updateCounts(0, 0, 0, 1);
+                        return output;
+                    }
+                    final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
+                    executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
+                    buffer.remove(requiredKey);
+                    requiredKey++;
+                }
 
-        Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
-        if(buffer.size() % 200 == 0)
-        {
-            Log.getLogger().error("Missing more than: " + buffer.size() + " messages, something is broken!" + lastKey);
+                kryo.writeObject(output, true);
+                return output;
+            }
+
+            Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
+            if (buffer.size() % 200 == 0)
+            {
+                Log.getLogger().error("Missing more than: " + buffer.size() + " messages, something is broken!" + lastKey);
+            }
+            kryo.writeObject(output, true);
         }
-        kryo.writeObject(output, true);
+        catch(Exception ex)
+        {
+            Log.getLogger().warn("Ex", ex);
+        }
         return output;
     }
 
