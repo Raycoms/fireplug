@@ -255,7 +255,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, getGlobalSnapshotId());
 
             //Send abort to client and abort
-            final byte[] returnBytes = output.getBuffer();
+            final byte[] returnBytes = output.toBytes();
             output.close();
             return returnBytes;
         }
@@ -292,7 +292,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             }
 
             //Send abort to client and abort
-            final byte[] returnBytes = output.getBuffer();
+            final byte[] returnBytes = output.toBytes();
             output.close();
             return returnBytes;
         }
@@ -322,7 +322,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        final byte[] returnBytes = output.getBuffer();
+        final byte[] returnBytes = output.toBytes();
         output.close();
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
         return returnBytes;
@@ -364,7 +364,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, getGlobalSnapshotId());
 
             //Send abort to client and abort
-            final byte[] returnBytes = output.getBuffer();
+            final byte[] returnBytes = output.toBytes();
             output.close();
             return returnBytes;
         }
@@ -388,7 +388,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, getGlobalSnapshotId());
 
             //Send abort to client and abort
-            final byte[] returnBytes = output.getBuffer();
+            final byte[] returnBytes = output.toBytes();
             output.close();
             return returnBytes;
         }
@@ -398,7 +398,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        final byte[] returnBytes = output.getBuffer();
+        final byte[] returnBytes = output.toBytes();
         output.close();
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
@@ -503,7 +503,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, signature.length);
         output.writeBytes(signature);
 
-        final GlobalMessageThread messageThread = new GlobalMessageThread(output.getBuffer());
+        final GlobalMessageThread messageThread = new GlobalMessageThread(output.toBytes());
         localDis.submit(messageThread);
         output.close();
     }
@@ -736,7 +736,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     Log.getLogger().error("Incorrect operation sent unordered to the server");
                     break;
             }
-            returnValue = output.getBuffer();
+            returnValue = output.toBytes();
         }
         finally
         {
@@ -804,7 +804,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.REGISTER_GLOBALLY_CHECK);
         kryo.writeObject(output, newPrimary);
 
-        final byte[] result = localProxy.invokeUnordered(output.getBuffer());
+        final byte[] result = localProxy.invokeUnordered(output.toBytes());
 
 
         final Output nextOutput = new Output(512);
@@ -816,7 +816,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             kryo.writeObject(nextOutput, answer.readBoolean());
         }
 
-        final byte[] returnBuffer = nextOutput.getBuffer();
+        final byte[] returnBuffer = nextOutput.toBytes();
 
         nextOutput.close();
         answer.close();
@@ -896,7 +896,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 if (wrapper.getLocalCluster().getId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute())
                 {
                     Log.getLogger().info("Got enough signatures, got: " + signatureStorage.getSignatures().size() + " signatures!");
-                    final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.getBuffer());
+                    final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.toBytes());
                     service.submit(runnable);
                 }
                 messageOutput.close();

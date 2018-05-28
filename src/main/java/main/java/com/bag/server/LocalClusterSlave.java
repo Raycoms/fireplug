@@ -207,7 +207,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().error("Received update slave message ordered");
                     output = handleSlaveUpdateMessage(input, new Output(0, 1024), kryo);
                     Log.getLogger().error("Leaving update slave message ordered");
-                    allResults[i] = output.getBuffer();
+                    allResults[i] = output.toBytes();
                     output.close();
                     input.close();
                 }
@@ -217,7 +217,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().error("Received primary election message ordered");
                     output = handlePrimaryElection(input, kryo, false);
                     Log.getLogger().error("Leaving primary election message ordered");
-                    allResults[i] = output.getBuffer();
+                    allResults[i] = output.toBytes();
                     output.close();
                     input.close();
                 }
@@ -227,7 +227,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     Log.getLogger().error("Received bft primary election message ordered");
                     output = handlePrimaryElection(input, kryo, true);
                     Log.getLogger().error("Leaving bft primary election message ordered");
-                    allResults[i] = output.getBuffer();
+                    allResults[i] = output.toBytes();
                     output.close();
                     input.close();
                 }
@@ -411,7 +411,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     input.close();
                     return new byte[0];
             }
-            returnValue = output.getBuffer();
+            returnValue = output.toBytes();
             Log.getLogger().info("Return it to sender, size: " + returnValue.length);
         }
         input.close();
@@ -474,7 +474,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, getGlobalSnapshotId());
 
             //Send abort to client and abort
-            final byte[] returnBytes = output.getBuffer();
+            final byte[] returnBytes = output.toBytes();
             output.close();
             return returnBytes;
         }
@@ -497,7 +497,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, getGlobalSnapshotId());
 
             //Send abort to client and abort
-            final byte[] returnBytes = output.getBuffer();
+            final byte[] returnBytes = output.toBytes();
             output.close();
             return returnBytes;
         }
@@ -507,7 +507,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.COMMIT);
         kryo.writeObject(output, getGlobalSnapshotId());
 
-        final byte[] returnBytes = output.getBuffer();
+        final byte[] returnBytes = output.toBytes();
         output.close();
         Log.getLogger().info("No conflict found, returning commit with snapShot id: " + getGlobalSnapshotId() + " size: " + returnBytes.length);
 
