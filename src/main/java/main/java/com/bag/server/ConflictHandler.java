@@ -49,20 +49,7 @@ public class ConflictHandler
             final IDatabaseAccess access,
             final boolean multiVersion)
     {
-        final boolean upToDate = isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId, multiVersion);
-        final boolean correct = isCorrect(readSetNode, readSetRelationship, access);
-        if (!localWriteSet.isEmpty())
-        {
-            if (!correct)
-            {
-                Log.getLogger().warn("Write nicht correct!");
-            }
-            else if (!upToDate)
-            {
-                Log.getLogger().warn("Write nicht uptodate!");
-            }
-        }
-        return upToDate && correct;
+        return isUpToDate(globalWriteSet, latestWriteSet, localWriteSet, readSetNode, readSetRelationship, snapshotId, multiVersion) && isCorrect(readSetNode, readSetRelationship, access);
     }
 
     /**

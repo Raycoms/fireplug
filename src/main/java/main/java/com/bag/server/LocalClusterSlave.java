@@ -584,6 +584,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
             final String decision = kryo.readObject(input, String.class);
             final long snapShotId = kryo.readObject(input, Long.class);
+            final long timeStamp = wrapper.isGloballyVerified() ? kryo.readObject(input, Long.class) : snapShotId;
             final long lastKey = getGlobalSnapshotId();
 
             Log.getLogger().info("Received update slave message with decision: " + decision);
@@ -697,14 +698,15 @@ public class LocalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
             }
 
-            buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, snapShotId));
+            buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
             if (lastKey + 1 == snapShotId)
             {
                 long requiredKey = lastKey + 1;
                 while (buffer.containsKey(requiredKey))
                 {
                     final LocalSlaveUpdateStorage updateStorage = buffer.remove(requiredKey);
-                    if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(super.getGlobalWriteSet(),
+                    if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(
+                            super.getGlobalWriteSet(),
                             super.getLatestWritesSet(),
                             new ArrayList<>(updateStorage.getLocalWriteSet()),
                             updateStorage.getReadSetNode(),

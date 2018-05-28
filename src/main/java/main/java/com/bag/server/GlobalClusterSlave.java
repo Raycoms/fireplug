@@ -262,7 +262,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
         if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
         {
-            distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext);
+            distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext, timeStamp);
         }
 
         Log.getLogger().info("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
@@ -510,20 +510,20 @@ public class GlobalClusterSlave extends AbstractRecoverable
 
     /**
      * Takes the signature of the decision and sends it to the slaves.
-     *
-     * @param localWriteSet        the local writeSet.
+     *  @param localWriteSet        the local writeSet.
      * @param decision             the decision.
      * @param snapShotId           the snapshotId.
      * @param kryo                 the kryo instance.
      * @param readSetNode          the read set for the nodes.
      * @param readsSetRelationship the read set for the relationships.
      * @param context              the message context.
+     * @param timeStamp            the timestamp.
      */
     private void distributeCommitToSlave(
             final List<IOperation> localWriteSet, final String decision, final long snapShotId, final Kryo kryo,
             final ArrayList<NodeStorage> readSetNode,
             final ArrayList<RelationshipStorage> readsSetRelationship,
-            final MessageContext context)
+            final MessageContext context, final long timeStamp)
     {
         //Might not be enough, might have to think about increasing the buffer size in the future.
         final Output output = new Output(0, 1000240);
@@ -531,6 +531,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(output, Constants.SIGNATURE_MESSAGE);
         kryo.writeObject(output, decision);
         kryo.writeObject(output, snapShotId);
+        kryo.writeObject(output, timeStamp);
         kryo.writeObject(output, localWriteSet);
         kryo.writeObject(output, readSetNode);
         kryo.writeObject(output, readsSetRelationship);
@@ -556,6 +557,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
         kryo.writeObject(messageOutput, decision);
         kryo.writeObject(messageOutput, snapShotId);
+        kryo.writeObject(messageOutput, timeStamp);
         kryo.writeObject(messageOutput, signatureStorage);
         kryo.writeObject(messageOutput, context.getConsensusId());
 
