@@ -691,7 +691,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             }
 
             buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, snapShotId));
-            if (lastKey + 1 == snapShotId && Constants.COMMIT.equals(decision))
+            if (lastKey + 1 == snapShotId)
             {
                 long requiredKey = lastKey + 1;
                 while (buffer.containsKey(requiredKey))

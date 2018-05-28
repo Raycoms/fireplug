@@ -69,12 +69,6 @@ public class ConflictHandler
             final List<NodeStorage> readSetNode,
             final List<RelationshipStorage> readSetRelationship, final long snapshotId, final boolean multiVersion)
     {
-
-        if (writeSet.isEmpty())
-        {
-            Log.getLogger().warn("The global writeset is empty!");
-        }
-
         List<IOperation> pastWrites = new ArrayList<>();
         boolean commit = true;
         if (!readSetNode.isEmpty())
