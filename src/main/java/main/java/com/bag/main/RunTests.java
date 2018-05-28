@@ -95,7 +95,7 @@ public class RunTests
         }
 
         final ClientWorkLoads.RealisticOperation clientWorkLoad =
-                new ClientWorkLoads.RealisticOperation(client, 10, shareOfClient, percOfWrites);
+                new ClientWorkLoads.RealisticOperation(client, 25, shareOfClient, percOfWrites);
         clientWorkLoad.run();
     }
 }
