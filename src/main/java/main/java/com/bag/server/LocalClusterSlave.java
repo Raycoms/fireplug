@@ -587,13 +587,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         final long timeStamp = wrapper.isGloballyVerified() ? kryo.readObject(input, Long.class) : snapShotId;
         final long primaryGlobalTransactionId = kryo.readObject(input, Long.class);
 
-        final long lastKey = globalTransactionId;
-
         Log.getLogger().info("Received update slave message with decision: " + decision);
 
-        if (lastKey > primaryGlobalTransactionId)
+        if (globalTransactionId > primaryGlobalTransactionId)
         {
-            Log.getLogger().warn("Throwing away, incoming snapshotId: " + snapShotId + " smaller than existing: " + lastKey);
+            Log.getLogger().warn("Throwing away, incoming snapshotId: " + snapShotId + " smaller than existing: " + globalTransactionId);
             //Received a message which has been committed in the past already.
             kryo.writeObject(output, true);
             return output;
@@ -695,12 +693,11 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         buffer.put(primaryGlobalTransactionId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
-        if (lastKey + 1 == primaryGlobalTransactionId)
+        if (globalTransactionId == primaryGlobalTransactionId)
         {
-            long requiredKey = lastKey + 1;
-            while (buffer.containsKey(requiredKey))
+            while (buffer.containsKey(globalTransactionId))
             {
-                final LocalSlaveUpdateStorage updateStorage = buffer.remove(requiredKey);
+                final LocalSlaveUpdateStorage updateStorage = buffer.remove(globalTransactionId);
                 if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(
                         super.getGlobalWriteSet(),
                         super.getLatestWritesSet(),
@@ -723,17 +720,17 @@ public class LocalClusterSlave extends AbstractRecoverable
                     final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
                     executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
                 }
-                requiredKey++;
+                globalTransactionId++;
             }
 
             kryo.writeObject(output, true);
             return output;
         }
 
-        Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + lastKey + " adding to buffer");
+        Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + globalTransactionId + " adding to buffer");
         if (buffer.size() % 200 == 0)
         {
-            Log.getLogger().error("Missing more than: " + buffer.size() + " messages, something is broken!" + lastKey);
+            Log.getLogger().error("Missing more than: " + buffer.size() + " messages, something is broken!" + globalTransactionId);
         }
         kryo.writeObject(output, true);
         return output;
