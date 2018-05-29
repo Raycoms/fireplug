@@ -90,7 +90,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Queue to catch messages out of order.
      */
-    private final Map<Long, LocalSlaveUpdateStorage> buffer = new TreeMap<>();
+    private final Map<Long, List<LocalSlaveUpdateStorage>> buffer = new TreeMap<>();
 
     /**
      * Timer object to execute functions in intervals
@@ -698,34 +698,47 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
 
-        buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
+        final List<LocalSlaveUpdateStorage> list;
+        if (buffer.containsKey(snapShotId))
+        {
+            list = buffer.get(snapShotId);
+        }
+        else
+        {
+            list = new ArrayList<>();
+        }
+        list.add(new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
+        buffer.put(snapShotId, list);
         if (lastKey + 1 == snapShotId)
         {
             long requiredKey = lastKey + 1;
             while (buffer.containsKey(requiredKey))
             {
-                final LocalSlaveUpdateStorage updateStorage = buffer.remove(requiredKey);
-                if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(
-                        super.getGlobalWriteSet(),
-                        super.getLatestWritesSet(),
-                        new ArrayList<>(updateStorage.getLocalWriteSet()),
-                        updateStorage.getReadSetNode(),
-                        updateStorage.getReadsSetRelationship(),
-                        updateStorage.getSnapShotId(),
-                        wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+                final List<LocalSlaveUpdateStorage> tempList = buffer.remove(snapShotId);
+                for (final LocalSlaveUpdateStorage updateStorage : tempList)
                 {
-                    Log.getLogger()
-                            .info("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                                    + localWriteSet.size()
-                                    + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
-                    kryo.writeObject(output, true);
-                    updateCounts(0, 0, 0, 1);
-                    return output;
+                    if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(
+                            super.getGlobalWriteSet(),
+                            super.getLatestWritesSet(),
+                            new ArrayList<>(updateStorage.getLocalWriteSet()),
+                            updateStorage.getReadSetNode(),
+                            updateStorage.getReadsSetRelationship(),
+                            updateStorage.getSnapShotId(),
+                            wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+                    {
+                        Log.getLogger()
+                                .info("Found conflict, returning abort with timestamp: " + snapShotId + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
+                                        + localWriteSet.size()
+                                        + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+                        kryo.writeObject(output, true);
+                        updateCounts(0, 0, 0, 1);
+                        return output;
+                    }
+                    final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
+                    executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
+                    buffer.remove(requiredKey);
+                    requiredKey++;
                 }
-                final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
-                executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, requiredKey, consensusId);
-                buffer.remove(requiredKey);
-                requiredKey++;
             }
 
             kryo.writeObject(output, true);
