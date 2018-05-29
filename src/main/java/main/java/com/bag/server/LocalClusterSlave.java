@@ -697,7 +697,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             while (buffer.containsKey(wrapper.isGloballyVerified() ? globalTransactionId : getGlobalSnapshotId() + 1))
             {
-                final LocalSlaveUpdateStorage updateStorage = buffer.remove(globalTransactionId);
+                final LocalSlaveUpdateStorage updateStorage = buffer.remove(wrapper.isGloballyVerified() ? globalTransactionId : getGlobalSnapshotId() + 1);
                 if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(
                         super.getGlobalWriteSet(),
                         super.getLatestWritesSet(),
