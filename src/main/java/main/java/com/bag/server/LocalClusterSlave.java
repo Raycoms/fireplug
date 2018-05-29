@@ -707,7 +707,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                         updateStorage.getSnapShotId(),
                         wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
                 {
-                    Log.getLogger().warn("Found conflict, returning abort with timestamp: " + updateStorage.getSnapShotId()
+                    Log.getLogger().info("Found conflict, returning abort with timestamp: " + updateStorage.getSnapShotId()
                             + " globalSnapshot at: " + snapShotId
                             + " and writes: " + localWriteSet.size()
                             + " and reads: " + readSetNode.size()

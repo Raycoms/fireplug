@@ -289,7 +289,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             if (!localWriteSet.isEmpty())
             {
                 getInstrumentation().updateAbortedWrites();
-                Log.getLogger().warn("Found conflict, returning abort with timestamp: " + timeStamp
+                Log.getLogger().info("Found conflict, returning abort with timestamp: " + timeStamp
                         + " globalSnapshot at: getGlobalSnapshotId()" + timeStamp
                         + " and writes: " + localWriteSet.size()
                         + " and reads: " + readSetNode.size()
