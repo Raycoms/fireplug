@@ -699,7 +699,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
-        if (lastKey + 1 == snapShotId || lastKey == snapShotId)
+        if (lastKey + 1 == snapShotId)
         {
             long requiredKey = lastKey + 1;
             while (buffer.containsKey(requiredKey))
@@ -723,7 +723,7 @@ public class LocalClusterSlave extends AbstractRecoverable
                     return output;
                 }
                 final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
-                executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
+                executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, requiredKey, consensusId);
                 buffer.remove(requiredKey);
                 requiredKey++;
             }
