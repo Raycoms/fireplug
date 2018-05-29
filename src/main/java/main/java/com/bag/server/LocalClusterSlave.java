@@ -726,8 +726,8 @@ public class LocalClusterSlave extends AbstractRecoverable
                             updateStorage.getSnapShotId(),
                             wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
                     {
-                        Log.getLogger().warn("Found conflict, returning abort with timestamp: " + snapShotId
-                                + " globalSnapshot at: " + getGlobalSnapshotId()
+                        Log.getLogger().warn("Found conflict, returning abort with timestamp: " + updateStorage.getSnapShotId()
+                                + " globalSnapshot at: " + snapShotId
                                 + " and writes: " + localWriteSet.size()
                                 + " and reads: " + readSetNode.size()
                                 + " + " + readsSetRelationship.size());
@@ -738,7 +738,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                     {
                         final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
                         executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
-                        requiredKey++;
                     }
                 }
             }
