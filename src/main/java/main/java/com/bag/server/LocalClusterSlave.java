@@ -714,7 +714,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             long requiredKey = lastKey + 1;
             while (buffer.containsKey(requiredKey))
             {
-                final List<LocalSlaveUpdateStorage> tempList = buffer.remove(snapShotId);
+                final List<LocalSlaveUpdateStorage> tempList = buffer.remove(requiredKey);
                 for (final LocalSlaveUpdateStorage updateStorage : tempList)
                 {
                     if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(
@@ -736,7 +736,6 @@ public class LocalClusterSlave extends AbstractRecoverable
                     }
                     final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
                     executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
-                    buffer.remove(requiredKey);
                     requiredKey++;
                 }
             }
