@@ -3,7 +3,6 @@ package main.java.com.bag.server;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
-import bftsmart.tom.core.messages.TOMMessageType;
 import bftsmart.tom.util.TOMUtil;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -221,11 +220,12 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
     {
-        if (proxy != null)
+        /*if (proxy != null)
         {
             proxy.getViewManager().updateCurrentViewFromRepository();
             proxy.getCommunicationSystem().updateConnections();
-        }
+        }*/
+
         Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
@@ -260,9 +260,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return returnBytes;
         }
 
-        if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+        if (!localWriteSet.isEmpty())
         {
-            distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext, timeStamp);
+            globalTransactionId++;
+            if (wrapper.getLocalCluster() != null && wrapper.isGloballyVerified() && (wrapper.getLocalClusterSlaveId() == 0 || wrapper.getLocalCluster().isPrimarySubstitute()))
+            {
+                distributeCommitToSlave(localWriteSet, Constants.COMMIT, getGlobalSnapshotId(), kryo, readSetNode, readsSetRelationship, messageContext, timeStamp);
+            }
         }
 
         Log.getLogger().info("Going to check: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + " " + Arrays.toString(localWriteSet.toArray()) + " sequence: " + messageContext.getSequence() + " op: " + messageContext.getOperationId());
@@ -278,18 +282,18 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final double dif = (System.nanoTime() - nanos);
             updateCounts(0, 0, 0, 1);
             getInstrumentation().setValidationTime((int) dif);
-            Log.getLogger().warn("Found conflict, returning abort with timestamp: " + getGlobalSnapshotId()
-                    + " globalSnapshot at: " + timeStamp
-                    + " and writes: " + localWriteSet.size()
-                    + " and reads: " + readSetNode.size()
-                    + " + " + readsSetRelationship.size());
+
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
             if (!localWriteSet.isEmpty())
             {
                 getInstrumentation().updateAbortedWrites();
-                Log.getLogger().info("Aborting of: " + getGlobalSnapshotId() + " localId: " + timeStamp);
+                Log.getLogger().warn("Found conflict, returning abort with timestamp: " + timeStamp
+                        + " globalSnapshot at: getGlobalSnapshotId()" + timeStamp
+                        + " and writes: " + localWriteSet.size()
+                        + " and reads: " + readSetNode.size()
+                        + " + " + readsSetRelationship.size());
             }
 
             //Send abort to client and abort
@@ -473,6 +477,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
                 kryo.writeObject(messageOutput, decision);
                 kryo.writeObject(messageOutput, snapShotId);
+                kryo.writeObject(messageOutput, globalTransactionId);
                 kryo.writeObject(messageOutput, signatureStorage);
                 kryo.writeObject(messageOutput, consensusId);
 
@@ -558,6 +563,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         kryo.writeObject(messageOutput, decision);
         kryo.writeObject(messageOutput, snapShotId);
         kryo.writeObject(messageOutput, timeStamp);
+        kryo.writeObject(messageOutput, globalTransactionId);
         kryo.writeObject(messageOutput, signatureStorage);
         kryo.writeObject(messageOutput, context.getConsensusId());
 

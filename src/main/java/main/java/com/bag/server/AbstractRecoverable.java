@@ -122,6 +122,11 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     protected final ExecutorService localDis = Executors.newSingleThreadExecutor();
 
     /**
+     * The global transaction id, incremented with each write transaction!
+     */
+    protected long globalTransactionId = 0;
+
+    /**
      * Factory for all Kryo related parts. Will give you a kryo object and receives it on release, to avoid memory leaks.
      */
     private final KryoFactory factory = () ->
