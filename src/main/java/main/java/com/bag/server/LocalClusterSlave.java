@@ -598,12 +598,6 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, true);
             return output;
         }
-        else if (lastKey == primaryGlobalTransactionId)
-        {
-            Log.getLogger().warn("Received already committed transaction.");
-            kryo.writeObject(output, true);
-            return output;
-        }
 
         final SignatureStorage storage;
 
