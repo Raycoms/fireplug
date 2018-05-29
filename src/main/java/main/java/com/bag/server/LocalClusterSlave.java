@@ -589,7 +589,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         Log.getLogger().info("Received update slave message with decision: " + decision);
 
-        if (globalTransactionId > primaryGlobalTransactionId)
+        if (wrapper.isGloballyVerified() ? globalTransactionId > primaryGlobalTransactionId : getGlobalSnapshotId() >= snapShotId)
         {
             Log.getLogger().warn("Throwing away, incoming snapshotId: " + snapShotId + " smaller than existing: " + globalTransactionId);
             //Received a message which has been committed in the past already.
@@ -692,10 +692,10 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
 
-        buffer.put(primaryGlobalTransactionId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
-        if (globalTransactionId == primaryGlobalTransactionId)
+        buffer.put(wrapper.isGloballyVerified() ? primaryGlobalTransactionId : snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
+        if (wrapper.isGloballyVerified() ? globalTransactionId == primaryGlobalTransactionId : getGlobalSnapshotId() + 1 == snapShotId )
         {
-            while (buffer.containsKey(globalTransactionId))
+            while (buffer.containsKey(wrapper.isGloballyVerified() ? globalTransactionId : getGlobalSnapshotId() + 1))
             {
                 final LocalSlaveUpdateStorage updateStorage = buffer.remove(globalTransactionId);
                 if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(
