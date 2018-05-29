@@ -585,7 +585,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         final String decision = kryo.readObject(input, String.class);
         final long snapShotId = kryo.readObject(input, Long.class);
         final long timeStamp = wrapper.isGloballyVerified() ? kryo.readObject(input, Long.class) : snapShotId;
-        final long primaryGlobalTransactionId = kryo.readObject(input, Long.class);
+        final long primaryGlobalTransactionId = wrapper.isGloballyVerified() ? kryo.readObject(input, Long.class) : snapShotId;
 
         Log.getLogger().info("Received update slave message with decision: " + decision);
 
