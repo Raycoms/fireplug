@@ -699,7 +699,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         }
 
         buffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
-        if (lastKey + 1 == snapShotId)
+        if (lastKey + 1 == snapShotId || lastKey == snapShotId)
         {
             long requiredKey = lastKey + 1;
             while (buffer.containsKey(requiredKey))
