@@ -279,9 +279,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             updateCounts(0, 0, 0, 1);
             getInstrumentation().setValidationTime((int) dif);
             Log.getLogger()
-                    .info("Found conflict " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId() + " and writes: "
-                            + Arrays.toString(localWriteSet.toArray())
-                            + " and reads: " + readSetNode.size() + " + " + readsSetRelationship.size());
+                    .warn("Found conflict " + (getGlobalSnapshotId()) + " " + messageContext.getConsensusId() + ", returning abort with timestamp: " + timeStamp + " globalSnapshot at: " + getGlobalSnapshotId());
             kryo.writeObject(output, Constants.ABORT);
             kryo.writeObject(output, getGlobalSnapshotId());
 
@@ -304,7 +302,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             nanos = System.nanoTime();
             final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
             super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
-            Log.getLogger().warn("Comitting: " + timeStamp +  "signatures" + " " + "commit" + " " + getGlobalSnapshotId() + " " + messageContext.getConsensusId());
+            Log.getLogger().info("Comitting: " + timeStamp +  "signatures" + " " + "commit" + " " + getGlobalSnapshotId() + " " + messageContext.getConsensusId());
             dif = (System.nanoTime() - nanos);
             getInstrumentation().setCommitTime((int) dif);
 
