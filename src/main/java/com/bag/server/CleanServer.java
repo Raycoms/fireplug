@@ -159,8 +159,15 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     Log.getLogger().info("Starting write!");
                     try
                     {
-                        ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId);
-                        instrumentation.updateCounts(1, 0, 0, 0);
+                        if (((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId))
+                        {
+                            instrumentation.updateCounts(1, 0, 0, 0);
+
+                        }
+                        else
+                        {
+                            instrumentation.updateCounts(0, 0, 0, 1);
+                        }
                     }
                     catch (final DeadlockDetectedException e)
                     {
