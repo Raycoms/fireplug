@@ -26,19 +26,19 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, final long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
+    public boolean apply(final IDatabaseAccess access, final long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
         try
         {
             if (storage instanceof NodeStorage)
             {
                 final NodeStorage tempStorage = (NodeStorage) storage;
-                access.applyCreate(tempStorage, snapshotId, idClient);
+                return access.applyCreate(tempStorage, snapshotId, idClient);
             }
             else if (storage instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) storage;
-                access.applyCreate(tempStorage, snapshotId, idClient);
+                return access.applyCreate(tempStorage, snapshotId, idClient);
             }
             else
             {
@@ -49,6 +49,7 @@ public class CreateOperation<S extends Serializable> implements IOperation, Seri
         {
             Log.getLogger().error("Unable to sign nodeStorage ", e);
         }
+        return false;
     }
 
     /**

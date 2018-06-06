@@ -156,33 +156,26 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             {
                 if (obj instanceof IOperation)
                 {
-                    boolean finished = false;
-                    //while (!finished)
+                    Log.getLogger().info("Starting write!");
+                    try
                     {
-                        Log.getLogger().info("Starting write!");
-                        try
-                        {
-                            ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId);
-                            instrumentation.updateCounts(1, 0, 0, 0);
-                            finished = true;
-                        }
-                        catch (final DeadlockDetectedException e)
-                        {
-                            Log.getLogger().info("Dead-lock: ", e);
-                            instrumentation.updateCounts(0, 0, 0, 1);
-                            finished = true;
-                        }
-                        catch (final TransactionTerminatedException e)
-                        {
-                            Log.getLogger().info("Transaction terminated: ", e);
-                            instrumentation.updateCounts(0, 0, 0, 1);
-                        }
-                        catch (final Exception e)
-                        {
-                            Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString());
-                            instrumentation.updateCounts(0, 0, 0, 1);
-                            finished = true;
-                        }
+                        ((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId);
+                        instrumentation.updateCounts(1, 0, 0, 0);
+                    }
+                    catch (final DeadlockDetectedException e)
+                    {
+                        instrumentation.updateCounts(0, 0, 0, 1);
+                        Log.getLogger().info("Dead-lock: ", e);
+                    }
+                    catch (final TransactionTerminatedException e)
+                    {
+                        instrumentation.updateCounts(0, 0, 0, 1);
+                        Log.getLogger().info("Transaction terminated: ", e);
+                    }
+                    catch (final Exception e)
+                    {
+                        instrumentation.updateCounts(0, 0, 0, 1);
+                        Log.getLogger().error("Unable to write data at clean server with instance: " + access.toString());
                     }
                 }
                 else if (obj instanceof NodeStorage || obj instanceof RelationshipStorage)
@@ -196,8 +189,8 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     }
                     catch (final Exception e)
                     {
-                        Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
                         instrumentation.updateCounts(0, 0, 0, 1);
+                        Log.getLogger().info("Unable to retrieve data at clean server with instance: " + access.toString(), e);
                     }
                 }
                 else

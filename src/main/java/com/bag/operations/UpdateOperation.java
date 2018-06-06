@@ -28,19 +28,19 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public void apply(final IDatabaseAccess access, final long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
+    public boolean apply(final IDatabaseAccess access, final long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
     {
         try
         {
             if (key instanceof NodeStorage)
             {
                 final NodeStorage tempStorage = (NodeStorage) value;
-                access.applyUpdate((NodeStorage) key, tempStorage, snapshotId, idClient);
+                return access.applyUpdate((NodeStorage) key, tempStorage, snapshotId, idClient);
             }
             else if (value instanceof RelationshipStorage)
             {
                 final RelationshipStorage tempStorage = (RelationshipStorage) value;
-                access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId, idClient);
+                return access.applyUpdate((RelationshipStorage) key, tempStorage, snapshotId, idClient);
             }
             else
             {
@@ -51,6 +51,7 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
         {
             Log.getLogger().error("Unable to sign nodeStorage ", e);
         }
+        return false;
     }
 
     /**

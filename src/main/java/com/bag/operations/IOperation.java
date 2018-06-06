@@ -16,7 +16,7 @@ public interface IOperation
      * @param keyLoader the key loader.
      * @param idClient the client id.
      */
-    abstract void apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient);
+    abstract boolean apply(final IDatabaseAccess access, long snapshotId, final RSAKeyLoader keyLoader, final int idClient);
 
     @Override
     abstract boolean equals(Object obj);
