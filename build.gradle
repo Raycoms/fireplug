@@ -47,5 +47,5 @@ dependencies {
 shadowJar {
     classifier = 'fat'
     mergeServiceFiles()
-    manifest { attributes 'Main-Class': 'main.java.com.bag.server.ServerWrapper' }
+    manifest { attributes 'Main-Class': 'com.bag.server.ServerWrapper' }
 }

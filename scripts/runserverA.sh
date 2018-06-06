@@ -35,8 +35,8 @@ rm local3/config/currentView
 
 if [ "$flag" = "1" ]; then
 echo "LEADER Starting with: $ID $DB $LOCAL $LEADER"
-java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.server.ServerWrapper $ID $DB $LOCAL $LEADER true false $mode $mode2 > ~/output$ID.txt 2>&1
+java -cp build/libs/1.0-0.1-Setup-fat.jar com.bag.server.ServerWrapper $ID $DB $LOCAL $LEADER true false $mode $mode2 > ~/output$ID.txt 2>&1
 else
 echo "Starting with: $ID $DB $LOCAL $LEADER"
-java -cp build/libs/1.0-0.1-Setup-fat.jar main.java.com.bag.server.ServerWrapper $ID $DB $LOCAL $LEADER false false $mode $mode2 > ~/output$ID.txt 2>&1
+java -cp build/libs/1.0-0.1-Setup-fat.jar com.bag.server.ServerWrapper $ID $DB $LOCAL $LEADER false false $mode $mode2 > ~/output$ID.txt 2>&1
 fi
