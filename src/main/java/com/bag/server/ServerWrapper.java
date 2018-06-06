@@ -128,6 +128,7 @@ public class ServerWrapper
         }
 
         final KryoFactory pool = globalCluster != null ? globalCluster.getFactory() : localCluster.getFactory();
+        Log.getLogger().warn("Setting factory pool of db access!" + pool);
         databaseAccess.setPool(pool);
 
         if(isPrimary && localClusterSlaveId != -1)
