@@ -45,6 +45,11 @@ public class LoadSensor extends TimerTask
      */
     private final int localHostId;
 
+    /**
+     * Instance the load sensor operates in.
+     */
+    private int instance = 0;
+
     //todo in the future make this an extra program which delivers it via socket.
     /**
      * Constructor for the load sensor.
@@ -68,6 +73,7 @@ public class LoadSensor extends TimerTask
         {
             final Runtime runtime = Runtime.getRuntime();
 
+            desc.incrementInstance();
             desc.allocatedMemory = (desc.allocatedMemory + runtime.totalMemory()) * 2;
             desc.freeMemory = (desc.freeMemory + runtime.freeMemory()) * 2;
 
@@ -165,6 +171,11 @@ public class LoadSensor extends TimerTask
         private String db;
 
         /**
+         * The instance this LoadDesc belongs to.
+         */
+        private int instance;
+
+        /**
          * Default constructor for Serialization.
          */
         public LoadDesc()
@@ -238,6 +249,23 @@ public class LoadSensor extends TimerTask
         public String getDb()
         {
             return db;
+        }
+
+        /**
+         * Increments the instance number.
+         */
+        public void incrementInstance()
+        {
+            instance++;
+        }
+
+        /**
+         * Getter for the instance number.
+         * @return the instance number.
+         */
+        public int getInstance()
+        {
+            return this.instance;
         }
     }
 }

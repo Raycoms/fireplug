@@ -11,7 +11,6 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import com.bag.instrumentations.ServerInstrumentation;
 import com.bag.operations.IOperation;
-import com.bag.reconfiguration.sensors.BftDetectionSensor;
 import com.bag.reconfiguration.sensors.LoadSensor;
 import com.bag.util.Constants;
 import com.bag.util.Log;
@@ -26,6 +25,8 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.*;
+
+import static com.bag.util.Constants.BORDER_CPU_USAGE;
 
 /**
  *
@@ -432,7 +433,29 @@ public class LocalClusterSlave extends AbstractRecoverable
     {
         final LoadSensor.LoadDesc loadDesc = kryo.readObject(input, LoadSensor.LoadDesc.class);
         final int sender = kryo.readObject(input, Integer.class);
+
         performanceMap.put(sender, loadDesc);
+
+        if (performanceMap.size() == proxy.getViewManager().getCurrentViewN() && wrapper.getGlobalCluster() != null)
+        {
+            int slavesNeedingReconfiguration = 0;
+            int instance = loadDesc.getInstance();
+
+            for(final LoadSensor.LoadDesc load : performanceMap.values())
+            {
+                Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
+                if (instance == load.getInstance() && load.getCpuUsage() > BORDER_CPU_USAGE)
+                {
+                    slavesNeedingReconfiguration++;
+                }
+
+                if (slavesNeedingReconfiguration >= (proxy.getViewManager().getCurrentViewN() / 2))
+                {
+                    wrapper.getGlobalCluster().sharePerformance(performanceMap, instance, kryo);
+                    Log.getLogger().warn("Sending message to global cluster with load!");
+                }
+            }
+        }
     }
 
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
@@ -582,14 +605,16 @@ public class LocalClusterSlave extends AbstractRecoverable
             return output;
         }
 
+
+        final boolean isGloballyVerified = kryo.readObject(input, String.class).equals("HC");
         final String decision = kryo.readObject(input, String.class);
         final long snapShotId = kryo.readObject(input, Long.class);
-        final long timeStamp = wrapper.isGloballyVerified() ? kryo.readObject(input, Long.class) : snapShotId;
-        final long primaryGlobalTransactionId = wrapper.isGloballyVerified() ? kryo.readObject(input, Long.class) : snapShotId;
+        final long timeStamp = isGloballyVerified ? kryo.readObject(input, Long.class) : snapShotId;
+        final long primaryGlobalTransactionId = isGloballyVerified ? kryo.readObject(input, Long.class) : snapShotId;
 
         Log.getLogger().info("Received update slave message with decision: " + decision);
 
-        if (wrapper.isGloballyVerified() ? globalTransactionId > primaryGlobalTransactionId : getGlobalSnapshotId() >= snapShotId)
+        if (isGloballyVerified ? globalTransactionId > primaryGlobalTransactionId : getGlobalSnapshotId() >= snapShotId)
         {
             Log.getLogger().warn("Throwing away, incoming snapshotId: " + snapShotId + " smaller than existing: " + globalTransactionId);
             //Received a message which has been committed in the past already.
@@ -623,7 +648,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         List readsSetNodeX = new ArrayList<>();
         List readsSetRelationshipX = new ArrayList<>();
 
-        if (wrapper.isGloballyVerified())
+        if (isGloballyVerified)
         {
             readsSetNodeX = kryo.readObject(messageInput, ArrayList.class);
             readsSetRelationshipX = kryo.readObject(messageInput, ArrayList.class);
@@ -636,7 +661,7 @@ public class LocalClusterSlave extends AbstractRecoverable
         try
         {
             localWriteSet = (ArrayList<IOperation>) writeSet;
-            if (wrapper.isGloballyVerified())
+            if (isGloballyVerified)
             {
                 if (!readsSetNodeX.isEmpty())
                 {
@@ -655,7 +680,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             kryo.writeObject(output, false);
             return output;
         }
-        if (!wrapper.isGloballyVerified())
+        if (!isGloballyVerified)
         {
             int matchingSignatures = 0;
             for (final Map.Entry<Integer, byte[]> entry : storage.getSignatures().entrySet())
@@ -692,13 +717,13 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
 
-        buffer.put(wrapper.isGloballyVerified() ? primaryGlobalTransactionId : snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
-        if (wrapper.isGloballyVerified() ? globalTransactionId == primaryGlobalTransactionId : getGlobalSnapshotId() + 1 == snapShotId )
+        buffer.put(isGloballyVerified ? primaryGlobalTransactionId : snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
+        if (isGloballyVerified ? globalTransactionId == primaryGlobalTransactionId : getGlobalSnapshotId() + 1 == snapShotId )
         {
-            while (buffer.containsKey(wrapper.isGloballyVerified() ? globalTransactionId : getGlobalSnapshotId() + 1))
+            while (buffer.containsKey(isGloballyVerified ? globalTransactionId : getGlobalSnapshotId() + 1))
             {
-                final LocalSlaveUpdateStorage updateStorage = buffer.remove(wrapper.isGloballyVerified() ? globalTransactionId : getGlobalSnapshotId() + 1);
-                if (wrapper.isGloballyVerified() && !ConflictHandler.checkForConflict(
+                final LocalSlaveUpdateStorage updateStorage = buffer.remove(isGloballyVerified ? globalTransactionId : getGlobalSnapshotId() + 1);
+                if (isGloballyVerified && !ConflictHandler.checkForConflict(
                         super.getGlobalWriteSet(),
                         super.getLatestWritesSet(),
                         new ArrayList<>(updateStorage.getLocalWriteSet()),

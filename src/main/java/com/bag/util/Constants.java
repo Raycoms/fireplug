@@ -33,6 +33,16 @@ public class Constants
     public static final String BFT_PRIMARY_ELECTION_MESSAGE = "bftPrimaryElection";
     public static final String AM_I_OUTDATED_MESSAGE        = "amIOutdated?";
     public static final String WRITE_REQUEST                = "writeRequest";
+    public static final String ALG_CHANGE                   = "algChange";
+    public static final String SLAVE_REQUEST_ALG_CHANGE     = "slaveReqAlgChange";
+    public static final String PRIMARY_CONSULT_ALG_CHANGE   = "primaryConsultAlgChange";
+    public static final String CONSULT_SLAVE_ALG_CHANGE     = "consultSlaveAlgChange";
+    public static final String SLAVE_VOTE                   = "consultSlaveAlgChange";
+
+    /**
+     * Border CPU usage to reconfigure to other algorithm.
+     */
+    public static final int BORDER_CPU_USAGE = 50;
 
     /**
      * Used to convert nano time to seconds.

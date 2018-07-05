@@ -3,7 +3,10 @@ package com.bag.server;
 import bftsmart.reconfiguration.util.RSAKeyLoader;
 import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceProxy;
+import bftsmart.tom.core.messages.TOMMessageType;
 import bftsmart.tom.util.TOMUtil;
+import com.bag.reconfiguration.ReconfigurationManager;
+import com.bag.reconfiguration.sensors.LoadSensor;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -13,7 +16,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.bag.instrumentations.ServerInstrumentation;
 import com.bag.operations.IOperation;
 import com.bag.database.SparkseeDatabaseAccess;
-import com.bag.reconfiguration.sensors.CrashDetectionSensor;
 import com.bag.util.Constants;
 import com.bag.util.Log;
 import com.bag.util.storage.NodeStorage;
@@ -81,6 +83,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private final AtomicInteger threadCount = new AtomicInteger(0);
 
     /**
+     * The associated reconfiguration manager.
+     */
+    private ReconfigurationManager reconfigurationManager = null;
+
+    /**
      * Constructor for the global cluster slave.
      * @param id it's id.
      * @param wrapper the wrapper it belongs to.
@@ -103,6 +110,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
         else
         {
             positionToCheck = this.id + 1;
+        }
+
+        //This starts the reconfigurationmanager on a separate thread only on the primary, id == 0.
+        if (id == 0)
+        {
+            reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
+            timer.scheduleAtFixedRate(reconfigurationManager, 10000, 5000);
         }
 
         //final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
@@ -150,6 +164,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     final Long timeStamp = kryo.readObject(input, Long.class);
                     final byte[] result = executeCommit(kryo, input, timeStamp, messageContexts[i]);
                     allResults[i] = result;
+                }
+                else if(Constants.ALG_CHANGE.equals(type))
+                {
+                    wrapper.toggleGloballyVerified();
+                    allResults[i] = new byte[]{1};
                 }
                 else
                 {
@@ -475,6 +494,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
                 final Output messageOutput = new Output(1000096);
                 kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+                kryo.writeObject(output, "HC");
                 kryo.writeObject(messageOutput, decision);
                 kryo.writeObject(messageOutput, snapShotId);
                 kryo.writeObject(messageOutput, signatureStorage);
@@ -559,6 +579,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final Output messageOutput = new Output(1000096);
 
         kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+        kryo.writeObject(output, "HB");
         kryo.writeObject(messageOutput, decision);
         kryo.writeObject(messageOutput, snapShotId);
         kryo.writeObject(messageOutput, timeStamp);
@@ -739,6 +760,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     pool.release(kryo);
                     Log.getLogger().info("Return it to client, size: " + result.length);
                     return result;
+                case Constants.PERFORMANCE_UPDATE_MESSAGE:
+
+                    handlePerformanceUpdateMessage(input, kryo);
+                    break;
                 default:
                     Log.getLogger().error("Incorrect operation sent unordered to the server");
                     break;
@@ -895,6 +920,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 final Output messageOutput = new Output(100096);
 
                 kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
+                kryo.writeObject(messageOutput, "HC");
                 kryo.writeObject(messageOutput, decision);
                 kryo.writeObject(messageOutput, snapShotId);
                 kryo.writeObject(messageOutput, signatureStorage);
@@ -959,6 +985,64 @@ public class GlobalClusterSlave extends AbstractRecoverable
             crashProxy = null;
         }
         super.terminate();
+    }
+
+    /**
+     * Share the performance of the local cluster with the other primaries. (To reach the ReconfigurationManager).
+     * @param performanceMap the performanceMap.
+     * @param instance the instance.
+     */
+    public void sharePerformance(final HashMap<Integer, LoadSensor.LoadDesc> performanceMap, final int instance, final Kryo kryo)
+    {
+        final Output output = new Output(128);
+        kryo.writeObject(output, Constants.PERFORMANCE_UPDATE_MESSAGE);
+        kryo.writeObject(output, instance);
+        kryo.writeObject(output, id);
+        kryo.writeObject(output, performanceMap);
+
+        final byte[] returnBytes = output.getBuffer();
+        output.close();
+
+        final int[] receiverArray = Arrays.stream(proxy.getViewManager().getCurrentViewProcesses()).filter(process -> process != id).toArray();
+        proxy.sendMessageToTargets(returnBytes, 0, 0, receiverArray, TOMMessageType.UNORDERED_REQUEST);
+    }
+
+    /**
+     * Receive and handle the performance update message from other primaries.
+     * @param input the input.
+     * @param kryo the kryo object.
+     */
+    private void handlePerformanceUpdateMessage(final Input input, final Kryo kryo)
+    {
+        final int instance = kryo.readObject(input, Integer.class);
+        final int sender = kryo.readObject(input, Integer.class);
+        final Map map = kryo.readObject(input, HashMap.class);
+
+        final HashMap<Integer, LoadSensor.LoadDesc> performanceMap;
+
+        if (map.values().iterator().hasNext() && map.values().iterator().next() instanceof LoadSensor.LoadDesc)
+        {
+            performanceMap = (HashMap<Integer, LoadSensor.LoadDesc>) map;
+            reconfigurationManager.addToPerformanceMap(sender, performanceMap, instance);
+        }
+    }
+
+    /**
+     * Called by the reconfiguration manager if the replica should adapt the algorithm.
+     */
+    public void adaptAlgorithm()
+    {
+        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+        final Kryo kryo = pool.borrow();
+
+        wrapper.toggleGloballyVerified();
+        final Output output = new Output(128);
+        kryo.writeObject(output, Constants.ALG_CHANGE);
+
+        final byte[] returnBytes = output.getBuffer();
+        output.close();
+        proxy.invokeOrdered(returnBytes);
+        pool.release(kryo);
     }
 
     private class DistributeMessageThread implements Runnable

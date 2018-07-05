@@ -31,7 +31,7 @@ public class ServerWrapper
     /**
      * If the server is globally verified or locally verified.
      */
-    private final boolean globallyVerified;
+    private boolean globallyVerified;
 
     /**
      * The instance of the server which responds to the global cluster.
@@ -375,5 +375,11 @@ public class ServerWrapper
         return localClusterSlaveId;
     }
 
-
+    /**
+     * Switch between HC and HB.
+     */
+    public void toggleGloballyVerified()
+    {
+        globallyVerified = !globallyVerified;
+    }
 }
