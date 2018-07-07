@@ -1013,16 +1013,19 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private void handlePerformanceUpdateMessage(final Input input, final Kryo kryo)
     {
-        final int instance = kryo.readObject(input, Integer.class);
-        final int sender = kryo.readObject(input, Integer.class);
-        final Map map = kryo.readObject(input, HashMap.class);
-
-        final HashMap<Integer, LoadSensor.LoadDesc> performanceMap;
-
-        if (map.values().iterator().hasNext() && map.values().iterator().next() instanceof LoadSensor.LoadDesc)
+        if (reconfigurationManager != null)
         {
-            performanceMap = (HashMap<Integer, LoadSensor.LoadDesc>) map;
-            reconfigurationManager.addToPerformanceMap(sender, performanceMap, instance);
+            final int instance = kryo.readObject(input, Integer.class);
+            final int sender = kryo.readObject(input, Integer.class);
+            final Map map = kryo.readObject(input, HashMap.class);
+
+            final HashMap<Integer, LoadSensor.LoadDesc> performanceMap;
+
+            if (map.values().iterator().hasNext() && map.values().iterator().next() instanceof LoadSensor.LoadDesc)
+            {
+                performanceMap = (HashMap<Integer, LoadSensor.LoadDesc>) map;
+                reconfigurationManager.addToPerformanceMap(sender, performanceMap, instance);
+            }
         }
     }
 
