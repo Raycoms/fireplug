@@ -74,14 +74,14 @@ public class LoadSensor extends TimerTask
             final Runtime runtime = Runtime.getRuntime();
 
             desc.incrementInstance();
-            desc.allocatedMemory = (desc.allocatedMemory + runtime.totalMemory()) * 2;
-            desc.freeMemory = (desc.freeMemory + runtime.freeMemory()) * 2;
+            desc.allocatedMemory = (desc.allocatedMemory + runtime.totalMemory()) / 2;
+            desc.freeMemory = (desc.freeMemory + runtime.freeMemory()) / 2;
 
             try
             {
-                desc.cpuUsage = (desc.cpuUsage + getProcessCpuLoad()) * 2;
-                Log.getLogger().info("CPU: Current load: " + desc.cpuUsage);
-                Log.getLogger().info("Memory: " + desc.maxMemory + " / " + desc.allocatedMemory + " / " + desc.freeMemory);
+                desc.cpuUsage = (desc.cpuUsage + getProcessCpuLoad()) / 2;
+                Log.getLogger().warn("CPU: Current load: " + desc.cpuUsage);
+                Log.getLogger().warn("Memory: " + desc.maxMemory + " / " + desc.allocatedMemory + " / " + desc.freeMemory);
             }
             catch (final Exception e)
             {
