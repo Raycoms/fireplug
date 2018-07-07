@@ -604,8 +604,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             return output;
         }
 
-
-        final boolean isGloballyVerified = kryo.readObject(input, String.class).equals("HC");
+        final boolean isGloballyVerified = kryo.readObject(input, String.class).equals("HB");
         final String decision = kryo.readObject(input, String.class);
         final long snapShotId = kryo.readObject(input, Long.class);
         final long timeStamp = isGloballyVerified ? kryo.readObject(input, Long.class) : snapShotId;
