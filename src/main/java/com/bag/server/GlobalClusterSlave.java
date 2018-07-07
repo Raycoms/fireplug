@@ -617,7 +617,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
         final byte[] buffer = input.getBuffer();
-
+        kryo.readObject(input, String.class);
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
