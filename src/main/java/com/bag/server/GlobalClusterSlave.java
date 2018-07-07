@@ -494,7 +494,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().info("Sending update to slave signed by all members: " + snapShotId);
                 final Output messageOutput = new Output(1000096);
                 kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-                kryo.writeObject(output, "HC");
+                kryo.writeObject(messageOutput, "HC");
                 kryo.writeObject(messageOutput, decision);
                 kryo.writeObject(messageOutput, snapShotId);
                 kryo.writeObject(messageOutput, signatureStorage);
@@ -617,7 +617,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             return;
         }
         final byte[] buffer = input.getBuffer();
-        kryo.readObject(input, String.class);
         final String decision = kryo.readObject(input, String.class);
         final Long snapShotId = kryo.readObject(input, Long.class);
         final List writeSet = kryo.readObject(input, ArrayList.class);
