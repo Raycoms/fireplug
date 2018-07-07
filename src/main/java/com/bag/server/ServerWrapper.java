@@ -115,7 +115,7 @@ public class ServerWrapper
         if(localClusterSlaveId != -1)
         {
             Log.getLogger().error("Start local cluster slave with id: "  + localClusterSlaveId);
-            localCluster = new LocalClusterSlave(localClusterSlaveId, this, initialLeaderId, instrumentation);
+            localCluster = new LocalClusterSlave(localClusterSlaveId, this, initialLeaderId, instrumentation, isPrimary);
             if(isPrimary)
             {
                 localCluster.setPrimaryGlobalClusterId(globalServerId);
@@ -335,14 +335,6 @@ public class ServerWrapper
         Log.getLogger().warn("Starting Replica: " + globalServerId + " in global Cluster!");
         Log.getLogger().warn("----------------------------------------------------");
         globalCluster = new GlobalClusterSlave(globalServerId, this, localCluster.getInstrumentation(), lastBatch);
-    }
-
-    /**
-     * Turn on a new instance of the local cluster.
-     */
-    public void initNewLocalClusterInstance()
-    {
-        localCluster = new LocalClusterSlave(localClusterSlaveId, this, globalServerId, new ServerInstrumentation(globalServerId));
     }
 
     /**

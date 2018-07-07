@@ -57,11 +57,12 @@ public class LoadSensor extends TimerTask
      * @param proxy the proxy of it to send it.
      * @param localHostId the id of the local host.
      * @param db the db associated to it.
+     * @param slave if the loadSensor runs on a primary or slave.
      */
-    public LoadSensor(final Kryo kryo, final ServiceProxy proxy, final int localHostId, final String db)
+    public LoadSensor(final Kryo kryo, final ServiceProxy proxy, final int localHostId, final String db, final boolean slave)
     {
         this.kryo = kryo;
-        desc = new LoadDesc(db);
+        desc = new LoadDesc(db, slave);
         this.proxy = proxy;
         this.localHostId = localHostId;
     }
@@ -69,6 +70,7 @@ public class LoadSensor extends TimerTask
     @Override
     public void run()
     {
+        //todo, add if this is a primary or a slave, we only care about slaves.
         synchronized (descLock)
         {
             final Runtime runtime = Runtime.getRuntime();
@@ -176,21 +178,30 @@ public class LoadSensor extends TimerTask
         private int instance;
 
         /**
+         * Value to check if this is a slave.
+         */
+        private boolean slave;
+
+        /**
          * Default constructor for Serialization.
          */
         public LoadDesc()
         {
             this.maxMemory = Runtime.getRuntime().maxMemory();
             this.db = "neo4j";
+            this.slave = false;
         }
 
         /**
-         * Load desc constructor.
+         * Constructor for the load desc.
+         * @param db the used DB.
+         * @param slave if primary or slave.
          */
-        public LoadDesc(final String db)
+        public LoadDesc(final String db, final boolean slave)
         {
             this.maxMemory = Runtime.getRuntime().maxMemory();
             this.db = db;
+            this.slave = slave;
         }
 
         /**
@@ -203,6 +214,7 @@ public class LoadSensor extends TimerTask
             this.allocatedMemory = desc.allocatedMemory;
             this.freeMemory = desc.freeMemory;
             this.cpuUsage = desc.cpuUsage;
+            this.slave = desc.slave;
         }
 
         /**
@@ -266,6 +278,15 @@ public class LoadSensor extends TimerTask
         public int getInstance()
         {
             return this.instance;
+        }
+
+        /**
+         * Check if this sensor runs on a slave.
+         * @return true if so.
+         */
+        public boolean isSlave()
+        {
+            return slave;
         }
     }
 }

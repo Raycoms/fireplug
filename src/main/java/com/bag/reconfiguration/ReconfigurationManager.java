@@ -70,23 +70,30 @@ public class ReconfigurationManager extends TimerTask
         {
             Log.getLogger().warn("Starting to check slave performance");
             int slavesNeedingReconfiguration = 0;
+            int slaveCount = 0;
+
             for (final Map<Integer, LoadSensor.LoadDesc> map : performanceMap.values())
             {
                 for(final LoadSensor.LoadDesc load : map.values())
                 {
+                    if (load.isSlave())
+                    {
+                        slaveCount++;
+                    }
+
                     Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
                     if (load.getCpuUsage() > BORDER_CPU_USAGE)
                     {
                         slavesNeedingReconfiguration++;
                     }
-
-                    if (slavesNeedingReconfiguration >= ((primaryClusterSize * map.size()) / 2))
-                    {
-                        Log.getLogger().warn("Requiring to change the algorithm!!!: " + load.getCpuUsage());
-                        //primary.adaptAlgorithm();
-                        //todo trigger reconfiguration
-                    }
                 }
+            }
+
+            if (slavesNeedingReconfiguration >= (slaveCount / 2))
+            {
+                Log.getLogger().warn("Requiring to change the algorithm!!!: " + slavesNeedingReconfiguration);
+                //primary.adaptAlgorithm();
+                //todo trigger reconfiguration
             }
         }
     }

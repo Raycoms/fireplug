@@ -119,8 +119,9 @@ public class LocalClusterSlave extends AbstractRecoverable
      * @param id             its unique id in the local cluster.
      * @param wrapper        its ordering wrapper.
      * @param localClusterId the id of the cluster (the id of the starting primary in the global cluster).
+     * @param isPrimary      if this local cluster member is a primary.
      */
-    public LocalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final int localClusterId, final ServerInstrumentation instrumentation)
+    public LocalClusterSlave(final int id, @NotNull final ServerWrapper wrapper, final int localClusterId, final ServerInstrumentation instrumentation, final boolean isPrimary)
     {
         super(id, String.format(LOCAL_CONFIG_LOCATION, localClusterId), wrapper, instrumentation, 0);
         this.id = id;
@@ -144,7 +145,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         //bftProxy = new ServiceProxy(4000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         //timer.scheduleAtFixedRate(new BftDetectionSensor(crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId, this), 10000, 5000 + (id * 1000));
-        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), loadProxy, id, wrapper.getDataBaseAccess().getName()), 10000, 10000);
+        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), loadProxy, id, wrapper.getDataBaseAccess().getName(), isPrimary), 10000, 10000);
     }
 
     /**
@@ -439,20 +440,26 @@ public class LocalClusterSlave extends AbstractRecoverable
         {
             int slavesNeedingReconfiguration = 0;
             int instance = loadDesc.getInstance();
+            int slaveCount = 0;
 
             for(final LoadSensor.LoadDesc load : performanceMap.values())
             {
+                if (load.isSlave())
+                {
+                    slaveCount++;
+                }
+
                 Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
                 if (instance == load.getInstance() && load.getCpuUsage() > BORDER_CPU_USAGE)
                 {
                     slavesNeedingReconfiguration++;
                 }
+            }
 
-                if (slavesNeedingReconfiguration >= (proxy.getViewManager().getCurrentViewN() / 2))
-                {
-                    wrapper.getGlobalCluster().sharePerformance(performanceMap, instance, kryo);
-                    Log.getLogger().warn("Sending message to global cluster with load!");
-                }
+            if (slavesNeedingReconfiguration >= (slaveCount / 2))
+            {
+                wrapper.getGlobalCluster().sharePerformance(performanceMap, instance, kryo);
+                Log.getLogger().warn("Sending message to global cluster with load!");
             }
         }
     }
