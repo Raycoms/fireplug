@@ -993,7 +993,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     public void sharePerformance(final HashMap<Integer, LoadSensor.LoadDesc> performanceMap, final int instance, final Kryo kryo)
     {
-        final Output output = new Output(128);
+        final Output output = new Output(1028);
         kryo.writeObject(output, Constants.PERFORMANCE_UPDATE_MESSAGE);
         kryo.writeObject(output, instance);
         kryo.writeObject(output, id);
