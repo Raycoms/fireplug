@@ -579,7 +579,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         final Output messageOutput = new Output(1000096);
 
         kryo.writeObject(messageOutput, Constants.UPDATE_SLAVE);
-        kryo.writeObject(output, "HB");
+        kryo.writeObject(messageOutput, "HB");
         kryo.writeObject(messageOutput, decision);
         kryo.writeObject(messageOutput, snapShotId);
         kryo.writeObject(messageOutput, timeStamp);
