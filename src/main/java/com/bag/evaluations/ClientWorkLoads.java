@@ -433,7 +433,7 @@ public class ClientWorkLoads
             }
 
             final byte[] bytes = new byte[1000000];
-            final double percentageOfWrites = commits >= 1.000 ? this.percOfWrites * 2 : this.percOfWrites;
+            final double percentageOfWrites = commits >= 500 ? this.percOfWrites * 2 : this.percOfWrites;
 
             for (int i = 0; i < bytes.length; i++)
             {
