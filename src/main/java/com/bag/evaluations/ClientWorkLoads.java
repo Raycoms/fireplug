@@ -433,11 +433,9 @@ public class ClientWorkLoads
             }
 
             final byte[] bytes = new byte[1000000];
-            final double percentageOfWrites = commits >= 250 ? this.percOfWrites * 2 : this.percOfWrites;
-
             for (int i = 0; i < bytes.length; i++)
             {
-                if (i <= (percentageOfWrites * bytes.length))
+                if (i <= (this.percOfWrites * bytes.length))
                 {
                     bytes[i] = 1;
                     continue;
@@ -461,12 +459,20 @@ public class ClientWorkLoads
                     relIndex = 0;
                 }
 
-                final boolean isRead = bytes[i] == 0;
+                boolean isRead = bytes[i] == 0;
                 RelationshipStorage readRelationship = null;
                 NodeStorage readNodeStorage = null;
                 IOperation operation = null;
+                if (commits > 500)
+                {
+                    Log.getLogger().warn("More than 500 commits");
+                    if (isRead && random.nextInt(1) > 0)
+                    {
+                        isRead = false;
+                    }
+                }
 
-                if (isRead || percentageOfWrites <= 0)
+                if (isRead || this.percOfWrites <= 0)
                 {
                     final double randomNum = random.nextDouble() * 100 + 1;
                     if (randomNum <= 15.7)
