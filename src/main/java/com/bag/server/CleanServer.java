@@ -149,9 +149,6 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
             final int clientId = kryo.readObject(input, Integer.class);
             final List returnValue = kryo.readObject(input, ArrayList.class);
 
-            final RSAKeyLoader rsaLoader = new RSAKeyLoader(0, GLOBAL_CONFIG_LOCATION, false);
-
-
             for (final Object obj : returnValue)
             {
                 if (obj instanceof IOperation)
@@ -159,7 +156,7 @@ public class CleanServer extends SimpleChannelInboundHandler<BAGMessage>
                     Log.getLogger().info("Starting write!");
                     try
                     {
-                        if (((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, rsaLoader, clientId))
+                        if (((IOperation) obj).apply(access, OutDatedDataException.IGNORE_SNAPSHOT, clientId))
                         {
                             instrumentation.updateCounts(1, 0, 0, 0);
 
