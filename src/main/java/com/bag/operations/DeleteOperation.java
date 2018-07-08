@@ -27,7 +27,7 @@ public class DeleteOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public boolean apply(@NotNull final IDatabaseAccess access, final long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
+    public boolean apply(@NotNull final IDatabaseAccess access, final long snapshotId, final int idClient)
     {
         if(storage instanceof NodeStorage)
         {

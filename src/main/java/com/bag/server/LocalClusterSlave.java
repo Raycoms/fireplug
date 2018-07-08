@@ -91,7 +91,12 @@ public class LocalClusterSlave extends AbstractRecoverable
     /**
      * Queue to catch messages out of order.
      */
-    private final Map<Long, LocalSlaveUpdateStorage> buffer = new TreeMap<>();
+    private final Map<Long, LocalSlaveUpdateStorage> globalVerifiedBuffer = new TreeMap<>();
+
+    /**
+     * Queue to catch messages out of order.
+     */
+    private final Map<Long, LocalSlaveUpdateStorage> directBuffer = new TreeMap<>();
 
     /**
      * Timer object to execute functions in intervals
@@ -721,45 +726,71 @@ public class LocalClusterSlave extends AbstractRecoverable
             Log.getLogger().info("All: " + matchingSignatures + " signatures are correct, started to commit now!");
         }
 
-        buffer.put(isGloballyVerified ? primaryGlobalTransactionId : snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
-        if (isGloballyVerified ? globalTransactionId == primaryGlobalTransactionId : getGlobalSnapshotId() + 1 == snapShotId )
+        if (isGloballyVerified)
         {
-            while (buffer.containsKey(isGloballyVerified ? globalTransactionId : getGlobalSnapshotId() + 1))
-            {
-                final LocalSlaveUpdateStorage updateStorage = buffer.remove(isGloballyVerified ? globalTransactionId : getGlobalSnapshotId() + 1);
-                if (isGloballyVerified && !ConflictHandler.checkForConflict(
-                        super.getGlobalWriteSet(),
-                        super.getLatestWritesSet(),
-                        new ArrayList<>(updateStorage.getLocalWriteSet()),
-                        updateStorage.getReadSetNode(),
-                        updateStorage.getReadsSetRelationship(),
-                        updateStorage.getSnapShotId(),
-                        wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
-                {
-                    Log.getLogger().info("Found conflict, returning abort with timestamp: " + updateStorage.getSnapShotId()
-                            + " globalSnapshot at: " + snapShotId
-                            + " and writes: " + localWriteSet.size()
-                            + " and reads: " + readSetNode.size()
-                            + " + " + readsSetRelationship.size());
-                    kryo.writeObject(output, true);
-                    updateCounts(0, 0, 0, 1);
-                }
-                else
-                {
-                    final RSAKeyLoader rsaLoader = new RSAKeyLoader(id, GLOBAL_CONFIG_LOCATION, false);
-                    executeCommit(updateStorage.getLocalWriteSet(), rsaLoader, id, updateStorage.getSnapShotId(), consensusId);
-                }
-                globalTransactionId++;
-            }
+            globalVerifiedBuffer.put(primaryGlobalTransactionId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
+        }
+        else
+        {
+            directBuffer.put(snapShotId, new LocalSlaveUpdateStorage(localWriteSet, readSetNode, readsSetRelationship, timeStamp));
+        }
 
-            kryo.writeObject(output, true);
-            return output;
+        if (!directBuffer.isEmpty())
+        {
+            if (getGlobalSnapshotId() + 1 == snapShotId )
+            {
+                while (directBuffer.containsKey(getGlobalSnapshotId() + 1))
+                {
+                    final LocalSlaveUpdateStorage updateStorage = directBuffer.remove(getGlobalSnapshotId() + 1);
+                    executeCommit(updateStorage.getLocalWriteSet(), id, updateStorage.getSnapShotId(), consensusId);
+                    globalTransactionId++;
+                }
+
+                kryo.writeObject(output, true);
+                return output;
+            }
+        }
+
+        if (!globalVerifiedBuffer.isEmpty())
+        {
+            if (globalTransactionId == primaryGlobalTransactionId)
+            {
+                while (globalVerifiedBuffer.containsKey(globalTransactionId))
+                {
+                    final LocalSlaveUpdateStorage updateStorage = globalVerifiedBuffer.remove(globalTransactionId);
+                    if (!ConflictHandler.checkForConflict(
+                      super.getGlobalWriteSet(),
+                      super.getLatestWritesSet(),
+                      new ArrayList<>(updateStorage.getLocalWriteSet()),
+                      updateStorage.getReadSetNode(),
+                      updateStorage.getReadsSetRelationship(),
+                      updateStorage.getSnapShotId(),
+                      wrapper.getDataBaseAccess(), wrapper.isMultiVersion()))
+                    {
+                        Log.getLogger().info("Found conflict, returning abort with timestamp: " + updateStorage.getSnapShotId()
+                                               + " globalSnapshot at: " + snapShotId
+                                               + " and writes: " + localWriteSet.size()
+                                               + " and reads: " + readSetNode.size()
+                                               + " + " + readsSetRelationship.size());
+                        kryo.writeObject(output, true);
+                        updateCounts(0, 0, 0, 1);
+                    }
+                    else
+                    {
+                        executeCommit(updateStorage.getLocalWriteSet(), id, updateStorage.getSnapShotId(), consensusId);
+                    }
+                    globalTransactionId++;
+                }
+
+                kryo.writeObject(output, true);
+                return output;
+            }
         }
 
         Log.getLogger().info("Something went wrong, missing a message: " + snapShotId + " with decision: " + decision + " lastKey: " + globalTransactionId + " adding to buffer");
-        if (buffer.size() % 200 == 0)
+        if ((globalVerifiedBuffer.size() + directBuffer.size()) % 200 == 0)
         {
-            Log.getLogger().error("Missing more than: " + buffer.size() + " messages, something is broken!" + globalTransactionId);
+            Log.getLogger().error("Missing more than: " + (globalVerifiedBuffer.size() + directBuffer.size()) + " messages, something is broken!" + globalTransactionId);
         }
         kryo.writeObject(output, true);
         return output;

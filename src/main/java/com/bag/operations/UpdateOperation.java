@@ -28,7 +28,7 @@ public class UpdateOperation<S extends Serializable> implements IOperation, Seri
     }
 
     @Override
-    public boolean apply(final IDatabaseAccess access, final long snapshotId, final RSAKeyLoader keyLoader, final int idClient)
+    public boolean apply(final IDatabaseAccess access, final long snapshotId, final int idClient)
     {
         try
         {

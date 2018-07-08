@@ -480,11 +480,10 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
     /**
      * Execute the commit on the replica.
      *  @param localWriteSet the write set to execute.
-     * @param keyLoader     the key loader.
      * @param idClient      the id of the server.
      * @param consensusId the consensus ID.
      */
-    void executeCommit(final List<IOperation> localWriteSet, final RSAKeyLoader keyLoader, final int idClient, final long clientSnapshot, final int consensusId)
+    void executeCommit(final List<IOperation> localWriteSet, final int idClient, final long clientSnapshot, final int consensusId)
     {
         //todo some way we have to detect what we executed already, to not try to catch up too much!
         if (!clients.containsKey(idClient) || clients.get(idClient) < clientSnapshot)
@@ -497,7 +496,7 @@ public abstract class AbstractRecoverable extends DefaultRecoverable
         //Execute the transaction.
         for (final IOperation op : localWriteSet)
         {
-            op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, keyLoader, idClient);
+            op.apply(wrapper.getDataBaseAccess(), globalSnapshotId, idClient);
             updateCounts(1, 0, 0, 0);
         }
         this.putIntoWriteSet(currentSnapshot, new ArrayList<>(localWriteSet));

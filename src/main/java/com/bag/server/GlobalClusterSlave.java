@@ -329,8 +329,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (!localWriteSet.isEmpty())
         {
             nanos = System.nanoTime();
-            final RSAKeyLoader rsaLoader = new RSAKeyLoader(idClient, GLOBAL_CONFIG_LOCATION, false);
-            super.executeCommit(localWriteSet, rsaLoader, idClient, timeStamp, messageContext.getConsensusId());
+            super.executeCommit(localWriteSet, idClient, timeStamp, messageContext.getConsensusId());
             Log.getLogger().info("Comitting: " + timeStamp +  "signatures" + " " + "commit" + " " + getGlobalSnapshotId() + " " + messageContext.getConsensusId());
             dif = (System.nanoTime() - nanos);
             getInstrumentation().setCommitTime((int) dif);
