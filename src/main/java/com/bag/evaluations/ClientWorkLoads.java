@@ -260,18 +260,54 @@ public class ClientWorkLoads
         }
     }
 
+    /**
+     * Realistic operation workload.
+     */
     public static class RealisticOperation
     {
-        private BAGClient client = null;
+        /**
+         * The client running it.
+         */
+        private final BAGClient client;
 
+        /**
+         * The used seed.
+         */
         private final int    seed;
+
+        /**
+         * The num of operations to commit after.
+         */
         private final int    commitAfter;
+
+        /**
+         * The percentage of writes.
+         */
         private final double percOfWrites;
 
-        public class GraphRelation
+        /**
+         * Count of commits.
+         */
+        private int commitCount = 0;
+
+        /**
+         * Graph Relation class.
+         */
+        private class GraphRelation
         {
+            /**
+             * The origin of the relation.
+             */
             public String origin;
+
+            /**
+             * The destination of the relation.
+             */
             public String destination;
+
+            /**
+             * The name of it.
+             */
             public String relationName;
         }
 
@@ -290,6 +326,13 @@ public class ClientWorkLoads
             return kryo;
         };
 
+        /**
+         * Creates a realistic operation.
+         * @param client the client to assign it to.
+         * @param commitAfter num of operations to commit after.
+         * @param seed the seed.
+         * @param percOfWrites the perc of writes.
+         */
         public RealisticOperation(@NotNull final BAGClient client, final int commitAfter, final int seed, final double percOfWrites)
         {
             this.client = client;
@@ -298,6 +341,11 @@ public class ClientWorkLoads
             this.percOfWrites = percOfWrites;
         }
 
+        /**
+         * Load all graph relations.
+         * @return list of graph relations.
+         * @throws IOException an IOException if failed to load.
+         */
         private List<GraphRelation> loadGraphRelations() throws IOException
         {
             final String graphLocation = System.getProperty("user.home") + "/thesis/src/testGraphs/social-a-graph.txt";
@@ -335,7 +383,10 @@ public class ClientWorkLoads
             return list;
         }
 
-        // Implementing Fisher–Yates shuffle
+        /**
+         * Implementing Fisher–Yates shuffle
+         * @param array the array to shuffle.
+         */
         private static void shuffleArray(final byte[] array)
         {
             int index;
@@ -350,6 +401,9 @@ public class ClientWorkLoads
             }
         }
 
+        /**
+         * Run the workload.
+         */
         public void run()
         {
             final int maxNodeId = 100000;
@@ -379,10 +433,11 @@ public class ClientWorkLoads
             }
 
             final byte[] bytes = new byte[1000000];
+            final double percentageOfWrites = commits >= 10.000 ? this.percOfWrites * 2 : this.percOfWrites;
 
             for (int i = 0; i < bytes.length; i++)
             {
-                if (i <= (this.percOfWrites * bytes.length))
+                if (i <= (percentageOfWrites * bytes.length))
                 {
                     bytes[i] = 1;
                     continue;
@@ -411,7 +466,7 @@ public class ClientWorkLoads
                 NodeStorage readNodeStorage = null;
                 IOperation operation = null;
 
-                if (isRead || this.percOfWrites <= 0)
+                if (isRead || percentageOfWrites <= 0)
                 {
                     final double randomNum = random.nextDouble() * 100 + 1;
                     if (randomNum <= 15.7)
@@ -581,6 +636,7 @@ public class ClientWorkLoads
                         }
                     }
 
+                    commitCount++;
                     client.commit();
                     Log.getLogger().info("Start comitting - clientWorkLoads");
                     while(client.isCommitting())

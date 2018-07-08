@@ -116,7 +116,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
         if (id == 0)
         {
             reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
-            timer.scheduleAtFixedRate(reconfigurationManager, 3 * 60 * 1000, 5000);
+            timer.scheduleAtFixedRate(reconfigurationManager, 4 * 60 * 1000, 5000);
         }
 
         //final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
