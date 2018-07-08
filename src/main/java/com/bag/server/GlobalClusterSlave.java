@@ -1049,7 +1049,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             proxy.invokeOrdered(returnBytes);
             pool.release(kryo);
 
-            Log.getLogger().warn("Sent reconfiguration manager to all replicas!");
+            Log.getLogger().warn("Sent reconfiguration message to all replicas!");
         }
     }
 

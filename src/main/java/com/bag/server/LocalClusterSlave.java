@@ -150,7 +150,7 @@ public class LocalClusterSlave extends AbstractRecoverable
 
         //bftProxy = new ServiceProxy(4000 + id, String.format(LOCAL_CONFIG_LOCATION, localClusterId));
         //timer.scheduleAtFixedRate(new BftDetectionSensor(crashProxy, String.format(LOCAL_CONFIG_LOCATION, localClusterId), id, pool.borrow(), localClusterId, this), 10000, 5000 + (id * 1000));
-        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), loadProxy, id, wrapper.getDataBaseAccess().getName(), isPrimary), 10000, 10000);
+        timer.scheduleAtFixedRate(new LoadSensor(pool.borrow(), loadProxy, id, wrapper.getDataBaseAccess().getName(), isPrimary), 15000, 15000);
     }
 
     /**
