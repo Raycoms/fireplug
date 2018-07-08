@@ -79,12 +79,11 @@ public class ReconfigurationManager extends TimerTask
                     if (load.isSlave())
                     {
                         slaveCount++;
-                    }
-
-                    Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
-                    if (load.getCpuUsage() > BORDER_CPU_USAGE)
-                    {
-                        slavesNeedingReconfiguration++;
+                        Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
+                        if (load.getCpuUsage() > BORDER_CPU_USAGE)
+                        {
+                            slavesNeedingReconfiguration++;
+                        }
                     }
                 }
             }

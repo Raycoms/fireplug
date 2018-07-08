@@ -447,12 +447,11 @@ public class LocalClusterSlave extends AbstractRecoverable
                 if (load.isSlave())
                 {
                     slaveCount++;
-                }
-
-                Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
-                if (instance == load.getInstance() && load.getCpuUsage() > BORDER_CPU_USAGE)
-                {
-                    slavesNeedingReconfiguration++;
+                    Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
+                    if (instance == load.getInstance() && load.getCpuUsage() > BORDER_CPU_USAGE)
+                    {
+                        slavesNeedingReconfiguration++;
+                    }
                 }
             }
 
