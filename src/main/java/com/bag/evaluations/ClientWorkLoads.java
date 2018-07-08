@@ -465,9 +465,12 @@ public class ClientWorkLoads
                 IOperation operation = null;
                 if (commits > 500)
                 {
-                    Log.getLogger().warn("More than 500 commits");
                     if (isRead && random.nextInt(1) > 0)
                     {
+                        if (commits % 10 == 0)
+                        {
+                            Log.getLogger().warn("> 500");
+                        }
                         isRead = false;
                     }
                 }
