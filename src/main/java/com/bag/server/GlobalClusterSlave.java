@@ -167,8 +167,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 }
                 else if(Constants.ALG_CHANGE.equals(type))
                 {
-                    wrapper.toggleGloballyVerified();
-                    allResults[i] = new byte[]{1};
+                    if (wrapper.isGloballyVerified())
+                    {
+                        wrapper.toggleGloballyVerified();
+                        allResults[i] = new byte[] {1};
+                    }
                 }
                 else
                 {
@@ -1039,7 +1042,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
             final Kryo kryo = pool.borrow();
 
-            wrapper.toggleGloballyVerified();
             final Output output = new Output(128);
             kryo.writeObject(output, Constants.ALG_CHANGE);
 
