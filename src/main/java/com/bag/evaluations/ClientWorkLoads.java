@@ -467,7 +467,7 @@ public class ClientWorkLoads
                 {
                     if (isRead && random.nextInt(2) > 0)
                     {
-                        if (commits % 10 == 0)
+                        //if (commits % 10 == 0)
                         {
                             Log.getLogger().warn("> 500");
                         }
