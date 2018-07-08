@@ -37,6 +37,11 @@ public class ReconfigurationManager extends TimerTask
     private final GlobalClusterSlave primary;
 
     /**
+     * If the manager has new data to base itself of.
+     */
+    private boolean hasNewData = true;
+
+    /**
      * Create a new ReconfigurationManager task.
      * @param primary the replica it belongs to.
      * @param primaryClusterSize the size of the global cluster.
@@ -58,6 +63,7 @@ public class ReconfigurationManager extends TimerTask
         if (instance != 0 && instance != this.instance)
         {
             performanceMap.clear();
+            hasNewData = true;
             this.instance = instance;
         }
         performanceMap.put(localClusterId, map);
@@ -66,9 +72,8 @@ public class ReconfigurationManager extends TimerTask
     @Override
     public void run()
     {
-        if (performanceMap.size() >= (primaryClusterSize/2)+1)
+        if (performanceMap.size() >= (primaryClusterSize / 2) + 1 && hasNewData)
         {
-            Log.getLogger().warn("Starting to check slave performance");
             int slavesNeedingReconfiguration = 0;
             int slaveCount = 0;
 
@@ -80,7 +85,7 @@ public class ReconfigurationManager extends TimerTask
                     {
                         slaveCount++;
                         Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
-                        if (load.getCpuUsage() > BORDER_CPU_USAGE)
+                        if (load.getCpuUsage() > BORDER_CPU_USAGE && load.getAllocatedMemory() > 1800000000)
                         {
                             slavesNeedingReconfiguration++;
                         }
@@ -93,6 +98,8 @@ public class ReconfigurationManager extends TimerTask
                 Log.getLogger().warn("Requiring to change the algorithm!!!: " + slavesNeedingReconfiguration);
                 primary.adaptAlgorithm();
             }
+
+            this.hasNewData = false;
         }
     }
 }
