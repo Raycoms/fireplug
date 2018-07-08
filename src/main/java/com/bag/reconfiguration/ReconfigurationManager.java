@@ -92,8 +92,7 @@ public class ReconfigurationManager extends TimerTask
             if (slavesNeedingReconfiguration >= (slaveCount / 2))
             {
                 Log.getLogger().warn("Requiring to change the algorithm!!!: " + slavesNeedingReconfiguration);
-                //primary.adaptAlgorithm();
-                //todo trigger reconfiguration
+                primary.adaptAlgorithm();
             }
         }
     }

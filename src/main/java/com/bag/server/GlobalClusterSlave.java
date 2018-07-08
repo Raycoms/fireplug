@@ -1034,17 +1034,22 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     public void adaptAlgorithm()
     {
-        final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
-        final Kryo kryo = pool.borrow();
+        if (wrapper.isGloballyVerified())
+        {
+            final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
+            final Kryo kryo = pool.borrow();
 
-        wrapper.toggleGloballyVerified();
-        final Output output = new Output(128);
-        kryo.writeObject(output, Constants.ALG_CHANGE);
+            wrapper.toggleGloballyVerified();
+            final Output output = new Output(128);
+            kryo.writeObject(output, Constants.ALG_CHANGE);
 
-        final byte[] returnBytes = output.getBuffer();
-        output.close();
-        proxy.invokeOrdered(returnBytes);
-        pool.release(kryo);
+            final byte[] returnBytes = output.getBuffer();
+            output.close();
+            proxy.invokeOrdered(returnBytes);
+            pool.release(kryo);
+
+            Log.getLogger().warn("Sent reconfiguration manager to all replicas!");
+        }
     }
 
     private class DistributeMessageThread implements Runnable
