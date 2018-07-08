@@ -112,13 +112,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             positionToCheck = this.id + 1;
         }
 
-        //This starts the reconfigurationmanager on a separate thread only on the primary, id == 0.
-        if (id == 0)
-        {
-            reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
-            timer.scheduleAtFixedRate(reconfigurationManager, 4 * 60 * 1000, 5000);
-        }
-
         //final KryoPool pool = new KryoPool.Builder(super.getFactory()).softReferences().build();
         //crashProxy = new ServiceProxy(1000 + this.idClient, GLOBAL_CONFIG_LOCATION);
         //timer.scheduleAtFixedRate(new CrashDetectionSensor(positionToCheck, crashProxy, GLOBAL_CONFIG_LOCATION, id, pool.borrow(), -1, null), 10000, 6000);
@@ -247,6 +240,13 @@ public class GlobalClusterSlave extends AbstractRecoverable
             proxy.getViewManager().updateCurrentViewFromRepository();
             proxy.getCommunicationSystem().updateConnections();
         }*/
+
+        //This starts the reconfigurationmanager on a separate thread only on the primary, id == 0, so we start this behavior at the same time at all servers.
+        if (id == 0 && reconfigurationManager == null)
+        {
+            reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
+            timer.scheduleAtFixedRate(reconfigurationManager, 3 * 60 * 1000, 5000);
+        }
 
         Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId());
         //Read the inputStream.
@@ -508,7 +508,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                     final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.toBytes());
                     service.submit(runnable);
                     final int count = threadCount.getAndIncrement();
-                    if (count > 50)
+                    if (count > 100)
                     {
                         Log.getLogger().error("Woooow, tons of cached threads!!! " + count);
                     }
@@ -594,7 +594,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             final DistributeMessageThread runnable = new DistributeMessageThread(messageOutput.toBytes());
             service.submit(runnable);
             final int count = threadCount.getAndIncrement();
-            if (count > 50)
+            if (count > 100)
             {
                 Log.getLogger().error("Woooow, tons of cached threads!!! " + count);
             }
