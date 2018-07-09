@@ -248,6 +248,16 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().warn("Writes are now increased!!!");
             Log.getLogger().warn("-----------------------------------");
             turnedUpWrites = true;
+
+            //This starts the reconfigurationmanager on a separate thread only on the primary, id == 0, so we start this behavior at the same time at all servers.
+            if (id == 0 && reconfigurationManager == null)
+            {
+                Log.getLogger().warn("-----------------------------------");
+                Log.getLogger().warn("Start reconfiguration manager!");
+                Log.getLogger().warn("-----------------------------------");
+                reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
+                timer.scheduleAtFixedRate(reconfigurationManager, 1 * 60 * 1000, 5000);
+            }
         }
 
 
@@ -257,15 +267,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             proxy.getCommunicationSystem().updateConnections();
         }*/
 
-        //This starts the reconfigurationmanager on a separate thread only on the primary, id == 0, so we start this behavior at the same time at all servers.
-        if (id == 0 && reconfigurationManager == null)
-        {
-            Log.getLogger().warn("-----------------------------------");
-            Log.getLogger().warn("Start reconfiguration manager!");
-            Log.getLogger().warn("-----------------------------------");
-            reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
-            timer.scheduleAtFixedRate(reconfigurationManager, 3 * 60 * 1000, 5000);
-        }
+
 
         Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId());
         //Read the inputStream.
