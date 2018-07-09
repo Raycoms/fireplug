@@ -85,7 +85,8 @@ public class ReconfigurationManager extends TimerTask
                     {
                         slaveCount++;
                         Log.getLogger().warn("Detected CPU usage: " + load.getCpuUsage());
-                        if (load.getCpuUsage() > BORDER_CPU_USAGE && load.getAllocatedMemory() > 1800000000)
+                        if ((load.getCpuUsage() > BORDER_CPU_USAGE && load.getAllocatedMemory() > 1800000000) ||
+                              (load.getCpuUsage() > BORDER_CPU_USAGE-0.5 && load.getAllocatedMemory() > 2000000000))
                         {
                             slavesNeedingReconfiguration++;
                         }
