@@ -474,7 +474,7 @@ public class ClientWorkLoads
                         isRead = false;
                     }
                 }
-                else if (commits == 250)
+                else if (commits == 150)
                 {
                     client.turnUpWrites();
                 }
