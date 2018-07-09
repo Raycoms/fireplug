@@ -61,6 +61,16 @@ public class ServerInstrumentation
     private int minutesElapsed;
 
     /**
+     * If the writes had been turned up already.
+     */
+    private boolean turnedUpWrites = false;
+
+    /**
+     * If the writes had been turned up already.
+     */
+    private boolean triggeredReconfig = false;
+
+    /**
      * Timer for the instrumentation.
      */
     private final Timer instrumentationTimer = new Timer();
@@ -87,9 +97,19 @@ public class ServerInstrumentation
                         //out.print(committedTransactions.get() + ";");
                         //out.print(readsPerformed.get() + ";");
                         //out.print(writesPerformed.get() + ";");
-                        out.println(readsPerformed.get() + writesPerformed.get());
+                        out.println(readsPerformed.get() + (writesPerformed.get()/8));
                         //out.println(averageCommitTime.get() + "/" + averageValidationTime.get());
 
+                        if (turnedUpWrites)
+                        {
+                            out.println("Turned up writes");
+                            turnedUpWrites = false;
+                        }
+                        if (triggeredReconfig)
+                        {
+                            out.println("Triggered reconfig");
+                            triggeredReconfig = false;
+                        }
 
                         //out.println();
 
@@ -110,7 +130,7 @@ public class ServerInstrumentation
                     }
                 }
             }
-        }, 20000, 30000);
+        }, 20000, 10000);
     }
 
     /**
@@ -178,5 +198,15 @@ public class ServerInstrumentation
         {
             abortedTransactions.addAndGet(aborts);
         }
+    }
+
+    public void setTurnedUpWrites(final boolean turnedUpWrites)
+    {
+        this.turnedUpWrites = turnedUpWrites;
+    }
+
+    public void setTriggeredReconfig(final boolean triggeredReconfig)
+    {
+        this.triggeredReconfig = triggeredReconfig;
     }
 }

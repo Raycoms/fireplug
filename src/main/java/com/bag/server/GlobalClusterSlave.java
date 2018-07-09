@@ -167,6 +167,10 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 {
                     if (wrapper.isGloballyVerified())
                     {
+                        Log.getLogger().error("----------------------------------");
+                        Log.getLogger().error("Triggered New Algorithm!");
+                        Log.getLogger().error("----------------------------------");
+                        getInstrumentation().setTriggeredReconfig(true);
                         wrapper.toggleGloballyVerified();
                         allResults[i] = new byte[] {1};
                     }
@@ -248,6 +252,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
             Log.getLogger().warn("Writes are now increased!!!");
             Log.getLogger().warn("-----------------------------------");
             turnedUpWrites = true;
+            getInstrumentation().setTurnedUpWrites(true);
 
             //This starts the reconfigurationmanager on a separate thread only on the primary, id == 0, so we start this behavior at the same time at all servers.
             if (id == 0 && reconfigurationManager == null)
@@ -256,7 +261,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn("Start reconfiguration manager!");
                 Log.getLogger().warn("-----------------------------------");
                 reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
-                timer.scheduleAtFixedRate(reconfigurationManager, 30000, 10000);
+                timer.scheduleAtFixedRate(reconfigurationManager, 10000, 10000);
             }
         }
 
