@@ -93,7 +93,7 @@ public class ServerInstrumentation
 
                         //out.println();
 
-                        System.out.println(String.format("Elapsed: (%d seconds)\nAborted: %d\nCommited: %d\nReads: %d\nWrites: %d\nThroughput: %d\n \nAborted Writes: %d\n ",  minutesElapsed, abortedTransactions.get(), committedTransactions.get(), readsPerformed.get(),
+                        System.out.println(String.format("Elapsed: (%d seconds)\nAborted: %d\nCommited: %d\nReads, Writes, Throughput:\n %d, %d, %d\n \nAborted Writes: %d\n ",  minutesElapsed, abortedTransactions.get(), committedTransactions.get(), readsPerformed.get(),
                                 writesPerformed.get(), readsPerformed.get() + writesPerformed.get(), abortedWrites.get()));
 
                         abortedTransactions = new AtomicInteger(0);
