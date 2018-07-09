@@ -267,8 +267,6 @@ public class GlobalClusterSlave extends AbstractRecoverable
             proxy.getCommunicationSystem().updateConnections();
         }*/
 
-
-
         Log.getLogger().info("Starting executing: " + "signatures" + " " + "commit" + " " + (getGlobalSnapshotId() + 1) + " " + messageContext.getConsensusId());
         //Read the inputStream.
         final List readsSetNodeX = kryo.readObject(input, ArrayList.class);
