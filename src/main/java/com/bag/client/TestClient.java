@@ -127,6 +127,11 @@ public class TestClient implements BAGClient, ReplyListener
      * Timer object to execute functions in intervals
      */
     private final Timer timer = new Timer();
+
+    /**
+     * If the writes had been turned up already.
+     */
+    private boolean turnedUp = false;
     
     private final CommitThread thread = new CommitThread(Thread.currentThread()); 
 
@@ -871,8 +876,10 @@ public class TestClient implements BAGClient, ReplyListener
         final Output output = new Output(0, 400024);
 
         kryo.writeObject(output, Constants.COMMIT_MESSAGE);
+
         //Write the timeStamp to the server
         kryo.writeObject(output, localTimestamp);
+        kryo.writeObject(output, turnedUp);
 
         //Write the readSet.
         kryo.writeObject(output, readsSetNode);
@@ -928,6 +935,12 @@ public class TestClient implements BAGClient, ReplyListener
     public boolean hasRead()
     {
         return !readsSetNode.isEmpty() && !readsSetRelationship.isEmpty();
+    }
+
+    @Override
+    public void turnUpWrites()
+    {
+        this.turnedUp = true;
     }
 
     @Override

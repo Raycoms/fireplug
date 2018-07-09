@@ -463,7 +463,7 @@ public class LocalClusterSlave extends AbstractRecoverable
             if (slavesNeedingReconfiguration >= (slaveCount / 2))
             {
                 wrapper.getGlobalCluster().sharePerformance(performanceMap, instance, kryo);
-                Log.getLogger().warn("Sending message to global cluster with load!");
+                Log.getLogger().info("Sending message to global cluster with load!");
             }
         }
     }
@@ -471,6 +471,7 @@ public class LocalClusterSlave extends AbstractRecoverable
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
     {
         final Long timeStamp = kryo.readObject(input, Long.class);
+        kryo.readObject(input, Boolean.class);
         return executeReadOnlyCommit(kryo, input, timeStamp);
     }
 

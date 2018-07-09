@@ -46,4 +46,9 @@ public interface BAGClient {
      * @return true if so.
      */
     public boolean hasRead();
+
+    /**
+     * Turn up the writes flag.
+     */
+    void turnUpWrites();
 }

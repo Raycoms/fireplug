@@ -474,6 +474,10 @@ public class ClientWorkLoads
                         isRead = false;
                     }
                 }
+                else if (commits == 250)
+                {
+                    client.turnUpWrites();
+                }
 
                 if (isRead || this.percOfWrites <= 0)
                 {

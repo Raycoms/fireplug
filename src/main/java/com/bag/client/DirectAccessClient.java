@@ -228,4 +228,12 @@ public class DirectAccessClient implements BAGClient
     {
         return true;
     }
+
+    @Override
+    public void turnUpWrites()
+    {
+        /*
+         * Do nothing.d
+         */
+    }
 }

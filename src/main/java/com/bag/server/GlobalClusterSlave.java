@@ -88,6 +88,11 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private ReconfigurationManager reconfigurationManager = null;
 
     /**
+     * If the writes had been turned up already.
+     */
+    private boolean turnedUpWrites = false;
+
+    /**
      * Constructor for the global cluster slave.
      * @param id it's id.
      * @param wrapper the wrapper it belongs to.
@@ -235,6 +240,17 @@ public class GlobalClusterSlave extends AbstractRecoverable
      */
     private byte[] executeCommit(final Kryo kryo, final Input input, final long timeStamp, final MessageContext messageContext)
     {
+        final boolean turnedUp = kryo.readObject(input, Boolean.class);
+
+        if (turnedUp && !turnedUpWrites)
+        {
+            Log.getLogger().warn("-----------------------------------");
+            Log.getLogger().warn("Writes are now increased!!!");
+            Log.getLogger().warn("-----------------------------------");
+            turnedUpWrites = true;
+        }
+
+
         /*if (proxy != null)
         {
             proxy.getViewManager().updateCurrentViewFromRepository();
@@ -811,6 +827,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
     private byte[] handleReadOnlyCommit(final Input input, final Kryo kryo)
     {
         final Long timeStamp = kryo.readObject(input, Long.class);
+        kryo.readObject(input, Boolean.class);
         return executeReadOnlyCommit(kryo, input, timeStamp);
     }
 
