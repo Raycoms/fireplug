@@ -260,6 +260,9 @@ public class GlobalClusterSlave extends AbstractRecoverable
         //This starts the reconfigurationmanager on a separate thread only on the primary, id == 0, so we start this behavior at the same time at all servers.
         if (id == 0 && reconfigurationManager == null)
         {
+            Log.getLogger().warn("-----------------------------------");
+            Log.getLogger().warn("Start reconfiguration manager!");
+            Log.getLogger().warn("-----------------------------------");
             reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
             timer.scheduleAtFixedRate(reconfigurationManager, 3 * 60 * 1000, 5000);
         }
