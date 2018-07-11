@@ -463,7 +463,7 @@ public class ClientWorkLoads
                 RelationshipStorage readRelationship = null;
                 NodeStorage readNodeStorage = null;
                 IOperation operation = null;
-                if (commits > 250)
+                if (commits > 350)
                 {
                     if (isRead && random.nextInt(2) > 0)
                     {
@@ -474,7 +474,7 @@ public class ClientWorkLoads
                         isRead = false;
                     }
                 }
-                else if (commits == 250)
+                else if (commits == 350)
                 {
                     client.turnUpWrites();
                 }
