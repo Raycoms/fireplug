@@ -38,7 +38,7 @@ public class Constants
     /**
      * Border CPU usage to reconfigure to other algorithm.
      */
-    public static final double BORDER_CPU_USAGE = 7.0;
+    public static final double BORDER_CPU_USAGE = 7.5;
 
     /**
      * Used to convert nano time to seconds.
