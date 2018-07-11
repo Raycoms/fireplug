@@ -130,7 +130,7 @@ public class ServerInstrumentation
                     }
                 }
             }
-        }, 20000, 10000);
+        }, 20000, 60000);
     }
 
     /**
