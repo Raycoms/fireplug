@@ -465,7 +465,7 @@ public class ClientWorkLoads
                 IOperation operation = null;
                 if (commits > 1000)
                 {
-                    if (isRead && random.nextInt(90) < 40)
+                    if (isRead && random.nextInt(90) < 65)
                     {
                         if (commits % 10 == 0)
                         {
