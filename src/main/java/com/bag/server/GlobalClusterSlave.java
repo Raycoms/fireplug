@@ -261,7 +261,7 @@ public class GlobalClusterSlave extends AbstractRecoverable
                 Log.getLogger().warn("Start reconfiguration manager!");
                 Log.getLogger().warn("-----------------------------------");
                 reconfigurationManager = new ReconfigurationManager(this, proxy.getViewManager().getCurrentViewN());
-                timer.scheduleAtFixedRate(reconfigurationManager, 2 * 60000, 10000);
+                timer.scheduleAtFixedRate(reconfigurationManager, 5 * 60000, 10000);
             }
         }
 
